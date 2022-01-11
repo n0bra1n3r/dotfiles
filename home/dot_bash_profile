@@ -5,3 +5,13 @@ if [ -e ~/.bashrc ]; then
 fi
 
 eval "$(~/.local/bin/starship init bash)"
+
+[[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && \
+    source /usr/share/bash-completion/bash_completion
+
+bind 'set show-all-if-ambiguous on'
+bind 'set completion-ignore-case on'bind '"\e[1;5A":history-search-backward'
+
+bind '"\e[1;5B":history-search-forward'
+bind '"\e[1;5C":forward-word'
+bind '"\e[1;5D":backward-word'

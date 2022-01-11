@@ -21,3 +21,10 @@ if [ ! -f "$HOME/.local/bin/starship.exe" ]; then
 fi
 
 export EDITOR=nvim
+
+alias c='chezmoi'
+alias ce='chezmoi edit --apply'
+alias cg='chezmoi git --'
+alias e='nvim'
+alias g='git'
+alias vim='nvim'
