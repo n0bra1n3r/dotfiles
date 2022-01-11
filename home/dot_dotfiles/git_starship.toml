@@ -1,0 +1,3 @@
+[character]
+success_symbol = "[git❯](bold green)"
+error_symbol = "[git❯](bold red)"

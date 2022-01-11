@@ -1,0 +1,12 @@
+export HISTFILE=~/.git_history
+export STARSHIP_CONFIG=~/.dotfiles/git_starship.toml
+
+alias sh="PATH=\"$PATH\" "
+
+while read -r cmd; do
+  alias $cmd="sh git $cmd"
+done <<< "$(git help -a | grep -oP "^ +\\K\\w+" | uniq -u)"
+
+eval "$(~/.local/bin/starship init bash)"
+
+export PATH=

@@ -1,0 +1,23 @@
+shopt -s checkwinsize
+
+case "$(uname -s)" in
+Darwin*)
+  export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin":$PATH
+  ;;
+MSYS_NT*)
+  export PATH=$(echo "$PATH" | xargs -d ';' cygpath -u | grep . | paste -sd : -)
+  alias npm="cmd //c npm.cmd"
+  ;;
+*)
+  ;;
+esac
+
+export PATH=$HOME/.local/bin:$HOME/.dotfiles/scripts:$PATH
+export MSYS=winsymlinks:nativestrict
+export MSYS2_PATH_TYPE=inherit
+
+if [ ! -f "$HOME/.local/bin/starship.exe" ]; then
+  sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- --bin-dir "$HOME/.local/bin" --yes
+fi
+
+export EDITOR=nvim

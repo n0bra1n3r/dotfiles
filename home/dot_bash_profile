@@ -1,0 +1,7 @@
+source ~/.dotfiles/shellrc
+
+if [ -e ~/.bashrc ]; then
+  source ~/.bashrc
+fi
+
+eval "$(~/.local/bin/starship init bash)"

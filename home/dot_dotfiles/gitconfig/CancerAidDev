@@ -1,0 +1,7 @@
+[user]
+  name = Ryan Blonna
+  email = ryan@canceraid.com
+
+[url "git@canceraiddev.github.com"]
+  insteadOf = git@github.com
+

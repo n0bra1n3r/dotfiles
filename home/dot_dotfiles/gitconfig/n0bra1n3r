@@ -1,0 +1,10 @@
+[user]
+  name = Ryan Blonna
+  email = n0.b741n37@gmail.com
+
+[url "git@n0bra1n3r.github.com"]
+  insteadOf = git@github.com
+
+[core]
+  autocrlf = true
+

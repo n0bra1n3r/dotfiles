@@ -1,0 +1,35 @@
+# This is Git's per-user configuration file.
+
+[user]
+  name = Ryan Blonna
+  email = n0.b741n37@gmail.com
+
+[includeif "gitdir:CancerAidDev/"]
+  path = ~/.dotfiles/gitconfig/CancerAidDev
+
+[includeif "gitdir:src/"]
+  path = ~/.dotfiles/gitconfig/n0bra1n3r
+
+[alias]
+  ae = add --edit
+  au = add --update
+  bd = !git branch -r | awk '{print $1}' | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk '{print $1}'
+  bl = !git for-each-ref --sort=-committerdate refs/heads/ --format='%(committerdate:short) %(refname:short)' | less
+  ci = commit
+  cia = commit --amend
+  cim = commit --message
+  co = checkout
+  mg = merge
+  pu = push --follow-tags --recurse-submodules=check
+  puf = push --follow-tags --force-with-lease
+  pup = !git push --follow-tags --set-upstream origin $(git branch --show-current)
+  rb = rebase --rebase-merges
+  rbi = rebase --rebase-merges --interactive
+  rs = restore
+  rss = restore --staged
+  sa = stash
+  sap = stash pop
+  st = status
+  sw = switch
+  clog = !git log --pretty=format:\"%h %ad | %s%d [%an]\" --date=short --no-merges $(git describe --abbrev=0)..HEAD
+  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short

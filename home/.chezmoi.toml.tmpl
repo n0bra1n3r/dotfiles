@@ -1,0 +1,11 @@
+{{- $gitlabToken := promptString "API token" }}
+
+{{- if $gitlabToken }}
+[data.gitlab]
+  token = {{ $gitlabToken | quote }}
+{{- end}}
+
+{{- if eq .chezmoi.os "windows" }}
+[interpreters.sh]
+  command = 'C:\msys64\usr\bin\bash.exe'
+{{- end }}

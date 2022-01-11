@@ -1,0 +1,7 @@
+source ~/.dotfiles/shellrc
+
+if [ -e ~/.zshrc ]; then
+  source ~/.zshrc
+fi
+
+eval "$(~/.local/bin/starship init zsh)"
