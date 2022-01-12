@@ -214,7 +214,7 @@ function _G.fn.vim_defer(fn, timer)
 end
 
 function _G.fn.edit_packages()
-  vim.cmd("vsplit "..os.getenv("HOME").."/.dotfiles/nvim/lua/plugins.lua | wincmd L")
+  vim.cmd("vsplit "..os.getenv("HOME").."/.config/nvim/lua/plugins.lua | wincmd L")
 end
 
 -- telescope --

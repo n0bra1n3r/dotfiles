@@ -13,9 +13,6 @@ require"packer".startup(function(use)
   use { "akinsho/bufferline.nvim", after = "lualine.nvim",
     config = fn.get_config("bufferline"),
   }
-  use { "andweeb/presence.nvim", after = "bufferline.nvim",
-    config = fn.get_config("presence"),
-  }
 
   -- Color Schemes --
 

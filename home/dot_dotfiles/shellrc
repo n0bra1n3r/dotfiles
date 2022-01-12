@@ -23,7 +23,7 @@ fi
 export EDITOR=nvim
 
 alias c='chezmoi'
-alias ce='chezmoi edit --apply'
+alias ce='chezmoi edit'
 alias cg='chezmoi git --'
 alias e='nvim'
 alias g='git'

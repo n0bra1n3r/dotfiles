@@ -5,7 +5,7 @@ let &packpath = &runtimepath
 lua require "main"
 
 colorscheme nord
-
+ 
 """ Commands
 
 command -nargs=+ NimEval !nim --skipProjCfg:on --hint[Conf]:off --eval:<q-args>
@@ -21,7 +21,7 @@ augroup auto_read
   autocmd!
   autocmd BufEnter * checktime
 augroup end
-
+ 
 augroup auto_close
   autocmd!
   autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
@@ -58,6 +58,12 @@ augroup conf_terminal
   autocmd TermEnter * nnoremap <buffer><silent> <Esc> <cmd>hide<CR>
 augroup end
 
+augroup conf_git
+  autocmd!
+  autocmd FileType gitcommit set textwidth=72
+  autocmd FileType gitcommit set colorcolumn=51,73
+augroup end
+
 augroup conf_packer
   autocmd!
   autocmd BufWritePost plugins.lua source <afile> | PackerCompile
@@ -84,4 +90,9 @@ augroup end
 augroup conf_nvimtree
   autocmd!
   autocmd BufLeave NvimTree NvimTreeClose
+augroup end
+
+augroup auto_write_config
+  autocmd!
+  autocmd BufWritePost ~/.local/share/chezmoi/* silent !chezmoi apply --source-path "%"
 augroup end
