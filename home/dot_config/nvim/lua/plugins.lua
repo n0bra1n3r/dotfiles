@@ -16,7 +16,7 @@ require"packer".startup(function(use)
 
   -- Color Schemes --
 
-  use { "arcticicestudio/nord-vim" }
+  use { "folke/tokyonight.nvim" }
 
   -- File Types --
 

@@ -4,7 +4,7 @@ let &packpath = &runtimepath
 
 lua require "main"
 
-colorscheme nord
+colorscheme tokyonight
  
 """ Commands
 
