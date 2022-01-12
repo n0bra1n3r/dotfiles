@@ -25,20 +25,20 @@
 {{-   $rg = "13.0.0/ripgrep-13.0.0-x86_64-apple-darwin" }}
 {{- end }}
 
-[".dotfiles/nvim"]
+[".dotfiles/deps/nvim/.local"]
   type = "archive"
   url = "https://github.com/neovim/neovim/releases/latest/download/{{ $nvim }}.zip"
   exact = true
   stripComponents = 1
   refreshPeriod = "168h"
 
-[".dotfiles/fd"]
+[".dotfiles/deps/fd/.local/bin"]
   type = "archive"
   url = "https://github.com/sharkdp/fd/releases/download/{{ $fd }}.zip"
   exact = true
   stripComponents = 1
 
-[".dotfiles/rg"]
+[".dotfiles/deps/rg/.local/bin"]
   type = "archive"
   url = "https://github.com/BurntSushi/ripgrep/releases/download/{{ $rg }}.zip"
   exact = true
