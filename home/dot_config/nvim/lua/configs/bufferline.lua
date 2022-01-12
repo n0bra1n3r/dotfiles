@@ -2,6 +2,11 @@ local M = {}
 
 function M.config()
   require"bufferline".setup {
+    highlights = {
+      buffer_selected = {
+        gui = "bold",
+      },
+    },
     options = {
       custom_areas = {
         right = function()
@@ -11,12 +16,14 @@ function M.config()
         end
       },
       custom_filter = fn.filter_buffers,
+      diagnostics = false,
       numbers = function(opts)
-        return string.format('%s%s', opts.id, opts.raise(opts.ordinal))
+        return opts.id
       end,
       show_buffer_close_icons = false,
+      show_buffer_icons = false,
       show_close_icon = false,
-      sort_by = fn.sort_buffers
+      sort_by = fn.sort_buffers,
     }
   }
 end
