@@ -18,6 +18,8 @@ vim.opt.grepformat = "%f:%l:%c:%m"
 vim.opt.hidden = true
 vim.opt.ignorecase = true
 vim.opt.linebreak = true
+vim.opt.list = true
+vim.opt.listchars:append("space:·")
 vim.opt.mouse = "nv"
 vim.opt.number = true
 vim.opt.numberwidth = 2
