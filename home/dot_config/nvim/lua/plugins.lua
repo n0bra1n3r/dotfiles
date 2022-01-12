@@ -52,7 +52,7 @@ require"packer".startup(function(use)
     config = fn.get_config("telescope"),
   }
 
-  use { "ggandor/lightspeed.nvim", event = "BufRead",
+  use { "ggandor/lightspeed.nvim", event = "BufEnter",
     requires = { "tpope/vim-repeat" },
   }
 
@@ -65,11 +65,11 @@ require"packer".startup(function(use)
     config = fn.get_config("nvim-tree"),
   }
 
-  use { "nacro90/numb.nvim", event = "BufRead",
+  use { "nacro90/numb.nvim", event = "BufEnter",
     config = fn.get_config("numb"),
   }
 
-  use { "kevinhwang91/nvim-hlslens", event = "BufRead",
+  use { "kevinhwang91/nvim-hlslens", event = "BufEnter",
     config = fn.get_config("hlslens"),
   }
 
@@ -116,5 +116,5 @@ require"packer".startup(function(use)
     config = fn.get_config("todo-comments"),
   }
 
-  use { "axelf4/vim-strip-trailing-whitespace", event = "BufRead" }
+  use { "axelf4/vim-strip-trailing-whitespace", event = "BufEnter" }
 end)
