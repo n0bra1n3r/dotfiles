@@ -10,19 +10,18 @@
   type = "archive"
   url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
   exact = true
-  refreshPeriod = "168h"
 
 {{- $nvim := "" }}
 {{- $fd := "" }}
 {{- $rg := "" }}
 {{- if eq .chezmoi.os "windows" }}
 {{-   $nvim = "nvim-win64" }}
-{{-   $fd = "v8.3.1/fd-v8.3.1-x86_64-pc-windows-msvc" }}
-{{-   $rg = "13.0.0/ripgrep-13.0.0-x86_64-pc-windows-msvc" }}
+{{-   $fd = "fd-v[0-9.]+-x86_64-pc-windows-msvc" }}
+{{-   $rg = "ripgrep-[0-9.]+-x86_64-pc-windows-msvc" }}
 {{- else if eq .chezmoi.os "darwin" }}
 {{-   $nvim = "nvim-macos" }}
-{{-   $fd = "v8.3.1/fd-v8.3.1-x86_64-apple-darwin" }}
-{{-   $rg = "13.0.0/ripgrep-13.0.0-x86_64-apple-darwin" }}
+{{-   $fd = "fd-v[0-9.]+-x86_64-apple-darwin" }}
+{{-   $rg = "ripgrep-[0-9.]+-x86_64-apple-darwin" }}
 {{- end }}
 
 [".dotfiles/deps/nvim/.local"]
@@ -30,16 +29,15 @@
   url = "https://github.com/neovim/neovim/releases/latest/download/{{ $nvim }}.zip"
   exact = true
   stripComponents = 1
-  refreshPeriod = "168h"
 
 [".dotfiles/deps/fd/.local/bin"]
   type = "archive"
-  url = "https://github.com/sharkdp/fd/releases/download/{{ $fd }}.zip"
+  url = "https://glare.now.sh/sharkdp/fd/{{ $fd }}[.]zip"
   exact = true
   stripComponents = 1
 
 [".dotfiles/deps/rg/.local/bin"]
   type = "archive"
-  url = "https://github.com/BurntSushi/ripgrep/releases/download/{{ $rg }}.zip"
+  url = "https://glare.now.sh/BurntSushi/ripgrep/{{ $rg }}[.]zip"
   exact = true
   stripComponents = 1
