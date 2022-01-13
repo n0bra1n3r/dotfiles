@@ -11,7 +11,13 @@ function M.config()
       custom_areas = {
         right = function()
           if fn.is_git_dir() then
-            return {{ text = vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.") }}
+            local dir_hl = vim.api.nvim_get_hl_by_name("Directory", true)
+            local fg = string.format("#%06x", dir_hl.foreground)
+            return {{
+              guifg = fg,
+              guibg = "NONE",
+              text = "  "..vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.").." ",
+            }}
           end
         end
       },
