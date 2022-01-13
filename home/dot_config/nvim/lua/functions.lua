@@ -35,7 +35,8 @@ function _G.fn.toggle_quickfix()
   if #vim.fn.filter(vim.fn.getwininfo(), "v:val.quickfix") == 0 then
     local line_count = #vim.fn.getqflist()
     if line_count > 0 then
-      vim.cmd(tostring(line_count).."copen")
+      local height = math.min(line_count, vim.o.lines / 3)
+      vim.cmd(tostring(height).."copen")
     else
       vim.cmd[[copen]]
     end
@@ -81,7 +82,8 @@ function _G.fn.show_quickfix()
   if is_quickfix_force_closed == false then
     local line_count = #vim.fn.getqflist()
     if line_count > 0 then
-      vim.cmd(tostring(line_count).."copen | setlocal nonumber | wincmd p")
+      local height = math.min(line_count, vim.o.lines / 3)
+      vim.cmd(tostring(height).."copen | setlocal nonumber | wincmd p")
     end
   end
 end
