@@ -70,26 +70,11 @@ end
 
 -- AsyncRun --
 
-function _G.fn.run_nim_check()
-  local project = vim.fn.expand('%')
-  local default = vim.fn.expand("%:h:p")..".nim"
-  for _, name in ipairs({ default, "project.nim", "main.nim" }) do
-    local file = io.open(name, "r")
-    if file ~= nil then
-      io.close(file)
-      project = name
-      break
-    end
+function _G.fn.run_check()
+  local file_type = vim.bo.filetype
+  if _G.fn[file_type] ~= nil then
+    _G.fn[file_type].run_check()
   end
-
-  vim.cmd("AsyncRun -scroll=0 -strip "
-    .."nim check "
-    .."--errormax:1 "
-    .."--styleCheck:usages "
-    .."--styleCheck:hint "
-    .."--hint:Conf:off "
-    .."--processing:off "
-    ..project)
 end
 
 function _G.fn.show_quickfix()
@@ -290,4 +275,30 @@ function _G.fn.open_git_shell()
   end
 
   git_shell:open()
+end
+
+-- languages --
+
+_G.fn.nim = {}
+
+function _G.fn.nim.run_check()
+  local project = vim.fn.expand('%')
+  local default = vim.fn.expand("%:h:p")..".nim"
+  for _, name in ipairs({ default, "project.nim", "main.nim" }) do
+    local file = io.open(name, "r")
+    if file ~= nil then
+      io.close(file)
+      project = name
+      break
+    end
+  end
+
+  vim.cmd("AsyncRun -scroll=0 -strip "
+    .."nim check "
+    .."--errormax:1 "
+    .."--styleCheck:usages "
+    .."--styleCheck:hint "
+    .."--hint:Conf:off "
+    .."--processing:off "
+    ..project)
 end

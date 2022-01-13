@@ -78,9 +78,7 @@ augroup end
 
 augroup conf_asyncrun
   autocmd!
-  autocmd BufWritePost * if &ft == "nim"
-    \| exec "lua fn.run_nim_check()"
-    \| endif
+  autocmd BufWritePost * exec "lua fn.run_check()"
   autocmd User AsyncRunPre cclose | let g:is_job_in_progress=1
   autocmd User AsyncRunStop exec "lua fn.show_quickfix()" | let g:is_job_in_progress=0
 augroup end
