@@ -40,16 +40,17 @@ augroup end
 
 augroup conf_quickfix
   autocmd!
-  autocmd filetype qf if (getwininfo(win_getid())[0].loclist != 1)
+  autocmd FileType qf if (getwininfo(win_getid())[0].loclist != 1)
     \| wincmd J
     \| endif
   autocmd FileType qf setlocal colorcolumn=
   autocmd FileType qf nnoremap <buffer><silent> <Esc> <cmd>quit<CR>
+  autocmd VimLeavePre * cclose
 augroup end
 
 augroup conf_help
   autocmd!
-  autocmd Filetype help wincmd K
+  autocmd FileType help wincmd K
   autocmd FileType help nnoremap <buffer><silent> <Esc> <cmd>bdelete<CR>
 augroup end
 
@@ -81,10 +82,7 @@ augroup conf_asyncrun
     \| exec "lua fn.run_nim_check()"
     \| endif
   autocmd User AsyncRunPre cclose | let g:is_job_in_progress=1
-  autocmd User AsyncRunStop cwindow
-    \| setlocal nonumber
-    \| wincmd p
-    \| let g:is_job_in_progress=0
+  autocmd User AsyncRunStop exec "lua fn.show_quickfix()" | let g:is_job_in_progress=0
 augroup end
 
 augroup conf_nvimtree

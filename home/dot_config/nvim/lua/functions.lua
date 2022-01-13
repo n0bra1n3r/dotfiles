@@ -29,11 +29,23 @@ function _G.fn.is_git_dir()
   return vim.v.shell_error == 0
 end
 
+local is_quickfix_force_closed = false
+
 function _G.fn.toggle_quickfix()
   if #vim.fn.filter(vim.fn.getwininfo(), "v:val.quickfix") == 0 then
-    vim.cmd[[copen]]
+    local line_count = #vim.fn.getqflist()
+    if line_count > 0 then
+      vim.cmd(tostring(line_count).."copen")
+    else
+      vim.cmd[[copen]]
+    end
+    vim.cmd[[setlocal nonumber | wincmd p]]
+
+    is_quickfix_force_closed = false
   else
     vim.cmd[[cclose]]
+
+    is_quickfix_force_closed = true
   end
 end
 
@@ -70,7 +82,23 @@ function _G.fn.run_nim_check()
     end
   end
 
-  vim.cmd("AsyncRun nim check --errormax:1 --styleCheck:usages --styleCheck:hint --hint:Conf:off --processing:off "..project)
+  vim.cmd("AsyncRun -scroll=0 -strip "
+    .."nim check "
+    .."--errormax:1 "
+    .."--styleCheck:usages "
+    .."--styleCheck:hint "
+    .."--hint:Conf:off "
+    .."--processing:off "
+    ..project)
+end
+
+function _G.fn.show_quickfix()
+  if is_quickfix_force_closed == false then
+    local line_count = #vim.fn.getqflist()
+    if line_count > 0 then
+      vim.cmd(tostring(line_count).."copen | setlocal nonumber | wincmd p")
+    end
+  end
 end
 
 -- auto-session --
