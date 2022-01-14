@@ -13,6 +13,8 @@ vim.opt.cursorline = true
 vim.opt.display:append("lastline")
 vim.opt.expandtab = true
 vim.opt.fillchars = { eob = " " }
+vim.opt.foldenable = false
+vim.opt.foldmethod = "indent"
 vim.opt.grepprg = "rg --vimgrep --no-heading --smart-case"
 vim.opt.grepformat = "%f:%l:%c:%m"
 vim.opt.hidden = true
