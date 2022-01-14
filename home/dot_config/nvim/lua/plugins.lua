@@ -73,6 +73,10 @@ require"packer".startup(function(use)
     config = fn.get_config("hlslens"),
   }
 
+  use { "eugen0329/vim-esearch", event = "BufEnter",
+    setup = fn.get_setup("esearch"),
+  }
+
   -- VCS --
 
   use { "lewis6991/gitsigns.nvim", cond = fn.is_git_dir,
