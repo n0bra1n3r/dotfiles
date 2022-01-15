@@ -13,6 +13,9 @@ require"packer".startup(function(use)
   use { "akinsho/bufferline.nvim", after = "lualine.nvim",
     config = fn.get_config("bufferline"),
   }
+  use { "folke/which-key.nvim", after = "bufferline.nvim",
+    config = fn.get_config("which-key"),
+  }
 
   -- Color Schemes --
 
@@ -54,10 +57,6 @@ require"packer".startup(function(use)
 
   use { "ggandor/lightspeed.nvim", event = "BufEnter",
     requires = { "tpope/vim-repeat" },
-  }
-
-  use { "folke/which-key.nvim", keys = "<leader>",
-    config = fn.get_config("which-key"),
   }
 
   use { "kyazdani42/nvim-tree.lua", cond = fn.is_git_dir,
