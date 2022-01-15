@@ -21,7 +21,7 @@ function _G.fn.reload_config()
 end
 
 function _G.fn.get_map_expr(key)
-  return "v:count || mode(1)[0:1] == 'no' ? 'k' : 'g"..key.."'"
+  return string.format("v:count || mode(1)[0:1] == 'no' ? '%s' : 'g%s'", key, key)
 end
 
 function _G.fn.is_git_dir()
