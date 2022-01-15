@@ -90,5 +90,5 @@ augroup end
 
 augroup auto_write_config
   autocmd!
-  autocmd BufWritePost ~/.local/share/chezmoi/* silent !chezmoi apply --source-path "%"
+  autocmd BufWritePost ~/.local/share/chezmoi/* silent AsyncRun -strip chezmoi apply --source-path "%"
 augroup end
