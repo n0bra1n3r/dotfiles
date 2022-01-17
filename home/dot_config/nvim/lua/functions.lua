@@ -62,7 +62,7 @@ function _G.fn.close_buffer()
   local tab = vim.fn.tabpagenr()
   if tab > 1 then
     vim.cmd[[windo bwipe]]
-  elseif vim.fn.winnr() ~= vim.fn.winnr("$") then
+  elseif vim.fn.winnr("$") > 1 then
     vim.cmd[[close]]
   else
     vim.cmd[[bdelete]]
