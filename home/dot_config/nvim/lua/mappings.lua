@@ -29,10 +29,10 @@ return {
     ["<C-Left>"]    = { "<C-w>h"                        , noremap = true },
     ["<C-Right>"]   = { "<C-w>l"                        , noremap = true },
     ["<C-Up>"]      = { "<C-w>k"                        , noremap = true },
+    ["<Del>"]       = { ":nohlsearch<CR>"               , noremap = true, silent = true },
     ["<End>"]       = { "$" },
     ["<Home>"]      = { "^" },
     ["<Enter>"]     = { ":"                             , noremap = true },
-    ["<Esc>"]       = { ":nohlsearch<CR><Esc>"          , noremap = true, silent = true },
     ["<F1>"]        = { ":help <C-r><C-w><CR>"          , noremap = true, silent = true },
     ["<Left>"]      = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up>$l':'<Left>'"
                                                         , noremap = true, expr = true },
