@@ -28,8 +28,7 @@ function M.config()
       },
       p = {
         name = "packages",
-        p = { "<cmd>lua fn.edit_packages()<CR>", "edit packages" },
-        s = { "<cmd>PackerSync<CR>", "sync packages" },
+        p = { "<cmd>PackerSync<CR>", "sync packages" },
       },
       q = {
         name = "quickfix",
