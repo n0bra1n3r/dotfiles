@@ -19,7 +19,9 @@ require"packer".startup(function(use)
 
   -- Color Schemes --
 
-  use { "folke/tokyonight.nvim" }
+  use { "EdenEast/nightfox.nvim",
+    config = fn.get_config("nightfox"),
+  }
 
   -- File Types --
 

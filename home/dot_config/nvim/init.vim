@@ -4,8 +4,6 @@ let &packpath = &runtimepath
 
 lua require "main"
 
-colorscheme tokyonight
- 
 """ Commands
 
 command -nargs=+ NimEval !nim --skipProjCfg:on --hint[Conf]:off --eval:<q-args>
