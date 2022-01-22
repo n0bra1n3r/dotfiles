@@ -69,6 +69,23 @@ function _G.fn.close_buffer()
   end
 end
 
+function _G.fn.highlight_cursor_text(doHighlight)
+  local namespace = vim.api.nvim_create_namespace("cursorText")
+  local row = vim.fn.line"."
+  local col = vim.fn.col"." - 1
+
+  vim.api.nvim_buf_clear_namespace(0, namespace, 0, -1)
+  if doHighlight then
+    vim.api.nvim_buf_add_highlight(
+      0,
+      namespace,
+      "cursorText",
+      row - 1,
+      col,
+      col + 1)
+  end
+end
+
 -- AsyncRun --
 
 function _G.fn.run_check()

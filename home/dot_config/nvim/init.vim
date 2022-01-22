@@ -2,6 +2,12 @@ set runtimepath+=~/.config/nvim,~/.config/nvim/lua
 
 let &packpath = &runtimepath
 
+""" Colors
+
+highlight cursorText gui=reverse cterm=reverse
+
+""" Lua
+
 lua require "main"
 
 """ Commands
@@ -23,6 +29,12 @@ augroup end
 augroup auto_close
   autocmd!
   autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
+augroup end
+
+augroup conf_cursor
+  autocmd!
+  autocmd CursorMoved * lua fn.highlight_cursor_text(true)
+  autocmd InsertEnter * lua fn.highlight_cursor_text(false)
 augroup end
 
 augroup conf_modes
