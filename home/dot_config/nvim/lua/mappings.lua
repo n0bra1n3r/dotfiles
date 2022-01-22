@@ -49,7 +49,7 @@ return {
   t = {
     ["<Esc>"]       = { "<C-\\><C-n>"                   , noremap = true },
   },
-  v = {
+  x = {
     ["*"]           = { ":<C-u>let r=getreg('\"')<bar>let t=getregtype('\"')<CR>gvy/<C-r>=&ic?'\\c':'\\C'<CR><C-r><C-r>=substitute(escape(@\",'/\\.*$^~['),'\\_s\\+','\\\\_s\\\\+','g')<CR><CR>gVzv:call setreg('\"',r,t)<CR>"
                                                         , noremap = true, silent = true },
     ["#"]           = { ":<C-u>let r=getreg('\"')<bar>let t=getregtype('\"')<CR>gvy?<C-r>=&ic?'\\c':'\\C'<CR><C-r><C-r>=substitute(escape(@\",'?\\.*$^~['),'\\_s\\+','\\\\_s\\\\+','g')<CR><CR>gVzv:call setreg('\"',r,t)<CR>"
