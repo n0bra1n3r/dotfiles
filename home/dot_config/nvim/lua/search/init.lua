@@ -297,8 +297,11 @@ local function render_window(bufnr, result)
   local winid = vim.fn.bufwinid(bufnr)
   local win_height = api.nvim_win_get_height(winid)
   local res_height = #info.line_array + #info.file_table * 2
+  local upd_height = 8 + #info.file_table * 2
 
-  if res_height % win_height == 0  then
+  if (res_height < win_height and
+      res_height % upd_height == 0) or
+      res_height % win_height == 0  then
     api.nvim_command[[redraw]]
 
     local first_line = info.result_array[1]
