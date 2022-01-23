@@ -70,7 +70,7 @@ function _G.fn.close_buffer()
 end
 
 function _G.fn.highlight_cursor_text(doHighlight)
-  local namespace = vim.api.nvim_create_namespace("cursorText")
+  local namespace = vim.api.nvim_create_namespace("CursorText")
   local row = vim.fn.line"."
   local col = vim.fn.col"." - 1
 
@@ -79,7 +79,7 @@ function _G.fn.highlight_cursor_text(doHighlight)
     vim.api.nvim_buf_add_highlight(
       0,
       namespace,
-      "cursorText",
+      "CursorText",
       row - 1,
       col,
       col + 1)

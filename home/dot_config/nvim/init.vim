@@ -4,7 +4,7 @@ let &packpath = &runtimepath
 
 """ Colors
 
-highlight cursorText gui=reverse cterm=reverse
+highlight CursorText gui=reverse cterm=reverse
 
 """ Lua
 
