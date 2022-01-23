@@ -280,20 +280,10 @@ function show_picker(name, opts)
   end
 end
 
--- toggleterm --
-
-local git_shell
+-- floaterm --
 
 function _G.fn.open_git_shell()
-  if git_shell == nil then
-    git_shell = require"toggleterm.terminal".Terminal:new {
-      cmd = "bash --rcfile ~/.dotfiles/gitrc",
-      direction = "float",
-      hidden = true,
-    }
-  end
-
-  git_shell:open()
+  vim.cmd[[FloatermShow git_shell]]
 end
 
 -- languages --

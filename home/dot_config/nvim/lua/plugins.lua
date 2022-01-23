@@ -92,8 +92,9 @@ require"packer".startup(function(use)
 
   use { "skywind3000/asyncrun.vim", cmd = "AsyncRun" }
 
-  use { "akinsho/toggleterm.nvim", module = "toggleterm", cmd = { "TermExec", "ToggleTerm", "ToggleTermToggleAll" },
-    config = fn.get_config("toggleterm"),
+  use { "voldikss/vim-floaterm", cmd = { "FloatermNew", "FloatermShow", "FloatermToggle" },
+    setup = fn.get_setup("floaterm"),
+    config = fn.get_config("floaterm"),
   }
 
   -- Diagnostics --

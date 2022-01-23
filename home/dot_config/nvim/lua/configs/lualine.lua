@@ -1,8 +1,6 @@
 local M = {}
 
 function M.config()
-
-
   require"lualine".setup {
     options = {
       theme = "nightfox",
@@ -39,7 +37,7 @@ function M.config()
       lualine_y = {},
       lualine_z = {}
     },
-    extensions = { "nvim-tree", "quickfix", "toggleterm" },
+    extensions = { "nvim-tree", "quickfix" },
   }
 end
 
