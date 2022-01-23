@@ -22,7 +22,7 @@ local function get_line_number_label(text, padding)
   for i = 1, padding do
     result = " "..result
   end
-  return result
+  return result.." "
 end
 
 local function get_search_command(search_term, args)
@@ -90,15 +90,12 @@ function M._on_cursor_moved()
     local prev_info = info.line_array[info.cursor_line + 1]
     local prev_group = get_sign_group(info.namespace, prev_info.file_name, prev_info.line_number)
 
-    for offset = 0, info.sign_width - 1 do
-      local prev_name = get_sign_name(prev_group, offset)
-      vim.fn.sign_define(prev_name, { texthl = "LineNr" })
-    end
-
     local curr_info = info.line_array[line + 1]
     local curr_group = get_sign_group(info.namespace, curr_info.file_name, curr_info.line_number)
 
     for offset = 0, info.sign_width - 1 do
+      local prev_name = get_sign_name(prev_group, offset)
+      vim.fn.sign_define(prev_name, { texthl = "LineNr" })
       local curr_name = get_sign_name(curr_group, offset)
       vim.fn.sign_define(curr_name, { texthl = "CursorLineNr" })
     end
