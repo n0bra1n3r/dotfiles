@@ -22,7 +22,7 @@ local function get_line_number_label(text, padding)
   for i = 1, padding do
     result = " "..result
   end
-  return result.." "
+  return result
 end
 
 local function get_search_command(search_term, args)
@@ -93,7 +93,7 @@ function M._on_cursor_moved()
     local curr_info = info.line_array[line + 1]
     local curr_group = get_sign_group(info.namespace, curr_info.file_name, curr_info.line_number)
 
-    for offset = 0, info.sign_width - 1 do
+    for offset = 0, math.floor(info.sign_width / 2) do
       local prev_name = get_sign_name(prev_group, offset)
       vim.fn.sign_define(prev_name, { texthl = "LineNr" })
       local curr_name = get_sign_name(curr_group, offset)
@@ -105,7 +105,24 @@ function M._on_cursor_moved()
 end
 
 function M._on_buf_delete()
-  local bufnr = api.nvim_get_current_buf()
+  local bufnr = tonumber(vim.fn.expand("<abuf>"))
+  local info = M.buffers[bufnr]
+
+  for _, results in ipairs(info.result_array) do
+    local sign_group = get_sign_group(
+      info.namespace,
+      results[1].file_name,
+      results[1].line_number)
+
+    vim.fn.sign_unplace(sign_group)
+
+    for offset = 0, math.floor(info.sign_width / 2) do
+      vim.fn.sign_undefine(get_sign_name(sign_group, offset))
+    end
+  end
+
+  api.nvim_buf_clear_namespace(bufnr, -1, 0, -1)
+
   M.buffers[bufnr] = nil
 end
 
