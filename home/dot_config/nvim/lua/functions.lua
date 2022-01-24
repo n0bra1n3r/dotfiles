@@ -245,10 +245,6 @@ function _G.fn.vim_defer(fn, timer)
   end
 end
 
-function _G.fn.edit_packages()
-  vim.cmd("vsplit "..os.getenv("HOME").."/.config/nvim/lua/plugins.lua | wincmd L")
-end
-
 -- telescope --
 
 function _G.fn.show_string_search_picker()
