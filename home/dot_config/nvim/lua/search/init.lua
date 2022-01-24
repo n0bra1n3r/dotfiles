@@ -261,6 +261,9 @@ local function create_canvas(win_create_cmd, search_term)
   api.nvim_command("autocmd VimLeavePre * lua require'search'._on_vim_leave()")
   api.nvim_command[[augroup end]]
 
+  -- shortcuts
+  vim.fn.setreg("s", search_term)
+
   -- styles
   api.nvim_command[[highlight SearchResult gui=bold cterm=bold]]
 
