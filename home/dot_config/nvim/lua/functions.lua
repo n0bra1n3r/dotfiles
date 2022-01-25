@@ -1,6 +1,31 @@
 _G.fn = {}
 
+-- shell --
+
+function _G.fn.is_git_dir()
+  vim.cmd[[silent! !git rev-parse --is-inside-work-tree]]
+  return vim.v.shell_error == 0
+end
+
 -- nvim --
+
+function _G.fn.get_map_expr(key)
+  return string.format("v:count || mode(1)[0:1] == 'no' ? '%s' : 'g%s'", key, key)
+end
+
+function _G.fn.vim_defer(fn, timer)
+  return function()
+    if fn ~= nil then
+      if type(fn) == "function" then
+        vim.defer_fn(fn, timer or 0)
+      else
+        vim.defer_fn(function()
+          vim.cmd(fn)
+        end, timer or 0)
+      end
+    end
+  end
+end
 
 function _G.fn.reload_config()
   package.loaded["functions"] = nil
@@ -18,15 +43,6 @@ function _G.fn.reload_config()
   vim.cmd[[silent source $MYVIMRC]]
 
   print "Reloaded configuration"
-end
-
-function _G.fn.get_map_expr(key)
-  return string.format("v:count || mode(1)[0:1] == 'no' ? '%s' : 'g%s'", key, key)
-end
-
-function _G.fn.is_git_dir()
-  vim.cmd[[silent! !git rev-parse --is-inside-work-tree]]
-  return vim.v.shell_error == 0
 end
 
 local is_quickfix_force_closed = false
@@ -48,14 +64,6 @@ function _G.fn.toggle_quickfix()
 
     is_quickfix_force_closed = true
   end
-end
-
-function _G.fn.next_buffer()
-  require"bufferline".cycle(1)
-end
-
-function _G.fn.prev_buffer()
-  require"bufferline".cycle(-1)
 end
 
 function _G.fn.close_buffer()
@@ -115,6 +123,14 @@ function _G.fn.cleanup_session()
 end
 
 -- bufferline --
+
+function _G.fn.next_buffer()
+  require"bufferline".cycle(1)
+end
+
+function _G.fn.prev_buffer()
+  require"bufferline".cycle(-1)
+end
 
 function _G.fn.filter_buffers(bufnr)
   for _, win in ipairs(vim.fn.win_findbuf(bufnr)) do
@@ -229,20 +245,6 @@ function _G.fn.lazy_load(plugin, timer)
     fn.vim_defer(function()
       require"packer".loader(plugin)
     end, timer)
-  end
-end
-
-function _G.fn.vim_defer(fn, timer)
-  return function()
-    if fn ~= nil then
-      if type(fn) == "function" then
-        vim.defer_fn(fn, timer or 0)
-      else
-        vim.defer_fn(function()
-          vim.cmd(fn)
-        end, timer or 0)
-      end
-    end
   end
 end
 
