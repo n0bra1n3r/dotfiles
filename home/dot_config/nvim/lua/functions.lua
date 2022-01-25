@@ -89,9 +89,10 @@ end
 -- AsyncRun --
 
 function _G.fn.run_check()
-  local file_type = vim.bo.filetype
-  if _G.fn[file_type] ~= nil then
-    _G.fn[file_type].run_check()
+  local file = io.open(".tasks", "r")
+  if file ~= nil then
+    io.close(file)
+    vim.cmd[[AsyncTask project-check]]
   end
 end
 
@@ -279,31 +280,8 @@ end
 -- floaterm --
 
 function _G.fn.open_git_shell()
+  local floaterm_autoinsert = vim.g.floaterm_autoinsert
+  vim.g.floaterm_autoinsert = 1
   vim.cmd[[FloatermShow git_shell]]
-end
-
--- languages --
-
-_G.fn.nim = {}
-
-function _G.fn.nim.run_check()
-  local project = vim.fn.expand('%')
-  local default = vim.fn.expand("%:h:p")..".nim"
-  for _, name in ipairs({ default, "project.nim", "main.nim" }) do
-    local file = io.open(name, "r")
-    if file ~= nil then
-      io.close(file)
-      project = name
-      break
-    end
-  end
-
-  vim.cmd("AsyncRun -scroll=0 -strip "
-    .."nim check "
-    .."--errormax:1 "
-    .."--styleCheck:usages "
-    .."--styleCheck:hint "
-    .."--hint:Conf:off "
-    .."--processing:off "
-    ..project)
+  vim.g.floaterm_autoinsert = floaterm_autoinsert
 end

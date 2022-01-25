@@ -14,6 +14,12 @@ function M.config()
       ["%"] = { ":%s///gc<Left><Left><Left>", "replace", silent = false },
       ["`"] = { "<cmd>lua fn.open_git_shell()<CR>", "shell" },
       b = { "<cmd>BufferLinePick<CR>", "buffer" },
+      c = {
+        name = "compiler",
+        b = { "<cmd>AsyncTask project-build<CR>", "build project" },
+        r = { "<cmd>AsyncTask project-run<CR>", "run project" },
+        s = { "<cmd>FloatermShow run_shell<CR>", "show output" },
+      },
       s = {
         name = "search",
         b = { "<cmd>Telescope buffers<CR>", "search buffers" },
