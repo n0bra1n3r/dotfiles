@@ -66,7 +66,8 @@ augroup end
 
 augroup conf_terminal
   autocmd!
-  autocmd TermEnter * nnoremap <buffer><silent> <Esc> <cmd>hide<CR>
+  autocmd TermOpen * setlocal nonumber norelativenumber
+  autocmd TermOpen * nnoremap <buffer><silent> <Esc> <cmd>hide<CR>
 augroup end
 
 augroup conf_git
