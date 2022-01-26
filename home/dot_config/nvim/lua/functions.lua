@@ -81,6 +81,8 @@ function _G.fn.close_buffer()
   end
 end
 
+vim.cmd[[highlight CursorText gui=reverse cterm=reverse]]
+
 function _G.fn.highlight_cursor_text(doHighlight)
   local namespace = vim.api.nvim_create_namespace("CursorText")
   local row = vim.fn.line"."

@@ -2,10 +2,6 @@ set runtimepath+=~/.config/nvim,~/.config/nvim/lua
 
 let &packpath = &runtimepath
 
-""" Colors
-
-highlight CursorText gui=reverse cterm=reverse
-
 """ Lua
 
 lua require "main"
