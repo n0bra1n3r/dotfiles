@@ -8,7 +8,10 @@ function M.setup()
 end
 
 M.config = function()
-  vim.cmd[[autocmd! BufLeave NvimTree NvimTreeClose]]
+  vim.cmd[[augroup conf_nvimtree]]
+  vim.cmd[[autocmd!]]
+  vim.cmd[[autocmd BufLeave NvimTree NvimTreeClose]]
+  vim.cmd[[augroup end]]
 
   require"nvim-tree".setup {
     hijack_cursor = true,
