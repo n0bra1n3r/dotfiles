@@ -19,7 +19,7 @@ augroup conf_editor
   autocmd InsertEnter * set nocursorcolumn
   autocmd InsertLeave * set cursorcolumn
   autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
-  autocmd TextYankPost * silent! lua vim.highlight.on_yank()
+  autocmd TextYankPost * lua vim.highlight.on_yank()
 augroup end
 
 augroup conf_help
