@@ -36,12 +36,6 @@ augroup conf_quickfix
   autocmd VimLeavePre * cclose
 augroup end
 
-augroup conf_terminal
-  autocmd!
-  autocmd TermOpen * setlocal nonumber norelativenumber
-  autocmd TermOpen * nnoremap <buffer><silent> <Esc> <cmd>hide<CR>
-augroup end
-
 augroup conf_git
   autocmd!
   autocmd FileType gitcommit set textwidth=72
