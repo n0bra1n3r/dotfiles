@@ -6,6 +6,8 @@ function M.setup()
 end
 
 function M.config()
+  vim.cmd[[autocmd! VimLeavePre * FloatermKill!]]
+
   vim.cmd("FloatermNew --silent "
     .."--name=git_shell "
     .."--title=git "
