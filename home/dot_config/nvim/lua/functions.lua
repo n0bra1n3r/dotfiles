@@ -7,6 +7,10 @@ function _G.fn.is_git_dir()
   return vim.v.shell_error == 0
 end
 
+function _G.fn.save_dot_files()
+  vim.cmd[[AsyncRun -strip chezmoi apply --source-path "%"]]
+end
+
 -- nvim --
 
 function _G.fn.get_map_expr(key)
@@ -211,12 +215,17 @@ function _G.fn.get_qf_diagnostics()
   return { error = error_count, hint = hint_count, warn = warn_count }
 end
 
+local is_in_progress = false
 local progress_clock = 0
 local progress_index = 0
 local progress_icons = { "◢", "◣", "◤", "◥" }
 
+function _G.fn.set_is_job_in_progress(value)
+  is_in_progress = value
+end
+
 function _G.fn.get_job_progress()
-  if vim.g.is_job_in_progress == 1 then
+  if is_in_progress then
     if os.clock() - progress_clock >= 0.1 then
       progress_clock = os.clock()
       progress_index = math.fmod(progress_index, #progress_icons - 1)

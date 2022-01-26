@@ -10,58 +10,34 @@ highlight CursorText gui=reverse cterm=reverse
 
 lua require "main"
 
-""" Commands
-
-command -nargs=+ NimEval !nim --skipProjCfg:on --hint[Conf]:off --eval:<q-args>
-
 """ Autocommands
 
-augroup conf_console
+augroup conf_editor
   autocmd!
   autocmd BufEnter * let &titlestring = 'nvim - ' . expand("%:t")
-augroup end
-
-augroup auto_read
-  autocmd!
   autocmd BufEnter * checktime
-augroup end
- 
-augroup auto_close
-  autocmd!
-  autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
-augroup end
-
-augroup conf_cursor
-  autocmd!
+  autocmd BufWritePost ~/.local/share/chezmoi/* lua fn.save_dot_files()
+  autocmd BufWritePost * lua fn.run_check()
   autocmd CursorMoved * lua fn.highlight_cursor_text(true)
   autocmd InsertEnter * lua fn.highlight_cursor_text(false)
-augroup end
-
-augroup conf_modes
-  autocmd!
   autocmd InsertEnter * set nocursorcolumn
   autocmd InsertLeave * set cursorcolumn
-augroup end
-
-augroup highlight_on_yank
-  autocmd!
+  autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
   autocmd TextYankPost * silent! lua vim.highlight.on_yank()
-augroup end
-
-augroup conf_quickfix
-  autocmd!
-  autocmd FileType qf if (getwininfo(win_getid())[0].loclist != 1)
-    \| wincmd J
-    \| endif
-  autocmd FileType qf setlocal colorcolumn=
-  autocmd FileType qf nnoremap <buffer><silent> <Esc> <cmd>quit<CR>
-  autocmd VimLeavePre * cclose
 augroup end
 
 augroup conf_help
   autocmd!
   autocmd FileType help wincmd K
   autocmd FileType help nnoremap <buffer><silent> <Esc> <cmd>bdelete<CR>
+augroup end
+
+augroup conf_quickfix
+  autocmd!
+  autocmd FileType qf wincmd J
+  autocmd FileType qf setlocal colorcolumn=
+  autocmd FileType qf nnoremap <buffer><silent> <Esc> <cmd>quit<CR>
+  autocmd VimLeavePre * cclose
 augroup end
 
 augroup conf_terminal
@@ -76,30 +52,8 @@ augroup conf_git
   autocmd FileType gitcommit set colorcolumn=51,73
 augroup end
 
-augroup conf_packer
-  autocmd!
-  autocmd BufWritePost plugins.lua source <afile> | PackerCompile
-augroup end
-
 augroup conf_lsp
   autocmd!
   autocmd TextChangedI,TextChangedP * lua fn.trigger_completion()
   autocmd CursorMovedI * lua fn.end_completion()
-augroup end
-
-augroup conf_asyncrun
-  autocmd!
-  autocmd BufWritePost * exec "lua fn.run_check()"
-  autocmd User AsyncRunPre cclose | let g:is_job_in_progress=1
-  autocmd User AsyncRunStop exec "lua fn.show_quickfix()" | let g:is_job_in_progress=0
-augroup end
-
-augroup conf_nvimtree
-  autocmd!
-  autocmd BufLeave NvimTree NvimTreeClose
-augroup end
-
-augroup auto_write_config
-  autocmd!
-  autocmd BufWritePost ~/.local/share/chezmoi/* silent AsyncRun -strip chezmoi apply --source-path "%"
 augroup end

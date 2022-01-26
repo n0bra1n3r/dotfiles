@@ -8,6 +8,8 @@ function M.setup()
 end
 
 M.config = function()
+  vim.cmd[[autocmd! BufLeave NvimTree NvimTreeClose]]
+
   require"nvim-tree".setup {
     hijack_cursor = true,
     update_focused_file = {
