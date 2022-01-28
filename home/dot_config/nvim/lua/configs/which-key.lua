@@ -14,11 +14,31 @@ function M.config()
       ["%"] = { ":%s///gc<Left><Left><Left>", "replace", silent = false },
       ["`"] = { "<cmd>lua fn.open_git_shell()<CR>", "shell" },
       b = { "<cmd>BufferLinePick<CR>", "buffer" },
-      c = {
-        name = "compiler",
+      g = {
+        name = "git",
+        g = { "<cmd>DiffviewOpen<CR>", "git diff" },
+        h = { "<cmd>DiffviewFileHistory<CR>", "file history" },
+      },
+      d = {
+        name = "debug",
+        b = { "<cmd>lua fn.debug_break()<CR>", "break execution" },
+        c = { "<cmd>lua fn.debug_continue()<CR>", "debug continue" },
+        d = { "<cmd>lua fn.debug_step()<CR>", "debug step" },
+        s = { "<cmd>lua fn.debug_show_symbol()<CR>", "show symbol" },
+        S = { "<cmd>lua fn.debug_show_symbols()<CR>", "show symbols" },
+        x = { "<cmd>lua fn.debug_exit()<CR>", "exit session" }
+      },
+      r = {
+        name = "runner",
         b = { "<cmd>AsyncTask project-build<CR>", "build project" },
+        d = {
+          name = "debug project",
+          b = { "<cmd>lua fn.debug_project()<CR>", "break execution" },
+          c = { "<cmd>lua fn.debug_project_continue()<CR>", "debug continue" },
+          d = { "<cmd>lua fn.debug_project_step()<CR>", "debug step" },
+        },
         r = { "<cmd>AsyncTask project-run<CR>", "run project" },
-        s = { "<cmd>FloatermShow run_shell<CR>", "show output" },
+        s = { "<cmd>lua fn.open_run_shell()<CR>", "open shell" },
       },
       s = {
         name = "search",
@@ -26,11 +46,6 @@ function M.config()
         f = { "<cmd>Telescope find_files<CR>", "search files" },
         s = { "<cmd>lua fn.show_string_search_picker()<CR>", "search strings" },
         t = { "<cmd>TodoTelescope<CR>", "search todos" },
-      },
-      d = {
-        name = "diff",
-        d = { "<cmd>DiffviewOpen<CR>", "view diff" },
-        h = { "<cmd>DiffviewFileHistory<CR>", "file history" },
       },
       p = {
         name = "packages",

@@ -1,7 +1,0 @@
-set +o history
-stty -echo
-
-export HISTFILE=
-export STARSHIP_CONFIG=~/.dotfiles/blank_starship.toml
-
-eval "$(~/.local/bin/starship init bash)"

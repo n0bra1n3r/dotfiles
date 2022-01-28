@@ -70,6 +70,16 @@ function _G.fn.toggle_quickfix()
   end
 end
 
+function _G.fn.show_quickfix()
+  if is_quickfix_force_closed == false then
+    local line_count = #vim.fn.getqflist()
+    if line_count > 0 then
+      local height = math.min(line_count, vim.o.lines / 3)
+      vim.cmd(tostring(height).."copen | setlocal nonumber | wincmd p")
+    end
+  end
+end
+
 function _G.fn.close_buffer()
   local tab = vim.fn.tabpagenr()
   if tab > 1 then
@@ -97,26 +107,6 @@ function _G.fn.highlight_cursor_text(doHighlight)
       row - 1,
       col,
       col + 1)
-  end
-end
-
--- AsyncRun --
-
-function _G.fn.run_check()
-  local file = io.open(".tasks", "r")
-  if file ~= nil then
-    io.close(file)
-    vim.cmd[[AsyncTask project-check]]
-  end
-end
-
-function _G.fn.show_quickfix()
-  if is_quickfix_force_closed == false then
-    local line_count = #vim.fn.getqflist()
-    if line_count > 0 then
-      local height = math.min(line_count, vim.o.lines / 3)
-      vim.cmd(tostring(height).."copen | setlocal nonumber | wincmd p")
-    end
   end
 end
 
@@ -293,8 +283,112 @@ end
 -- floaterm --
 
 function _G.fn.open_git_shell()
-  local floaterm_autoinsert = vim.g.floaterm_autoinsert
-  vim.g.floaterm_autoinsert = 1
-  vim.cmd[[FloatermShow git_shell]]
-  vim.g.floaterm_autoinsert = floaterm_autoinsert
+  vim.cmd("FloatermNew "
+    .."--name=git_shell "
+    .."--title=git "
+    .."--height=0.8 "
+    .."--width=0.8 "
+    .."bash --rcfile ~/.dotfiles/gitrc")
+
+  function _G.fn.open_git_shell()
+    vim.cmd[[FloatermShow git_shell]]
+  end
+end
+
+function _G.fn.open_run_shell()
+  vim.cmd[[FloatermShow run_shell]]
+end
+
+function _G.fn.run_process(command, notify)
+  vim.fn["floaterm#new"](0,
+    command,
+    {
+      on_exit = function()
+        if type(notify) == "string" then
+          vim.cmd(notify)
+        else
+          notify()
+        end
+      end,
+    },
+    {
+      name = "run_shell",
+      autoclose = 1,
+      autoinsert = 0,
+      title = "run",
+      wintype = "split",
+      height = 0.3,
+    })
+
+  vim.api.nvim_buf_set_name(0, command)
+  vim.cmd[[stopinsert | wincmd p]]
+end
+
+function _G.fn.run_command(command)
+  vim.cmd[[FloatermShow run_shell]]
+  vim.fn["floaterm#send"](0, vim.fn.visualmode(), 0, 0, 0,
+    string.format("--name=run_shell \x1b[F\x1b[1;5H%s\r", command))
+  vim.cmd[[stopinsert | wincmd p]]
+end
+
+-- AsyncTask --
+
+function _G.fn.check_project()
+  local file = io.open(".tasks.ini", "r")
+  if file ~= nil then
+    io.close(file)
+    vim.cmd[[AsyncTask project-check]]
+  end
+end
+
+function _G.fn.debug_project()
+  vim.cmd[[AsyncTask project-debug]]
+end
+
+function _G.fn.debug_project_continue()
+  vim.cmd[[AsyncTask project-debug +debugger_addr=]]
+end
+
+function _G.fn.debug_project_step()
+  local file = vim.fn.expand('%:~:.')
+  local line = vim.fn.line(".")
+
+  vim.cmd(string.format("AsyncTask project-debug +debugger_addr=`%s:%d`", file, line))
+end
+
+function _G.fn.debug_continue()
+  vim.cmd[[AsyncTask debug-step +debugger_addr=]]
+end
+
+function _G.fn.debug_step()
+  if vim.bo.buftype == "terminal" then
+    local expr = vim.fn.getline(".")
+    local addr = {select(3, string.find(expr, "([%w_]+![%w_]+%+%w+)"))}
+
+    vim.cmd(string.format("AsyncTask debug-step +debugger_addr=%s", addr[1]))
+  else
+    local file = vim.fn.expand('%:~:.')
+    local line = vim.fn.line(".")
+
+    vim.cmd(string.format("AsyncTask debug-step +debugger_addr=`%s:%d`", file, line))
+  end
+end
+
+function _G.fn.debug_break()
+  vim.fn["floaterm#send"](0, vim.fn.visualmode(), 0, 0, 0, "--name=run_shell \x03")
+end
+
+function _G.fn.debug_show_symbol()
+  local symbol = vim.fn.expand("<cword>")
+
+  vim.cmd(string.format("AsyncTask debug-show_symbol +debugger_addr=%s", symbol))
+end
+
+function _G.fn.debug_show_symbols()
+  vim.cmd[[AsyncTask debug-show_symbols]]
+end
+
+function _G.fn.debug_exit()
+  fn.debug_break()
+  vim.cmd[[AsyncTask debug-exit]]
 end

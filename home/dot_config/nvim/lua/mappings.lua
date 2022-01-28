@@ -47,6 +47,14 @@ return {
     x               = { "col('$')==col('.')?'gJ':'x'"   , noremap = true, expr = true },
   },
   t = {
+    ["<C-h>"]       = { "<C-\\><C-n><C-w>h"             , noremap = true },
+    ["<C-j>"]       = { "<C-\\><C-n><C-w>j"             , noremap = true },
+    ["<C-k>"]       = { "<C-\\><C-n><C-w>k"             , noremap = true },
+    ["<C-l>"]       = { "<C-\\><C-n><C-w>l"             , noremap = true },
+    ["<C-Down>"]    = { "<C-\\><C-n><C-w>j"             , noremap = true },
+    ["<C-Left>"]    = { "<C-\\><C-n><C-w>h"             , noremap = true },
+    ["<C-Right>"]   = { "<C-\\><C-n><C-w>l"             , noremap = true },
+    ["<C-Up>"]      = { "<C-\\><C-n><C-w>k"             , noremap = true },
     ["<Esc>"]       = { "<C-\\><C-n>"                   , noremap = true },
   },
   x = {

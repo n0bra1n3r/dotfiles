@@ -93,11 +93,11 @@ require"packer".startup(function(use)
   use { "skywind3000/asyncrun.vim", cmd = { "AsyncRun", "AsyncStop" },
     setup = fn.get_setup("asyncrun"),
   }
-  use { "skywind3000/asynctasks.vim", cmd = { "AsyncTask", "AsyncTaskMacro", "AsyncTaskList", "AsyncTaskEdit" },
+  use { "skywind3000/asynctasks.vim", cmd = { "AsyncTask", "AsyncTaskMacro", "AsyncTaskList", "AsyncTaskProfile", "AsyncTaskEdit" },
     setup = fn.get_setup("asynctasks"),
   }
 
-  use { "voldikss/vim-floaterm", cmd = { "FloatermNew", "FloatermSend", "FloatermShow", "FloatermToggle" },
+  use { "voldikss/vim-floaterm", cmd = { "FloatermNew", "FloatermShow", "FloatermToggle" }, fn = { "floaterm#new" },
     setup = fn.get_setup("floaterm"),
     config = fn.get_config("floaterm"),
   }
