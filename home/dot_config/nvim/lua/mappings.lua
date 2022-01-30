@@ -56,6 +56,8 @@ return {
     ["<C-Right>"]   = { "<C-\\><C-n><C-w>l"             , noremap = true },
     ["<C-Up>"]      = { "<C-\\><C-n><C-w>k"             , noremap = true },
     ["<Esc>"]       = { "<C-\\><C-n>"                   , noremap = true },
+    ["<PageUp>"]    = { "<C-\\><C-n>H<Up>"              , noremap = true },
+    ["<PageDown>"]  = { "<C-\\><C-n>L<Down>"            , noremap = true },
   },
   x = {
     ["*"]           = { ":<C-u>let r=getreg('\"')<bar>let t=getregtype('\"')<CR>gvy/<C-r>=&ic?'\\c':'\\C'<CR><C-r><C-r>=substitute(escape(@\",'/\\.*$^~['),'\\_s\\+','\\\\_s\\\\+','g')<CR><CR>gVzv:call setreg('\"',r,t)<CR>"
