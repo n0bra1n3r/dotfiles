@@ -1,5 +1,13 @@
 _G.fn = {}
 
+-- helpers --
+
+local function get_wins_for_buf_type(buf_type)
+  return vim.fn.filter(
+    vim.fn.range(1, vim.fn.winnr("$")),
+    string.format("getwinvar(v:val, '&bt') == '%s'", buf_type))
+end
+
 -- shell --
 
 function _G.fn.is_git_dir()
@@ -49,18 +57,32 @@ function _G.fn.reload_config()
   print "Reloaded configuration"
 end
 
+function _G.fn.open_quickfix()
+  local cur_win = vim.fn.winnr()
+  local term_wins = get_wins_for_buf_type("terminal")
+
+  if #term_wins > 0 then
+    vim.cmd(string.format("%dwincmd w "
+      .."| stopinsert "
+      .."| vertical copen "
+      .."| setlocal nonumber "
+      .."| vertical resize %d", term_wins[1], vim.o.columns / 2))
+  else
+    vim.cmd(string.format("%dcopen "
+      .."| setlocal nonumber "
+      .."| wincmd J", math.min(#vim.fn.getqflist(), vim.o.lines / 3)))
+  end
+
+  vim.cmd(string.format("%dwincmd w", cur_win))
+end
+
 local is_quickfix_force_closed = false
 
 function _G.fn.toggle_quickfix()
-  if #vim.fn.filter(vim.fn.getwininfo(), "v:val.quickfix") == 0 then
-    local line_count = #vim.fn.getqflist()
-    if line_count > 0 then
-      local height = math.min(line_count, vim.o.lines / 3)
-      vim.cmd(tostring(height).."copen")
-    else
-      vim.cmd[[copen]]
+  if #get_wins_for_buf_type("quickfix") == 0 then
+    if #vim.fn.getqflist() > 0 then
+      fn.open_quickfix()
     end
-    vim.cmd[[setlocal nonumber | wincmd p]]
 
     is_quickfix_force_closed = false
   else
@@ -72,10 +94,8 @@ end
 
 function _G.fn.show_quickfix()
   if is_quickfix_force_closed == false then
-    local line_count = #vim.fn.getqflist()
-    if line_count > 0 then
-      local height = math.min(line_count, vim.o.lines / 3)
-      vim.cmd(tostring(height).."copen | setlocal nonumber | wincmd p")
+    if #vim.fn.getqflist() > 0 then
+      fn.open_quickfix()
     end
   end
 end
@@ -296,10 +316,18 @@ function _G.fn.open_git_shell()
 end
 
 function _G.fn.open_run_shell()
-  vim.cmd[[FloatermShow run_shell]]
+  local qf_wins = get_wins_for_buf_type("quickfix")
+
+  vim.cmd[[cclose | FloatermShow run_shell]]
+
+  if #qf_wins > 0 then
+    fn.open_quickfix()
+  end
 end
 
 function _G.fn.run_process(command, notify)
+  local cur_win = vim.fn.winnr()
+
   vim.fn["floaterm#new"](0,
     command,
     {
@@ -312,23 +340,25 @@ function _G.fn.run_process(command, notify)
       end,
     },
     {
+      silent = 1,
       name = "run_shell",
-      autoclose = 1,
-      autoinsert = 0,
+      autoclose = 2,
       title = "run",
       wintype = "split",
-      height = 0.3,
+      height = math.floor(vim.o.lines / 3),
     })
 
-  vim.api.nvim_buf_set_name(0, command)
-  vim.cmd[[stopinsert | wincmd p]]
+  fn.open_run_shell()
+  vim.api.nvim_buf_set_name(vim.fn.bufnr("%"), command)
+  vim.cmd(string.format("stopinsert | %dwincmd w", cur_win))
 end
 
 function _G.fn.run_command(command)
-  vim.cmd[[FloatermShow run_shell]]
+  local cur_win = vim.fn.winnr()
+  fn.open_run_shell()
   vim.fn["floaterm#send"](0, vim.fn.visualmode(), 0, 0, 0,
     string.format("--name=run_shell \x1b[F\x1b[1;5H%s\r", command))
-  vim.cmd[[stopinsert | wincmd p]]
+  vim.cmd(string.format("stopinsert | %dwincmd w", cur_win))
 end
 
 -- AsyncTask --
