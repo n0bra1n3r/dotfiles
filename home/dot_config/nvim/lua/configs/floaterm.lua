@@ -2,6 +2,7 @@ local M = {}
 
 function M.setup()
   vim.g.floaterm_height = 0.3
+  vim.g.floaterm_opener = "tabe"
 end
 
 function M.config()
