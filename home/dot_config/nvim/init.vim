@@ -12,7 +12,7 @@ augroup conf_editor
   autocmd!
   autocmd BufEnter * let &titlestring = 'nvim - ' . expand("%:t")
   autocmd BufEnter * checktime
-  autocmd BufWritePost ~/.local/share/chezmoi/* lua fn.save_dot_files()
+  autocmd BufWritePost ~/.local/share/chezmoi/home/* lua fn.save_dot_files()
   autocmd BufWritePost * lua fn.check_project()
   autocmd CursorMoved * lua fn.highlight_cursor_text(true)
   autocmd InsertEnter,TermEnter * lua fn.highlight_cursor_text(false)
