@@ -8,9 +8,13 @@ vim.opt.background = "dark"
 vim.opt.clipboard:append({ "unnamed", "unnamedplus" })
 vim.opt.cmdheight = 1
 vim.opt.colorcolumn = table.concat(vim.fn.range(81, 120), ",")
+vim.opt.confirm = true
 vim.opt.cursorcolumn = true
-vim.opt.cursorline = true
+vim.opt.cursorline = false
 vim.opt.display:append("lastline")
+vim.opt.display:append("uhex")
+vim.opt.inccommand = "split"
+vim.opt.equalalways = true
 vim.opt.expandtab = true
 vim.opt.fillchars = { eob = " " }
 vim.opt.foldenable = false
@@ -20,9 +24,13 @@ vim.opt.grepformat = "%f:%l:%c:%m"
 vim.opt.guicursor = "v-n-sm:block,i-c-ci-ve:ver25-blinkwait0-blinkon400-blinkoff250,r-cr:hor20,o:hor20-blinkwait0-blinkon400-blinkoff250"
 vim.opt.hidden = true
 vim.opt.ignorecase = true
+vim.opt.isfname = "@,48-57,/,\\,.,-,_,+,,,#,$,%,~,="
+vim.opt.isident = "@,48-57,_,192-255"
 vim.opt.linebreak = true
 vim.opt.list = true
-vim.opt.listchars:append("space:·")
+vim.opt.listchars:append("lead:·")
+vim.opt.listchars:append("tab:▸ ")
+vim.opt.listchars:append("trail:•")
 vim.opt.number = true
 vim.opt.numberwidth = 2
 vim.opt.ruler = false
