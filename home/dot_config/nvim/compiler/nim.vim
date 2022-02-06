@@ -14,6 +14,7 @@ CompilerSet errorformat=
 CompilerSet errorformat+=\%E%f(%l\\,\ %c)\ Error:\ %m
 CompilerSet errorformat+=\%N%f(%l\\,\ %c)\ Hint:\ %m
 CompilerSet errorformat+=\%W%f(%l\\,\ %c)\ Warning:\ %m
+CompilerSet errorformat+=\%I%f(%l\\,\ %c)\ %m from here
 
 let &cpo = s:cpo_save
 
