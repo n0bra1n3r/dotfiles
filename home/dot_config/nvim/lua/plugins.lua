@@ -10,10 +10,7 @@ require"packer".startup(function(use)
   use { "nvim-lualine/lualine.nvim", after = "nvim-web-devicons",
     config = fn.get_config("lualine"),
   }
-  use { "akinsho/bufferline.nvim", after = "lualine.nvim",
-    config = fn.get_config("bufferline"),
-  }
-  use { "folke/which-key.nvim", after = "bufferline.nvim",
+  use { "folke/which-key.nvim", after = "lualine.nvim",
     config = fn.get_config("which-key"),
   }
 

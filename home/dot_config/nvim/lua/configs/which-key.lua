@@ -12,11 +12,10 @@ function M.config()
   require"which-key".register({
     ["<leader>"] = {
       ["%"] = { ":%s///gc<Left><Left><Left>", "replace", silent = false },
-      ["`"] = { "<cmd>lua fn.open_git_shell()<CR>", "shell" },
-      b = { "<cmd>BufferLinePick<CR>", "buffer" },
       g = {
         name = "git",
-        g = { "<cmd>DiffviewOpen<CR>", "git diff" },
+        g = { "<cmd>lua fn.open_git_shell()<CR>", "git shell" },
+        d = { "<cmd>DiffviewOpen<CR>", "git diff" },
         h = { "<cmd>DiffviewFileHistory<CR>", "file history" },
       },
       d = {

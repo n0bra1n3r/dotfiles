@@ -38,8 +38,6 @@ return {
                                                         , noremap = true, expr = true },
     ["<PageUp>"]    = { "H<Up>" },
     ["<PageDown>"]  = { "L<Down>" },
-    ["<S-Tab>"]     = { "<cmd>lua fn.next_buffer()<CR>" , noremap = true, silent = true },
-    ["<BS>"]        = { "<cmd>lua fn.prev_buffer()<CR>" , noremap = true, silent = true },
     [";"]           = { "l"                             , noremap = true },
     h               = { ";"                             , noremap = true },
     l               = { "col('.')==1&&col([line('.')-1,'$'])>1?'k$l':'h'"

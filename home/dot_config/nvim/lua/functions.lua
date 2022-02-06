@@ -226,28 +226,15 @@ function _G.fn.get_qf_diagnostics()
   return { error = error_count, hint = hint_count, warn = warn_count }
 end
 
-local is_in_progress = false
-local progress_clock = 0
-local progress_index = 0
-local progress_icons = { "◢", "◣", "◤", "◥" }
+local is_job_in_progress = false
 
-function _G.fn.set_is_job_in_progress(value)
-  is_in_progress = value
+function _G.fn.get_is_job_in_progress()
+  return is_job_in_progress
 end
 
-function _G.fn.get_job_progress()
-  if is_in_progress then
-    if os.clock() - progress_clock >= 0.1 then
-      progress_clock = os.clock()
-      progress_index = math.fmod(progress_index, #progress_icons - 1)
-      progress_index = progress_index + 1
-    end
-    return progress_icons[progress_index]
-  else
-    progress_clock = 0
-    progress_index = 0
-    return ""
-  end
+function _G.fn.set_is_job_in_progress(value)
+  is_job_in_progress = value
+  vim.cmd[[redrawtabline]]
 end
 
 -- packer --
@@ -357,15 +344,17 @@ function _G.fn.run_command(command)
   fn.open_run_shell()
   vim.fn["floaterm#send"](0, vim.fn.visualmode(), 0, 0, 0,
     string.format("--name=run_shell \x1b[F\x1b[1;5H%s\r", command))
-  vim.cmd(string.format("stopinsert | %dwincmd w", cur_win))
+  vim.cmd(string.format("stopinsert | exec 'normal G' | %dwincmd w", cur_win))
 end
 
 -- AsyncTask --
 
+function _G.fn.project_status()
+  return vim.g.asynctasks_profile
+end
+
 function _G.fn.check_project()
-  local file = io.open(".tasks.ini", "r")
-  if file ~= nil then
-    io.close(file)
+  if not fn.get_is_job_in_progress() then
     vim.cmd[[AsyncTask project-check]]
   end
 end
