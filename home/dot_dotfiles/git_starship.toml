@@ -1,3 +1,5 @@
+format = "$character"
+
 [character]
-success_symbol = "[git❯](bold green)"
-error_symbol = "[git❯](bold red)"
+  success_symbol = "[git](bold green)"
+  error_symbol = "[git](bold red)"

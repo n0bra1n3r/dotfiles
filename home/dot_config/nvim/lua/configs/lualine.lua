@@ -71,7 +71,11 @@ function M.config()
             readonly = ' ﯎',
             unnamed = "[New File]",
           }
-        }
+        },
+        {
+          "b:gitsigns_status",
+          padding = { left = 0, right = 1 },
+        },
       },
       lualine_c = {
         {
