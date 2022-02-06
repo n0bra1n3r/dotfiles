@@ -6,7 +6,9 @@ require"packer".startup(function(use)
   use { "nvim-lua/plenary.nvim" }
 
   use { "wbthomason/packer.nvim", event = "VimEnter" }
-  use { "kyazdani42/nvim-web-devicons", after = "packer.nvim" }
+  use { "kyazdani42/nvim-web-devicons", after = "packer.nvim",
+    config = fn.get_config("nvim-web-devicons"),
+  }
   use { "nvim-lualine/lualine.nvim", after = "nvim-web-devicons",
     config = fn.get_config("lualine"),
   }
@@ -58,7 +60,7 @@ require"packer".startup(function(use)
     requires = { "tpope/vim-repeat" },
   }
 
-  use { "kyazdani42/nvim-tree.lua", cond = fn.is_git_dir,
+  use { "kyazdani42/nvim-tree.lua", after = "nvim-web-devicons",
     setup = fn.get_setup("nvim-tree"),
     config = fn.get_config("nvim-tree"),
   }

@@ -2,18 +2,26 @@ local M = {}
 
 function M.setup()
   vim.g.nvim_tree_group_empty = 1
-  vim.g.nvim_tree_highlight_opened_files = 1
+  vim.g.nvim_tree_highlight_opened_files = 3
   vim.g.nvim_tree_indent_markers = 1
   vim.g.nvim_tree_respect_buf_cwd = 1
+  vim.g.nvim_tree_show_icons = {
+    git = 0,
+    folders = 1,
+    files = 1,
+  }
 end
 
-M.config = function()
+function M.config()
   vim.cmd[[augroup conf_nvimtree]]
   vim.cmd[[autocmd!]]
   vim.cmd[[autocmd BufLeave NvimTree NvimTreeClose]]
   vim.cmd[[augroup end]]
 
   require"nvim-tree".setup {
+    git = {
+      enable = false,
+    },
     hijack_cursor = true,
     update_focused_file = {
       enable = true,
