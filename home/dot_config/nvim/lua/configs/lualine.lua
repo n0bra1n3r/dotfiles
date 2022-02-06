@@ -16,7 +16,11 @@ function M.config()
             modified = ' ●',
             readonly = ' ﯎',
             unnamed = "[New File]",
-          }
+          },
+        },
+        {
+          "b:gitsigns_status",
+          padding = { left = 0, right = 1 },
         },
       },
       lualine_c = {
@@ -24,6 +28,7 @@ function M.config()
           "filetype",
           colored = false,
           icon_only = true,
+          padding = { left = 1, right = 0 },
         },
       },
       lualine_x = { "location" },
@@ -46,7 +51,7 @@ function M.config()
             modified = ' ●',
             readonly = ' ﯎',
             unnamed = "[New File]",
-          }
+          },
         },
         {
           "b:gitsigns_status",
