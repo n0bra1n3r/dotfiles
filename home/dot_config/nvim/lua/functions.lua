@@ -318,11 +318,7 @@ function _G.fn.run_process(command, notify)
     command,
     {
       on_exit = function()
-        if type(notify) == "string" then
-          vim.cmd(notify)
-        else
-          notify()
-        end
+        vim.cmd(notify)
       end,
     },
     {
@@ -336,7 +332,7 @@ function _G.fn.run_process(command, notify)
 
   fn.open_run_shell()
   vim.api.nvim_buf_set_name(vim.fn.bufnr("%"), command)
-  vim.cmd(string.format("stopinsert | %dwincmd w", cur_win))
+  vim.cmd(string.format("stopinsert | exec 'normal G' | %dwincmd w", cur_win))
 end
 
 function _G.fn.run_command(command)
