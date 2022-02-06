@@ -5,23 +5,30 @@ function M.setup()
   vim.g.nvim_tree_highlight_opened_files = 3
   vim.g.nvim_tree_indent_markers = 1
   vim.g.nvim_tree_respect_buf_cwd = 1
-  vim.g.nvim_tree_show_icons = {
-    git = 0,
-    folders = 1,
-    files = 1,
-  }
 end
 
 function edit(node)
-  fn.edit_file("edit", node.absolute_path)
+  if node.nodes ~= nil then
+    require"nvim-tree.lib".expand_or_collapse(node)
+  else
+    fn.edit_file("edit", node.absolute_path)
+  end
 end
 
 function vsplit(node)
-  fn.edit_file("vsplit", node.absolute_path)
+  if node.nodes ~= nil then
+    require"nvim-tree.lib".expand_or_collapse(node)
+  else
+    fn.edit_file("vsplit", node.absolute_path)
+  end
 end
 
 function split(node)
-  fn.edit_file("split", node.absolute_path)
+  if node.nodes ~= nil then
+    require"nvim-tree.lib".expand_or_collapse(node)
+  else
+    fn.edit_file("split", node.absolute_path)
+  end
 end
 
 function M.config()
@@ -31,9 +38,6 @@ function M.config()
   vim.cmd[[augroup end]]
 
   require"nvim-tree".setup {
-    git = {
-      enable = false,
-    },
     hijack_cursor = true,
     update_focused_file = {
       enable = true,

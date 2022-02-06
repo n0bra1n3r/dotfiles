@@ -128,11 +128,6 @@ function M.config()
           "branch",
           color = "lualine_a_normal",
         },
-        {
-          "diff",
-          color = "lualine_a_normal",
-          padding = { left = 0, right = 1 },
-        },
       },
     },
   }
