@@ -12,6 +12,18 @@ function M.setup()
   }
 end
 
+function edit(node)
+  fn.edit_file("edit", node.absolute_path)
+end
+
+function vsplit(node)
+  fn.edit_file("vsplit", node.absolute_path)
+end
+
+function split(node)
+  fn.edit_file("split", node.absolute_path)
+end
+
 function M.config()
   vim.cmd[[augroup conf_nvimtree]]
   vim.cmd[[autocmd!]]
@@ -32,19 +44,18 @@ function M.config()
       auto_resize = true,
       hide_root_folder = true,
       mappings = {
-        custom_only = true,
         list = {
-          { key = { "<CR>", "<Left>" }    , cb = require"nvim-tree.config".nvim_tree_callback("edit") },
-          { key = { "<Right>", "|" }      , cb = require"nvim-tree.config".nvim_tree_callback("vsplit") },
-          { key = "_"                     , cb = require"nvim-tree.config".nvim_tree_callback("split") },
-          { key = "o"                     , cb = require"nvim-tree.config".nvim_tree_callback("create") },
-          { key = { "<BS>", "<Del>", "D" }, cb = require"nvim-tree.config".nvim_tree_callback("remove") },
-          { key = "d"                     , cb = require"nvim-tree.config".nvim_tree_callback("cut") },
-          { key = "y"                     , cb = require"nvim-tree.config".nvim_tree_callback("copy") },
-          { key = "p"                     , cb = require"nvim-tree.config".nvim_tree_callback("paste") },
-          { key = "i"                     , cb = require"nvim-tree.config".nvim_tree_callback("rename") },
-          { key = "Y"                     , cb = require"nvim-tree.config".nvim_tree_callback("copy_path") },
-          { key = "<ESC>"                 , cb = require"nvim-tree.config".nvim_tree_callback("close") },
+          { key = { "<CR>", "<Left>", "l" } , action = "edit", action_cb = edit },
+          { key = { "<Right>", "|", ";" }   , action = "vsplit", action_cb = vsplit },
+          { key = "_"                       , action = "split", action_cb = split },
+          { key = "o"                       , action = "create" },
+          { key = { "<BS>", "<Del>", "D" }  , action = "remove" },
+          { key = "d"                       , action = "cut" },
+          { key = "y"                       , action = "copy" },
+          { key = "p"                       , action = "paste" },
+          { key = "i"                       , action = "rename" },
+          { key = "Y"                       , action = "copy_path" },
+          { key = "<ESC>"                   , action = "close" },
         },
       },
       side = "right",

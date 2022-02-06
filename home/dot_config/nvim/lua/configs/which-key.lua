@@ -58,9 +58,8 @@ function M.config()
       },
       R = { "<cmd>lua fn.reload_config()<CR>", "reload" },
       t = { "<cmd>NvimTreeToggle<CR>", "tree" },
-      w = { "<cmd>wa<CR>", "write" },
+      w = { "<cmd>lua fn.choose_window()<CR>", "window" },
       x = { "<cmd>lua fn.close_buffer()<CR>", "close" },
-      X = { "<cmd>qa<CR>", "exit" },
       z = { "<cmd>only<CR>", "zoom" },
     },
   }, { mode = "n" })

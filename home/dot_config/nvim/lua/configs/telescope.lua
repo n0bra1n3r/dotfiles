@@ -7,17 +7,16 @@ function M.config()
         num_pickers = 5,
       },
       file_ignore_patterns = {
+        "%.dll",
+        "%.exe",
+        "%.glb",
+        "%.gltf",
+        "%.pdb",
         ".git",
       },
       mappings = {
         i = {
           ["<Esc>"] = require"telescope.actions".close,
-          ["<Left>"] = function(bufnr)
-            require"telescope.actions.set".edit(bufnr, "edit")
-          end,
-          ["<Right>"] = function(bufnr)
-            require"telescope.actions.set".edit(bufnr, "vsplit")
-          end,
           ["<M-\\>"] = function(bufnr)
             require"telescope.actions.set".edit(bufnr, "vsplit")
           end,
@@ -40,6 +39,12 @@ function M.config()
             require"telescope.actions.set".scroll_previewer(bufnr, -1)
           end,
           ["<M-p>"] = require"telescope.actions.layout".toggle_preview,
+          ["<S-Tab>"] = function(bufnr)
+            require"telescope.actions".move_selection_previous(bufnr)
+          end,
+          ["<Tab>"] = function(bufnr)
+            require"telescope.actions".move_selection_next(bufnr)
+          end,
         },
       },
     },

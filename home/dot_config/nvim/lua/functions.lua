@@ -8,6 +8,70 @@ local function get_wins_for_buf_type(buf_type)
     string.format("getwinvar(v:val, '&bt') == '%s'", buf_type))
 end
 
+local function pick_window(exclude)
+  local tabpage = vim.api.nvim_get_current_tabpage()
+  local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
+
+  local selectable = vim.tbl_filter(function(id)
+    if exclude ~= nil then
+      local bufid = vim.api.nvim_win_get_buf(id)
+      for option, v in pairs(exclude) do
+        local ok, option_value = pcall(vim.api.nvim_buf_get_option, bufid, option)
+        if ok and vim.tbl_contains(v, option_value) then
+          return false
+        end
+      end
+    end
+
+    local win_config = vim.api.nvim_win_get_config(id)
+    return win_config.focusable and not win_config.external
+  end, win_ids)
+
+  if #selectable == 0 then return -1 end
+  if #selectable == 1 then return selectable[1] end
+
+  local chars = "asdfgtv;lkjhnyqwerpoiu"
+
+  local i = 1
+  local win_opts = {}
+  local win_map = {}
+  local laststatus = vim.o.laststatus
+  vim.o.laststatus = 2
+
+  for _, id in ipairs(selectable) do
+    local char = chars:sub(i, i)
+    local ok_status, statusline = pcall(vim.api.nvim_win_get_option, id, "statusline")
+    local ok_hl, winhl = pcall(vim.api.nvim_win_get_option, id, "winhl")
+
+    win_opts[id] = {
+      statusline = ok_status and statusline or "",
+      winhl = ok_hl and winhl or ""
+    }
+    win_map[char] = id
+
+    vim.cmd[[highlight WindowPicker guibg=NONE guifg=lightred gui=bold]]
+    vim.cmd[[highlight WindowPickerNC guibg=NONE guifg=lightred gui=italic]]
+
+    vim.api.nvim_win_set_option(id, "statusline", string.format("%%=%s%%=", char))
+    vim.api.nvim_win_set_option(id, "winhl", "StatusLine:WindowPicker,StatusLineNC:WindowPickerNC")
+
+    i = i + 1
+    if i > #chars then break end
+  end
+
+  vim.cmd[[redraw]]
+  local resp = vim.fn.nr2char(vim.fn.getchar()):lower()
+  for _, id in ipairs(selectable) do
+    for opt, value in pairs(win_opts[id]) do
+      vim.api.nvim_win_set_option(id, opt, value)
+    end
+  end
+
+  vim.o.laststatus = laststatus
+
+  return win_map[resp]
+end
+
 -- shell --
 
 function _G.fn.is_git_dir()
@@ -129,52 +193,49 @@ function _G.fn.highlight_cursor_text(doHighlight)
   end
 end
 
+function _G.fn.edit_file(mode, path)
+  local tabpage = vim.api.nvim_get_current_tabpage()
+  local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
+
+  local target_winid
+
+  local found = false
+  for _, id in ipairs(win_ids) do
+    if path == vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(id)) then
+      found = true
+      target_winid = id
+      break
+    end
+  end
+
+  if target_winid == nil then
+    local exclude = {
+      filetype = {
+        "NvimTree",
+        "packer",
+        "qf",
+        "floaterm",
+      },
+      buftype = {
+        "terminal",
+      },
+    }
+    vim.api.nvim_set_current_win(pick_window(exclude))
+    vim.cmd(string.format("%s %s", mode, path))
+  else
+    vim.api.nvim_set_current_win(target_winid)
+  end
+end
+
+function _G.fn.choose_window()
+  vim.api.nvim_set_current_win(pick_window())
+end
+
 -- auto-session --
 
 function _G.fn.cleanup_session()
   if packer_plugins["nvim-tree.lua"] and packer_plugins["nvim-tree.lua"].loaded then
     vim.cmd[[NvimTreeClose]]
-  end
-end
-
--- bufferline --
-
-function _G.fn.next_buffer()
-  require"bufferline".cycle(1)
-end
-
-function _G.fn.prev_buffer()
-  require"bufferline".cycle(-1)
-end
-
-function _G.fn.filter_buffers(bufnr)
-  for _, win in ipairs(vim.fn.win_findbuf(bufnr)) do
-    if vim.api.nvim_win_get_config(win).relative ~= "" then
-      return false
-    end
-  end
-  if vim.bo[bufnr].filetype == "help" then
-    return false
-  end
-  if vim.bo[bufnr].filetype == "qf" then
-    return false
-  end
-  return true
-end
-
-function _G.fn.sort_buffers(buf1, buf2)
-  local changed_time1 = vim.fn.str2nr(vim.fn.getbufvar(buf1.id, "changedtime"))
-  local changed_time2 = vim.fn.str2nr(vim.fn.getbufvar(buf2.id, "changedtime"))
-  if changed_time1 ~= nil then
-    if changed_time2 ~= nil then
-      return changed_time1 > changed_time2
-    else
-      return true
-    end
-  else
-    if changed_time2 ~= nil then
-      return false
-    end
   end
 end
 

@@ -25,6 +25,11 @@ return {
     ["<C-j>"]       = { "<C-w>j"                        , noremap = true },
     ["<C-k>"]       = { "<C-w>k"                        , noremap = true },
     ["<C-l>"]       = { "<C-w>l"                        , noremap = true },
+    ["<C-w><C-f>"]  = { "<cmd>lua fn.edit_file('vsplit', vim.fn.expand('<cfile>'))<CR>"
+                                                        , noremap = true, silent = true},
+    ["<C-w>f"]      = { "<cmd>lua fn.edit_file('split', vim.fn.expand('<cfile>'))<CR>"
+                                                        , noremap = true, silent = true},
+    ["<C-w>gf"]     = { "<cmd>tabe <cfile><CR>"         , noremap = true, silent = true},
     ["<C-Down>"]    = { "<C-w>j"                        , noremap = true },
     ["<C-Left>"]    = { "<C-w>h"                        , noremap = true },
     ["<C-Right>"]   = { "<C-w>l"                        , noremap = true },
@@ -39,6 +44,8 @@ return {
     ["<PageUp>"]    = { "H<Up>" },
     ["<PageDown>"]  = { "L<Down>" },
     [";"]           = { "l"                             , noremap = true },
+    gf              = { "<cmd>lua fn.edit_file('edit', vim.fn.expand('<cfile>'))<CR>"
+                                                        , noremap = true, silent = true},
     h               = { ";"                             , noremap = true },
     l               = { "col('.')==1&&col([line('.')-1,'$'])>1?'k$l':'h'"
                                                         , noremap = true, expr = true },
