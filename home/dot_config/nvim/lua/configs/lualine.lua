@@ -70,9 +70,7 @@ function M.config()
       lualine_b = {
         {
           "buffers",
-          icons_enabled = false,
           mode = 2,
-          show_filename_only = false,
           show_modified_status = false,
         },
       },
