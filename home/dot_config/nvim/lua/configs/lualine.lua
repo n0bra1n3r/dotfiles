@@ -1,29 +1,5 @@
 local M = {}
 
-function project_info()
-  local area = {}
-  if fn.is_git_dir() then
-    if fn.project_status() == "debug" then
-      local hl = vim.api.nvim_get_hl_by_name("WarningMsg", true)
-      local fg = string.format("#%06x", hl.foreground)
-      table.insert(area, {
-        guifg = fg,
-        guibg = "NONE",
-        text = string.format(" ? %s ", vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.")),
-      })
-    else
-      local hl = vim.api.nvim_get_hl_by_name("Directory", true)
-      local fg = string.format("#%06x", hl.foreground)
-      table.insert(area, {
-        guifg = fg,
-        guibg = "NONE",
-        text = string.format(" ? %s ", vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.")),
-      })
-    end
-  end
-  return area
-end
-
 function M.config()
   local theme = "nightfox"
 
