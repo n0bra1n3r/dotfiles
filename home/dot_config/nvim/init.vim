@@ -13,12 +13,16 @@ augroup conf_editor
   autocmd BufEnter * checktime | let &titlestring = 'nvim - ' . expand("%:t")
   autocmd BufWritePost ~/.local/share/chezmoi/home/* lua fn.save_dot_files()
   autocmd BufWritePost * lua fn.check_project()
+  autocmd ColorScheme * highlight ColorColumn guifg=darkgray ctermfg=darkgray guibg=NONE ctermbg=NONE
+  autocmd ColorScheme * highlight CursorColumn gui=bold guibg=NONE ctermbg=NONE
   autocmd CursorMoved * lua fn.highlight_cursor_text(true)
   autocmd InsertEnter,TermEnter * lua fn.highlight_cursor_text(false)
   autocmd InsertEnter * set nocursorcolumn
   autocmd InsertLeave * set cursorcolumn
   autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
   autocmd TextYankPost * lua vim.highlight.on_yank()
+  autocmd WinEnter * set cursorcolumn
+  autocmd WinLeave * set nocursorcolumn
 augroup end
 
 augroup conf_help
