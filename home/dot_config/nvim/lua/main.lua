@@ -72,6 +72,14 @@ for mode, mapping in pairs(mappings) do
   for key, map in pairs(mapping) do
     local targetKey = map[1]
     map[1] = nil
+
+    if map.noremap == nil then
+      map.noremap = true
+    end
+    if map.silent == nil then
+      map.silent = true
+    end
+
     vim.api.nvim_set_keymap(mode, key, targetKey, map)
   end
 end
