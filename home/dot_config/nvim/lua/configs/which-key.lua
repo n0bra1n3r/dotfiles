@@ -14,9 +14,9 @@ function M.config()
       ["%"] = { ":%s///gc<Left><Left><Left>", "replace", silent = false },
       g = {
         name = "git",
-        g = { "<cmd>lua fn.open_git_shell()<CR>", "git shell" },
-        d = { "<cmd>DiffviewOpen<CR>", "git diff" },
-        h = { "<cmd>DiffviewFileHistory<CR>", "file history" },
+        g = { "<cmd>lua fn.open_git_shell()<CR>", "shell" },
+        d = { "<cmd>DiffviewOpen<CR>", "diff" },
+        h = { "<cmd>DiffviewFileHistory<CR>", "history" },
       },
       d = {
         name = "debug",
@@ -39,10 +39,10 @@ function M.config()
       },
       s = {
         name = "search",
-        b = { "<cmd>Telescope buffers<CR>", "search buffers" },
-        f = { "<cmd>Telescope find_files<CR>", "search files" },
-        s = { "<cmd>lua fn.show_string_search_picker()<CR>", "search strings" },
-        t = { "<cmd>TodoTelescope<CR>", "search todos" },
+        b = { "<cmd>Telescope buffers<CR>", "buffers" },
+        f = { "<cmd>Telescope find_files<CR>", "files" },
+        s = { "<cmd>lua fn.show_string_search_picker()<CR>", "strings" },
+        t = { "<cmd>TodoTelescope<CR>", "todos" },
       },
       p = {
         name = "packages",
@@ -50,9 +50,9 @@ function M.config()
       },
       q = {
         name = "quickfix",
-        q = { "<cmd>lua fn.toggle_quickfix()<CR>", "quickfix list" },
-        n = { "<cmd>cnext<CR>", "next issue" },
-        N = { "<cmd>cprev<CR>", "prev issue" },
+        q = { "<cmd>lua fn.toggle_quickfix()<CR>", "show" },
+        n = { "<cmd>cnext<CR>", "next" },
+        N = { "<cmd>cprev<CR>", "previous" },
       },
       R = { "<cmd>lua fn.reload_config()<CR>", "reload" },
       t = { "<cmd>NvimTreeToggle<CR>", "tree" },
