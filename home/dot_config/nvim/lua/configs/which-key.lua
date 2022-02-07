@@ -21,8 +21,8 @@ function M.config()
       d = {
         name = "debug",
         b = { "<cmd>lua fn.debug_break()<CR>", "break" },
+        B = { "<cmd>lua fn.project_debug()<CR>", "restart" },
         c = { "<cmd>lua fn.debug_continue()<CR>", "continue" },
-        D = { "<cmd>lua fn.project_debug()<CR>", "restart" },
         d = { "<cmd>lua fn.debug_step()<CR>", "step" },
         s = { "<cmd>lua fn.debug_show_symbol()<CR>", "symbol" },
         S = { "<cmd>lua fn.debug_show_symbols()<CR>", "symbols" },
@@ -31,10 +31,10 @@ function M.config()
       r = {
         name = "runner",
         b = { "<cmd>lua fn.project_build()<CR>", "build" },
-        D = { "<cmd>lua fn.project_debug()<CR>", "debug" },
         d = { "<cmd>lua fn.project_build_and_debug()<CR>", "build and debug" },
-        R = { "<cmd>lua fn.project_run()<CR>", "run" },
+        D = { "<cmd>lua fn.project_debug()<CR>", "debug" },
         r = { "<cmd>lua fn.project_build_and_run()<CR>", "build and run" },
+        R = { "<cmd>lua fn.project_run()<CR>", "run" },
         s = { "<cmd>lua fn.open_run_shell()<CR>", "shell" },
       },
       s = {
