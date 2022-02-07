@@ -76,7 +76,13 @@ end
 
 function _G.fn.is_git_dir()
   vim.cmd[[silent! !git rev-parse --is-inside-work-tree]]
-  return vim.v.shell_error == 0
+  local result = vim.v.shell_error == 0
+
+  function _G.fn.is_git_dir()
+    return result
+  end
+
+  return result
 end
 
 function _G.fn.save_dot_files()
