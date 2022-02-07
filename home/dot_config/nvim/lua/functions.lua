@@ -109,24 +109,6 @@ function _G.fn.vim_defer(fn, timer)
   end
 end
 
-function _G.fn.reload_config()
-  package.loaded["functions"] = nil
-  package.loaded["main"] = nil
-  package.loaded["mappings"] = nil
-  package.loaded["plugins"] = nil
-
-  for key, _ in pairs(package.loaded) do
-    if string.match(key, "^configs") then
-      package.loaded[key] = nil
-    end
-  end
-
-  vim.cmd[[silent wa]]
-  vim.cmd[[silent source $MYVIMRC]]
-
-  print "Reloaded configuration"
-end
-
 function _G.fn.open_quickfix()
   local cur_win = vim.fn.winnr()
   local term_wins = get_wins_for_buf_type("terminal")
