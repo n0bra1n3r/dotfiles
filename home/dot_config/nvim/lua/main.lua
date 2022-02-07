@@ -1,4 +1,5 @@
 require "functions"
+require "impatient"
 
 -- Options --
 

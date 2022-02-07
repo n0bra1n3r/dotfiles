@@ -4,6 +4,10 @@ require"packer".startup(function(use)
   -- Misc --
 
   use { "nvim-lua/plenary.nvim" }
+  use { "lewis6991/impatient.nvim" }
+  use { "nathom/filetype.nvim",
+    config = fn.get_config("filetype"),
+  }
 
   use { "wbthomason/packer.nvim", event = "VimEnter" }
   use { "kyazdani42/nvim-web-devicons", after = "packer.nvim",
@@ -22,6 +26,12 @@ require"packer".startup(function(use)
     config = fn.get_config("nightfox"),
   }
 
+  -- Motions --
+
+  use { "tpope/vim-repeat", event = "BufEnter" }
+  use { "tpope/vim-surround", event = "BufEnter" }
+  use { "tpope/vim-unimpaired", event = "BufEnter" }
+
   -- File Types --
 
   use { "zah/nim.vim" }
@@ -39,6 +49,8 @@ require"packer".startup(function(use)
     config = fn.get_config("lsp_signature"),
   }
 
+  use { "nvim-treesitter/nvim-treesitter", event = "BufRead" }
+
   use { "onsails/lspkind-nvim", event = "InsertEnter" }
   use { "hrsh7th/nvim-cmp", after = "lspkind-nvim",
     config = fn.get_config("cmp"),
@@ -46,8 +58,9 @@ require"packer".startup(function(use)
   use { "L3MON4D3/LuaSnip", after = "nvim-cmp" }
   use { "saadparwaiz1/cmp_luasnip", after = "LuaSnip" }
   use { "hrsh7th/cmp-nvim-lsp", after = "cmp_luasnip" }
-
-  use { "nvim-treesitter/nvim-treesitter", event = "BufRead" }
+  use { "windwp/nvim-autopairs", after = "cmp-nvim-lsp",
+    config = fn.get_config("nvim-autopairs"),
+  }
 
   -- Navigation --
 
@@ -56,9 +69,7 @@ require"packer".startup(function(use)
     config = fn.get_config("telescope"),
   }
 
-  use { "ggandor/lightspeed.nvim", event = "BufEnter",
-    requires = { "tpope/vim-repeat" },
-  }
+  use { "ggandor/lightspeed.nvim", event = "BufEnter" }
 
   use { "kyazdani42/nvim-tree.lua", after = "nvim-web-devicons",
     setup = fn.get_setup("nvim-tree"),
