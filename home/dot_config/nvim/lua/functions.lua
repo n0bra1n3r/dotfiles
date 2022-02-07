@@ -413,7 +413,7 @@ function _G.fn.run_process(command, notify)
     })
 
   fn.open_run_shell()
-  vim.api.nvim_buf_set_name(vim.fn.bufnr("%"), command)
+  vim.api.nvim_buf_set_name(0, command)
   vim.cmd(string.format("stopinsert | exec 'normal G' | %dwincmd w", cur_win))
 end
 
