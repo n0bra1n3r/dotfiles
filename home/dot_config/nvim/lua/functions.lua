@@ -431,25 +431,35 @@ function _G.fn.project_status()
   return vim.g.asynctasks_profile
 end
 
-function _G.fn.check_project()
+function _G.fn.project_check()
   if not fn.get_is_job_in_progress() then
     vim.cmd[[AsyncTask project-check]]
   end
 end
 
-function _G.fn.debug_project()
-  vim.cmd[[AsyncTask project-debug]]
+function _G.fn.project_build()
+  vim.cmd[[AsyncTask project-build]]
 end
 
-function _G.fn.debug_project_continue()
-  vim.cmd[[AsyncTask project-debug +debugger_addr=]]
+function _G.fn.project_run()
+  vim.cmd[[AsyncTask project-run]]
 end
 
-function _G.fn.debug_project_step()
-  local file = vim.fn.expand('%:~:.')
-  local line = vim.fn.line(".")
+function _G.fn.project_debug()
+  if fn.project_status() == "debug" then
+    fn.debug_break()
+    vim.cmd[[AsyncTask debug-restart]]
+  else
+    vim.cmd[[AsyncTask project-debug]]
+  end
+end
 
-  vim.cmd(string.format("AsyncTask project-debug +debugger_addr=`%s:%d`", file, line))
+function _G.fn.project_build_and_run()
+  vim.cmd[[AsyncTask project-build_and_run]]
+end
+
+function _G.fn.project_build_and_debug()
+  vim.cmd[[AsyncTask project-build_and_debug]]
 end
 
 function _G.fn.debug_continue()

@@ -20,24 +20,22 @@ function M.config()
       },
       d = {
         name = "debug",
-        b = { "<cmd>lua fn.debug_break()<CR>", "break execution" },
-        c = { "<cmd>lua fn.debug_continue()<CR>", "debug continue" },
-        d = { "<cmd>lua fn.debug_step()<CR>", "debug step" },
-        s = { "<cmd>lua fn.debug_show_symbol()<CR>", "show symbol" },
-        S = { "<cmd>lua fn.debug_show_symbols()<CR>", "show symbols" },
-        x = { "<cmd>lua fn.debug_exit()<CR>", "exit session" }
+        b = { "<cmd>lua fn.debug_break()<CR>", "break" },
+        c = { "<cmd>lua fn.debug_continue()<CR>", "continue" },
+        D = { "<cmd>lua fn.project_debug()<CR>", "restart" },
+        d = { "<cmd>lua fn.debug_step()<CR>", "step" },
+        s = { "<cmd>lua fn.debug_show_symbol()<CR>", "symbol" },
+        S = { "<cmd>lua fn.debug_show_symbols()<CR>", "symbols" },
+        x = { "<cmd>lua fn.debug_exit()<CR>", "exit" }
       },
       r = {
         name = "runner",
-        b = { "<cmd>AsyncTask project-build<CR>", "build project" },
-        d = {
-          name = "debug project",
-          b = { "<cmd>lua fn.debug_project()<CR>", "break execution" },
-          c = { "<cmd>lua fn.debug_project_continue()<CR>", "debug continue" },
-          d = { "<cmd>lua fn.debug_project_step()<CR>", "debug step" },
-        },
-        r = { "<cmd>AsyncTask project-run<CR>", "run project" },
-        s = { "<cmd>lua fn.open_run_shell()<CR>", "open shell" },
+        b = { "<cmd>lua fn.project_build()<CR>", "build" },
+        D = { "<cmd>lua fn.project_debug()<CR>", "debug" },
+        d = { "<cmd>lua fn.project_build_and_debug()<CR>", "build and debug" },
+        R = { "<cmd>lua fn.project_run()<CR>", "run" },
+        r = { "<cmd>lua fn.project_build_and_run()<CR>", "build and run" },
+        s = { "<cmd>lua fn.open_run_shell()<CR>", "shell" },
       },
       s = {
         name = "search",

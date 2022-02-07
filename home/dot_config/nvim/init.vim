@@ -12,7 +12,7 @@ augroup conf_editor
   autocmd!
   autocmd BufEnter * checktime | let &titlestring = 'nvim - ' . expand("%:t")
   autocmd BufWritePost ~/.local/share/chezmoi/home/* lua fn.save_dot_files()
-  autocmd BufWritePost * lua fn.check_project()
+  autocmd BufWritePost * lua fn.project_check()
   autocmd ColorScheme * highlight ColorColumn guifg=darkgray ctermfg=darkgray guibg=NONE ctermbg=NONE
   autocmd ColorScheme * highlight CursorColumn gui=bold guibg=NONE ctermbg=NONE
   autocmd CursorMoved * lua fn.highlight_cursor_text(true)
