@@ -9,7 +9,6 @@ function M.config()
   require"packer".init {
     auto_clean = true,
     compile_on_sync = true,
-    compile_path = vim.fn.stdpath("config").."/lua/packer_compiled.lua",
     display = {
       open_cmd = "vnew \\[packer\\] | wincmd L | vertical resize 50",
       keybindings = {

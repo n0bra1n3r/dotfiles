@@ -318,6 +318,25 @@ function _G.fn.lazy_load(plugin, timer)
   end
 end
 
+function _G.fn.define_use(packer_use)
+  return function(opts)
+    local plugin = opts[1]
+    local config = vim.fn.fnamemodify(plugin, ":t:r")
+
+    local hasConfig, module = pcall(require, "configs."..config)
+    if hasConfig then
+      if module.setup ~= nil and opts.setup == nil then
+        opts.setup = fn.get_setup(config)
+      end
+      if module.config ~= nil and opts.config == nil then
+        opts.config = fn.get_config(config)
+      end
+    end
+
+    return packer_use(opts)
+  end
+end
+
 -- telescope --
 
 function _G.fn.show_string_search_picker()

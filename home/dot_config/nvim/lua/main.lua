@@ -1,5 +1,4 @@
 require "functions"
-require "impatient"
 
 -- Options --
 
@@ -134,4 +133,5 @@ if not present then
   end
 end
 
+require "impatient"
 require "plugins"
