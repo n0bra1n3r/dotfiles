@@ -22,7 +22,7 @@ vim.opt.foldenable = false
 vim.opt.foldmethod = "indent"
 vim.opt.grepprg = "rg --vimgrep --no-heading --smart-case"
 vim.opt.grepformat = "%f:%l:%c:%m"
-vim.opt.guicursor = "v-n-sm:block,i-c-ci-ve:ver25-blinkwait0-blinkon400-blinkoff250,r-cr:hor20,o:hor20-blinkwait0-blinkon400-blinkoff250"
+vim.opt.guicursor = "v-n-sm:block,i-c-ci-ve:ver25,r-cr:hor20,o:hor20-blinkwait0-blinkon400-blinkoff250"
 vim.opt.hidden = true
 vim.opt.ignorecase = true
 vim.opt.isfname = "@,48-57,/,\\,.,-,_,+,,,#,$,%,~,="
