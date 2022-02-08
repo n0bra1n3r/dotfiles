@@ -47,3 +47,11 @@ augroup conf_lsp
   autocmd TextChangedI,TextChangedP * lua fn.trigger_completion()
   autocmd CursorMovedI * lua fn.end_completion()
 augroup end
+
+if &t_ts == "" && ( &term == "screen" || &term == "xterm" )
+  let &t_ts = "\e]2;"
+endif
+
+if &t_ts != ""
+  set title
+endif
