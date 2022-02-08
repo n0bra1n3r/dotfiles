@@ -10,7 +10,7 @@ lua require "main"
 
 augroup conf_editor
   autocmd!
-  autocmd BufEnter * checktime | let &titlestring = 'nvim - ' . expand("%:t")
+  autocmd BufEnter,WinEnter * checktime | let &titlestring = 'nvim - ' . expand("%:t")
   autocmd BufWritePost ~/.local/share/chezmoi/home/* lua fn.save_dot_files()
   autocmd BufWritePost * lua fn.project_check()
   autocmd ColorScheme * highlight ColorColumn guifg=darkgray ctermfg=darkgray guibg=NONE ctermbg=NONE
@@ -48,10 +48,7 @@ augroup conf_lsp
   autocmd CursorMovedI * lua fn.end_completion()
 augroup end
 
-if &t_ts == "" && ( &term == "screen" || &term == "xterm" )
+if &t_ts == ""
   let &t_ts = "\e]2;"
-endif
-
-if &t_ts != ""
   set title
 endif
