@@ -9,6 +9,12 @@ function M.config()
       lualine_a = {},
       lualine_b = {
         {
+          "filetype",
+          colored = false,
+          icon_only = true,
+          padding = { left = 1, right = 0 },
+        },
+        {
           "filename",
           file_status = true,
           path = 1,
@@ -23,14 +29,7 @@ function M.config()
           padding = { left = 0, right = 1 },
         },
       },
-      lualine_c = {
-        {
-          "filetype",
-          colored = false,
-          icon_only = true,
-          padding = { left = 1, right = 0 },
-        },
-      },
+      lualine_c = {},
       lualine_x = { "location" },
       lualine_y = {},
       lualine_z = {}
@@ -44,6 +43,12 @@ function M.config()
       lualine_a = { "mode" },
       lualine_b = {
         {
+          "filetype",
+          colored = false,
+          icon_only = true,
+          padding = { left = 1, right = 0 },
+        },
+        {
           "filename",
           file_status = true,
           path = 1,
@@ -58,14 +63,7 @@ function M.config()
           padding = { left = 0, right = 1 },
         },
       },
-      lualine_c = {
-        {
-          "filetype",
-          colored = true,
-          icon_only = true,
-          padding = { left = 1, right = 0 },
-        },
-      },
+      lualine_c = {},
       lualine_x = { "fileformat" },
       lualine_y = { "progress" },
       lualine_z = { "location" },
