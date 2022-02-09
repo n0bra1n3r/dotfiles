@@ -108,6 +108,7 @@ function M.config()
         {
           "branch",
           color = "lualine_a_normal",
+          cond = fn.is_git_dir,
         },
       },
     },
