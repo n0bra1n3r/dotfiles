@@ -5,9 +5,7 @@ function M.config()
     alt_nc = true,
     fox = "nordfox",
     inverse = {
-      match_paren = true,
       visual = true,
-      search = true,
     },
   }
 
