@@ -146,7 +146,10 @@ end
 
 function _G.fn.show_quickfix()
   if is_quickfix_force_closed == false then
-    if #vim.fn.getqflist() > 0 then
+    local diagnostics = fn.get_qf_diagnostics()
+    if diagnostics.error > 0 or
+        diagnostics.warn > 0 or
+        diagnostics.hint > 0 then
       fn.open_quickfix()
     end
   end
