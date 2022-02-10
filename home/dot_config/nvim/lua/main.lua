@@ -29,7 +29,7 @@ vim.opt.isfname = "@,48-57,/,\\,.,-,_,+,,,#,$,%,~,="
 vim.opt.isident = "@,48-57,_,192-255"
 vim.opt.linebreak = true
 vim.opt.list = true
-vim.opt.listchars:append("lead:·")
+vim.opt.listchars:append("multispace: ·")
 vim.opt.listchars:append("tab:▸ ")
 vim.opt.listchars:append("trail:•")
 vim.opt.number = true
