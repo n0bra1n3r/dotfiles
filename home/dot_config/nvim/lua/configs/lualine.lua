@@ -1,5 +1,15 @@
 local M = {}
 
+function buffer_git_status()
+  if vim.b.gitsigns_status_dict ~= nil then
+    return {
+      added = vim.b.gitsigns_status_dict.added,
+      modified = vim.b.gitsigns_status_dict.changed,
+      removed = vim.b.gitsigns_status_dict.removed,
+    }
+  end
+end
+
 function M.config()
   local theme = "nightfox"
 
@@ -25,8 +35,10 @@ function M.config()
           },
         },
         {
-          "b:gitsigns_status",
+          'diff',
           padding = { left = 0, right = 1 },
+          symbols = { added = ' ', modified = ' ', removed = ' ' },
+          source = buffer_git_status,
         },
       },
       lualine_c = {},
@@ -61,11 +73,9 @@ function M.config()
         {
           'diff',
           padding = { left = 0, right = 1 },
-          symbols = { added = '', modified = '', removed = '' },
-          source = function()
-            return vim.b.gitsigns_status_dict
-          end,
-        }
+          symbols = { added = ' ', modified = ' ', removed = ' ' },
+          source = buffer_git_status,
+        },
       },
       lualine_c = {},
       lualine_x = { "fileformat" },
