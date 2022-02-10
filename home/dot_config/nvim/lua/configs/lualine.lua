@@ -59,9 +59,13 @@ function M.config()
           },
         },
         {
-          "b:gitsigns_status",
+          'diff',
           padding = { left = 0, right = 1 },
-        },
+          symbols = { added = '', modified = '', removed = '' },
+          source = function()
+            return vim.b.gitsigns_status_dict
+          end,
+        }
       },
       lualine_c = {},
       lualine_x = { "fileformat" },
