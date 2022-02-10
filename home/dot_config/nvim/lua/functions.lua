@@ -86,7 +86,7 @@ function _G.fn.is_git_dir()
 end
 
 function _G.fn.save_dot_files()
-  vim.cmd[[AsyncRun -strip chezmoi apply --source-path "%"]]
+  vim.cmd[[AsyncRun -strip chezmoi apply --force --source-path "%"]]
 end
 
 -- nvim --
