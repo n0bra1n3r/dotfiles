@@ -393,6 +393,10 @@ function _G.fn.run_command(command)
   vim.cmd(string.format("stopinsert | exec 'normal G' | %dwincmd w", cur_win))
 end
 
+function _G.fn.show_git_line_blame()
+  require"gitsigns".blame_line({ full = true })
+end
+
 -- AsyncTask --
 
 function _G.fn.project_status()

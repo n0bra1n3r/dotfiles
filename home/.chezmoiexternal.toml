@@ -6,11 +6,6 @@
   stripComponents = 1
 {{- end }}
 
-[".dotfiles/fonts"]
-  type = "archive"
-  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
-  exact = true
-
 {{- $nvim := "" }}
 {{- $fd := "" }}
 {{- $rg := "" }}
@@ -41,3 +36,14 @@
   url = "https://glare.now.sh/BurntSushi/ripgrep/{{ $rg }}[.]zip"
   exact = true
   stripComponents = 1
+
+{{- if eq .chezmoi.os "windows" }}
+[".dotfiles/deps/cmder/.local/cmder"]
+  type = "archive"
+  url = "https://github.com/cmderdev/cmder/releases/latest/download/cmder.zip"
+  exact = true
+
+[".dotfiles/deps/nerdfont-hack/.local/cmder/vendor/conemu-maximus5/ConEmu"]
+  type = "archive"
+  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip"
+{{- end }}

@@ -2,4 +2,4 @@
 
 set -e
 
-cp -r ~/.dotfiles/deps/*/.local ~
+cp -rf ~/.dotfiles/deps/*/.local ~
