@@ -34,12 +34,6 @@ function M.config()
             unnamed = "[New File]",
           },
         },
-        {
-          'diff',
-          padding = { left = 0, right = 1 },
-          symbols = { added = ' ', modified = ' ', removed = ' ' },
-          source = buffer_git_status,
-        },
       },
       lualine_c = {},
       lualine_x = { "location" },
