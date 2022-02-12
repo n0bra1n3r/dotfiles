@@ -204,6 +204,8 @@ function _G.fn.choose_window()
   vim.api.nvim_set_current_win(pick_window())
 end
 
+local pressed_key
+
 -- auto-session --
 
 function _G.fn.cleanup_session()
@@ -341,7 +343,7 @@ end
 
 -- floaterm --
 
-function _G.fn.open_git_shell()
+function _G.fn.open_git_shell(cmd)
   vim.cmd("FloatermNew "
     .."--name=git_shell "
     .."--title=git "
@@ -349,8 +351,16 @@ function _G.fn.open_git_shell()
     .."--width=0.8 "
     .."bash --rcfile ~/.dotfiles/gitrc")
 
-  function _G.fn.open_git_shell()
+  if cmd ~= nil then
+    vim.cmd("FloatermSend --name=git_shell "..cmd)
+  end
+
+  function _G.fn.open_git_shell(cmd)
     vim.cmd[[FloatermShow git_shell]]
+
+    if cmd ~= nil then
+      vim.cmd("FloatermSend --name=git_shell "..cmd)
+    end
   end
 end
 
