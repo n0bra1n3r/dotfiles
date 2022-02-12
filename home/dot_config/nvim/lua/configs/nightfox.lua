@@ -7,6 +7,7 @@ function M.config()
     inverse = {
       visual = true,
     },
+    transparent = false,
   }
 
   require"nightfox".load()
