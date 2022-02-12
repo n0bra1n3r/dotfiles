@@ -37,6 +37,7 @@ function M.config()
         r = { "<cmd>lua fn.project_build_and_run()<CR>", "build and run" },
         R = { "<cmd>lua fn.project_run()<CR>", "run" },
         s = { "<cmd>lua fn.open_run_shell()<CR>", "shell" },
+        t = { "<cmd>lua fn.project_test()<CR>", "test" },
       },
       s = {
         name = "search",

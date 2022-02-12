@@ -416,6 +416,10 @@ function _G.fn.project_build()
   vim.cmd[[AsyncTask project-build]]
 end
 
+function _G.fn.project_test()
+  vim.cmd[[AsyncTask project-test]]
+end
+
 function _G.fn.project_run()
   vim.cmd[[AsyncTask project-run]]
 end
