@@ -38,7 +38,6 @@ function M.config()
           ["<M-y>"] = function(bufnr)
             require"telescope.actions.set".scroll_previewer(bufnr, -1)
           end,
-          ["<M-p>"] = require"telescope.actions.layout".toggle_preview,
           ["<S-Tab>"] = function(bufnr)
             require"telescope.actions".move_selection_previous(bufnr)
           end,
