@@ -6,14 +6,16 @@
   stripComponents = 1
 {{- end }}
 
-{{- $nvim := "" }}
-{{- $fd := "" }}
-{{- $rg := "" }}
-{{- if eq .chezmoi.os "windows" }}
-{{-   $nvim = "nvim-win64" }}
-{{-   $fd = "fd-v[0-9.]+-x86_64-pc-windows-msvc" }}
-{{-   $rg = "ripgrep-[0-9.]+-x86_64-pc-windows-msvc" }}
-{{- else if eq .chezmoi.os "darwin" }}
+## Windows
+{{- $exe := "exe" }}
+{{- $alacritty := "Alacritty-v[0-9.]+-portable" }}
+{{- $nvim := "nvim-win64" }}
+{{- $fd := "fd-v[0-9.]+-x86_64-pc-windows-msvc" }}
+{{- $rg := "ripgrep-[0-9.]+-x86_64-pc-windows-msvc" }}
+## Darwin
+{{- if eq .chezmoi.os "darwin" }}
+{{-   $exe = "dmg" }}
+{{-   $alacritty = "Alacritty-v[0-9.]+" }}
 {{-   $nvim = "nvim-macos" }}
 {{-   $fd = "fd-v[0-9.]+-x86_64-apple-darwin" }}
 {{-   $rg = "ripgrep-[0-9.]+-x86_64-apple-darwin" }}
@@ -37,13 +39,11 @@
   exact = true
   stripComponents = 1
 
-{{- if eq .chezmoi.os "windows" }}
-[".dotfiles/deps/cmder/.local/cmder"]
-  type = "archive"
-  url = "https://github.com/cmderdev/cmder/releases/latest/download/cmder.zip"
-  exact = true
-
-[".dotfiles/deps/nerdfont-hack/.local/cmder/vendor/conemu-maximus5/ConEmu"]
+[".dotfiles/deps/hack-nf/.local/share/fonts"]
   type = "archive"
   url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip"
-{{- end }}
+
+[".dotfiles/deps/alacritty/.local/bin/alacritty.{{ $exe }}"]
+  type = "file"
+  url = "https://glare.now.sh/alacritty/alacritty/{{ $alacritty }}[.]{{ $exe }}"
+  executable = true
