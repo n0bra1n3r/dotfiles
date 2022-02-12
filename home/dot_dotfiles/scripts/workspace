@@ -2,6 +2,9 @@
 
 set -e
 
+INFO_MSG="INFO"
+ERROR_MSG="ERROR"
+
 WORKSPACE_BRANCH="${WORKSPACE_BRANCH:-staging}"
 WORKSPACE_EDITOR="${WORKSPACE_EDITOR:-${EDITOR:-nvim}}"
 
@@ -10,26 +13,36 @@ BRANCH="$1"
 GIT_DIR="$(git rev-parse --show-toplevel)"
 
 if [ $? -ne 0 ]; then
-  echo "error: this script must be run in a git directory"
+  echo "$ERROR_MSG: this script must be run in a git directory"
   exit 1
 else
   [ -z "$MSYSTEM" ] || GIT_DIR="$(cygpath -u "$GIT_DIR")"
 
   THIS_BRANCH="$(git branch --show-current)"
 
-  if ! git show-ref --quiet refs/heads/$WORKSPACE_BRANCH; then
-    echo "error: default branch '$WORKSPACE_BRANCH' does not exist"
+  for branch in $WORKSPACE_BRANCH main master; do
+    if git show-ref --quiet refs/heads/$branch; then
+      WORKSPACE_BRANCH="$branch"
+      break
+    fi
+    WORKSPACE_BRANCH=
+  done
+
+  if [ -z "$WORKSPACE_BRANCH" ]; then
+    echo "$ERROR_MSG: could not find default branch"
     exit 1
+  else
+    echo "$INFO_MSG: using '$WORKSPACE_BRANCH' as default branch"
   fi
 
   if [ -z "$WORKSPACE_ROOT_DIR" ]; then
     WORKSPACE_DEFAULT_DIR="$(git worktree list --porcelain | \
       grep "^worktree .*$WORKSPACE_BRANCH$" | \
       cut -d' ' -f2)"
-    if [ ! -z WORKSPACE_DEFAULT_DIR ]; then
+    if [ ! -z "$WORKSPACE_DEFAULT_DIR" ]; then
         [ -z "$MSYSTEM" ] ||
           WORKSPACE_DEFAULT_DIR="$(cygpath -u "$WORKSPACE_DEFAULT_DIR")"
-        WORKSPACE_ROOT_DIR="${WORKSPACE_DEFAULT_DIR%$WORKSPACE_BRANCH}"
+        WORKSPACE_ROOT_DIR="${WORKSPACE_DEFAULT_DIR%/$WORKSPACE_BRANCH}"
     fi
   fi
   if [ -z "$WORKSPACE_ROOT_DIR" ] || \
@@ -38,13 +51,17 @@ else
   then
     WORKSPACE_ROOT_DIR="$(dirname $PWD)/ws-$(basename $PWD)"
   else
-    echo "info: found workspace root at '$WORKSPACE_ROOT_DIR'"
+    echo "$INFO_MSG: found workspace root at '$WORKSPACE_ROOT_DIR'"
   fi
 
   if [ ! -d "$WORKSPACE_ROOT_DIR" ]; then
-    read -p "Initialize default workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'? [Y/n] " DO_CREATE_WORKSPACE
-    if [ "$DO_CREATE_WORKSPACE" != "${DO_CREATE_WORKSPACE#[Yy]}" ]; then
-      exit
+    if [ -t 0 ]; then
+      read -p "Initialize default workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'? [Y/n] " DO_CREATE_WORKSPACE
+      if [ ! -z "${DO_CREATE_WORKSPACE#[Yy]}" ]; then
+        exit
+      fi
+    else
+      echo "$INFO_MSG: initializing default workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'"
     fi
     mkdir -p "$WORKSPACE_ROOT_DIR/$(dirname $WORKSPACE_BRANCH)"
     cp -r "$GIT_DIR" "$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH"
@@ -55,10 +72,14 @@ fi
 
 if [ ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]; then
   if [ ! -z "$WORKSPACE_DEFAULT_DIR" ]; then
-    # confirm intent if WORKSPACE_ROOT_DIR was guessed
-    read -p "Create workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'? [Y/n] " DO_CREATE_WORKSPACE
-    if [ "$DO_CREATE_WORKSPACE" != "${DO_CREATE_WORKSPACE#[Yy]}" ]; then
-      exit
+    if [ -t 0 ]; then
+      # confirm intent if WORKSPACE_ROOT_DIR was guessed
+      read -p "Create workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'? [Y/n] " DO_CREATE_WORKSPACE
+      if [ ! -z "${DO_CREATE_WORKSPACE#[Yy]}" ]; then
+        exit
+      fi
+    else
+      echo "$INFO_MSG: creating workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'"
     fi
   fi
 
@@ -67,20 +88,22 @@ if [ ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]; then
   git worktree prune
 
   if git show-ref --verify --quiet refs/heads/$BRANCH; then
-    echo "info: Found local branch $BRANCH"
+    echo "$INFO_MSG: found local branch '$BRANCH'"
     git worktree add "$WORKSPACE_ROOT_DIR/$BRANCH" $BRANCH
   else
     if git ls-remote --exit-code --heads origin $BRANCH >/dev/null; then
-      echo "info: Found remote branch $BRANCH"
+      echo "$INFO_MSG: found remote branch '$BRANCH'"
       git fetch origin $BRANCH
       git worktree add "$WORKSPACE_ROOT_DIR/$BRANCH" $BRANCH
     else
-      echo "info: Creating new branch $BRANCH"
+      echo "$INFO_MSG: creating new branch '$BRANCH'"
       git worktree add --track -b $BRANCH "$WORKSPACE_ROOT_DIR/$BRANCH"
     fi
   fi
 
   cd "$WORKSPACE_ROOT_DIR/$BRANCH"
+else
+  echo "$INFO_MSG: found workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'"
 fi
 
 $WORKSPACE_EDITOR "$WORKSPACE_ROOT_DIR/$BRANCH"
