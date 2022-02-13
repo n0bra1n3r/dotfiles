@@ -28,4 +28,9 @@ alias cg='chezmoi git --'
 alias e='nvim'
 alias g='git'
 alias vim='nvim'
+
+function workspace() {
+  source "$HOME/.dotfiles/scripts/workspace"
+}
+
 alias ws='workspace'

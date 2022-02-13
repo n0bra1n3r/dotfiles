@@ -1,20 +1,22 @@
 #! /bin/sh
 
-set -e
+local INFO_MSG="INFO"
+local ERROR_MSG="ERROR"
 
-INFO_MSG="INFO"
-ERROR_MSG="ERROR"
+local BRANCH="$1"
 
-WORKSPACE_BRANCH="${WORKSPACE_BRANCH:-staging}"
-WORKSPACE_EDITOR="${WORKSPACE_EDITOR:-${EDITOR:-nvim}}"
+local GIT_DIR="$(git rev-parse --show-toplevel)"
 
-BRANCH="$1"
+local WORKSPACE_BRANCH="${WORKSPACE_BRANCH:-staging}"
 
-GIT_DIR="$(git rev-parse --show-toplevel)"
+local THIS_BRANCH=
+local WORKSPACE_BRANCH=
+local WORKSPACE_DEFAULT_DIR=
+local WORKSPACE_ROOT_DIR=
 
-if [ $? -ne 0 ]; then
+if [ -z "$GIT_DIR" ]; then
   echo "$ERROR_MSG: this script must be run in a git directory"
-  exit 1
+  return 1
 else
   [ -z "$MSYSTEM" ] || GIT_DIR="$(cygpath -u "$GIT_DIR")"
 
@@ -30,7 +32,7 @@ else
 
   if [ -z "$WORKSPACE_BRANCH" ]; then
     echo "$ERROR_MSG: could not find default branch"
-    exit 1
+    return 1
   else
     echo "$INFO_MSG: using '$WORKSPACE_BRANCH' as default branch"
   fi
@@ -40,8 +42,9 @@ else
       grep "^worktree .*$WORKSPACE_BRANCH$" | \
       cut -d' ' -f2)"
     if [ ! -z "$WORKSPACE_DEFAULT_DIR" ]; then
-        [ -z "$MSYSTEM" ] ||
+        if [ -z "$MSYSTEM" ]; then
           WORKSPACE_DEFAULT_DIR="$(cygpath -u "$WORKSPACE_DEFAULT_DIR")"
+        fi
         WORKSPACE_ROOT_DIR="${WORKSPACE_DEFAULT_DIR%/$WORKSPACE_BRANCH}"
     fi
   fi
@@ -58,7 +61,7 @@ else
     if [ -t 0 ]; then
       read -p "Initialize default workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'? [Y/n] " DO_CREATE_WORKSPACE
       if [ ! -z "${DO_CREATE_WORKSPACE#[Yy]}" ]; then
-        exit
+        return 0
       fi
     else
       echo "$INFO_MSG: initializing default workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'"
@@ -76,7 +79,7 @@ if [ ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]; then
       # confirm intent if WORKSPACE_ROOT_DIR was guessed
       read -p "Create workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'? [Y/n] " DO_CREATE_WORKSPACE
       if [ ! -z "${DO_CREATE_WORKSPACE#[Yy]}" ]; then
-        exit
+        return 0
       fi
     else
       echo "$INFO_MSG: creating workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'"
@@ -101,9 +104,9 @@ if [ ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]; then
     fi
   fi
 
-  cd "$WORKSPACE_ROOT_DIR/$BRANCH"
+  echo "$INFO_MSG: created workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'"
 else
   echo "$INFO_MSG: found workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'"
 fi
 
-$WORKSPACE_EDITOR "$WORKSPACE_ROOT_DIR/$BRANCH"
+cd "$WORKSPACE_ROOT_DIR/$BRANCH"
