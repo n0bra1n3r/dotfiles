@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/usr/bin/env bash
 
 local INFO_MSG="INFO"
 local ERROR_MSG="ERROR"
