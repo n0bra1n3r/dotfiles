@@ -34,6 +34,8 @@ else
     echo "$INFO_MSG: using '$WORKSPACE_BRANCH' as default branch" >&2
   fi
 
+  [ ! -z "$BRANCH" ] || BRANCH="$WORKSPACE_BRANCH"
+
   if [ -z "$WORKSPACE_ROOT_DIR" ]; then
     if [ -z "$WORKSPACE_DEFAULT_DIR" ]; then
       WORKSPACE_DEFAULT_DIR="$(git worktree list --porcelain | \
