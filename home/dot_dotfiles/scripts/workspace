@@ -13,7 +13,7 @@ local WORKSPACE_DEFAULT_DIR="$WORKSPACE_DEFAULT_DIR"
 
 if [ -z "$GIT_DIR" ]; then
   echo "$ERROR_MSG: this script must be run in a git directory" >&2
-  return 1
+  return 1 2>/dev/null || exit 1
 else
   [ -z "$MSYSTEM" ] || GIT_DIR="$(cygpath -u "$GIT_DIR")"
 
@@ -29,7 +29,7 @@ else
 
   if [ -z "$WORKSPACE_BRANCH" ]; then
     echo "$ERROR_MSG: could not find default branch" >&2
-    return 1
+    return 1 2>/dev/null || exit 1
   else
     echo "$INFO_MSG: using '$WORKSPACE_BRANCH' as default branch" >&2
   fi
@@ -60,7 +60,7 @@ else
     if [ -t 0 ]; then
       read -p "Initialize default workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'? [Y/n] " DO_CREATE_WORKSPACE
       if [ ! -z "${DO_CREATE_WORKSPACE#[Yy]}" ]; then
-        return 0
+        return 0 2>/dev/null || exit 0
       fi
     else
       echo "$INFO_MSG: initializing default workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'" >&2
@@ -78,7 +78,7 @@ if [ ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]; then
       # confirm intent if WORKSPACE_ROOT_DIR was guessed
       read -p "Create workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'? [Y/n] " DO_CREATE_WORKSPACE
       if [ ! -z "${DO_CREATE_WORKSPACE#[Yy]}" ]; then
-        return 0
+        return 0 2>/dev/null || exit 0
       fi
     else
       echo "$INFO_MSG: creating workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'" >&2
