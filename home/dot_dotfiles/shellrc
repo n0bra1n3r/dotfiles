@@ -35,6 +35,9 @@ function workspace() {
 
 alias ws='workspace'
 
+__git_complete g __git_main
+__git_complete cg __git_main
+
 function _workspace() {
   local locals="$(git for-each-ref --format='%(refname:lstrip=2)' refs/heads/)"
   local remotes="$(git for-each-ref --format='%(refname:lstrip=3)' refs/remotes/)"
