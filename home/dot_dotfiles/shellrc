@@ -1,5 +1,3 @@
-shopt -s checkwinsize
-
 case "$(uname -s)" in
 Darwin*)
   export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin":$PATH
