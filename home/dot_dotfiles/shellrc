@@ -39,11 +39,14 @@ __git_complete g __git_main
 __git_complete cg __git_main
 
 function _workspace() {
-  local locals="$(git for-each-ref --format='%(refname:lstrip=2)' refs/heads/)"
-  local remotes="$(git for-each-ref --format='%(refname:lstrip=3)' refs/remotes/)"
-  local current="$(git branch --show-current)"
-  local workspaces="$(echo -e "$locals\n$remotes" | grep -v HEAD | grep -v "$current" | sort -u)"
-  COMPREPLY=($(compgen -W "$workspaces" -- "${COMP_WORDS[1]}"))
+  COMPREPLY=()
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    local locals="$(git for-each-ref --format='%(refname:lstrip=2)' refs/heads/)"
+    local remotes="$(git for-each-ref --format='%(refname:lstrip=3)' refs/remotes/)"
+    local current="$(git branch --show-current)"
+    local workspaces="$(echo -e "$locals\n$remotes" | grep -v HEAD | grep -v "$current" | sort -u)"
+    COMPREPLY=($(compgen -W "$workspaces" -- "${COMP_WORDS[1]}"))
+  fi
 }
 
 complete -F _workspace workspace
