@@ -72,6 +72,17 @@ local function pick_window(exclude)
   return win_map[resp]
 end
 
+local function send_to_floaterm(name, command)
+  local success = pcall(vim.fn["floaterm#send"],
+    0,
+    vim.fn.visualmode(),
+    0,
+    0,
+    0,
+    string.format("--name=%s %s", name, command))
+  return success
+end
+
 -- shell --
 
 function _G.fn.is_git_dir()
@@ -386,16 +397,17 @@ end
 function _G.fn.open_run_shell()
   local qf_wins = get_wins_for_buf_type("quickfix")
 
-  vim.cmd[[cclose | FloatermShow run_shell]]
+  vim.cmd[[cclose]]
+  local success = pcall(vim.fn["floaterm#show"], 0, 0, "run_shell")
 
   if #qf_wins > 0 then
     fn.open_quickfix()
   end
+
+  return success
 end
 
 function _G.fn.run_process(command, notify)
-  local cur_win = vim.fn.winnr()
-
   vim.fn["floaterm#new"](0,
     command,
     {
@@ -406,27 +418,22 @@ function _G.fn.run_process(command, notify)
     {
       silent = 1,
       name = "run_shell",
-      autoclose = 2,
       title = "run",
       wintype = "split",
       height = math.floor(vim.o.lines / 3),
     })
 
-  fn.open_run_shell()
-  vim.api.nvim_buf_set_name(0, command)
-  vim.cmd(string.format("stopinsert | exec 'normal G' | %dwincmd w", cur_win))
+  if fn.open_run_shell() then
+    vim.api.nvim_buf_set_name(0, command)
+    vim.cmd(string.format("stopinsert | exec 'normal G' | %dwincmd w", vim.fn.winnr()))
+  end
 end
 
 function _G.fn.run_command(command)
-  local cur_win = vim.fn.winnr()
-  fn.open_run_shell()
-  vim.fn["floaterm#send"](0, vim.fn.visualmode(), 0, 0, 0,
-    string.format("--name=run_shell \x1b[F\x1b[1;5H%s\r", command))
-  vim.cmd(string.format("stopinsert | exec 'normal G' | %dwincmd w", cur_win))
-end
-
-function _G.fn.show_git_line_blame()
-  require"gitsigns".blame_line({ full = true })
+  if fn.open_run_shell() then
+    send_to_floaterm("run_shell", string.format("\x1b[F\x1b[1;5H%s\r", command))
+    vim.cmd(string.format("stopinsert | exec 'normal G' | %dwincmd w", vim.fn.winnr()))
+  end
 end
 
 -- AsyncTask --
@@ -455,8 +462,13 @@ end
 
 function _G.fn.project_debug()
   if fn.project_status() == "debug" then
-    fn.debug_break()
-    vim.cmd[[AsyncTask debug-restart]]
+    if fn.debug_break() then
+      vim.cmd[[AsyncTask debug-restart]]
+    else
+      vim.cmd[[AsyncTaskProfile project]]
+      local success = pcall(vim.fn["floaterm#kill"], 0, 0, "run_shell")
+      vim.cmd[[AsyncTask project-debug]]
+    end
   else
     vim.cmd[[AsyncTask project-debug]]
   end
@@ -489,7 +501,7 @@ function _G.fn.debug_step()
 end
 
 function _G.fn.debug_break()
-  vim.fn["floaterm#send"](0, vim.fn.visualmode(), 0, 0, 0, "--name=run_shell \x03")
+  return send_to_floaterm("run_shell", "\x03")
 end
 
 function _G.fn.debug_show_symbol()
@@ -503,6 +515,10 @@ function _G.fn.debug_show_symbols()
 end
 
 function _G.fn.debug_exit()
-  fn.debug_break()
-  vim.cmd[[AsyncTask debug-exit]]
+  if fn.debug_break() then
+    vim.cmd[[AsyncTask debug-exit]]
+  else
+    local success = pcall(vim.fn["floaterm#kill"], 0, 0, "run_shell")
+    vim.cmd[[AsyncTaskProfile project]]
+  end
 end
