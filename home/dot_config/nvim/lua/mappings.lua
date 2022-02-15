@@ -35,7 +35,7 @@ return {
     ["<Esc>"]           = { "<cmd>nohlsearch<CR>" },
     ["<End>"]           = { "$", noremap = false },
     ["<Home>"]          = { "^", noremap = false },
-    ["<Enter>"]         = { "<cmd>wa<CR>:", silent = false },
+    ["<Enter>"]         = { "<cmd>update<CR>:", silent = false },
     ["<F1>"]            = { ":help <C-r><C-w><CR>" },
     ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up>$l':'<Left>'", expr = true },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
