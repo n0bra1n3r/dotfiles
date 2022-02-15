@@ -35,16 +35,26 @@ function M.config()
   vim.cmd[[augroup conf_nvimtree]]
   vim.cmd[[autocmd!]]
   vim.cmd[[autocmd BufLeave NvimTree NvimTreeClose]]
+  vim.cmd[[autocmd BufEnter * if isdirectory(expand("%")) | exec "enew | bw # | NvimTreeOpen" | endif]]
   vim.cmd[[augroup end]]
 
   require"nvim-tree".setup {
+    actions = {
+      change_dir = {
+        global = true,
+      },
+    },
     hijack_cursor = true,
     update_focused_file = {
       enable = true,
       update_cwd = true,
     },
     update_cwd = true,
+    update_to_buf_dir = {
+      enable = false,
+    },
     view = {
+      auto_close = true,
       auto_resize = true,
       hide_root_folder = true,
       mappings = {
@@ -63,6 +73,7 @@ function M.config()
         },
       },
       side = "right",
+      width = 32,
     },
   }
 end

@@ -10,7 +10,7 @@ lua require "main"
 
 augroup conf_editor
   autocmd!
-  autocmd BufEnter,WinEnter * checktime | let &titlestring = 'nvim - ' . expand("%:t")
+  autocmd BufEnter,WinEnter * checktime | lua fn.set_shell_title()
   autocmd BufWritePost ~/.local/share/chezmoi/home/* lua fn.save_dot_files()
   autocmd BufWritePost * lua fn.project_check()
   autocmd ColorScheme * highlight ColorColumn guifg=darkgray ctermfg=darkgray guibg=NONE ctermbg=NONE
