@@ -20,7 +20,7 @@ augroup conf_editor
   autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
   autocmd TextYankPost * lua vim.highlight.on_yank()
   autocmd WinEnter * set cursorcolumn
-  autocmd WinLeave * set nocursorcolumn
+  autocmd WinLeave * set nocursorcolumn | lua fn.cleanup_window_if_needed()
 augroup end
 
 augroup conf_help

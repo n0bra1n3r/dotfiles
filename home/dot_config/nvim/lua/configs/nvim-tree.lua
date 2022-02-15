@@ -34,8 +34,8 @@ end
 function M.config()
   vim.cmd[[augroup conf_nvimtree]]
   vim.cmd[[autocmd!]]
-  vim.cmd[[autocmd BufLeave NvimTree NvimTreeClose]]
   vim.cmd[[autocmd BufEnter * if isdirectory(expand("%")) | exec "enew | bw # | NvimTreeOpen" | endif]]
+  vim.cmd[[autocmd BufLeave NvimTree NvimTreeClose]]
   vim.cmd[[augroup end]]
 
   require"nvim-tree".setup {

@@ -9,8 +9,7 @@ function M.config()
   vim.cmd[[augroup conf_floaterm]]
   vim.cmd[[autocmd!]]
   vim.cmd[[autocmd FileType floaterm setlocal nonumber]]
-  vim.cmd[[autocmd FileType floaterm nnoremap <buffer><silent> <Esc> <cmd>hide<CR>]]
-  vim.cmd[[autocmd BufLeave floaterm FloatermKill]]
+  vim.cmd[[autocmd FileType floaterm nnoremap <buffer><silent> <Esc> <cmd>FloatermHide<CR>]]
   vim.cmd[[autocmd VimLeavePre * FloatermKill!]]
   vim.cmd[[augroup end]]
 end

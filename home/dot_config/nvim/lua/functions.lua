@@ -204,7 +204,23 @@ function _G.fn.choose_window()
   vim.api.nvim_set_current_win(pick_window())
 end
 
-local pressed_key
+function _G.fn.set_shell_title()
+  local file_name = vim.fn.expand("%:t")
+
+  if #file_name > 0 then
+    vim.o.titlestring = "nvim - "..file_name
+  end
+end
+
+function _G.fn.cleanup_window_if_needed()
+  local win_config = vim.api.nvim_win_get_config(0)
+
+  if win_config.relative ~= "" then
+    if vim.bo.filetype == "floaterm" then
+      vim.cmd[[FloatermHide]]
+    end
+  end
+end
 
 -- auto-session --
 
