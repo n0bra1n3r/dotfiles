@@ -14,7 +14,7 @@ function M.config()
       ["%"] = { ":%s///gc<Left><Left><Left>", "replace", silent = false },
       g = {
         name = "git",
-        b = { "<cmd>lua fn.show_git_line_blame()<CR>", "blame" },
+        b = { "<cmd>Gitsigns blame_line<CR>", "blame" },
         g = { "<cmd>lua fn.open_git_shell()<CR>", "shell" },
         d = { "<cmd>DiffviewOpen<CR>", "diff" },
         h = { "<cmd>DiffviewFileHistory<CR>", "history" },
