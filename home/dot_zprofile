@@ -1,11 +1,5 @@
 source ~/.dotfiles/shellrc
 
-if [ -e ~/.zshrc ]; then
-  source ~/.zshrc
-fi
-
-eval "$(~/.local/bin/starship init zsh)"
-
 function _workspace() {
   reply=()
   if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -17,3 +11,5 @@ function _workspace() {
 }
 
 compctl -K _workspace workspace
+
+eval "$(~/.local/bin/starship init zsh)"

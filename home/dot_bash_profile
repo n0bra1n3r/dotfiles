@@ -1,11 +1,5 @@
 source ~/.dotfiles/shellrc
 
-if [ -e ~/.bashrc ]; then
-  source ~/.bashrc
-fi
-
-eval "$(~/.local/bin/starship init bash)"
-
 [[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && \
   source /usr/share/bash-completion/bash_completion
 
@@ -32,3 +26,9 @@ function _workspace() {
 
 complete -F _workspace workspace
 complete -F _workspace ws
+
+if [ -e ~/.bashrc ]; then
+  source ~/.bashrc
+fi
+
+eval "$(~/.local/bin/starship init bash)"
