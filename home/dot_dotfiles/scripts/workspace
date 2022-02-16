@@ -62,9 +62,7 @@ else
         cut -d' ' -f2)"
     fi
     if [ ! -z "$WORKSPACE_DEFAULT_DIR" ]; then
-        if [ -z "$MSYSTEM" ]; then
-          WORKSPACE_DEFAULT_DIR="$(cygpath -u "$WORKSPACE_DEFAULT_DIR")"
-        fi
+        [ -z "$MSYSTEM" ] || WORKSPACE_DEFAULT_DIR="$(cygpath -u "$WORKSPACE_DEFAULT_DIR")"
         WORKSPACE_ROOT_DIR="${WORKSPACE_DEFAULT_DIR%/$WORKSPACE_BRANCH}"
     fi
   fi
