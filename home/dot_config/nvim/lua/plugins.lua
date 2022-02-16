@@ -69,7 +69,7 @@ require"packer".startup(function(packer_use)
 
   use { "skywind3000/asynctasks.vim", cmd = { "AsyncTask", "AsyncTaskMacro", "AsyncTaskList", "AsyncTaskProfile", "AsyncTaskEdit" } }
 
-  use { "voldikss/vim-floaterm", cmd = { "FloatermNew", "FloatermShow", "FloatermToggle" }, fn = { "floaterm#new" } }
+  use { "voldikss/vim-floaterm", cond = fn.is_git_dir, cmd = { "FloatermNew", "FloatermShow", "FloatermToggle" }, fn = { "floaterm#new" } }
 
   -- Diagnostics --
 

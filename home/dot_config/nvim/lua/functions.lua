@@ -371,13 +371,14 @@ end
 -- floaterm --
 
 function _G.fn.open_git_shell(command)
-  vim.cmd("FloatermNew "
-    .."--silent=1 "
-    .."--name=git_shell "
-    .."--title=git "
-    .."--height=0.8 "
-    .."--width=0.8 "
-    .."bash --rcfile ~/.dotfiles/gitrc")
+  vim.cmd("FloatermNew"
+    .." --silent=1"
+    .." --name=git_shell"
+    .." --title=\\ "
+    ..vim.b.gitsigns_status_dict.head
+    .." --height=0.8"
+    .." --width=0.8"
+    .." bash --rcfile ~/.dotfiles/gitrc")
 
   if command ~= nil then
     vim.cmd(string.format('set ssl | exec "FloatermSend --name=git_shell %s" | set nossl', command))

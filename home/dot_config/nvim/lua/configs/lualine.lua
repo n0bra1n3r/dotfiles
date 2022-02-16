@@ -29,7 +29,7 @@ function M.config()
           file_status = true,
           path = 1,
           symbols = {
-            modified = ' ●',
+            modified = ' ',
             readonly = ' ﯎',
             unnamed = "[New File]",
           },
@@ -59,8 +59,8 @@ function M.config()
           file_status = true,
           path = 1,
           symbols = {
-            modified = ' ●',
-            readonly = ' ﯎',
+            modified = ' ',
+            readonly = ' ﯎', 
             unnamed = "[New File]",
           },
         },
@@ -106,17 +106,15 @@ function M.config()
           color = "lualine_b_normal",
           cond = fn.is_git_dir,
         },
-        {
-          "diagnostics",
-          padding = { left = 0, right = 1 },
-          sources = { "nvim_diagnostic", fn.get_qf_diagnostics },
-        },
       },
       lualine_z = {
         {
-          "branch",
+          function()
+            return vim.b.gitsigns_status_dict.head
+          end,
           color = "lualine_a_normal",
           cond = fn.is_git_dir,
+          icon = ''
         },
       },
     },
