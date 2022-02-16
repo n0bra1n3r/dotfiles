@@ -11,5 +11,3 @@ function _workspace() {
 }
 
 compctl -K _workspace workspace
-
-eval "$(~/.local/bin/starship init zsh)"
