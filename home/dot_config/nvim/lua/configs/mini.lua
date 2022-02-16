@@ -7,10 +7,10 @@ function M.config()
       animation = require"mini.indentscope".gen_animation("none"),
     },
     mappings = {
-      object_scope = '[]',
-      object_scope_with_border = '][',
-      goto_top = '[[',
-      goto_bottom = ']]',
+      object_scope = '[_',
+      object_scope_with_border = ']|',
+      goto_top = '[-',
+      goto_bottom = ']+',
     },
     symbol = '·',
   }
