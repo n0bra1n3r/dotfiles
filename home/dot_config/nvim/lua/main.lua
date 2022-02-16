@@ -9,7 +9,6 @@ vim.opt.clipboard:append({ "unnamed", "unnamedplus" })
 vim.opt.cmdheight = 1
 vim.opt.colorcolumn = table.concat(vim.fn.range(81, 120), ",")
 vim.opt.confirm = true
-vim.opt.cursorcolumn = true
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = "number"
 vim.opt.display:append("lastline")

@@ -86,5 +86,7 @@ require"packer".startup(function(packer_use)
 
   use { "folke/todo-comments.nvim", event = "BufRead" }
 
-  use { "axelf4/vim-strip-trailing-whitespace", event = "BufEnter" }
+  use { "echasnovski/mini.nvim", event = "BufRead"}
+
+  use { "axelf4/vim-strip-trailing-whitespace", event = "CursorMoved" }
 end)
