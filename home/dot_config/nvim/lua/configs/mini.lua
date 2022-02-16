@@ -12,7 +12,7 @@ function M.config()
       goto_top = '[[',
       goto_bottom = ']]',
     },
-    symbol = '│',
+    symbol = '·',
   }
 end
 
