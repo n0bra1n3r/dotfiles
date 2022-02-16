@@ -7,35 +7,35 @@
 {{- end }}
 
 ## Windows
-{{- $exe := "exe" }}
-{{- $alacritty := "Alacritty-v[0-9.]+-portable" }}
-{{- $nvim := "nvim-win64" }}
-{{- $fd := "fd-v[0-9.]+-x86_64-pc-windows-msvc" }}
-{{- $rg := "ripgrep-[0-9.]+-x86_64-pc-windows-msvc" }}
+{{- $dot_exe := ".exe" }}
+{{- $alacritty := "Alacritty-v[0-9.]+-portable[.]exe" }}
+{{- $nvim := "nvim-win64.zip" }}
+{{- $fd := "fd-v[0-9.]+-x86_64-pc-windows-msvc[.]zip" }}
+{{- $rg := "ripgrep-[0-9.]+-x86_64-pc-windows-msvc[.]zip" }}
 ## Darwin
 {{- if eq .chezmoi.os "darwin" }}
-{{-   $exe = "dmg" }}
-{{-   $alacritty = "Alacritty-v[0-9.]+" }}
-{{-   $nvim = "nvim-macos" }}
-{{-   $fd = "fd-v[0-9.]+-x86_64-apple-darwin" }}
-{{-   $rg = "ripgrep-[0-9.]+-x86_64-apple-darwin" }}
+{{-   $dot_exe = ".dmg" }}
+{{-   $alacritty = "Alacritty-v[0-9.]+[.]dmg" }}
+{{-   $nvim = "nvim-macos.tar.gz" }}
+{{-   $fd = "fd-v[0-9.]+-x86_64-apple-darwin[.]tar[.]gz" }}
+{{-   $rg = "ripgrep-[0-9.]+-x86_64-apple-darwin[.]tar[.]gz" }}
 {{- end }}
 
 [".dotfiles/deps/nvim/.local"]
   type = "archive"
-  url = "https://github.com/neovim/neovim/releases/latest/download/{{ $nvim }}.zip"
+  url = "https://github.com/neovim/neovim/releases/latest/download/{{ $nvim }}"
   exact = true
   stripComponents = 1
 
 [".dotfiles/deps/fd/.local/bin"]
   type = "archive"
-  url = "https://glare.now.sh/sharkdp/fd/{{ $fd }}[.]zip"
+  url = "https://glare.now.sh/sharkdp/fd/{{ $fd }}"
   exact = true
   stripComponents = 1
 
 [".dotfiles/deps/rg/.local/bin"]
   type = "archive"
-  url = "https://glare.now.sh/BurntSushi/ripgrep/{{ $rg }}[.]zip"
+  url = "https://glare.now.sh/BurntSushi/ripgrep/{{ $rg }}"
   exact = true
   stripComponents = 1
 
@@ -43,7 +43,7 @@
   type = "archive"
   url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip"
 
-[".dotfiles/deps/alacritty/.local/bin/alacritty.{{ $exe }}"]
+[".dotfiles/deps/alacritty/.local/bin/alacritty{{ $dot_exe }}"]
   type = "file"
-  url = "https://glare.now.sh/alacritty/alacritty/{{ $alacritty }}[.]{{ $exe }}"
+  url = "https://glare.now.sh/alacritty/alacritty/{{ $alacritty }}"
   executable = true
