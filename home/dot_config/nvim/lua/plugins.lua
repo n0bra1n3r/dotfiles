@@ -79,8 +79,6 @@ require"packer".startup(function(packer_use)
 
   use { "windwp/nvim-autopairs", after = "vim-unimpaired", event = "InsertEnter" }
 
-  use { "axelf4/vim-strip-trailing-whitespace", event = "BufEnter" }
-
   -- Command Runners --
 
   use { "skywind3000/asyncrun.vim", cmd = { "AsyncRun" } }

@@ -120,6 +120,12 @@ function _G.fn.vim_defer(fn, timer)
   end
 end
 
+function _G.fn.trim_added_whitespace()
+  local saved_view = vim.fn.winsaveview()
+  vim.cmd[[keepjumps '[,']s/\s\+$//e]]
+  vim.fn.winrestview(saved_view)
+end
+
 function _G.fn.open_quickfix()
   local cur_win = vim.fn.winnr()
   local term_wins = get_wins_for_buf_type("terminal")
@@ -373,14 +379,7 @@ end
 function _G.fn.open_git_shell(command)
   vim.fn["floaterm#new"](0,
     "bash --rcfile ~/.dotfiles/gitrc",
-    {
-      on_stdout = vim.schedule_wrap(function()
-        vim.cmd[[redraw]]
-      end),
-      on_stderr = vim.schedule_wrap(function()
-        vim.cmd[[redraw]]
-      end),
-    },
+    { [''] = '' },
     {
       silent = 1,
       name = "git_shell",

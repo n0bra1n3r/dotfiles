@@ -14,6 +14,7 @@ augroup conf_editor
   autocmd BufWritePost ~/.local/share/chezmoi/home/* lua fn.save_dot_files()
   autocmd BufWritePost * lua fn.project_check()
   autocmd ColorScheme * highlight ColorColumn guifg=darkgray ctermfg=darkgray guibg=NONE ctermbg=NONE
+  autocmd InsertLeave * lua fn.trim_added_whitespace()
   autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
   autocmd TextYankPost * lua vim.highlight.on_yank()
   autocmd WinLeave * lua fn.cleanup_window_if_needed()
