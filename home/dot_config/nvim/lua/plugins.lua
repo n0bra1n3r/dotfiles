@@ -19,15 +19,37 @@ require"packer".startup(function(packer_use)
 
   use { "EdenEast/nightfox.nvim" }
 
-  -- Motions --
-
-  use { "tpope/vim-repeat", event = "BufEnter" }
-  use { "tpope/vim-surround", event = "BufEnter" }
-  use { "tpope/vim-unimpaired", event = "BufEnter" }
-
   -- File Types --
 
   use { "zah/nim.vim" }
+
+  use { "kevinhwang91/nvim-bqf", ft = "qf" }
+
+  -- Motions --
+
+  use { "tpope/vim-repeat", event = "BufEnter" }
+  use { "tpope/vim-unimpaired", event = "BufRead" }
+  use { "tpope/vim-surround", event = "BufRead" }
+
+  -- Projects --
+
+  use { "ahmedkhalf/project.nvim", cond = fn.is_git_dir }
+  use { "rmagatti/auto-session", after = "project.nvim" }
+
+  -- Navigation --
+
+  use { "kyazdani42/nvim-tree.lua", after = "nvim-web-devicons" }
+
+  use { "ggandor/lightspeed.nvim", event = "BufRead" }
+
+  use { "nvim-telescope/telescope.nvim", module = "telescope", cmd = "Telescope",
+    requires = {{ "nvim-telescope/telescope-fzf-native.nvim", run = "make" }} }
+
+  -- VCS --
+
+  use { "lewis6991/gitsigns.nvim", cond = fn.is_git_dir }
+
+  use { "sindrets/diffview.nvim", cond = fn.is_git_dir }
 
   -- LSP --
 
@@ -46,39 +68,6 @@ require"packer".startup(function(packer_use)
   use { "L3MON4D3/LuaSnip", after = "nvim-cmp" }
   use { "saadparwaiz1/cmp_luasnip", after = "LuaSnip" }
   use { "hrsh7th/cmp-nvim-lsp", after = "cmp_luasnip" }
-  use { "windwp/nvim-autopairs", after = "cmp-nvim-lsp" }
-
-  -- Navigation --
-
-  use { "nvim-telescope/telescope.nvim", module = "telescope", cmd = "Telescope",
-    requires = {{ "nvim-telescope/telescope-fzf-native.nvim", run = "make" }} }
-
-  use { "ggandor/lightspeed.nvim", event = "BufEnter" }
-
-  use { "kyazdani42/nvim-tree.lua", after = "nvim-web-devicons" }
-
-  -- VCS --
-
-  use { "lewis6991/gitsigns.nvim", cond = fn.is_git_dir }
-
-  use { "sindrets/diffview.nvim", cond = fn.is_git_dir }
-
-  -- Command Runners --
-
-  use { "skywind3000/asyncrun.vim", cmd = { "AsyncRun", "AsyncStop" } }
-
-  use { "skywind3000/asynctasks.vim", cmd = { "AsyncTask", "AsyncTaskMacro", "AsyncTaskList", "AsyncTaskProfile", "AsyncTaskEdit" } }
-
-  use { "voldikss/vim-floaterm", cond = fn.is_git_dir, cmd = { "FloatermNew", "FloatermShow", "FloatermToggle" }, fn = { "floaterm#new" } }
-
-  -- Diagnostics --
-
-  use { "kevinhwang91/nvim-bqf", ft = "qf" }
-
-  -- Projects --
-
-  use { "ahmedkhalf/project.nvim", cond = fn.is_git_dir }
-  use { "rmagatti/auto-session", after = "project.nvim" }
 
   -- Editing --
 
@@ -88,5 +77,17 @@ require"packer".startup(function(packer_use)
 
   use { "echasnovski/mini.nvim", event = "BufRead"}
 
-  use { "axelf4/vim-strip-trailing-whitespace", event = "CursorMoved" }
+  use { "windwp/nvim-autopairs", after = "vim-unimpaired", event = "InsertEnter" }
+
+  use { "axelf4/vim-strip-trailing-whitespace", event = "BufEnter" }
+
+  -- Command Runners --
+
+  use { "skywind3000/asyncrun.vim", cmd = { "AsyncRun" } }
+
+  use { "skywind3000/asynctasks.vim",
+    cmd = { "AsyncTask", "AsyncTaskMacro", "AsyncTaskList", "AsyncTaskProfile", "AsyncTaskEdit" } }
+
+  use { "voldikss/vim-floaterm",
+    cmd = { "FloatermNew", "FloatermShow", "FloatermToggle" }, fn = { "floaterm#new" } }
 end)
