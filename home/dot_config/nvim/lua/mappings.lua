@@ -45,6 +45,8 @@ return {
     gf                  = { "<cmd>lua fn.edit_file('edit', vim.fn.expand('<cfile>'))<CR>" },
     h                   = { ";" },
     l                   = { "col('.')==1&&col([line('.')-1,'$'])>1?'k$l':'h'", expr = true },
+    s                   = { "<Plug>Lightspeed_omni_s", noremap = false },
+    S                   = { "<Plug>Lightspeed_omni_s", noremap = false },
     x                   = { "col('$')==col('.')?'gJ':'x'", expr = true },
   },
   t = {
@@ -69,5 +71,7 @@ return {
     h                   = { ";" },
     l                   = { "h" },
     p                   = { "\"_dP" },
+    s                   = { "<Plug>Lightspeed_omni_s", noremap = false },
+    S                   = { "<Plug>Lightspeed_omni_s", noremap = false },
   },
 }
