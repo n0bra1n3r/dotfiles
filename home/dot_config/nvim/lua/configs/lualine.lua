@@ -109,12 +109,9 @@ function M.config()
       },
       lualine_z = {
         {
-          function()
-            return vim.b.gitsigns_status_dict.head
-          end,
+          "branch",
           color = "lualine_a_normal",
           cond = fn.is_git_dir,
-          icon = ''
         },
       },
     },
