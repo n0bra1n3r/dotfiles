@@ -22,13 +22,13 @@ augroup end
 augroup conf_help
   autocmd!
   autocmd FileType help wincmd K
-  autocmd FileType help nnoremap <buffer><silent> <Esc> <cmd>bdelete<CR>
+  autocmd FileType help nnoremap <buffer><silent> <Esc> <cmd>close<CR>
 augroup end
 
 augroup conf_quickfix
   autocmd!
   autocmd FileType qf setlocal colorcolumn=
-  autocmd FileType qf nnoremap <buffer><silent> <Esc> <cmd>quit<CR>
+  autocmd FileType qf nnoremap <buffer><silent> <Esc> <cmd>close<CR>
   autocmd VimLeavePre * cclose
 augroup end
 
