@@ -13,7 +13,6 @@ vim.opt.cursorline = true
 vim.opt.cursorlineopt = "number"
 vim.opt.display:append("lastline")
 vim.opt.display:append("uhex")
-vim.opt.inccommand = "split"
 vim.opt.equalalways = true
 vim.opt.expandtab = true
 vim.opt.fillchars = { eob = " " }
