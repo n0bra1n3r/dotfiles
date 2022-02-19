@@ -10,10 +10,12 @@ lua require "main"
 
 augroup conf_editor
   autocmd!
-  autocmd BufEnter,WinEnter * checktime | lua fn.set_shell_title()
+  autocmd BufEnter * lua fn.set_shell_title()
+  autocmd BufEnter,CursorHold,CursorHoldI,FocusGained * if mode() == "n" && getcmdwintype() == "" | checktime | endif
   autocmd BufWritePost ~/.local/share/chezmoi/home/* lua fn.save_dot_files()
   autocmd BufWritePost * lua fn.project_check()
   autocmd ColorScheme * highlight ColorColumn guifg=darkgray ctermfg=darkgray guibg=NONE ctermbg=NONE
+  autocmd CmdwinEnter * nnoremap <buffer> <Esc> $l<C-c>
   autocmd InsertLeave * lua fn.trim_added_whitespace()
   autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
   autocmd TextYankPost * lua vim.highlight.on_yank()

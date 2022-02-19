@@ -173,9 +173,8 @@ function _G.fn.show_quickfix()
 end
 
 function _G.fn.close_buffer()
-  local tab = vim.fn.tabpagenr()
-  if tab > 1 then
-    vim.cmd[[windo bwipe]]
+  if vim.fn.tabpagenr() > 1 then
+    vim.cmd[[windo bwipeout]]
   elseif vim.fn.winnr("$") > 1 then
     vim.cmd[[close]]
   else
@@ -222,10 +221,12 @@ function _G.fn.choose_window()
 end
 
 function _G.fn.set_shell_title()
-  local file_name = vim.fn.expand("%:t")
+  if #vim.bo.buftype == 0 then
+    local file_name = vim.fn.expand("%:t")
 
-  if #file_name > 0 then
-    vim.o.titlestring = "nvim - "..file_name
+    if #file_name > 0 then
+      vim.o.titlestring = "nvim - "..file_name
+    end
   end
 end
 
