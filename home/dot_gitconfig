@@ -10,6 +10,9 @@
 [includeif "gitdir:src/"]
   path = ~/.dotfiles/gitconfig/n0bra1n3r
 
+[pull]
+  rebase = true
+
 [alias]
   ae = add --edit
   au = add --update
