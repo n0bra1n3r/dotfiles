@@ -124,12 +124,9 @@ for _, plugin in pairs(disabled_built_ins) do
    vim.g["loaded_"..plugin] = 1
 end
 
-vim.cmd[[packadd packer.nvim]]
+local packer_path = vim.fn.stdpath("data").."/site/pack/packer/start/packer.nvim"
 
-local present, packer = pcall(require, "packer")
-
-if not present then
-  local packer_path = vim.fn.stdpath("data").."/site/pack/packer/opt/packer.nvim"
+if vim.fn.empty(vim.fn.glob(packer_path)) > 0 then
 
   print("Cloning packer...")
 
