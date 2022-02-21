@@ -1,6 +1,8 @@
-set runtimepath+=~/.config/nvim,~/.config/nvim/lua
+if has("win32")
+  set runtimepath+=~/.config/nvim,~/.config/nvim/lua
 
-let &packpath = &runtimepath
+  let &packpath = &runtimepath
+endif
 
 """ Lua
 
