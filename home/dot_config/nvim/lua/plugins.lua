@@ -5,8 +5,8 @@ require"packer".startup(function(packer_use)
 
   -- Misc --
 
+  use { "lewis6991/impatient.nvim" } -- must be loaded first
   use { "nvim-lua/plenary.nvim" }
-  use { "lewis6991/impatient.nvim" }
   use { "nathom/filetype.nvim" }
 
   use { "wbthomason/packer.nvim", event = "VimEnter" }
@@ -65,7 +65,8 @@ require"packer".startup(function(packer_use)
 
   use { "onsails/lspkind-nvim", event = "InsertEnter" }
   use { "hrsh7th/nvim-cmp", after = "lspkind-nvim" }
-  use { "L3MON4D3/LuaSnip", after = "nvim-cmp" }
+  use { "windwp/nvim-autopairs", after = "nvim-cmp" }
+  use { "L3MON4D3/LuaSnip", after = "nvim-autopairs" }
   use { "saadparwaiz1/cmp_luasnip", after = "LuaSnip" }
   use { "hrsh7th/cmp-nvim-lsp", after = "cmp_luasnip" }
 
@@ -77,8 +78,6 @@ require"packer".startup(function(packer_use)
 
   use { "echasnovski/mini.nvim", event = "BufRead"}
 
-  use { "windwp/nvim-autopairs", after = "vim-unimpaired", event = "InsertEnter" }
-
   -- Command Runners --
 
   use { "skywind3000/asyncrun.vim", cmd = { "AsyncRun" } }
@@ -88,4 +87,8 @@ require"packer".startup(function(packer_use)
 
   use { "voldikss/vim-floaterm",
     cmd = { "FloatermNew", "FloatermShow", "FloatermToggle" }, fn = { "floaterm#new" } }
+
+  if vim.g.bootstrapped then
+    require"packer".sync()
+  end
 end)
