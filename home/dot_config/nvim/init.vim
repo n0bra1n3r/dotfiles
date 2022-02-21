@@ -1,5 +1,5 @@
 if has("win32")
-  set runtimepath+=~/.config/nvim,~/.config/nvim/lua
+  set runtimepath+=~/.config/nvim
 
   let &packpath = &runtimepath
 endif
