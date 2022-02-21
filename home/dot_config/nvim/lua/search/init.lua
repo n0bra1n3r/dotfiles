@@ -43,7 +43,7 @@ local function get_search_command(search_term, search_args)
   return cmd, argList
 end
 
-local function get_result(result_line)
+local function parse_result(result_line)
   local format = vim.o.grepformat
 
   local part_index = {}
@@ -74,27 +74,6 @@ local function get_result(result_line)
   end
 
   return part_table
-end
-
-local function results_at(bufnr, line)
-  local info = M.buffers[bufnr]
-  if #info.line_array > 0 then
-    local line_info = info.line_array[line + 1]
-    local line_index = info.file_table[line_info.file_name][line_info.line_number]
-    return info.result_array[line_index]
-  end
-  return {}
-end
-
-local function get_next_line(bufnr, line, result)
-  local info = M.buffers[bufnr]
-  local next_line = line
-  if info.file_table[result.file_name] == nil then
-    next_line = line + 1
-  elseif info.file_table[result.file_name][result.line_number] == nil then
-    next_line = line + 1
-  end
-  return next_line
 end
 
 -- Initialization --
@@ -240,6 +219,29 @@ end
 
 -- Updating --
 
+local function make_result(bufnr, result_line)
+  local result = parse_result(result_line)
+  local info = M.buffers[bufnr]
+
+  if info.file_table[result.file_name] == nil then
+    result.is_first_line = true
+  elseif info.file_table[result.file_name][result.line_number] == nil then
+    result.is_first_col = true
+  end
+
+  return result
+end
+
+local function results_at(bufnr, line)
+  local info = M.buffers[bufnr]
+  if #info.line_array > 0 then
+    local line_info = info.line_array[line + 1]
+    local line_index = info.file_table[line_info.file_name][line_info.line_number]
+    return info.result_array[line_index]
+  end
+  return {}
+end
+
 local function reset_search(bufnr, search_term, search_args)
   if M.buffers == nil then
     M.buffers = {}
@@ -299,7 +301,7 @@ local function reset_search(bufnr, search_term, search_args)
   return M.buffers[bufnr]
 end
 
-local function update_search_results(bufnr, line, result)
+local function update_results(bufnr, line, result)
   local info = M.buffers[bufnr]
 
   info.sign_width = math.max(info.sign_width, #result.line_number)
@@ -327,14 +329,6 @@ end
 local function is_current_search(info)
   local current_info = M.buffers[info.bufnr]
   return current_info ~= nil and info.search_id == current_info.search_id
-end
-
-local function finish_search(bufnr)
-  api.nvim_buf_set_option(bufnr, "undolevels", -1)
-  api.nvim_command[[exec "normal! a \<BS>\<Esc>"]]
-  api.nvim_buf_set_option(bufnr, "undolevels", 1000)
-  api.nvim_buf_set_option(bufnr, "modified", false)
-  api.nvim_buf_set_option(bufnr, "buftype", "acwrite")
 end
 
 -- Event callbacks --
@@ -466,11 +460,11 @@ end
 
 local function render_result(bufnr, line, result)
   local info = M.buffers[bufnr]
-  if info.file_table[result.file_name] == nil then
+  if result.is_first_line then
     render_line_text(bufnr, line, result.line_text)
     render_file_name(bufnr, line, result.file_name)
     render_line_number(bufnr, line, result.file_name, result.line_number, info)
-  elseif info.file_table[result.file_name][result.line_number] == nil then
+  elseif result.is_first_col then
     render_line_text(bufnr, line, result.line_text)
     render_line_number(bufnr, line, result.file_name, result.line_number, info)
   end
@@ -487,20 +481,21 @@ local function render_result(bufnr, line, result)
     hl_col_final)
 end
 
-local function display_results(bufnr, result)
-  api.nvim_command[[redraw]]
+local function finish_search(bufnr)
+  local info = M.buffers[bufnr]
 
-  if result ~= nil then
-    local info = M.buffers[bufnr]
-    local winid = vim.fn.bufwinid(bufnr)
-
-    local first_line = info.result_array[1]
-    local first_col = first_line ~= nil
-      and tonumber(first_line[1].col_number) - 1
-      or tonumber(result.col_number) - 1
-
-    api.nvim_win_set_cursor(winid, { 1, first_col })
+  for line = api.nvim_buf_line_count(bufnr), #info.line_array - 1 do
+    for _, result in ipairs(results_at(bufnr, line)) do
+      render_result(bufnr, line, result)
+    end
   end
+
+  api.nvim_buf_set_option(bufnr, "undolevels", -1)
+  api.nvim_command[[exec "normal! a \<BS>\<Esc>"]]
+  api.nvim_buf_set_option(bufnr, "undolevels", 1000)
+  api.nvim_buf_set_option(bufnr, "modified", false)
+  api.nvim_buf_set_option(bufnr, "buftype", "acwrite")
+  api.nvim_command[[redraw]]
 end
 
 -- Change tracking --
@@ -641,11 +636,14 @@ function M.prompt(prompt, search_args)
 
   api.nvim_command[[autocmd! search_prompt_watcher]]
 
-  if #search_term == 0 then
-    local bufnr = api.nvim_get_current_buf()
+  local bufnr = api.nvim_get_current_buf()
 
+  if #search_term == 0 then
     reset_search(bufnr)
     api.nvim_buf_delete(bufnr, { force = false })
+  else
+    finish_search(bufnr)
+    api.nvim_win_set_cursor(winid, { 1, 0 })
   end
 end
 
@@ -660,7 +658,7 @@ function M.run(search_term, search_args)
   render_status(bufnr)
 
   if #search_term == 0 then
-    display_results(bufnr)
+    api.nvim_command[[redraw]]
   else
     local line = 0
 
@@ -672,29 +670,27 @@ function M.run(search_term, search_args)
       interactive = false,
       on_stdout = vim.schedule_wrap(function(_, result_line)
         if is_current_search(info) then
-          local result = get_result(result_line)
+          local result = make_result(bufnr, result_line)
 
           local win_height = api.nvim_win_get_height(winid)
           local res_height = #info.line_array + vim.tbl_count(info.file_table) * 2
           if res_height < win_height then
             render_result(bufnr, line, result)
-            display_results(bufnr, result)
+            api.nvim_command[[redraw]]
           end
 
-          local next_line = get_next_line(bufnr, line, result)
-
-          update_search_results(bufnr, line, result)
+          update_results(bufnr, line, result)
           render_status(bufnr)
 
-          line = next_line
+          line = (result.is_first_line or result.is_first_col)
+            and line + 1
+            or line
         end
       end),
       on_exit = vim.schedule_wrap(function()
         if is_current_search(info) then
-          finish_search(bufnr)
-          display_results(bufnr)
+          api.nvim_command[[redraw]]
         end
-        --watch_modifications(bufnr)
       end),
     }
     info.job:start()
