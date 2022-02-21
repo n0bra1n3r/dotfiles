@@ -42,8 +42,7 @@ require"packer".startup(function(packer_use)
 
   use { "ggandor/lightspeed.nvim", event = "BufRead" }
 
-  use { "nvim-telescope/telescope.nvim", module = "telescope", cmd = "Telescope",
-    requires = {{ "nvim-telescope/telescope-fzf-native.nvim", run = "make" }} }
+  use { "nvim-telescope/telescope.nvim", module = "telescope", cmd = "Telescope" }
 
   -- VCS --
 
