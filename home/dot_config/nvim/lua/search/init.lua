@@ -494,8 +494,11 @@ end
 local function finish_search(bufnr)
   local info = M.buffers[bufnr]
 
-  for line = api.nvim_buf_line_count(bufnr), #info.line_array - 1 do
-    for _, result in ipairs(results_at(bufnr, line)) do
+  local start_line = api.nvim_buf_line_count(bufnr)
+  local end_line = #info.result_array - 1
+
+  for line = start_line, end_line do
+    for _, result in ipairs(info.result_array[line + 1]) do
       render_result(bufnr, line, result)
     end
   end
@@ -693,9 +696,10 @@ function M.run(search_term, search_args)
 
           render_status(bufnr)
 
-          line = (result.is_first_line or result.is_first_col)
-            and line + 1
-            or line
+          if result.is_first_line or
+              result.is_first_col then
+            line = line + 1
+          end
         end
       end),
       on_exit = vim.schedule_wrap(function()
