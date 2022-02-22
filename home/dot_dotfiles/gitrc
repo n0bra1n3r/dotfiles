@@ -5,7 +5,7 @@ alias sh="PATH=\"$PATH\" "
 
 while read -r cmd; do
   alias $cmd="sh git $cmd"
-done <<< "$(git help -a | grep -oP "^ +\\K\\w+" | uniq -u)"
+done <<< "$(git help -a | grep -o "^   [-a-z0-9]*" | tr ' ' '\n' | grep -v "^$" | sort -u)"
 
 eval "$(~/.local/bin/starship init bash)"
 
