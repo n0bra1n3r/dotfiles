@@ -281,19 +281,23 @@ local function reset_search(bufnr, search_term, search_args)
   local cmd, args = get_search_command(search_term, search_args)
 
   M.buffers[bufnr] = {
-    args = args,
-    bufnr = bufnr,
-    cmd = cmd,
-    cursor_line = 0,
-    cwd = vim.fn.getcwd(),
-    file_table = {},
-    job = nil,
-    line_array = {},
-    namespace = string.format("search-%d", bufnr),
-    result_array = {},
+    -- Search info
     search_id = search_id,
     search_term = search_term,
+    -- Job info
+    args = args,
+    cmd = cmd,
+    cwd = vim.fn.getcwd(),
+    job = nil,
+    -- Buffer info
+    bufnr = bufnr,
+    cursor_line = 0,
+    namespace = string.format("search-%d", bufnr),
     sign_width = 0,
+    -- Result info
+    file_table = {},
+    line_array = {},
+    result_array = {},
   }
 
   api.nvim_buf_set_option(bufnr, "buftype", "nofile")
