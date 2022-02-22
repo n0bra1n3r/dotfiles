@@ -428,6 +428,10 @@ end
 local function render_line_number_sign(bufnr, line, group, label)
   vim.fn.sign_unplace(group)
 
+  if #label % 2 == 0 then
+    label = " "..label
+  end
+
   for i = 0, math.floor(#label / 2) do
     local index = i * 2
     local final = index + 1
