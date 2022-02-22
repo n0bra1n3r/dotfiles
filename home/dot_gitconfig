@@ -4,6 +4,9 @@
   name = Ryan Blonna
   email = n0.b741n37@gmail.com
 
+[includeif "gitdir:~/.local/share/chezmoi/"]
+  path = ~/.dotfiles/gitconfig/n0bra1n3r
+
 [includeif "gitdir:CancerAidDev/"]
   path = ~/.dotfiles/gitconfig/CancerAidDev
 
