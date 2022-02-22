@@ -19,9 +19,11 @@ end
 
 local function get_line_number_label(text, padding)
   local result = text
+
   for i = 1, padding do
     result = " "..result
   end
+
   return result
 end
 
@@ -80,18 +82,22 @@ end
 
 local function create_buffer_if_needed()
   local bufnr = api.nvim_get_current_buf()
+
   if M.buffers == nil or M.buffers[bufnr] == nil then
     if #api.nvim_buf_get_name(bufnr) > 0 or
         api.nvim_buf_line_count(bufnr) > 0 then
       api.nvim_command[[keepjumps enew]]
+
       return api.nvim_get_current_buf()
     end
+
     return bufnr
   end
 end
 
 local function get_buffer()
   local bufnr = create_buffer_if_needed()
+
   if bufnr ~= nil then
     local winid = api.nvim_get_current_win()
 
@@ -219,27 +225,59 @@ end
 
 -- Updating --
 
-local function make_result(bufnr, result_line)
-  local result = parse_result(result_line)
+local function push_result(bufnr, line, result_line)
   local info = M.buffers[bufnr]
 
-  if info.file_table[result.file_name] == nil then
+  local result = parse_result(result_line)
+
+  result.is_first_line = false
+  result.is_first_col = false
+
+  local file_info = info.file_table[result.file_name]
+  if file_info == nil then
+    info.file_table[result.file_name] = {
+      [result.line_number] = line + 1,
+    }
+
     result.is_first_line = true
-  elseif info.file_table[result.file_name][result.line_number] == nil then
+    result.is_first_col = true
+  elseif file_info[result.line_number] == nil then
+    file_info[result.line_number] = line + 1
+
     result.is_first_col = true
   end
+
+  local results = info.result_array[line + 1]
+  if results == nil then
+    info.result_array[line + 1] = { result }
+  else
+    table.insert(results, result)
+  end
+
+  info.line_array[line + 1] = {
+    file_name = result.file_name,
+    line_number = result.line_number,
+  }
 
   return result
 end
 
 local function results_at(bufnr, line)
   local info = M.buffers[bufnr]
+
   if #info.line_array > 0 then
     local line_info = info.line_array[line + 1]
     local line_index = info.file_table[line_info.file_name][line_info.line_number]
+
     return info.result_array[line_index]
   end
+
   return {}
+end
+
+local function is_current_search(info)
+  local current_info = M.buffers[info.bufnr]
+  return current_info ~= nil and current_info.search_id == info.search_id
 end
 
 local function reset_search(bufnr, search_term, search_args)
@@ -305,34 +343,6 @@ local function reset_search(bufnr, search_term, search_args)
   return M.buffers[bufnr]
 end
 
-local function update_results(bufnr, line, result)
-  local info = M.buffers[bufnr]
-
-  info.line_array[line + 1] = {
-    file_name = result.file_name,
-    line_number = result.line_number,
-  }
-
-  local results = info.result_array[line + 1]
-  if results == nil then
-    results = {}
-    info.result_array[line + 1] = results
-  end
-  table.insert(results, result)
-
-  local file_info = info.file_table[result.file_name]
-  if file_info == nil then
-    file_info = {}
-    info.file_table[result.file_name] = file_info
-  end
-  file_info[result.line_number] = line + 1
-end
-
-local function is_current_search(info)
-  local current_info = M.buffers[info.bufnr]
-  return current_info ~= nil and info.search_id == current_info.search_id
-end
-
 -- Event callbacks --
 
 function M._on_prompt_input(search_args)
@@ -342,6 +352,7 @@ end
 function M._on_cursor_moved()
   local bufnr = tonumber(vim.fn.expand("<abuf>"))
   local info = M.buffers[bufnr]
+
   local line = vim.fn.line"." - 1
 
   if info.cursor_line ~= line then
@@ -354,6 +365,7 @@ function M._on_cursor_moved()
     for offset = 0, math.floor(info.sign_width / 2) do
       local prev_name = get_sign_name(prev_group, offset)
       vim.fn.sign_define(prev_name, { texthl = "LineNr" })
+
       local curr_name = get_sign_name(curr_group, offset)
       vim.fn.sign_define(curr_name, { texthl = "CursorLineNr" })
     end
@@ -364,6 +376,7 @@ end
 
 function M._on_buf_delete()
   local bufnr = tonumber(vim.fn.expand("<abuf>"))
+
   if M.buffers ~= nil and M.buffers[bufnr] ~= nil then
     reset_search(bufnr)
     M.buffers[bufnr] = nil
@@ -401,6 +414,7 @@ end
 
 local function render_file_name(bufnr, line, file_name)
   local info = M.buffers[bufnr]
+
   local namespace = api.nvim_create_namespace(string.format("%s-%s", info.namespace, file_name))
 
   for _, item in ipairs(api.nvim_buf_get_extmarks(bufnr, namespace, 0, -1, {})) do
@@ -435,20 +449,26 @@ local function render_line_number_sign(bufnr, line, group, label)
   for i = 0, math.floor(#label / 2) do
     local index = i * 2
     local final = index + 1
+
     if final >= #label then
       final = final - 1
     end
+
     local name = get_sign_name(group, i)
+
     vim.fn.sign_define(name, {
       text = string.sub(label, index + 1, final + 1),
       texthl = line == 0 and "CursorLineNr" or "LineNr",
     })
     vim.fn.sign_place(i + 1, group, name, bufnr, { lnum = line + 1 })
   end
+
+  return #label
 end
 
 local function render_line_number(bufnr, line, file_name, line_number)
   local info = M.buffers[bufnr]
+
   local group = get_sign_group(info.namespace, file_name, line_number)
 
   if #line_number <= info.sign_width then
@@ -462,14 +482,13 @@ local function render_line_number(bufnr, line, file_name, line_number)
       render_line_number_sign(bufnr, prev_line, prev_group, prev_label)
     end
 
-    render_line_number_sign(bufnr, line, group, line_number)
+    info.sign_width = render_line_number_sign(bufnr, line, group, line_number)
   end
-
-  info.sign_width = math.max(info.sign_width, #line_number)
 end
 
 local function render_result(bufnr, line, result)
   local info = M.buffers[bufnr]
+
   if result.is_first_line then
     render_line_text(bufnr, line, result.line_text)
     render_file_name(bufnr, line, result.file_name)
@@ -480,15 +499,16 @@ local function render_result(bufnr, line, result)
   end
 
   local hl_namespace = api.nvim_create_namespace(string.format("%s-hl", info.namespace))
-  local hl_col_index = tonumber(result.col_number) - 1
-  local hl_col_final = hl_col_index + #info.search_term
+  local hl_col_start = tonumber(result.col_number) - 1
+  local hl_col_end = hl_col_start + #info.search_term
+
   api.nvim_buf_add_highlight(
     bufnr,
     hl_namespace,
     "SearchResult",
     line,
-    hl_col_index,
-    hl_col_final)
+    hl_col_start,
+    hl_col_end)
 end
 
 local function finish_search(bufnr)
@@ -508,6 +528,7 @@ local function finish_search(bufnr)
   api.nvim_buf_set_option(bufnr, "undolevels", 1000)
   api.nvim_buf_set_option(bufnr, "modified", false)
   api.nvim_buf_set_option(bufnr, "buftype", "acwrite")
+
   api.nvim_command[[redraw]]
 end
 
@@ -683,21 +704,23 @@ function M.run(search_term, search_args)
       interactive = false,
       on_stdout = vim.schedule_wrap(function(_, result_line)
         if is_current_search(info) then
-          local result = make_result(bufnr, result_line)
-
-          update_results(bufnr, line, result)
+          local result = push_result(bufnr, line, result_line)
 
           local win_height = api.nvim_win_get_height(winid)
           local res_height = #info.line_array + vim.tbl_count(info.file_table) * 2
+
           if res_height <= win_height then
             render_result(bufnr, line, result)
-            api.nvim_command[[redraw]]
           end
 
           render_status(bufnr)
 
           if result.is_first_line or
               result.is_first_col then
+            if res_height <= win_height then
+              api.nvim_command[[redraw]]
+            end
+
             line = line + 1
           end
         end
