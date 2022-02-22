@@ -304,8 +304,6 @@ end
 local function update_results(bufnr, line, result)
   local info = M.buffers[bufnr]
 
-  info.sign_width = math.max(info.sign_width, #result.line_number)
-
   info.line_array[line + 1] = {
     file_name = result.file_name,
     line_number = result.line_number,
@@ -444,6 +442,7 @@ end
 local function render_line_number(bufnr, line, file_name, line_number)
   local info = M.buffers[bufnr]
   local group = get_sign_group(info.namespace, file_name, line_number)
+
   if #line_number <= info.sign_width then
     local label = get_line_number_label(line_number, info.sign_width - #line_number)
     render_line_number_sign(bufnr, line, group, label)
@@ -454,8 +453,11 @@ local function render_line_number(bufnr, line, file_name, line_number)
       local prev_label = get_line_number_label(line_info.line_number, #line_number - #line_info.line_number)
       render_line_number_sign(bufnr, prev_line, prev_group, prev_label)
     end
+
     render_line_number_sign(bufnr, line, group, line_number)
   end
+
+  info.sign_width = math.max(info.sign_width, #line_number)
 end
 
 local function render_result(bufnr, line, result)
@@ -672,14 +674,15 @@ function M.run(search_term, search_args)
         if is_current_search(info) then
           local result = make_result(bufnr, result_line)
 
+          update_results(bufnr, line, result)
+
           local win_height = api.nvim_win_get_height(winid)
           local res_height = #info.line_array + vim.tbl_count(info.file_table) * 2
-          if res_height < win_height then
+          if res_height <= win_height then
             render_result(bufnr, line, result)
             api.nvim_command[[redraw]]
           end
 
-          update_results(bufnr, line, result)
           render_status(bufnr)
 
           line = (result.is_first_line or result.is_first_col)
