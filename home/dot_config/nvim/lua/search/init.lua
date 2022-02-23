@@ -225,16 +225,16 @@ end
 
 -- Updating --
 
-local function push_result(bufnr, line, result_line)
+local function push_result(bufnr, line, result)
   local info = M.buffers[bufnr]
-
-  local result = parse_result(result_line)
 
   result.is_first_line = false
   result.is_first_col = false
 
   local file_info = info.file_table[result.file_name]
   if file_info == nil then
+    line = line + 1
+
     info.file_table[result.file_name] = {
       [result.line_number] = line + 1,
     }
@@ -242,6 +242,8 @@ local function push_result(bufnr, line, result_line)
     result.is_first_line = true
     result.is_first_col = true
   elseif file_info[result.line_number] == nil then
+    line = line + 1
+
     file_info[result.line_number] = line + 1
 
     result.is_first_col = true
@@ -259,7 +261,7 @@ local function push_result(bufnr, line, result_line)
     line_number = result.line_number,
   }
 
-  return result
+  return line
 end
 
 local function results_at(bufnr, line)
@@ -415,7 +417,7 @@ end
 local function render_file_name(bufnr, line, file_name)
   local info = M.buffers[bufnr]
 
-  local namespace = api.nvim_create_namespace(string.format("%s-%s", info.namespace, file_name))
+  local namespace = api.nvim_create_namespace(info.namespace.."-"..file_name)
 
   for _, item in ipairs(api.nvim_buf_get_extmarks(bufnr, namespace, 0, -1, {})) do
     api.nvim_buf_del_extmark(bufnr, namespace, item[1])
@@ -489,26 +491,33 @@ end
 local function render_result(bufnr, line, result)
   local info = M.buffers[bufnr]
 
-  if result.is_first_line then
-    render_line_text(bufnr, line, result.line_text)
-    render_file_name(bufnr, line, result.file_name)
-    render_line_number(bufnr, line, result.file_name, result.line_number, info)
-  elseif result.is_first_col then
+  if result.is_first_col then
     render_line_text(bufnr, line, result.line_text)
     render_line_number(bufnr, line, result.file_name, result.line_number, info)
   end
 
-  local hl_namespace = api.nvim_create_namespace(string.format("%s-hl", info.namespace))
-  local hl_col_start = tonumber(result.col_number) - 1
-  local hl_col_end = hl_col_start + #info.search_term
+  if result.is_first_line then
+    render_file_name(bufnr, line, result.file_name)
+  end
+end
 
-  api.nvim_buf_add_highlight(
-    bufnr,
-    hl_namespace,
-    "SearchResult",
-    line,
-    hl_col_start,
-    hl_col_end)
+local function highlight_results(bufnr, line)
+  local info = M.buffers[bufnr]
+
+  local namespace = api.nvim_create_namespace(info.namespace.."-results")
+
+  for _, result in ipairs(info.result_array[line + 1]) do
+    local col_start = tonumber(result.col_number) - 1
+    local col_end = col_start + #info.search_term
+
+    api.nvim_buf_add_highlight(
+      bufnr,
+      namespace,
+      "SearchResult",
+      line,
+      col_start,
+      col_end)
+    end
 end
 
 local function finish_search(bufnr)
@@ -521,6 +530,8 @@ local function finish_search(bufnr)
     for _, result in ipairs(info.result_array[line + 1]) do
       render_result(bufnr, line, result)
     end
+
+    highlight_results(bufnr, line)
   end
 
   api.nvim_buf_set_option(bufnr, "undolevels", -1)
@@ -694,7 +705,7 @@ function M.run(search_term, search_args)
   if #search_term == 0 then
     api.nvim_command[[redraw]]
   else
-    local line = 0
+    local line = -1
 
     info.job = job:new {
       command = info.cmd,
@@ -704,7 +715,12 @@ function M.run(search_term, search_args)
       interactive = false,
       on_stdout = vim.schedule_wrap(function(_, result_line)
         if is_current_search(info) then
-          local result = push_result(bufnr, line, result_line)
+          local result = parse_result(result_line)
+
+          local next_line = push_result(bufnr, line, result)
+          local has_next_line = line ~= -1 and line ~= next_line
+
+          line = next_line
 
           local win_height = api.nvim_win_get_height(winid)
           local res_height = #info.line_array + vim.tbl_count(info.file_table) * 2
@@ -715,13 +731,12 @@ function M.run(search_term, search_args)
 
           render_status(bufnr)
 
-          if result.is_first_line or
-              result.is_first_col then
-            if res_height <= win_height then
+          if has_next_line then
+            highlight_results(bufnr, line - 1)
+
+            if res_height <= win_height + 1 then
               api.nvim_command[[redraw]]
             end
-
-            line = line + 1
           end
         end
       end),
