@@ -92,7 +92,7 @@ api.nvim_command[[autocmd!]]
 api.nvim_command[[autocmd VimLeavePre * lua require"search"._on_vim_leave()]]
 api.nvim_command[[augroup end]]
 
-api.nvim_command[[highlight SearchResult gui=bold cterm=bold]]
+api.nvim_command[[highlight default SearchResult gui=bold guifg=white cterm=bold ctermbg=white]]
 
 -- Initialization --
 
