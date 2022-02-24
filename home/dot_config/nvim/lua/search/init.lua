@@ -82,6 +82,11 @@ end
 
 -- Global config --
 
+api.nvim_set_keymap("n", "<Plug>SearchSelectNext", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], {
+  noremap = false,
+  silent = true,
+})
+
 api.nvim_command[[augroup search_on_vim_leave]]
 api.nvim_command[[autocmd!]]
 api.nvim_command[[autocmd VimLeavePre * lua require"search"._on_vim_leave()]]
@@ -151,11 +156,11 @@ local function get_buffer()
       noremap = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "n", "m", [[<cmd>lua require"search".next_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "n", "s", [[<cmd>lua require"search".next_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "n", "M", [[<cmd>lua require"search".prev_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "n", "S", [[<cmd>lua require"search".prev_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
@@ -171,11 +176,11 @@ local function get_buffer()
       noremap = true,
       expr = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "x", "m", [[<cmd>lua require"search".next_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "x", "s", [[<cmd>lua require"search".next_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "x", "M", [[<cmd>lua require"search".prev_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "x", "S", [[<cmd>lua require"search".prev_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
@@ -184,27 +189,27 @@ local function get_buffer()
     })
 
     -- text objects
-    api.nvim_buf_set_keymap(bufnr, "n", "gM", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "n", "gS", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "n", "gm", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "n", "gs", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "o", "gM", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "o", "gS", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "o", "gm", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "o", "gs", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "x", "gM", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "x", "gS", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "x", "gm", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "x", "gs", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
