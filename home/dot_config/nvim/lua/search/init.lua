@@ -508,28 +508,22 @@ local function render_result(bufnr, line, result)
     render_line_number(bufnr, line, result.file_name, result.line_number, info)
   end
 
+  local namespace = api.nvim_create_namespace(info.namespace.."-results")
+
+  local col_start = tonumber(result.col_number) - 1
+  local col_end = col_start + #info.search_term
+
+  api.nvim_buf_add_highlight(
+    bufnr,
+    namespace,
+    "SearchResult",
+    line,
+    col_start,
+    col_end)
+
   if result.is_first_line then
     render_file_name(bufnr, line, result.file_name)
   end
-end
-
-local function highlight_results(bufnr, line)
-  local info = M.buffers[bufnr]
-
-  local namespace = api.nvim_create_namespace(info.namespace.."-results")
-
-  for _, result in ipairs(info.result_array[line + 1]) do
-    local col_start = tonumber(result.col_number) - 1
-    local col_end = col_start + #info.search_term
-
-    api.nvim_buf_add_highlight(
-      bufnr,
-      namespace,
-      "SearchResult",
-      line,
-      col_start,
-      col_end)
-    end
 end
 
 -- Change tracking --
@@ -665,8 +659,6 @@ local function finish_search(bufnr)
     for _, result in ipairs(info.result_array[line + 1]) do
       render_result(bufnr, line, result)
     end
-
-    highlight_results(bufnr, line)
   end
 
   api.nvim_buf_set_option(bufnr, "undolevels", -1)
@@ -764,12 +756,8 @@ function M.run(search_term, search_args)
 
           render_status(bufnr)
 
-          if has_next_line then
-            highlight_results(bufnr, line - 1)
-
-            if res_height <= win_height + 1 then
-              api.nvim_command[[redraw]]
-            end
+          if has_next_line and res_height <= win_height + 1 then
+            api.nvim_command[[redraw]]
           end
         end
       end),
