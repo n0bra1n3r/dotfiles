@@ -284,13 +284,12 @@ local function reset_search(bufnr, search_term, search_args)
     M.buffers = {}
   end
 
-  local search_id = 1
+  local info = M.buffers[bufnr]
 
-  if M.buffers[bufnr] ~= nil then
-    local info = M.buffers[bufnr]
-
+  if info ~= nil then
     if info.job ~= nil and not info.job.is_shutdown then
       info.job:shutdown()
+      info.job = nil
     end
 
     if #info.line_array > 0 then
@@ -311,15 +310,13 @@ local function reset_search(bufnr, search_term, search_args)
       api.nvim_buf_clear_namespace(bufnr, -1, 0, -1)
       api.nvim_buf_set_lines(bufnr, 0, -1, false, {})
     end
-
-    search_id = info.search_id + 1
   end
 
   local cmd, args = get_search_command(search_term, search_args)
 
   M.buffers[bufnr] = {
     -- Search info
-    search_id = search_id,
+    search_id = info and info.search_id + 1 or 1,
     search_term = search_term,
     -- Job info
     args = args,
@@ -336,8 +333,8 @@ local function reset_search(bufnr, search_term, search_args)
     line_array = {},
     result_array = {},
     -- State info
-    is_searching = false,
     is_editing = false,
+    is_searching = false,
   }
 
   api.nvim_buf_set_option(bufnr, "buftype", "nofile")
@@ -383,15 +380,17 @@ function M._on_buf_delete(bufnr)
 end
 
 function M._on_buf_enter(bufnr)
-  if M.buffers ~= nil and M.buffers[bufnr] ~= nil then
-    local info = M.buffers[bufnr]
+  local info = M.buffers and M.buffers[bufnr]
+
+  if info ~= nil then
     info.is_editing = true
   end
 end
 
 function M._on_buf_leave(bufnr)
-  if M.buffers ~= nil and M.buffers[bufnr] ~= nil then
-    local info = M.buffers[bufnr]
+  local info = M.buffers and M.buffers[bufnr]
+
+  if info ~= nil then
     info.is_editing = false
   end
 end
@@ -531,47 +530,26 @@ local function highlight_results(bufnr, line)
     end
 end
 
-local function finish_search(bufnr)
-  local info = M.buffers[bufnr]
-
-  local start_line = api.nvim_buf_line_count(bufnr)
-  local end_line = #info.result_array - 1
-
-  for line = start_line, end_line do
-    for _, result in ipairs(info.result_array[line + 1]) do
-      render_result(bufnr, line, result)
-    end
-
-    highlight_results(bufnr, line)
-  end
-
-  api.nvim_buf_set_option(bufnr, "undolevels", -1)
-  api.nvim_command[[exec "normal! i \<BS>\<Esc>"]]
-  api.nvim_buf_set_option(bufnr, "undolevels", 1000)
-  api.nvim_buf_set_option(bufnr, "modified", false)
-  api.nvim_buf_set_option(bufnr, "buftype", "acwrite")
-  api.nvim_win_set_cursor(winid, { 1, 0 })
-
-  api.nvim_command[[redraw]]
-end
-
 -- Change tracking --
 
 local function save_modification(bufnr, line)
   -- TODO
   local info = M.buffers[bufnr]
   local text = api.nvim_buf_get_lines(bufnr, line, line + 1, {})[1]
-  vim.cmd("echo '"..text.."'")
 end
 
 local function watch_modifications(bufnr)
+  local info = M.buffers[bufnr]
+
   api.nvim_buf_attach(bufnr, false, {
 	  on_bytes = vim.schedule_wrap(function(
         _, bufnr, _,
         first_line, first_line_col, buffer_offset,
         line_offset, last_line_col, change_len,
         new_line_offset, new_last_line_col, new_change_len)
-      local info = M.buffers[bufnr]
+      if not is_current_search(info) then
+        return true
+      end
 
       if line_offset > new_line_offset then
         -- lines were removed
@@ -606,11 +584,11 @@ local function watch_modifications(bufnr)
 
         if (prev_info == nil or prev_info.line_number ~= nil) and
             (next_info == nil or next_info.line_number ~= nil) then
-          local first_index = prev_info ~= nil
+          local first_index = prev_info
             and math.min(info.file_table[prev_info.file_name][prev_info.line_number] + 1, #info.result_array)
             or 1
 
-          local last_index = next_info ~= nil
+          local last_index = next_info
             and math.max(info.file_table[next_info.file_name][next_info.line_number] - 1, 1)
             or #info.result_array
 
@@ -675,6 +653,32 @@ end
 
 -- Interface --
 
+local function finish_search(bufnr)
+  local info = M.buffers[bufnr]
+
+  local start_line = api.nvim_buf_line_count(bufnr)
+  local end_line = #info.result_array - 1
+
+  for line = start_line, end_line do
+    for _, result in ipairs(info.result_array[line + 1]) do
+      render_result(bufnr, line, result)
+    end
+
+    highlight_results(bufnr, line)
+  end
+
+  api.nvim_buf_set_option(bufnr, "undolevels", -1)
+  api.nvim_command[[exec "normal! i \<BS>\<Esc>"]]
+  api.nvim_buf_set_option(bufnr, "undolevels", 1000)
+  api.nvim_buf_set_option(bufnr, "modified", false)
+  api.nvim_buf_set_option(bufnr, "buftype", "acwrite")
+  api.nvim_win_set_cursor(winid, { 1, 0 })
+
+  api.nvim_command[[redraw]]
+
+  watch_modifications(bufnr)
+end
+
 function M.prompt(prompt, search_args)
   api.nvim_command[[augroup search_prompt_watcher]]
   api.nvim_command[[autocmd!]]
@@ -690,22 +694,25 @@ function M.prompt(prompt, search_args)
   api.nvim_command[[augroup end]]
 
   local bufnr = api.nvim_get_current_buf()
-  local info = M.buffers and M.buffers[bufnr] or nil
-  local search_term = info and info.search_term or nil
+  local info = M.buffers and M.buffers[bufnr]
+
+  if info then
+    api.nvim_command[[bwipeout]]
+  end
 
   search_term = vim.fn.input {
-    default = search_term,
+    default = info and info.search_term,
     prompt = prompt,
   }
 
   api.nvim_command[[autocmd! search_prompt_watcher]]
 
-  if #search_term == 0 then
+  bufnr = api.nvim_get_current_buf()
+  info = M.buffers and M.buffers[bufnr]
+
+  if info and #search_term == 0 then
     api.nvim_command[[bwipeout]]
   else
-    local bufnr = api.nvim_get_current_buf()
-    local info = M.buffers[bufnr]
-
     if not info.is_searching then
       finish_search(api.nvim_get_current_buf())
     end
