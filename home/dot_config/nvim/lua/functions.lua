@@ -178,7 +178,7 @@ function _G.fn.close_buffer()
   elseif vim.fn.winnr("$") > 1 then
     vim.cmd[[close]]
   else
-    vim.cmd[[bdelete]]
+    vim.cmd[[bwipeout]]
   end
 end
 
