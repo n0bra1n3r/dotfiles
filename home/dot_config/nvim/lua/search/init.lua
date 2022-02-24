@@ -710,11 +710,13 @@ function M.prompt(prompt, search_args)
   bufnr = api.nvim_get_current_buf()
   info = M.buffers and M.buffers[bufnr]
 
-  if info and #search_term == 0 then
-    api.nvim_command[[bwipeout]]
-  else
-    if not info.is_searching then
-      finish_search(api.nvim_get_current_buf())
+  if info ~= nil then
+    if #search_term == 0 then
+      api.nvim_command[[bwipeout]]
+    else
+      if not info.is_searching then
+        finish_search(api.nvim_get_current_buf())
+      end
     end
   end
 end
