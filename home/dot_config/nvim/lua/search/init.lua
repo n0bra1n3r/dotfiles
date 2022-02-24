@@ -287,6 +287,8 @@ local function reset_search(bufnr, search_term, search_args)
   local info = M.buffers[bufnr]
 
   if info ~= nil then
+    api.nvim_command[[echon]]
+
     if info.job ~= nil and not info.job.is_shutdown then
       info.job:shutdown()
       info.job = nil
