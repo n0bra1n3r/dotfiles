@@ -209,11 +209,11 @@ local function get_buffer()
 
     -- autocommands
     api.nvim_command[[augroup search_autocommands]]
-    api.nvim_command[[autocmd BufDelete <buffer> lua require"search"._on_buf_delete(tonumber(vim.fn.expand("<abuf>")))]]
-    api.nvim_command[[autocmd BufEnter <buffer> lua require"search"._on_buf_enter(tonumber(vim.fn.expand("<abuf>")))]]
-    api.nvim_command[[autocmd BufLeave <buffer> lua require"search"._on_buf_leave(tonumber(vim.fn.expand("<abuf>")))]]
-    api.nvim_command[[autocmd BufWriteCmd <buffer> lua require"search"._on_buf_write(tonumber(vim.fn.expand("<abuf>")))]]
-    api.nvim_command[[autocmd CursorMoved,CursorMovedI <buffer> lua require"search"._on_cursor_moved(tonumber(vim.fn.expand("<abuf>")))]]
+    api.nvim_command[[autocmd BufDelete <buffer> lua require"search"._on_buf_delete(tonumber(vim.fn.expand"<abuf>"))]]
+    api.nvim_command[[autocmd BufEnter <buffer> lua require"search"._on_buf_enter(tonumber(vim.fn.expand"<abuf>"))]]
+    api.nvim_command[[autocmd BufLeave <buffer> lua require"search"._on_buf_leave(tonumber(vim.fn.expand"<abuf>"))]]
+    api.nvim_command[[autocmd BufWriteCmd <buffer> lua require"search"._on_buf_write(tonumber(vim.fn.expand"<abuf>"))]]
+    api.nvim_command[[autocmd CursorMoved,CursorMovedI <buffer> lua require"search"._on_cursor_moved(tonumber(vim.fn.expand"<abuf>"))]]
     api.nvim_command[[augroup end]]
   end
 
