@@ -64,7 +64,8 @@ local function parse_result(result_line)
 
   local part_array = {select(3, string.find(result_line, pattern))}
 
-  local part_table = {}
+  local parsed_result = {}
+
   for s, i in pairs(part_index) do
     local key = ({
       f = "file_name",
@@ -72,10 +73,11 @@ local function parse_result(result_line)
       c = "col_number",
       m = "line_text",
     })[s]
-    part_table[key] = part_array[i + 1]
+
+    parsed_result[key] = part_array[i + 1]
   end
 
-  return part_table
+  return parsed_result
 end
 
 -- Global config --
