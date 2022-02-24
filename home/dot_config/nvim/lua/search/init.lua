@@ -413,6 +413,9 @@ local function render_status(bufnr)
     total_file_count)
 
   api.nvim_buf_set_name(bufnr, status_string)
+
+  api.nvim_command[[redrawstatus]]
+  api.nvim_command[[redrawtabline]]
 end
 
 local function render_file_name(bufnr, line, file_name)
