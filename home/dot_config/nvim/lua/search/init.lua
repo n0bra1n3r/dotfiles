@@ -689,7 +689,14 @@ function M.prompt(prompt, search_args)
 
   api.nvim_command[[augroup end]]
 
-  local search_term = vim.fn.input({ prompt = prompt })
+  local bufnr = api.nvim_get_current_buf()
+  local info = M.buffers and M.buffers[bufnr] or nil
+  local search_term = info and info.search_term or nil
+
+  search_term = vim.fn.input {
+    default = search_term,
+    prompt = prompt,
+  }
 
   api.nvim_command[[autocmd! search_prompt_watcher]]
 
