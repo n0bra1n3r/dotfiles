@@ -33,7 +33,7 @@ local function get_search_command(search_term, search_args)
   local argList = {select(2, unpack(grep))}
 
   if search_args ~= nil then
-    for _, arg in ipairs(search_args) do
+    for arg in string.gmatch(search_args, "[^%S]+") do
       table.insert(argList, arg)
     end
   end
@@ -688,13 +688,9 @@ function M.prompt(prompt, search_args)
   api.nvim_command[[augroup search_prompt_watcher]]
   api.nvim_command[[autocmd!]]
 
-  if search_args == nil then
-    api.nvim_command[[autocmd CmdlineChanged * lua require"search"._on_prompt_input()]]
-  else
-    api.nvim_command(string.format([[
-      autocmd CmdlineChanged * lua require"search"._on_prompt_input("%s")
-    ]], search_args))
-  end
+  api.nvim_command(string.format([[
+    autocmd CmdlineChanged * lua require"search"._on_prompt_input("%s")
+  ]], search_args or [[]]))
 
   api.nvim_command[[augroup end]]
 
