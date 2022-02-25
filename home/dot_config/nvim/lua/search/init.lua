@@ -673,7 +673,11 @@ local function finish_search(bufnr)
   api.nvim_buf_set_option(bufnr, "undolevels", 1000)
   api.nvim_buf_set_option(bufnr, "modified", false)
   api.nvim_buf_set_option(bufnr, "buftype", "acwrite")
-  api.nvim_win_set_cursor(winid, { 1, 0 })
+
+  local first_result = info.result_array[1][1]
+  local first_col = tonumber(first_result.col_number) - 1
+
+  api.nvim_win_set_cursor(winid, { 1, first_col })
 
   api.nvim_command[[redraw]]
 
@@ -697,7 +701,7 @@ function M.prompt(prompt, search_args)
   local bufnr = api.nvim_get_current_buf()
   local info = M.buffers and M.buffers[bufnr]
 
-  if info then
+  if info ~= nil then
     api.nvim_command[[bwipeout]]
   end
 
