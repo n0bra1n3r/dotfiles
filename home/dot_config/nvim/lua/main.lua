@@ -29,7 +29,6 @@ vim.opt.linebreak = true
 vim.opt.list = true
 vim.opt.listchars:append("multispace:· ")
 vim.opt.listchars:append("tab:▸ ")
-vim.opt.listchars:append("trail:•")
 vim.opt.number = true
 vim.opt.numberwidth = 2
 vim.opt.ruler = false
