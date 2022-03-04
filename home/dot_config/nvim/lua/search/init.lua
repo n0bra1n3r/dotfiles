@@ -312,6 +312,11 @@ local function reset_search(bufnr, search_term, search_args)
     if #info.line_array > 0 then
       for line = 0, api.nvim_buf_line_count(bufnr) - 1 do
         local line_info = info.line_array[line + 1]
+
+        if line_info == nil then
+          break
+        end
+
         local sign_group = get_sign_group(
           info.namespace,
           line_info.file_name,
