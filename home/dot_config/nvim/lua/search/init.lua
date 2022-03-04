@@ -124,103 +124,68 @@ local function get_buffer()
     api.nvim_win_set_option(winid, "number", false)
     api.nvim_win_set_option(winid, "signcolumn", "auto:9")
 
-    -- navigation
-    api.nvim_buf_set_keymap(bufnr, "i", "<Down>", [[<cmd>lua require"search".next_line()<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "i", "<Up>", get_scroll_up_expr[[<cmd>lua require"search".prev_line()<CR>]], {
+    -- plug mappings
+    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchFirstResult)", get_scroll_up_expr[[<cmd>lua require"search".first_result()<CR>]], {
       noremap = true,
       expr = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "n", "<Down>", [[<cmd>lua require"search".next_line(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchLastResult)", [[<cmd>lua require"search".last_result()<CR>]], {
       noremap = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "n", "<Up>", get_scroll_up_expr[[<cmd>lua require"search".prev_line(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchNextLine)", [[<cmd>lua require"search".next_line(vim.v.count1)<CR>]], {
+      noremap = true,
+      silent = true,
+    })
+    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchNextResult)", [[<cmd>lua require"search".next_result(vim.v.count1)<CR>]], {
+      noremap = true,
+      silent = true,
+    })
+    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchPrevResult)", [[<cmd>lua require"search".prev_result(vim.v.count1)<CR>]], {
+      noremap = true,
+      silent = true,
+    })
+    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchPrevLine)", get_scroll_up_expr[[<cmd>lua require"search".prev_line(vim.v.count1)<CR>]], {
       noremap = true,
       expr = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "n", "j", [[<cmd>lua require"search".next_line(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchSelectPrevResult)", [[<cmd>lua require"search".select_prev_result(vim.v.count1)<CR>]], {
       noremap = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "n", "k", get_scroll_up_expr[[<cmd>lua require"search".prev_line(vim.v.count)<CR>]], {
-      noremap = true,
-      expr = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "n", "G", [[<cmd>lua require"search".last_result()<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchSelectNextResult)", [[<cmd>lua require"search".select_next_result(vim.v.count1)<CR>]], {
       noremap = true,
       silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "n", "s", [[<cmd>lua require"search".next_result(vim.v.count)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "n", "S", [[<cmd>lua require"search".prev_result(vim.v.count)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "n", "gg", [[<cmd>lua require"search".first_result()<CR>2<C-y>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "o", "Z", [[<cmd>lua require"search".prev_result(vim.v.count)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "o", "z", [[<cmd>lua require"search".next_result(vim.v.count)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "v", "<Up>", get_scroll_up_expr[[<Up>]], {
-      noremap = true,
-      expr = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "x", "k", get_scroll_up_expr[[k]], {
-      noremap = true,
-      expr = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "x", "z", [[<cmd>lua require"search".next_result(vim.v.count)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "x", "Z", [[<cmd>lua require"search".prev_result(vim.v.count)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "x", "gg", [[gg2<C-y>]], {
-      noremap = true,
     })
 
+    -- navigation
+    api.nvim_buf_set_keymap(bufnr, "i", "<Down>", [[<Plug>(SearchNextLine)]], {})
+    api.nvim_buf_set_keymap(bufnr, "i", "<Up>", [[<Plug>(SearchPrevLine)]], {})
+    api.nvim_buf_set_keymap(bufnr, "n", "<Down>", [[<Plug>(SearchNextLine)]], {})
+    api.nvim_buf_set_keymap(bufnr, "n", "<Up>", [[<Plug>(SearchPrevLine)]], {})
+    api.nvim_buf_set_keymap(bufnr, "n", "j", [[<Plug>(SearchNextLine)]], {})
+    api.nvim_buf_set_keymap(bufnr, "n", "k", [[<Plug>(SearchPrevLine)]], {})
+    api.nvim_buf_set_keymap(bufnr, "n", "G", [[<Plug>(SearchLastResult)]], {})
+    api.nvim_buf_set_keymap(bufnr, "n", "S", [[<Plug>(SearchPrevResult)]], {})
+    api.nvim_buf_set_keymap(bufnr, "n", "s", [[<Plug>(SearchNextResult)]], {})
+    api.nvim_buf_set_keymap(bufnr, "n", "gg", [[<Plug>(SearchFirstResult)]], {})
+    api.nvim_buf_set_keymap(bufnr, "v", "<Up>", get_scroll_up_expr[[<Up>]], { noremap = true, expr = true })
+    api.nvim_buf_set_keymap(bufnr, "x", "k", get_scroll_up_expr[[k]], { noremap = true, expr = true })
+    api.nvim_buf_set_keymap(bufnr, "x", "gg", get_scroll_up_expr[[gg]], { noremap = true, expr = true })
+
     -- text objects
-    api.nvim_buf_set_keymap(bufnr, "n", "gS", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "n", "gs", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "o", "gZ", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "o", "gz", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "x", "gZ", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "x", "gz", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
+    api.nvim_buf_set_keymap(bufnr, "n", "gS", [[<Plug>(SearchSelectPrevResult)]], {})
+    api.nvim_buf_set_keymap(bufnr, "n", "gs", [[<Plug>(SearchSelectPrevResult)]], {})
+    api.nvim_buf_set_keymap(bufnr, "o", "z", [[<cmd>lua require"search".next_result(vim.v.count1)<CR>]], { noremap = true, silent = true })
+    api.nvim_buf_set_keymap(bufnr, "o", "Z", [[<cmd>lua require"search".prev_result(vim.v.count1)<CR>]], { noremap = true, silent = true })
+    api.nvim_buf_set_keymap(bufnr, "o", "gS", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], { noremap = true, silent = true })
+    api.nvim_buf_set_keymap(bufnr, "o", "gs", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], { noremap = true, silent = true })
+    api.nvim_buf_set_keymap(bufnr, "x", "gS", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], { noremap = true, silent = true })
+    api.nvim_buf_set_keymap(bufnr, "x", "gs", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], { noremap = true, silent = true })
+    api.nvim_buf_set_keymap(bufnr, "x", "z", [[<cmd>lua require"search".next_result(vim.v.count1)<CR>]], { noremap = true, silent = true })
+    api.nvim_buf_set_keymap(bufnr, "x", "Z", [[<cmd>lua require"search".prev_result(vim.v.count1)<CR>]], { noremap = true, silent = true })
 
     -- autocommands
     api.nvim_command[[augroup search_autocommands]]
@@ -801,7 +766,7 @@ end
 
 function M.next_line(step)
   local bufnr = api.nvim_get_current_buf()
-  local row = vim.fn.line"."
+  local row = vim.fn.line"." + step - 1
 
   if row <= vim.fn.line"$" - 1 then
     local col = tonumber(results_at(bufnr, row)[1].col_number) - 1
@@ -811,7 +776,7 @@ end
 
 function M.prev_line(step)
   local bufnr = api.nvim_get_current_buf()
-  local row = vim.fn.line"." - 1
+  local row = vim.fn.line"." - step
 
   if row > 0 then
     local results = results_at(bufnr, row - 1)
