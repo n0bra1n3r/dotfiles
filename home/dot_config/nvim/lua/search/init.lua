@@ -168,6 +168,14 @@ local function get_buffer()
       noremap = true,
       silent = true,
     })
+    api.nvim_buf_set_keymap(bufnr, "o", "Z", [[<cmd>lua require"search".prev_result(vim.v.count)<CR>]], {
+      noremap = true,
+      silent = true,
+    })
+    api.nvim_buf_set_keymap(bufnr, "o", "z", [[<cmd>lua require"search".next_result(vim.v.count)<CR>]], {
+      noremap = true,
+      silent = true,
+    })
     api.nvim_buf_set_keymap(bufnr, "v", "<Up>", get_scroll_up_expr[[<Up>]], {
       noremap = true,
       expr = true,
@@ -176,11 +184,11 @@ local function get_buffer()
       noremap = true,
       expr = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "x", "s", [[<cmd>lua require"search".next_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "x", "z", [[<cmd>lua require"search".next_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "x", "S", [[<cmd>lua require"search".prev_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "x", "Z", [[<cmd>lua require"search".prev_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
@@ -197,19 +205,19 @@ local function get_buffer()
       noremap = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "o", "gS", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "o", "gZ", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "o", "gs", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "o", "gz", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "x", "gS", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "x", "gZ", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
-    api.nvim_buf_set_keymap(bufnr, "x", "gs", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], {
+    api.nvim_buf_set_keymap(bufnr, "x", "gz", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], {
       noremap = true,
       silent = true,
     })
