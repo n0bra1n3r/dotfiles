@@ -10,6 +10,32 @@ function buffer_git_status()
   end
 end
 
+function project_git_status()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local branch = require"lualine.components.branch.git_branch".get_branch(bufnr)
+
+  if branch ~= "" then
+    return {
+      up = tonumber(vim.fn.system(string.format("git rev-list --left-only --count origin/%s...%s", branch, branch))),
+      down = tonumber(vim.fn.system(string.format("git rev-list --right-only --count origin/%s...%s", branch, branch))),
+    }
+  else
+    return { up = [[]], down = [[]] }
+  end
+end
+
+function project_state(values)
+  if fn.get_is_job_in_progress() then
+    return values.job
+  else
+    if fn.project_status() == "debug" then
+      return values.dbg
+    else
+      return values.nor
+    end
+  end
+end
+
 function M.config()
   local theme = "nightfox"
 
@@ -43,7 +69,7 @@ function M.config()
     options = {
       theme = theme,
       component_separators = "",
-      section_separators = { left = '', right = '' },
+      section_separators = { left = "", right = "" },
     },
     sections = {
       lualine_a = { "mode" },
@@ -66,7 +92,7 @@ function M.config()
         },
         {
           'diff',
-          padding = { left = 0, right = 1 },
+          colored = false,
           symbols = { added = ' ', modified = ' ', removed = ' ' },
           source = buffer_git_status,
         },
@@ -77,41 +103,94 @@ function M.config()
       lualine_z = { "location" },
     },
     tabline = {
-      lualine_a = { "tabs" },
+      lualine_a = {
+        {
+          function()
+            return string.format("%s %s", project_state{ dbg = '', job = '', nor = '' }, fn.get_project_dir())
+          end,
+          color = function()
+            return project_state {
+              dbg = "lualine_a_command",
+              job = "lualine_a_insert",
+              nor = "lualine_a_normal",
+            }
+          end,
+          cond = fn.is_git_dir,
+        },
+      },
       lualine_b = {
         {
-          "buffers",
-          mode = 2,
-          show_modified_status = false,
+          "branch",
+          color = function()
+            return project_state {
+              dbg = "lualine_b_command",
+              job = "lualine_b_insert",
+              nor = "lualine_b_normal",
+            }
+          end,
+          cond = fn.is_git_dir,
+        },
+        {
+          function()
+            return project_git_status().down
+          end,
+          color = function()
+            return project_state {
+              dbg = "lualine_b_command",
+              job = "lualine_b_insert",
+              nor = "lualine_b_normal",
+            }
+          end,
+          cond = fn.is_git_dir,
+          icon = '',
+        },
+        {
+          function()
+            return project_git_status().up
+          end,
+          color = function()
+            return project_state {
+              dbg = "lualine_b_command",
+              job = "lualine_b_insert",
+              nor = "lualine_b_normal",
+            }
+          end,
+          cond = fn.is_git_dir,
+          icon = '',
+          padding = { left = 0, right = 1 },
         },
       },
       lualine_c = {},
-      lualine_x = {},
+      lualine_x = {
+        {
+          "diagnostics",
+          sources = { fn.get_qf_diagnostics },
+        },
+      },
       lualine_y = {
         {
-          function()
-            local icon
-            if fn.get_is_job_in_progress() then
-              icon = ''
-            else
-              if fn.project_status() == "debug" then
-                icon = ''
-              else
-                icon = ''
-              end
-            end
-            local cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.")
-            return string.format("%s %s", icon, cwd)
+          "buffers",
+          color = function()
+            return project_state {
+              dbg = "lualine_b_command",
+              job = "lualine_b_insert",
+              nor = "lualine_b_normal",
+            }
           end,
-          color = "lualine_b_normal",
-          cond = fn.is_git_dir,
+          mode = 2,
+          show_modified_status = true,
         },
       },
       lualine_z = {
         {
-          "branch",
-          color = "lualine_a_normal",
-          cond = fn.is_git_dir,
+          "tabs",
+          color = function()
+            return project_state {
+              dbg = "lualine_a_command",
+              job = "lualine_a_insert",
+              nor = "lualine_a_normal",
+            }
+          end,
         },
       },
     },

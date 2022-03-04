@@ -296,6 +296,31 @@ function _G.fn.get_qf_diagnostics()
   return { error = error_count, hint = hint_count, warn = warn_count }
 end
 
+function _G.fn.get_project_dir()
+  local folder = vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.")
+  local bufnr = vim.api.nvim_get_current_buf()
+  local branch = require"lualine.components.branch.git_branch".get_branch(bufnr)
+
+  local branch_path = branch
+  local folder_path = folder
+
+  while true do
+    local branch_part = vim.fn.fnamemodify(branch_path, ":t")
+    local folder_part = vim.fn.fnamemodify(folder_path, ":t")
+
+    if folder_part ~= branch_part then
+      return folder
+    end
+
+    branch_path = vim.fn.fnamemodify(branch_path, ":h")
+    folder_path = vim.fn.fnamemodify(folder_path, ":h")
+
+    if branch_path == "." then
+      return folder_path
+    end
+  end
+end
+
 local is_job_in_progress = false
 
 function _G.fn.get_is_job_in_progress()
@@ -384,7 +409,7 @@ function _G.fn.open_git_shell(command)
     {
       silent = 1,
       name = "git_shell",
-      title = " "..vim.b.gitsigns_status_dict.head,
+      title = " "..vim.b.gitsigns_status_dict.head,
       height = math.ceil(vim.o.lines * 0.8),
       width = math.ceil(vim.o.columns * 0.8),
     })
