@@ -121,9 +121,11 @@ function _G.fn.vim_defer(fn, timer)
 end
 
 function _G.fn.trim_added_whitespace()
-  local saved_view = vim.fn.winsaveview()
-  vim.cmd[[keepjumps '[,']s/\s\+$//e]]
-  vim.fn.winrestview(saved_view)
+  if #vim.bo.buftype == 0 then
+    local saved_view = vim.fn.winsaveview()
+    vim.cmd[[keepjumps '[,']s/\s\+$//e]]
+    vim.fn.winrestview(saved_view)
+  end
 end
 
 function _G.fn.open_quickfix()
