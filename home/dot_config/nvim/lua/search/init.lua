@@ -269,7 +269,6 @@ local function reset_search(bufnr, search_term, search_args)
   }
 
   api.nvim_buf_set_option(bufnr, "buftype", "nofile")
-  vim.fn.setreg("/", search_term, vim.fn.getregtype("/"))
 
   return M.buffers[bufnr]
 end
@@ -605,6 +604,8 @@ local function finish_search(bufnr)
   local namespace = api.nvim_create_namespace(info.namespace.."-results")
 
   api.nvim_buf_clear_namespace(bufnr, namespace, 0, -1)
+
+  vim.fn.setreg("/", search_term, vim.fn.getregtype("/"))
 
   api.nvim_command[[set hls | redraw]]
 
