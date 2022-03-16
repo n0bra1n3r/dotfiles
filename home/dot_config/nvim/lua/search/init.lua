@@ -92,8 +92,6 @@ api.nvim_command[[autocmd!]]
 api.nvim_command[[autocmd VimLeavePre * lua require"search"._on_vim_leave()]]
 api.nvim_command[[augroup end]]
 
-api.nvim_command[[highlight default SearchResult gui=bold guifg=white cterm=bold ctermbg=white]]
-
 -- Initialization --
 
 local function create_buffer_if_needed()
@@ -124,68 +122,14 @@ local function get_buffer()
     api.nvim_win_set_option(winid, "number", false)
     api.nvim_win_set_option(winid, "signcolumn", "auto:9")
 
-    -- plug mappings
-    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchFirstResult)", get_scroll_up_expr[[<cmd>lua require"search".first_result()<CR>]], {
-      noremap = true,
-      expr = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchLastResult)", [[<cmd>lua require"search".last_result()<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchNextLine)", [[<cmd>lua require"search".next_line(vim.v.count1)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchNextResult)", [[<cmd>lua require"search".next_result(vim.v.count1)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchPrevResult)", [[<cmd>lua require"search".prev_result(vim.v.count1)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchPrevLine)", get_scroll_up_expr[[<cmd>lua require"search".prev_line(vim.v.count1)<CR>]], {
-      noremap = true,
-      expr = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchSelectPrevResult)", [[<cmd>lua require"search".select_prev_result(vim.v.count1)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-    api.nvim_buf_set_keymap(bufnr, "n", "<Plug>(SearchSelectNextResult)", [[<cmd>lua require"search".select_next_result(vim.v.count1)<CR>]], {
-      noremap = true,
-      silent = true,
-    })
-
     -- navigation
-    api.nvim_buf_set_keymap(bufnr, "i", "<Down>", [[<Plug>(SearchNextLine)]], {})
-    api.nvim_buf_set_keymap(bufnr, "i", "<Up>", [[<Plug>(SearchPrevLine)]], {})
-    api.nvim_buf_set_keymap(bufnr, "n", "<Down>", [[<Plug>(SearchNextLine)]], {})
-    api.nvim_buf_set_keymap(bufnr, "n", "<Up>", [[<Plug>(SearchPrevLine)]], {})
-    api.nvim_buf_set_keymap(bufnr, "n", "j", [[<Plug>(SearchNextLine)]], {})
-    api.nvim_buf_set_keymap(bufnr, "n", "k", [[<Plug>(SearchPrevLine)]], {})
-    api.nvim_buf_set_keymap(bufnr, "n", "G", [[<Plug>(SearchLastResult)]], {})
-    api.nvim_buf_set_keymap(bufnr, "n", "S", [[<Plug>(SearchPrevResult)]], {})
-    api.nvim_buf_set_keymap(bufnr, "n", "s", [[<Plug>(SearchNextResult)]], {})
-    api.nvim_buf_set_keymap(bufnr, "n", "gg", [[<Plug>(SearchFirstResult)]], {})
-    api.nvim_buf_set_keymap(bufnr, "v", "<Up>", get_scroll_up_expr[[<Up>]], { noremap = true, expr = true })
+    api.nvim_buf_set_keymap(bufnr, "i", "<Up>", get_scroll_up_expr[[<Up>]], { noremap = true, expr = true })
+    api.nvim_buf_set_keymap(bufnr, "n", "<Up>", get_scroll_up_expr[[<Up>]], { noremap = true, expr = true })
+    api.nvim_buf_set_keymap(bufnr, "n", "k", get_scroll_up_expr[[k]], { noremap = true, expr = true })
+    api.nvim_buf_set_keymap(bufnr, "n", "gg", get_scroll_up_expr[[gg]], { noremap = true, expr = true })
+    api.nvim_buf_set_keymap(bufnr, "x", "<Up>", get_scroll_up_expr[[<Up>]], { noremap = true, expr = true })
     api.nvim_buf_set_keymap(bufnr, "x", "k", get_scroll_up_expr[[k]], { noremap = true, expr = true })
     api.nvim_buf_set_keymap(bufnr, "x", "gg", get_scroll_up_expr[[gg]], { noremap = true, expr = true })
-
-    -- text objects
-    api.nvim_buf_set_keymap(bufnr, "n", "gS", [[<Plug>(SearchSelectPrevResult)]], {})
-    api.nvim_buf_set_keymap(bufnr, "n", "gs", [[<Plug>(SearchSelectPrevResult)]], {})
-    api.nvim_buf_set_keymap(bufnr, "o", "z", [[<cmd>lua require"search".next_result(vim.v.count1)<CR>]], { noremap = true, silent = true })
-    api.nvim_buf_set_keymap(bufnr, "o", "Z", [[<cmd>lua require"search".prev_result(vim.v.count1)<CR>]], { noremap = true, silent = true })
-    api.nvim_buf_set_keymap(bufnr, "o", "gS", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], { noremap = true, silent = true })
-    api.nvim_buf_set_keymap(bufnr, "o", "gs", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], { noremap = true, silent = true })
-    api.nvim_buf_set_keymap(bufnr, "x", "gS", [[<cmd>lua require"search".select_prev_result(vim.v.count)<CR>]], { noremap = true, silent = true })
-    api.nvim_buf_set_keymap(bufnr, "x", "gs", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], { noremap = true, silent = true })
-    api.nvim_buf_set_keymap(bufnr, "x", "z", [[<cmd>lua require"search".next_result(vim.v.count1)<CR>]], { noremap = true, silent = true })
-    api.nvim_buf_set_keymap(bufnr, "x", "Z", [[<cmd>lua require"search".prev_result(vim.v.count1)<CR>]], { noremap = true, silent = true })
 
     -- autocommands
     api.nvim_command[[augroup search_autocommands]]
@@ -325,6 +269,7 @@ local function reset_search(bufnr, search_term, search_args)
   }
 
   api.nvim_buf_set_option(bufnr, "buftype", "nofile")
+  vim.fn.setreg("/", search_term, vim.fn.getregtype("/"))
 
   return M.buffers[bufnr]
 end
@@ -501,7 +446,7 @@ local function render_result(bufnr, line, result)
   api.nvim_buf_add_highlight(
     bufnr,
     namespace,
-    "SearchResult",
+    "IncSearch",
     line,
     col_start,
     col_end)
@@ -657,7 +602,11 @@ local function finish_search(bufnr)
 
   api.nvim_win_set_cursor(winid, { 1, first_col })
 
-  api.nvim_command[[redraw]]
+  local namespace = api.nvim_create_namespace(info.namespace.."-results")
+
+  api.nvim_buf_clear_namespace(bufnr, namespace, 0, -1)
+
+  api.nvim_command[[set hls | redraw]]
 
   watch_modifications(bufnr)
 end
@@ -759,184 +708,6 @@ function M.run(search_term, search_args)
       end),
     }
     info.job:start()
-  end
-end
-
--- Navigation --
-
-function M.next_line(step)
-  local bufnr = api.nvim_get_current_buf()
-  local row = vim.fn.line"." + step - 1
-
-  if row <= vim.fn.line"$" - 1 then
-    local col = tonumber(results_at(bufnr, row)[1].col_number) - 1
-    api.nvim_win_set_cursor(api.nvim_get_current_win(), { row + 1, col })
-  end
-end
-
-function M.prev_line(step)
-  local bufnr = api.nvim_get_current_buf()
-  local row = vim.fn.line"." - step
-
-  if row > 0 then
-    local results = results_at(bufnr, row - 1)
-    local col = tonumber(results[#results].col_number) - 1
-    api.nvim_win_set_cursor(api.nvim_get_current_win(), { row, col })
-  end
-end
-
-function M.first_result()
-  local bufnr = api.nvim_get_current_buf()
-  local results = results_at(bufnr, 0)
-
-  if #results > 0 then
-    local col = tonumber(results[1].col_number) - 1
-    api.nvim_win_set_cursor(api.nvim_get_current_win(), { 1, col })
-  end
-end
-
-function M.last_result()
-  local bufnr = api.nvim_get_current_buf()
-  local row = vim.fn.line"$"
-  local results = results_at(bufnr, row - 1)
-
-  if #results > 0 then
-    local col = tonumber(results[#results].col_number) - 1
-    api.nvim_win_set_cursor(api.nvim_get_current_win(), { row, col })
-  end
-end
-
-function M.next_result(step, inclusive)
-  local bufnr = api.nvim_get_current_buf()
-  local info = M.buffers[bufnr]
-
-  local row = vim.fn.line"."
-  local eof = vim.fn.line"$"
-
-  if row <= eof then
-    local col = vim.fn.col"." - 1
-    local results = results_at(bufnr, row - 1)
-
-    local next_col
-
-    for _ = 1, math.max(step or 1, 1) do
-      for _, result in ipairs(results) do
-        local curr_col = tonumber(result.col_number) - 1
-
-        if inclusive then
-          curr_col = curr_col + #info.search_term
-        end
-
-        if (curr_col > col and (next_col == nil or
-            (curr_col - col) < (next_col - col))) then
-          next_col = curr_col
-
-          if inclusive then
-            next_col = next_col - #info.search_term
-          end
-        end
-      end
-
-      if next_col == nil or (not inclusive and next_col == col) then
-        row = row + 1
-
-        if row <= eof then
-          next_col = tonumber(results_at(bufnr, row - 1)[1].col_number) - 1
-        end
-      end
-
-      col = next_col
-    end
-
-    if row <= eof then
-      api.nvim_win_set_cursor(api.nvim_get_current_win(), { row, col })
-    end
-  end
-end
-
-function M.prev_result(step)
-  local bufnr = api.nvim_get_current_buf()
-  local row = vim.fn.line"."
-
-  if row > 0 then
-    local col = vim.fn.col"." - 1
-    local results = results_at(bufnr, row - 1)
-
-    local prev_col
-
-    for _ = 1, math.max(step or 1, 1) do
-      for _, result in ipairs(results) do
-        local curr_col = tonumber(result.col_number) - 1
-
-        if (curr_col < col and (prev_col == nil or
-            (col - curr_col) < (col - prev_col))) then
-          prev_col = curr_col
-        end
-      end
-
-      if prev_col == nil or prev_col == col then
-        row = row - 1
-
-        if row > 0 then
-          results = results_at(bufnr, row - 1)
-          prev_col = tonumber(results[#results].col_number) - 1
-        end
-      end
-
-      col = prev_col
-    end
-
-    if row > 0 then
-      api.nvim_win_set_cursor(api.nvim_get_current_win(), { row, col })
-    end
-  end
-end
-
-function M.select_next_result(step)
-  local bufnr = api.nvim_get_current_buf()
-  local info = M.buffers[bufnr]
-
-  api.nvim_command[[normal! v]]
-
-  local mode = vim.fn.mode()
-
-  if mode ~= "v" then
-    api.nvim_command[[normal! v]]
-  end
-
-  M.next_result(step, true)
-
-  local row = vim.fn.line"."
-  local col = vim.fn.col"." + #info.search_term - 1
-
-  if mode == "v" then
-    api.nvim_command[[normal! o]]
-  end
-
-  api.nvim_win_set_cursor(api.nvim_get_current_win(), { row, col - 1 })
-end
-
-function M.select_prev_result(step)
-  local bufnr = api.nvim_get_current_buf()
-  local info = M.buffers[bufnr]
-
-  api.nvim_command[[normal! v]]
-
-  local mode = vim.fn.mode()
-
-  if mode ~= "v" then
-    api.nvim_command[[normal! v]]
-  end
-
-  M.prev_result(step, true)
-
-  local row = vim.fn.line"."
-  local col = vim.fn.col"." + #info.search_term - 1
-
-  if mode == "v" then
-    api.nvim_command[[normal! o]]
-    api.nvim_win_set_cursor(api.nvim_get_current_win(), { row, col - 1 })
-    api.nvim_command[[normal! o]]
   end
 end
 
