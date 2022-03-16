@@ -35,9 +35,9 @@
   exact = true
   stripComponents = 1
 
-[".dotfiles/deps/hack-nf/.local/share/fonts"]
+[".dotfiles/deps/cascadiacode-nf/.local/share/fonts"]
   type = "archive"
-  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip"
+  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
 
 {{- if eq .chezmoi.os "windows" }}
 [".dotfiles/deps/alacritty/.local/bin/alacritty.exe"]
