@@ -142,7 +142,7 @@ function M.config()
             }
           end,
           cond = fn.is_git_dir,
-          icon = '',
+          icon = '',
         },
         {
           function()
@@ -156,7 +156,7 @@ function M.config()
             }
           end,
           cond = fn.is_git_dir,
-          icon = '',
+          icon = '',
           padding = { left = 0, right = 1 },
         },
       },
