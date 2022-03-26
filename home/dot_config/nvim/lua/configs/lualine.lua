@@ -167,30 +167,35 @@ function M.config()
           sources = { fn.get_qf_diagnostics },
         },
       },
-      lualine_y = {
+      lualine_y = {},
+      lualine_z = {
         {
           "buffers",
-          color = function()
-            return project_state {
-              dbg = "lualine_b_command",
-              job = "lualine_b_insert",
-              nor = "lualine_b_normal",
-            }
-          end,
+          buffers_color = {
+            active = function()
+              return project_state {
+                dbg = "lualine_a_command",
+                job = "lualine_a_insert",
+                nor = "lualine_a_normal",
+              }
+            end,
+            inactive = "lualine_b_inactive",
+          },
           mode = 2,
           show_modified_status = true,
         },
-      },
-      lualine_z = {
         {
           "tabs",
-          color = function()
-            return project_state {
-              dbg = "lualine_a_command",
-              job = "lualine_a_insert",
-              nor = "lualine_a_normal",
-            }
-          end,
+          tabs_color = {
+            active = function()
+              return project_state {
+                dbg = "lualine_a_command",
+                job = "lualine_a_insert",
+                nor = "lualine_a_normal",
+              }
+            end,
+            inactive = "lualine_b_inactive",
+          },
         },
       },
     },
