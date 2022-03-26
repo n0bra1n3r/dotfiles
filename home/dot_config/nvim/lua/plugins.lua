@@ -15,8 +15,6 @@ require"packer".startup(function(packer_use)
 
   use { "folke/which-key.nvim", after = "packer.nvim" }
 
-  use { "mvllow/modes.nvim", after = "packer.nvim" }
-
   -- Color Schemes --
 
   use { "EdenEast/nightfox.nvim" }
