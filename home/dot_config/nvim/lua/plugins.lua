@@ -15,6 +15,8 @@ require"packer".startup(function(packer_use)
 
   use { "folke/which-key.nvim", after = "packer.nvim" }
 
+  use { "mvllow/modes.nvim", after = "packer.nvim" }
+
   -- Color Schemes --
 
   use { "EdenEast/nightfox.nvim" }
@@ -58,7 +60,8 @@ require"packer".startup(function(packer_use)
       fn.vim_defer[[if &ft == 'packer' | echo '' | else | silent! e %]]()
     end,
   }
-  use { "ray-x/lsp_signature.nvim", after = "nvim-lspconfig" }
+  use { "j-hui/fidget.nvim", after = "nvim-lspconfig" }
+  use { "ray-x/lsp_signature.nvim", after = "fidget.nvim" }
 
   use { "nvim-treesitter/nvim-treesitter", event = "BufRead" }
 
@@ -72,8 +75,6 @@ require"packer".startup(function(packer_use)
   -- Editing --
 
   use { "numToStr/Comment.nvim", event = "BufRead" }
-
-  use { "folke/todo-comments.nvim", event = "BufRead" }
 
   use { "echasnovski/mini.nvim", event = "BufRead"}
 

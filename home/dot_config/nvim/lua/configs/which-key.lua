@@ -8,6 +8,11 @@ function M.config()
       padding = { 0, 0, 0, 0 },
       position = "top",
     },
+    triggers_blacklist = {
+      i = { "j", "k" },
+      n = { "d", "y" },
+      v = { "j", "k" },
+    },
   }
   require"which-key".register({
     ["<leader>"] = {
@@ -49,10 +54,6 @@ function M.config()
         f = { "<cmd>Telescope find_files<CR>", "files" },
         s = { "<cmd>lua fn.show_string_search_picker()<CR>", "strings" },
         t = { "<cmd>TodoTelescope<CR>", "todos" },
-      },
-      p = {
-        name = "packages",
-        p = { "<cmd>PackerSync<CR>", "sync packages" },
       },
       q = {
         name = "quickfix",

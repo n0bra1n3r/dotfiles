@@ -8,15 +8,19 @@ endif
 
 lua require "main"
 
+""" Vim Options
+
+colorscheme nordfox
+
 """ Autocommands
 
 augroup conf_editor
   autocmd!
   autocmd BufEnter * lua fn.set_shell_title()
   autocmd BufEnter,CursorHold,CursorHoldI,FocusGained * if mode() == "n" && getcmdwintype() == "" | checktime | endif
+  autocmd BufEnter * highlight ColorColumn guifg=darkgray ctermfg=darkgray guibg=NONE ctermbg=NONE
   autocmd BufWritePost ~/.local/share/chezmoi/home/* lua fn.save_dot_files()
   autocmd BufWritePost * lua fn.project_check()
-  autocmd ColorScheme * highlight ColorColumn guifg=darkgray ctermfg=darkgray guibg=NONE ctermbg=NONE
   autocmd CmdwinEnter * nnoremap <buffer> <Esc> $l<C-c>
   autocmd InsertLeave * lua vim.schedule(fn.trim_added_whitespace)
   autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
