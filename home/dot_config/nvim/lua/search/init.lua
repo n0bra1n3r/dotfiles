@@ -82,11 +82,6 @@ end
 
 -- Global config --
 
-api.nvim_set_keymap("n", "<Plug>SearchSelectNext", [[<cmd>lua require"search".select_next_result(vim.v.count)<CR>]], {
-  noremap = false,
-  silent = true,
-})
-
 api.nvim_command[[augroup search_on_vim_leave]]
 api.nvim_command[[autocmd!]]
 api.nvim_command[[autocmd VimLeavePre * lua require"search"._on_vim_leave()]]
