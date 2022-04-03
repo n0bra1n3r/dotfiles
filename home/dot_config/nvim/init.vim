@@ -8,10 +8,6 @@ endif
 
 lua require "main"
 
-""" Vim Options
-
-colorscheme nordfox
-
 """ Autocommands
 
 augroup conf_editor
