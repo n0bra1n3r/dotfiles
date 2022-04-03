@@ -35,6 +35,7 @@
   rss = restore --staged
   sa = stash
   sap = stash pop
+  sas = stash --staged
   st = status
   sw = switch
   clog = !git log --pretty=format:\"%h %ad | %s%d [%an]\" --date=short --no-merges $(git describe --abbrev=0)..HEAD
