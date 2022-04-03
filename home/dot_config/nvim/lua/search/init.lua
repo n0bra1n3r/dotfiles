@@ -624,10 +624,14 @@ function M.prompt(prompt, search_args)
     api.nvim_command[[bwipeout]]
   end
 
+  vim.fn.inputsave()
+
   search_term = vim.fn.input {
     default = info and info.search_term,
     prompt = prompt,
   }
+
+  vim.fn.inputrestore()
 
   api.nvim_command[[autocmd! search_prompt_watcher]]
 
@@ -649,15 +653,15 @@ end
 
 function M.run(search_term, search_args)
   local bufnr = get_buffer()
-  local winid = api.nvim_get_current_win()
-
   local info = reset_search(bufnr, search_term, search_args)
 
   render_status(bufnr)
 
   if #search_term == 0 then
-    api.nvim_command[[redraw]]
+    api.nvim_input("<ESC>")
   else
+    local winid = api.nvim_get_current_win()
+
     info.is_searching = true
 
     local line = -1
