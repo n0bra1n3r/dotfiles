@@ -1,10 +1,17 @@
 local M = {}
 
 function M.setup()
+  vim.g.nvim_tree_git_hl = 0
   vim.g.nvim_tree_group_empty = 1
   vim.g.nvim_tree_highlight_opened_files = 3
   vim.g.nvim_tree_indent_markers = 1
   vim.g.nvim_tree_respect_buf_cwd = 1
+  vim.g.nvim_tree_show_icons = {
+    files = 1,
+    folders = 1,
+    folder_arrows = 0,
+    git = 0,
+  }
 end
 
 function edit(node)
@@ -35,7 +42,7 @@ function M.config()
   vim.cmd[[augroup conf_nvimtree]]
   vim.cmd[[autocmd!]]
   vim.cmd[[autocmd BufEnter * if isdirectory(expand("%")) | exec "enew | bw # | NvimTreeOpen" | endif]]
-  vim.cmd[[autocmd BufLeave NvimTree NvimTreeClose]]
+  vim.cmd[[autocmd BufEnter * ++nested if winnr("$") == 1 && bufname() == "NvimTree_" . tabpagenr() | quit | endif]]
   vim.cmd[[augroup end]]
 
   require"nvim-tree".setup {
@@ -54,8 +61,6 @@ function M.config()
       enable = false,
     },
     view = {
-      auto_close = true,
-      auto_resize = true,
       hide_root_folder = true,
       mappings = {
         list = {
