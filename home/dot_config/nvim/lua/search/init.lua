@@ -602,12 +602,19 @@ local function finish_search(bufnr)
 
   vim.fn.setreg("/", search_term, vim.fn.getregtype("/"))
 
-  api.nvim_command[[set hls | redraw]]
+  if M.hlsearch_enabled then
+    api.nvim_set_option("hlsearch", true)
+    api.nvim_command[[redraw]]
+  end
 
   watch_modifications(bufnr)
 end
 
 function M.prompt(prompt, search_args)
+  M.hlsearch_enabled = api.nvim_get_option("hlsearch")
+
+  api.nvim_set_option("hlsearch", false)
+
   api.nvim_command[[augroup search_prompt_watcher]]
   api.nvim_command[[autocmd!]]
 
@@ -641,6 +648,7 @@ function M.prompt(prompt, search_args)
   if info ~= nil then
     if #search_term == 0 then
       api.nvim_command[[bwipeout]]
+      api.nvim_set_option("hlsearch", M.hlsearch_enabled)
     else
       if not info.is_searching then
         finish_search(api.nvim_get_current_buf())
