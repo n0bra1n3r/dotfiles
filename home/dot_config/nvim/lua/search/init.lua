@@ -95,7 +95,7 @@ local function create_buffer_if_needed()
   if M.buffers == nil or M.buffers[bufnr] == nil then
     if #api.nvim_buf_get_name(bufnr) > 0 or
         api.nvim_buf_line_count(bufnr) > 0 then
-      api.nvim_command[[keepjumps enew]]
+      api.nvim_command[[enew]]
 
       return api.nvim_get_current_buf()
     end
@@ -255,6 +255,7 @@ local function reset_search(bufnr, search_term, search_args)
     namespace = string.format("search-%d", bufnr),
     sign_width = 0,
     -- Result info
+    change_table = {},
     file_table = {},
     line_array = {},
     result_array = {},
@@ -322,7 +323,44 @@ function M._on_buf_leave(bufnr)
 end
 
 function M._on_buf_write(bufnr)
-  -- TODO
+  local info = M.buffers[bufnr]
+
+  local change_keys = {}
+
+  for key in pairs(info.change_table) do
+    table.insert(change_keys, key)
+  end
+
+  local file_name
+
+  for _, key in ipairs(change_keys) do
+    local change_info = info.change_table[key]
+    local change_line = tonumber(change_info.line_number) - 1
+
+    if change_info.file_name ~= file_name then
+      if file_name ~= nil then
+        api.nvim_command("write "..file_name)
+      end
+
+      file_name = change_info.file_name
+
+      api.nvim_command("keepjumps edit "..file_name)
+    end
+
+    api.nvim_buf_set_lines(
+      vim.fn.bufnr(file_name),
+      change_line,
+      change_line + 1,
+      true,
+      { change_info.line_text })
+  end
+
+  if file_name ~= nil then
+    api.nvim_command("write "..file_name)
+    api.nvim_command("keepjumps buffer "..tostring(bufnr))
+  end
+
+  api.nvim_buf_set_option(bufnr, "modified", false)
 end
 
 function M._on_vim_leave()
@@ -453,9 +491,19 @@ end
 -- Change tracking --
 
 local function save_modification(bufnr, line)
-  -- TODO
   local info = M.buffers[bufnr]
   local text = api.nvim_buf_get_lines(bufnr, line, line + 1, {})[1]
+  local result = results_at(bufnr, line)[1]
+
+  if text == result.line_text then
+    info.change_table[line + 1] = nil
+  else
+    info.change_table[line + 1] = {
+      file_name = result.file_name,
+      line_number = result.line_number,
+      line_text = text,
+    }
+  end
 end
 
 local function watch_modifications(bufnr)
