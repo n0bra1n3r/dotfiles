@@ -86,7 +86,7 @@ function M.config()
           path = 1,
           symbols = {
             modified = ' ',
-            readonly = ' ﯎', 
+            readonly = ' ﯎',
             unnamed = "[New File]",
           },
         },
@@ -183,7 +183,7 @@ function M.config()
               return project_state {
                 dbg = "lualine_b_command",
                 job = "lualine_b_insert",
-                nor = "lualine_b_inactive",
+                nor = "lualine_b_normal",
               }
             end,
           },
@@ -200,7 +200,13 @@ function M.config()
                 nor = "lualine_a_normal",
               }
             end,
-            inactive = "lualine_b_inactive",
+            inactive = function()
+              return project_state {
+                dbg = "lualine_b_command",
+                job = "lualine_b_insert",
+                nor = "lualine_b_normal",
+              }
+            end,
           },
         },
       },
