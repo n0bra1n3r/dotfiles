@@ -371,37 +371,6 @@ function _G.fn.define_use(packer_use)
   end
 end
 
--- telescope --
-
-function _G.fn.show_string_search_picker()
-  show_picker("live_grep")
-end
-
-function show_picker(name, opts)
-  local telescope_pickers = require"telescope.state".get_global_key("cached_pickers")
-
-  local picker_index = -1
-
-  if telescope_pickers ~= nil then
-    for index, picker in ipairs(telescope_pickers) do
-      if picker.cache_picker.name == name then
-        picker_index = index
-        break
-      end
-    end
-  end
-
-  local opts = opts or {}
-
-  if picker_index == -1 then
-    opts.cache_picker = {}
-    opts.cache_picker.name = name
-    require"telescope.builtin"[name](opts)
-  else
-    require"telescope.builtin".resume({ cache_index = picker_index })
-  end
-end
-
 -- floaterm --
 
 function _G.fn.open_git_shell(command)
