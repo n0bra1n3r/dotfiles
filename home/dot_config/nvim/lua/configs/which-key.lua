@@ -52,7 +52,6 @@ function M.config()
         b = { "<cmd>Telescope buffers<CR>", "buffers" },
         f = { "<cmd>Telescope find_files<CR>", "files" },
         s = { "<cmd>lua require'search'.prompt('  ')<CR>", "strings" },
-        t = { "<cmd>TodoTelescope<CR>", "todos" },
       },
       q = {
         name = "quickfix",
