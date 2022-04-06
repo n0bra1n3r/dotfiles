@@ -33,7 +33,7 @@ local function get_search_command(search_term, search_args)
   local argList = {select(2, unpack(grep))}
 
   if search_args ~= nil then
-    for arg in string.gmatch(search_args, "[^%S]+") do
+    for arg in string.gmatch(search_args, "%S+") do
       table.insert(argList, arg)
     end
   end
@@ -275,8 +275,25 @@ end
 
 -- Event callbacks --
 
-function M._on_prompt_input(search_args)
-  M.run(vim.fn.getcmdline(), search_args)
+function M._on_prompt_input()
+  local input = vim.fn.getcmdline()
+
+  if #input > 0 then
+    if input:sub(-1) ~= "\t" then
+      M.run(input, M.search_args)
+    else
+      vim.defer_fn(function()
+        M.prompt_args(M.search_term)
+        api.nvim_feedkeys(api.nvim_replace_termcodes("<BS>", true, true, true), "m", false)
+      end, 0)
+    end
+  else
+    local bufnr = api.nvim_get_current_buf()
+
+    if M.buffers ~= nil and M.buffers[bufnr] ~= nil then
+      api.nvim_input("<Esc>")
+    end
+  end
 end
 
 function M._on_cursor_moved(bufnr)
@@ -678,22 +695,28 @@ local function finish_search(bufnr)
   watch_modifications(bufnr)
 end
 
-function M.prompt(prompt, search_args, search_term)
-  -- Save options so we can restore them
+local function enable_live_search()
+  api.nvim_command[[augroup search_prompt_watcher]]
+  api.nvim_command[[autocmd!]]
+  api.nvim_command[[autocmd CmdlineChanged * lua require"search"._on_prompt_input()]]
+  api.nvim_command[[augroup end]]
+end
+
+local function disable_live_search()
+  api.nvim_command[[autocmd! search_prompt_watcher]]
+end
+
+function M.prompt(search_args, search_term)
+  M.search_args = M.search_args or search_args or [[]]
+
+  -- save options so we can restore them
   M.hlsearch_enabled = api.nvim_get_option("hlsearch")
   M.number_enabled = api.nvim_win_get_option(winid, "number")
   M.signcolumn_option = api.nvim_win_get_option(winid, "signcolumn")
 
   api.nvim_set_option("hlsearch", false)
 
-  api.nvim_command[[augroup search_prompt_watcher]]
-  api.nvim_command[[autocmd!]]
-
-  api.nvim_command(string.format([[
-    autocmd CmdlineChanged * lua require"search"._on_prompt_input("%s")
-  ]], search_args or [[]]))
-
-  api.nvim_command[[augroup end]]
+  enable_live_search()
 
   local bufnr = api.nvim_get_current_buf()
   local info = M.buffers and M.buffers[bufnr]
@@ -706,12 +729,12 @@ function M.prompt(prompt, search_args, search_term)
 
   search_term = vim.fn.input {
     default = search_term or (info and info.search_term),
-    prompt = prompt,
+    prompt = '  ',
   }
 
   vim.fn.inputrestore()
 
-  api.nvim_command[[autocmd! search_prompt_watcher]]
+  disable_live_search()
 
   bufnr = api.nvim_get_current_buf()
   info = M.buffers and M.buffers[bufnr]
@@ -726,6 +749,22 @@ function M.prompt(prompt, search_args, search_term)
       end
     end
   end
+end
+
+function M.prompt_args(search_term)
+  disable_live_search()
+
+  vim.fn.inputsave()
+
+  M.search_args = vim.fn.input {
+    cancelreturn = M.search_args,
+    default = M.search_args,
+    prompt = '  ',
+  }
+
+  vim.fn.inputrestore()
+
+  enable_live_search()
 end
 
 function M.show_current_result()
@@ -747,58 +786,54 @@ function M.run(search_term, search_args)
 
   render_status(bufnr)
 
-  if #search_term == 0 then
-    api.nvim_input("<ESC>")
-  else
-    local winid = api.nvim_get_current_win()
+  local winid = api.nvim_get_current_win()
 
-    info.is_searching = true
+  info.is_searching = true
 
-    local line = -1
+  local line = -1
 
-    info.job = job:new {
-      command = info.cmd,
-      args = info.args,
-      cwd = info.cwd,
-      enable_recording = false,
-      interactive = false,
-      on_stdout = vim.schedule_wrap(function(_, result_line)
-        if is_current_search(info) then
-          local result = parse_result(result_line)
+  info.job = job:new {
+    command = info.cmd,
+    args = info.args,
+    cwd = info.cwd,
+    enable_recording = false,
+    interactive = false,
+    on_stdout = vim.schedule_wrap(function(_, result_line)
+      if is_current_search(info) then
+        local result = parse_result(result_line)
 
-          local next_line = push_result(bufnr, line, result)
-          local has_next_line = line ~= -1 and line ~= next_line
+        local next_line = push_result(bufnr, line, result)
+        local has_next_line = line ~= -1 and line ~= next_line
 
-          line = next_line
+        line = next_line
 
-          local win_height = api.nvim_win_get_height(winid)
-          local res_height = #info.line_array + vim.tbl_count(info.file_table) * 2
+        local win_height = api.nvim_win_get_height(winid)
+        local res_height = #info.line_array + vim.tbl_count(info.file_table) * 2
 
-          if res_height <= win_height then
-            render_result(bufnr, line, result)
-          end
-
-          render_status(bufnr)
-
-          if has_next_line and res_height <= win_height + 1 then
-            api.nvim_command[[redraw]]
-          end
+        if res_height <= win_height then
+          render_result(bufnr, line, result)
         end
-      end),
-      on_exit = vim.schedule_wrap(function()
-        if is_current_search(info) then
-          if info.is_editing then
-            finish_search(bufnr)
-          end
 
+        render_status(bufnr)
+
+        if has_next_line and res_height <= win_height + 1 then
           api.nvim_command[[redraw]]
         end
+      end
+    end),
+    on_exit = vim.schedule_wrap(function()
+      if is_current_search(info) then
+        if info.is_editing then
+          finish_search(bufnr)
+        end
 
-        info.is_searching = false
-      end),
-    }
-    info.job:start()
-  end
+        api.nvim_command[[redraw]]
+      end
+
+      info.is_searching = false
+    end),
+  }
+  info.job:start()
 end
 
 return M

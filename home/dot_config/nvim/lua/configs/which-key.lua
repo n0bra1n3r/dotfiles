@@ -51,7 +51,7 @@ function M.config()
         name = "search",
         b = { "<cmd>Telescope buffers<CR>", "buffers" },
         f = { "<cmd>Telescope find_files<CR>", "files" },
-        s = { "<cmd>lua require'search'.prompt('  ')<CR>", "strings" },
+        s = { "<cmd>lua require'search'.prompt()<CR>", "strings" },
       },
       q = {
         name = "quickfix",
@@ -70,7 +70,7 @@ function M.config()
     ["<leader>"] = {
       s = {
         name = "search",
-        s = { "<cmd>lua require'search'.prompt('  ', [[]], vim.fn.expand[[<cword>]])<CR>", "strings" },
+        s = { "<cmd>lua require'search'.prompt([[]], vim.fn.expand[[<cword>]])<CR>", "strings" },
       },
     },
   }, { mode = "x" })
