@@ -16,7 +16,6 @@ function M.config()
   }
   require"which-key".register({
     ["<leader>"] = {
-      ["%"] = { ":%s///gc<Left><Left><Left>", "replace", silent = false },
       g = {
         name = "git",
         b = { "<cmd>Gitsigns blame_line<CR>", "blame" },
@@ -67,6 +66,15 @@ function M.config()
       z = { "<cmd>only<CR>", "zoom" },
     },
   }, { mode = "n" })
+
+  require"which-key".register({
+    ["<leader>"] = {
+      s = {
+        name = "search",
+        s = { "<cmd>lua require'search'.prompt('  ', [[]], vim.fn.expand[[<cword>]])<CR>", "strings" },
+      },
+    },
+  }, { mode = "x" })
 end
 
 return M

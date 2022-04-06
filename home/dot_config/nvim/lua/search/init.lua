@@ -678,7 +678,7 @@ local function finish_search(bufnr)
   watch_modifications(bufnr)
 end
 
-function M.prompt(prompt, search_args)
+function M.prompt(prompt, search_args, search_term)
   -- Save options so we can restore them
   M.hlsearch_enabled = api.nvim_get_option("hlsearch")
   M.number_enabled = api.nvim_win_get_option(winid, "number")
@@ -705,7 +705,7 @@ function M.prompt(prompt, search_args)
   vim.fn.inputsave()
 
   search_term = vim.fn.input {
-    default = info and info.search_term,
+    default = search_term or (info and info.search_term),
     prompt = prompt,
   }
 
