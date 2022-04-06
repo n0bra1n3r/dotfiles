@@ -686,7 +686,7 @@ local function finish_search(bufnr)
 
   api.nvim_buf_clear_namespace(bufnr, namespace, 0, -1)
 
-  vim.fn.setreg("/", search_term, vim.fn.getregtype("/"))
+  vim.fn.setreg("/", info.search_term, vim.fn.getregtype("/"))
 
   if M.hlsearch_enabled then
     api.nvim_set_option("hlsearch", true)
