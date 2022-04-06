@@ -144,6 +144,10 @@ end
 
 -- Updating --
 
+local function is_search_buf(bufnr)
+  return M.buffers ~= nil and M.buffers[bufnr] ~= nil
+end
+
 local function push_result(bufnr, line, result)
   local info = M.buffers[bufnr]
 
@@ -288,9 +292,7 @@ function M._on_prompt_input()
       end, 0)
     end
   else
-    local bufnr = api.nvim_get_current_buf()
-
-    if M.buffers ~= nil and M.buffers[bufnr] ~= nil then
+    if is_search_buf(api.nvim_get_current_buf()) then
       api.nvim_input("<Esc>")
     end
   end
@@ -321,17 +323,15 @@ function M._on_cursor_moved(bufnr)
 end
 
 function M._on_buf_delete(bufnr)
-  if M.buffers ~= nil and M.buffers[bufnr] ~= nil then
+  if is_search_buf(bufnr) then
     reset_search(bufnr)
     M.buffers[bufnr] = nil
   end
 end
 
 function M._on_buf_enter(bufnr)
-  local info = M.buffers and M.buffers[bufnr]
-
-  if info ~= nil then
-    info.is_editing = true
+  if is_search_buf(bufnr) then
+    M.buffers[bufnr].is_editing = true
 
     api.nvim_win_set_option(winid, "number", false)
     api.nvim_win_set_option(winid, "signcolumn", "auto:9")
@@ -339,10 +339,8 @@ function M._on_buf_enter(bufnr)
 end
 
 function M._on_buf_leave(bufnr)
-  local info = M.buffers and M.buffers[bufnr]
-
-  if info ~= nil then
-    info.is_editing = false
+  if is_search_buf(bufnr) then
+    M.buffers[bufnr].is_editing = false
 
     api.nvim_win_set_option(winid, "number", M.number_enabled)
     api.nvim_win_set_option(winid, "signcolumn", M.signcolumn_option)
