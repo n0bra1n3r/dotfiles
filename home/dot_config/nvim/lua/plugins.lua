@@ -28,6 +28,7 @@ require"packer".startup(function(packer_use)
   -- Motions --
 
   use { "tpope/vim-repeat", event = "BufEnter" }
+  use { "svermeulen/vim-easyclip", after = "vim-repeat" }
   use { "tpope/vim-unimpaired", event = "BufRead" }
   use { "tpope/vim-surround", event = "BufRead" }
 

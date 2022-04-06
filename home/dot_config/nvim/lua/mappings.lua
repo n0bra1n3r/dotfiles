@@ -43,6 +43,7 @@ return {
     ["<Space><Space>"]  = { "<C-^>" },
     [";"]               = { "l" },
     gf                  = { "<cmd>lua fn.edit_file('edit', vim.fn.expand('<cfile>'))<CR>" },
+    gm                  = { "m" },
     h                   = { ";" },
     l                   = { "col('.')==1&&col([line('.')-1,'$'])>1?'k$l':'h'", expr = true },
     s                   = { "<Plug>Lightspeed_omni_s", noremap = false },
