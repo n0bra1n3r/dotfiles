@@ -133,6 +133,8 @@ local function get_buffer()
     api.nvim_command[[autocmd BufLeave <buffer> lua require"search"._on_buf_leave(tonumber(vim.fn.expand"<abuf>"))]]
     api.nvim_command[[autocmd BufWriteCmd <buffer> lua require"search"._on_buf_write(tonumber(vim.fn.expand"<abuf>"))]]
     api.nvim_command[[autocmd CursorMoved,CursorMovedI <buffer> lua require"search"._on_cursor_moved(tonumber(vim.fn.expand"<abuf>"))]]
+    api.nvim_command[[autocmd OptionSet number lua require"search"._on_option_set(tonumber(vim.fn.expand"<abuf>"))]]
+    api.nvim_command[[autocmd OptionSet signcolumn lua require"search"._on_option_set(tonumber(vim.fn.expand"<abuf>"))]]
     api.nvim_command[[augroup end]]
   end
 
@@ -311,6 +313,9 @@ function M._on_buf_enter(bufnr)
 
   if info ~= nil then
     info.is_editing = true
+
+    api.nvim_win_set_option(winid, "number", false)
+    api.nvim_win_set_option(winid, "signcolumn", "auto:9")
   end
 end
 
@@ -319,6 +324,9 @@ function M._on_buf_leave(bufnr)
 
   if info ~= nil then
     info.is_editing = false
+
+    api.nvim_win_set_option(winid, "number", M.number_enabled)
+    api.nvim_win_set_option(winid, "signcolumn", M.signcolumn_option)
   end
 end
 
@@ -361,6 +369,15 @@ function M._on_buf_write(bufnr)
   end
 
   api.nvim_buf_set_option(bufnr, "modified", false)
+end
+
+function M._on_option_set(bufnr)
+  local winid = api.nvim_get_current_win()
+
+  if M.buffers == nil or M.buffers[bufnr] == nil then
+    M.number_enabled = api.nvim_win_get_option(winid, "number")
+    M.signcolumn_option = api.nvim_win_get_option(winid, "signcolumn")
+  end
 end
 
 function M._on_vim_leave()
@@ -659,7 +676,10 @@ local function finish_search(bufnr)
 end
 
 function M.prompt(prompt, search_args)
+  -- Save options so we can restore them
   M.hlsearch_enabled = api.nvim_get_option("hlsearch")
+  M.number_enabled = api.nvim_win_get_option(winid, "number")
+  M.signcolumn_option = api.nvim_win_get_option(winid, "signcolumn")
 
   api.nvim_set_option("hlsearch", false)
 
