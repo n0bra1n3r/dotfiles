@@ -283,14 +283,7 @@ function M._on_prompt_input()
   local input = vim.fn.getcmdline()
 
   if #input > 0 then
-    if input:sub(-1) ~= "\t" then
-      M.run(input, M.search_args)
-    else
-      vim.defer_fn(function()
-        M.prompt_args(M.search_term)
-        api.nvim_feedkeys(api.nvim_replace_termcodes("<BS>", true, true, true), "m", false)
-      end, 0)
-    end
+    M.run(input, M.search_args)
   else
     if is_search_buf(api.nvim_get_current_buf()) then
       api.nvim_input("<Esc>")
@@ -725,10 +718,27 @@ function M.prompt(search_args, search_term)
 
   vim.fn.inputsave()
 
+  local tab_mapping = vim.fn.maparg("<Tab>", "c", 0, 1)
+
+  api.nvim_set_keymap("c", "<Tab>", [[<cmd>lua require"search".prompt_args()<CR>]], { noremap = true })
+
   search_term = vim.fn.input {
     default = search_term or (info and info.search_term),
     prompt = '  ',
   }
+
+  api.nvim_del_keymap("c", "<Tab>")
+
+  if tab_mapping.buffer == 0 then
+    api.nvim_set_keymap("c", "<Tab>", tab_mapping.rhs, {
+      expr = tab_mapping.expr,
+      noremap = tab_mapping.noremap,
+      nowait = tab_mapping.nowait,
+      silent = tab_mapping.silent,
+      script = tab_mapping.script,
+      unique = tab_mapping.unique,
+    })
+  end
 
   vim.fn.inputrestore()
 
@@ -749,18 +759,41 @@ function M.prompt(search_args, search_term)
   end
 end
 
-function M.prompt_args(search_term)
+function M.prompt_args()
   disable_live_search()
 
   vim.fn.inputsave()
 
+  local tab_mapping = vim.fn.maparg("<Tab>", "c", 0, 1)
+
+  api.nvim_set_keymap("c", "<Tab>", [[<Enter>]], { noremap = true })
+
   M.search_args = vim.fn.input {
     cancelreturn = M.search_args,
     default = M.search_args,
-    prompt = '  ',
+    prompt = '  ',
   }
 
+  api.nvim_del_keymap("c", "<Tab>")
+
+  if tab_mapping.buffer == 0 then
+    api.nvim_set_keymap("c", "<Tab>", tab_mapping.rhs, {
+      expr = tab_mapping.expr,
+      noremap = tab_mapping.noremap,
+      nowait = tab_mapping.nowait,
+      silent = tab_mapping.silent,
+      script = tab_mapping.script,
+      unique = tab_mapping.unique,
+    })
+  end
+
   vim.fn.inputrestore()
+
+  local bufnr = api.nvim_get_current_buf()
+
+  if is_search_buf(bufnr) then
+    M.run(M.buffers[bufnr].search_term, M.search_args)
+  end
 
   enable_live_search()
 end
