@@ -119,6 +119,7 @@ local function get_buffer()
 
     -- navigation
     api.nvim_buf_set_keymap(bufnr, "i", "<Up>", get_scroll_up_expr[[<Up>]], { noremap = true, expr = true })
+    api.nvim_buf_set_keymap(bufnr, "n", "<Enter>", [[<cmd>lua require"search".show_current_result()<CR>]], { noremap = true })
     api.nvim_buf_set_keymap(bufnr, "n", "<Up>", get_scroll_up_expr[[<Up>]], { noremap = true, expr = true })
     api.nvim_buf_set_keymap(bufnr, "n", "k", get_scroll_up_expr[[k]], { noremap = true, expr = true })
     api.nvim_buf_set_keymap(bufnr, "n", "gg", get_scroll_up_expr[[gg]], { noremap = true, expr = true })
@@ -725,6 +726,17 @@ function M.prompt(prompt, search_args)
       end
     end
   end
+end
+
+function M.show_current_result()
+  local bufnr = api.nvim_get_current_buf()
+  local pos = api.nvim_win_get_cursor(0)
+  local result = results_at(bufnr, pos[1] - 1)[1]
+  local row = tonumber(result.line_number)
+  local col = pos[2]
+
+  api.nvim_command("edit "..result.file_name)
+  api.nvim_win_set_cursor(0, { row, col })
 end
 
 -- Runner --
