@@ -349,7 +349,7 @@ function M._on_buf_write(bufnr)
     table.insert(change_keys, key)
   end
 
-  local file_name
+  local file_name, file_open
 
   for _, key in ipairs(change_keys) do
     local change_info = info.change_table[key]
@@ -358,9 +358,14 @@ function M._on_buf_write(bufnr)
     if change_info.file_name ~= file_name then
       if file_name ~= nil then
         api.nvim_command("write "..file_name)
+
+        if not file_open then
+          api.nvim_command("bdelete")
+        end
       end
 
       file_name = change_info.file_name
+      file_open = vim.fn.bufnr(file_name) ~= -1
 
       api.nvim_command("keepjumps edit "..file_name)
     end
@@ -375,6 +380,11 @@ function M._on_buf_write(bufnr)
 
   if file_name ~= nil then
     api.nvim_command("write "..file_name)
+
+    if not file_open then
+      api.nvim_command("bdelete")
+    end
+
     api.nvim_command("keepjumps buffer "..tostring(bufnr))
   end
 
