@@ -24,7 +24,7 @@ local function get_line_number_label(text, padding)
     result = " "..result
   end
 
-  return result
+  return "  "..result
 end
 
 local function get_search_command(search_term, search_args)
@@ -254,6 +254,7 @@ local function reset_search(bufnr, search_term, search_args)
     -- Buffer info
     bufnr = bufnr,
     cursor_line = 0,
+    line_number_width = 0,
     namespace = string.format("search-%d", bufnr),
     sign_width = 0,
     -- Result info
@@ -463,9 +464,9 @@ local function render_line_number(bufnr, line, file_name, line_number)
   local info = M.buffers[bufnr]
 
   local group = get_sign_group(info.namespace, file_name, line_number)
+  local label = get_line_number_label(line_number, math.max(0, info.line_number_width - #line_number))
 
-  if #line_number <= info.sign_width then
-    local label = get_line_number_label(line_number, info.sign_width - #line_number)
+  if #line_number <= info.line_number_width then
     render_line_number_sign(bufnr, line, group, label)
   else
     for i, line_info in ipairs(info.line_array) do
@@ -475,7 +476,8 @@ local function render_line_number(bufnr, line, file_name, line_number)
       render_line_number_sign(bufnr, prev_line, prev_group, prev_label)
     end
 
-    info.sign_width = render_line_number_sign(bufnr, line, group, line_number)
+    info.line_number_width = #line_number
+    info.sign_width = render_line_number_sign(bufnr, line, group, label)
   end
 end
 
