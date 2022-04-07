@@ -730,6 +730,10 @@ function M.prompt(search_args, search_term)
 
   local tab_mapping = vim.fn.maparg("<Tab>", "c", 0, 1)
 
+  if tab_mapping.buffer == 0 then
+    api.nvim_del_keymap("c", "<Tab>")
+  end
+
   api.nvim_set_keymap("c", "<Tab>", [[<cmd>lua require"search".prompt_args()<CR>]], { noremap = true })
 
   search_term = vim.fn.input {
@@ -775,6 +779,10 @@ function M.prompt_args()
   vim.fn.inputsave()
 
   local tab_mapping = vim.fn.maparg("<Tab>", "c", 0, 1)
+
+  if tab_mapping.buffer == 0 then
+    api.nvim_del_keymap("c", "<Tab>")
+  end
 
   api.nvim_set_keymap("c", "<Tab>", [[<Enter>]], { noremap = true })
 
