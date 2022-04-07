@@ -77,7 +77,8 @@ else
 
   if [ ! -d "$WORKSPACE_ROOT_DIR" ]; then
     if [ -t 0 ]; then
-      read -p "Initialize default workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'? [Y/n] " DO_CREATE_WORKSPACE
+      echo -n "Initialize default workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'? [Y/n] "
+      read DO_CREATE_WORKSPACE
       if [ ! -z "${DO_CREATE_WORKSPACE#[Yy]}" ]; then
         return 0
       fi
@@ -100,7 +101,8 @@ if [ ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]; then
   if [ ! -z "$WORKSPACE_DEFAULT_DIR" ]; then
     if [ -t 0 ]; then
       # confirm intent if WORKSPACE_ROOT_DIR was guessed
-      read -p "Create workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'? [Y/n] " DO_CREATE_WORKSPACE
+      echo -n "Create workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'? [Y/n] "
+      read DO_CREATE_WORKSPACE
       if [ ! -z "${DO_CREATE_WORKSPACE#[Yy]}" ]; then
         return 0
       fi
