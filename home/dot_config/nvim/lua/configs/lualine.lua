@@ -55,7 +55,7 @@ function M.config()
           file_status = true,
           path = 1,
           symbols = {
-            modified = ' ',
+            modified = ' ●',
             readonly = ' ﯎',
             unnamed = "[New File]",
           },
@@ -85,7 +85,7 @@ function M.config()
           file_status = true,
           path = 1,
           symbols = {
-            modified = ' ',
+            modified = ' ●',
             readonly = ' ﯎',
             unnamed = "[New File]",
           },
