@@ -27,6 +27,7 @@ alias cg='chezmoi git --'
 alias e='nvim'
 alias g='git'
 alias vim='nvim'
+alias bfg='java -jar "$HOME/.local/bin/bfg.jar"'
 
 function workspace() {
   source "$HOME/.dotfiles/scripts/workspace"
