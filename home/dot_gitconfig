@@ -40,3 +40,6 @@
   sw = switch
   clog = !git log --pretty=format:\"%h %ad | %s%d [%an]\" --date=short --no-merges $(git describe --abbrev=0)..HEAD
   hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+
+[advice]
+  useCoreFSMonitorConfig = false
