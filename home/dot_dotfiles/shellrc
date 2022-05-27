@@ -9,6 +9,9 @@ MSYS_NT*)
 
   alias npm="cmd //c npm.cmd"
   ;;
+MINGW64_NT*)
+  alias npm="cmd //c npm.cmd"
+  ;;
 *)
   ;;
 esac
