@@ -47,6 +47,13 @@
   url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
 
 {{- if eq .chezmoi.os "windows" }}
+[".dotfiles/deps/jq/.local/bin/jq.exe"]
+  type = "file"
+  url = "https://github.com/stedolan/jq/releases/latest/download/jq-win64.exe"
+  executable = true
+{{- end }}
+
+{{- if eq .chezmoi.os "windows" }}
 [".dotfiles/deps/alacritty/.local/bin/alacritty.exe"]
   type = "file"
   url = "https://glare.now.sh/alacritty/alacritty/Alacritty-v[0-9.]+-portable[.]exe"
