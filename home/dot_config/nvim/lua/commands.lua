@@ -1,3 +1,3 @@
-vim.cmd[[command! -nargs=+ G lua fn.open_git_shell(<q-args>)]]
+vim.cmd[[command! -nargs=+ G lua fn.open_shell("git "..<q-args>)]]
 
 return {}

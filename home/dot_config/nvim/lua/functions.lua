@@ -373,30 +373,32 @@ end
 
 -- floaterm --
 
-function _G.fn.open_git_shell(command)
+function _G.fn.open_shell(command)
   vim.fn["floaterm#new"](0,
-    "bash --rcfile ~/.dotfiles/gitrc",
+    "bash --rcfile ~/.bash_profile",
     { [''] = '' },
     {
       silent = 1,
-      name = "git_shell",
-      title = " "..vim.b.gitsigns_status_dict.head,
-      height = math.ceil(vim.o.lines * 0.8),
-      width = math.ceil(vim.o.columns * 0.8),
+      name = "shell",
+      title = " shell [$1:$2]",
+      borderchars = "",
+      height = math.ceil(vim.o.lines * 0.3),
+      width = math.ceil(vim.o.columns),
+      position = "bottom",
     })
 
   if command ~= nil then
-    vim.cmd(string.format('set ssl | exec "FloatermSend --name=git_shell %s" | set nossl', command))
+    vim.cmd(string.format('set ssl | exec "FloatermSend --name=shell %s" | set nossl', command))
   end
 
-  vim.cmd[[FloatermShow git_shell]]
+  vim.cmd[[FloatermShow shell]]
 
-  function _G.fn.open_git_shell(command)
+  function _G.fn.open_shell(command)
     if command ~= nil then
-      vim.cmd(string.format('set ssl | exec "FloatermSend --name=git_shell %s" | set nossl', command))
+      vim.cmd(string.format('set ssl | exec "FloatermSend --name=shell %s" | set nossl', command))
     end
 
-    vim.cmd[[FloatermShow git_shell]]
+    vim.cmd[[FloatermShow shell]]
   end
 end
 

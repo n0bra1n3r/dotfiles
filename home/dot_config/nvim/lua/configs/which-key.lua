@@ -16,10 +16,10 @@ function M.config()
   }
   require"which-key".register({
     ["<leader>"] = {
+      ["`"] = { "<cmd>lua fn.open_shell()<CR>", "shell" },
       g = {
         name = "git",
         b = { "<cmd>Gitsigns blame_line<CR>", "blame" },
-        g = { "<cmd>lua fn.open_git_shell()<CR>", "shell" },
         d = { "<cmd>DiffviewOpen<CR>", "diff" },
         h = { "<cmd>DiffviewFileHistory<CR>", "history" },
         n = { "<cmd>Gitsigns next_hunk<CR>", "next hunk" },
