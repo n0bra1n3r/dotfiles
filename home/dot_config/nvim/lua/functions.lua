@@ -202,7 +202,6 @@ function _G.fn.edit_file(mode, path)
   if target_winid == nil then
     local exclude = {
       filetype = {
-        "NvimTree",
         "packer",
         "qf",
         "floaterm",
@@ -239,14 +238,6 @@ function _G.fn.cleanup_window_if_needed()
     if vim.bo.filetype == "floaterm" then
       vim.cmd[[FloatermHide]]
     end
-  end
-end
-
--- auto-session --
-
-function _G.fn.cleanup_session()
-  if packer_plugins["nvim-tree.lua"] and packer_plugins["nvim-tree.lua"].loaded then
-    vim.cmd[[NvimTreeClose]]
   end
 end
 

@@ -39,8 +39,6 @@ require"packer".startup(function(packer_use)
 
   -- Navigation --
 
-  use { "kyazdani42/nvim-tree.lua", after = "nvim-web-devicons" }
-
   use { "ggandor/lightspeed.nvim", event = "BufRead" }
 
   use { "nvim-telescope/telescope.nvim", module = "telescope", cmd = "Telescope" }

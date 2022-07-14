@@ -5,9 +5,6 @@ function M.config()
     auto_restore_enabled = true,
     auto_save_enabled = true,
     log_level = "error",
-    pre_save_cmds = {
-      fn.cleanup_session,
-    },
   }
 end
 

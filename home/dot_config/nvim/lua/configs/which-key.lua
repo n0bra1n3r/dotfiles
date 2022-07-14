@@ -59,7 +59,6 @@ function M.config()
         n = { "<cmd>cnext<CR>", "next" },
         N = { "<cmd>cprev<CR>", "previous" },
       },
-      t = { "<cmd>NvimTreeToggle<CR>", "tree" },
       w = { "<cmd>lua fn.choose_window()<CR>", "window" },
       x = { "<cmd>lua fn.close_buffer()<CR>", "close" },
       z = { "<cmd>only<CR>", "zoom" },

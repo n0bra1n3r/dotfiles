@@ -3,7 +3,9 @@ local M = {}
 function M.config()
   require"diffview".setup {
     file_panel = {
-      position = "right",
+      win_config = {
+        position = "right",
+      },
     },
   }
 end
