@@ -60,11 +60,17 @@ function M.config()
             unnamed = "[New File]",
           },
         },
+        {
+          'diff',
+          colored = false,
+          symbols = { added = ' ', modified = ' ', removed = ' ' },
+          source = buffer_git_status,
+        },
       },
-      lualine_c = {},
-      lualine_x = { "location" },
-      lualine_y = {},
-      lualine_z = {}
+      lualine_c = { "fileformat" },
+      lualine_x = {},
+      lualine_y = { "progress" },
+      lualine_z = { "location" },
     },
     options = {
       theme = theme,
