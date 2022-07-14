@@ -6,10 +6,10 @@ source ~/.dotfiles/shellrc
 bind 'set show-all-if-ambiguous on'
 bind 'set completion-ignore-case on'
 
-bind '"\e[1;5A":history-search-backward'
-bind '"\e[1;5B":history-search-forward'
-bind '"\e[1;5C":forward-word'
-bind '"\e[1;5D":backward-word'
+bind '"\e[A":history-search-backward'
+bind '"\e[B":history-search-forward'
+
+export HISTCONTROL=ignoreboth:erasedups
 
 __git_complete g __git_main
 __git_complete cg __git_main

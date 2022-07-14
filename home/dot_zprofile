@@ -1,5 +1,14 @@
 source ~/.dotfiles/shellrc
 
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey "^[[A" up-line-or-beginning-search
+bindkey "^[[B" down-line-or-beginning-search
+
+setopt HIST_IGNORE_ALL_DUPS
+
 function _workspace() {
   reply=()
   if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
