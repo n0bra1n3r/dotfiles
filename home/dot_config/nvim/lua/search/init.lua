@@ -326,6 +326,8 @@ function M._on_buf_enter(bufnr)
   if is_search_buf(bufnr) then
     M.buffers[bufnr].is_editing = true
 
+    local winid = api.nvim_get_current_win()
+
     api.nvim_win_set_option(winid, "number", false)
     api.nvim_win_set_option(winid, "signcolumn", "auto:9")
   end
@@ -334,6 +336,8 @@ end
 function M._on_buf_leave(bufnr)
   if is_search_buf(bufnr) then
     M.buffers[bufnr].is_editing = false
+
+    local winid = api.nvim_get_current_win()
 
     api.nvim_win_set_option(winid, "number", M.number_enabled)
     api.nvim_win_set_option(winid, "signcolumn", M.signcolumn_option)
@@ -392,9 +396,9 @@ function M._on_buf_write(bufnr)
 end
 
 function M._on_option_set(bufnr)
-  local winid = api.nvim_get_current_win()
-
   if M.buffers == nil or M.buffers[bufnr] == nil then
+    local winid = api.nvim_get_current_win()
+
     M.number_enabled = api.nvim_win_get_option(winid, "number")
     M.signcolumn_option = api.nvim_win_get_option(winid, "signcolumn")
   end
@@ -680,6 +684,8 @@ local function finish_search(bufnr)
   local first_result = info.result_array[1][1]
   local first_col = tonumber(first_result.col_number) - 1
 
+  local winid = api.nvim_get_current_win()
+
   api.nvim_win_set_cursor(winid, { 1, first_col })
 
   local namespace = api.nvim_create_namespace(info.namespace.."-results")
@@ -708,6 +714,8 @@ local function disable_live_search()
 end
 
 function M.prompt(search_args, search_term)
+  local winid = api.nvim_get_current_win()
+
   M.search_args = M.search_args or search_args or [[]]
 
   -- save options so we can restore them
@@ -738,7 +746,7 @@ function M.prompt(search_args, search_term)
 
   search_term = vim.fn.input {
     default = search_term or (info and info.search_term),
-    prompt = '  ',
+    prompt = '   ',
   }
 
   api.nvim_del_keymap("c", "<Tab>")
