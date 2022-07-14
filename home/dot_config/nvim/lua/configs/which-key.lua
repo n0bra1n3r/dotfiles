@@ -50,7 +50,7 @@ function M.config()
       s = {
         name = "search",
         b = { "<cmd>Telescope buffers<CR>", "buffers" },
-        f = { "<cmd>Telescope find_files<CR>", "files" },
+        f = { "<cmd>lua fn.find_files()<CR>", "files" },
         s = { "<cmd>lua require'search'.prompt()<CR>", "strings" },
       },
       q = {

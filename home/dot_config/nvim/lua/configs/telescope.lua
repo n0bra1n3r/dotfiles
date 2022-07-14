@@ -1,8 +1,45 @@
 local M = {}
 
+function previewer(path, bufnr, opts)
+  path = vim.fn.expand(path)
+  require"plenary.job":new({
+    command = "file",
+    args = { "--mime-type", "-b", path },
+    on_exit = function(output)
+      local mimeType = vim.split(output:result()[1], "/")[1]
+      if mimeType == "text" then
+        vim.loop.fs_stat(path, function(_, stat)
+          if stat and stat.size < 500000 then
+            require"telescope.previewers".buffer_previewer_maker(path, bufnr, opts)
+          else
+            vim.schedule(function()
+              vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, {
+                "----",
+                "type: "..mimeType,
+                "size: "..tostring(stat.size),
+                "----",
+              })
+            end)
+          end
+        end)
+      else
+        vim.schedule(function()
+          vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, {
+            "----",
+            "type: "..mimeType,
+            "size: <unknown>",
+            "----",
+          })
+        end)
+      end
+    end,
+  }):sync()
+end
+
 function M.config()
   require"telescope".setup {
     defaults = {
+      buffer_previewer_maker = previewer,
       file_ignore_patterns = {
         ".git",
       },
@@ -44,6 +81,9 @@ function M.config()
         theme = "dropdown",
       },
       find_files = {
+        theme = "dropdown",
+      },
+      git_files = {
         theme = "dropdown",
       },
     },

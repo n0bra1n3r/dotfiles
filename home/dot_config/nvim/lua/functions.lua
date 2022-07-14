@@ -435,6 +435,17 @@ function _G.fn.run_command(command)
   end
 end
 
+-- Telescope --
+
+function _G.fn.find_files(opts)
+  opts = opts or {}
+  if fn.is_git_dir() then
+    require"telescope.builtin".git_files(opts)
+  else
+    require"telescope.builtin".find_files(opts)
+  end
+end
+
 -- AsyncTask --
 
 function _G.fn.project_status()
