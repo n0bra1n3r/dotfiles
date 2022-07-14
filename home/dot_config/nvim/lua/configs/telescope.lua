@@ -3,15 +3,7 @@ local M = {}
 function M.config()
   require"telescope".setup {
     defaults = {
-      cache_picker = {
-        num_pickers = 5,
-      },
       file_ignore_patterns = {
-        "%.dll",
-        "%.exe",
-        "%.glb",
-        "%.gltf",
-        "%.pdb",
         ".git",
       },
       mappings = {
@@ -53,9 +45,6 @@ function M.config()
       },
       find_files = {
         theme = "dropdown",
-      },
-      live_grep = {
-        theme = "ivy",
       },
     },
     extensions = {
