@@ -366,7 +366,7 @@ end
 
 function _G.fn.open_shell(command)
   vim.fn["floaterm#new"](0,
-    "bash --rcfile ~/.bash_profile",
+    "bash --rcfile ~/.dotfiles/floatermrc",
     { [''] = '' },
     {
       silent = 1,
