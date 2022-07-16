@@ -10,18 +10,18 @@ function buffer_git_status()
   end
 end
 
-function project_git_status()
-  local bufnr = vim.api.nvim_get_current_buf()
-  local branch = require"lualine.components.branch.git_branch".get_branch(bufnr)
-
-  if branch ~= "" then
+function get_project_git_status()
+  if fn.is_git_dir() then
+    local branch = fn.get_git_branch()
+    local up = vim.fn.system(string.format("git rev-list --left-only --count %s@{upstream}...%s", branch, branch))
+    local down = vim.fn.system(string.format("git rev-list --right-only --count %s@{upstream}...%s", branch, branch))
     return {
-      up = tonumber(vim.fn.system(string.format("git rev-list --left-only --count origin/%s...%s", branch, branch))),
-      down = tonumber(vim.fn.system(string.format("git rev-list --right-only --count origin/%s...%s", branch, branch))),
+      up = tonumber(up),
+      down = tonumber(down),
     }
-  else
-    return { up = [[]], down = [[]] }
   end
+
+  return { up = [[]], down = [[]] }
 end
 
 function project_state(values)
@@ -38,6 +38,9 @@ end
 
 function M.config()
   local theme = "nightfox"
+
+  local project_dir = fn.get_project_dir()
+  local project_git_status = get_project_git_status()
 
   require"lualine".setup {
     extensions = { "nvim-tree", "quickfix" },
@@ -112,7 +115,7 @@ function M.config()
       lualine_a = {
         {
           function()
-            return string.format("%s %s", project_state{ dbg = '', job = '', nor = '' }, fn.get_project_dir())
+            return string.format("%s %s", project_state{ dbg = '', job = '', nor = '' }, project_dir)
           end,
           color = function()
             return project_state {
@@ -138,7 +141,7 @@ function M.config()
         },
         {
           function()
-            return project_git_status().down
+            return project_git_status.down
           end,
           color = function()
             return project_state {
@@ -152,7 +155,7 @@ function M.config()
         },
         {
           function()
-            return project_git_status().up
+            return project_git_status.up
           end,
           color = function()
             return project_state {
@@ -161,7 +164,7 @@ function M.config()
               nor = "lualine_b_normal",
             }
           end,
-          cond = fn.is_git_dir,
+          cond = fn.has_git_remote,
           icon = '',
           padding = { left = 0, right = 1 },
         },

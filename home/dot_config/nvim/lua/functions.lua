@@ -87,13 +87,49 @@ end
 
 function _G.fn.is_git_dir()
   vim.cmd[[silent! !git rev-parse --is-inside-work-tree]]
-  local result = vim.v.shell_error == 0
+  return vim.v.shell_error == 0
+end
 
-  function _G.fn.is_git_dir()
-    return result
+function _G.fn.get_git_branch()
+  return vim.fn.system[[git branch --show-current]]:match[[(.-)%s*$]]
+end
+
+function _G.fn.has_git_remote()
+  if not fn.is_git_dir() then
+    return false
   end
 
-  return result
+  vim.cmd("silent! !git show-branch remotes/origin/"..fn.get_git_branch())
+  return vim.v.shell_error == 0
+end
+
+function _G.fn.get_project_dir()
+  local folder = vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.")
+
+  if not fn.is_git_dir() then
+    return folder
+  end
+
+  local branch = fn.get_git_branch()
+
+  local branch_path = branch
+  local folder_path = folder
+
+  while true do
+    local branch_part = vim.fn.fnamemodify(branch_path, ":t")
+    local folder_part = vim.fn.fnamemodify(folder_path, ":t")
+
+    if folder_part ~= branch_part then
+      return folder
+    end
+
+    branch_path = vim.fn.fnamemodify(branch_path, ":h")
+    folder_path = vim.fn.fnamemodify(folder_path, ":h")
+
+    if branch_path == "." then
+      return folder_path
+    end
+  end
 end
 
 function _G.fn.save_dot_files()
@@ -117,14 +153,6 @@ function _G.fn.vim_defer(fn, timer)
         end, timer or 0)
       end
     end
-  end
-end
-
-function _G.fn.trim_added_whitespace()
-  if #vim.bo.buftype == 0 then
-    local saved_view = vim.fn.winsaveview()
-    vim.cmd[[keepjumps '[,']s/\s\+$//e]]
-    vim.fn.winrestview(saved_view)
   end
 end
 
@@ -287,31 +315,6 @@ function _G.fn.get_qf_diagnostics()
     end
   end
   return { error = error_count, hint = hint_count, warn = warn_count }
-end
-
-function _G.fn.get_project_dir()
-  local folder = vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.")
-  local bufnr = vim.api.nvim_get_current_buf()
-  local branch = require"lualine.components.branch.git_branch".get_branch(bufnr)
-
-  local branch_path = branch
-  local folder_path = folder
-
-  while true do
-    local branch_part = vim.fn.fnamemodify(branch_path, ":t")
-    local folder_part = vim.fn.fnamemodify(folder_path, ":t")
-
-    if folder_part ~= branch_part then
-      return folder
-    end
-
-    branch_path = vim.fn.fnamemodify(branch_path, ":h")
-    folder_path = vim.fn.fnamemodify(folder_path, ":h")
-
-    if branch_path == "." then
-      return folder_path
-    end
-  end
 end
 
 local is_job_in_progress = false
