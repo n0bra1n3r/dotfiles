@@ -18,9 +18,8 @@ function _workspace() {
   COMPREPLY=()
   if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     local locals="$(git for-each-ref --sort=-committerdate --format='%(refname:lstrip=2)' refs/heads/)"
-    local remotes="$(git for-each-ref --sort=-committerdate --format='%(refname:lstrip=3)' refs/remotes/)"
     local current="$(git branch --show-current)"
-    local workspaces="$(echo -e "$locals\n$remotes" | grep -v HEAD | grep -v "$current" | sort -u)"
+    local workspaces="$(echo -e "$locals" | grep -v HEAD | grep -v "$current")"
     COMPREPLY=($(compgen -W "$workspaces" -- "${COMP_WORDS[1]}"))
   fi
 }
