@@ -13,13 +13,15 @@ lua require "main"
 augroup conf_editor
   autocmd!
   autocmd BufEnter * lua fn.set_shell_title()
-  autocmd BufEnter,CursorHold,CursorHoldI,FocusGained * if mode() == "n" && getcmdwintype() == "" | checktime | endif
   autocmd BufEnter * highlight ColorColumn guifg=darkgray ctermfg=darkgray guibg=NONE ctermbg=NONE
+  autocmd BufEnter,CursorHold,CursorHoldI,FocusGained * if mode() == "n" && getcmdwintype() == "" | checktime | endif
+  autocmd BufWritePost * lua fn.refresh_git_change_info()
   autocmd BufWritePost ~/.local/share/chezmoi/home/* lua fn.save_dot_files()
   autocmd BufWritePost * lua fn.project_check()
   autocmd CmdwinEnter * nnoremap <buffer> <Esc> $l<C-c>
   autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
   autocmd TextYankPost * lua vim.highlight.on_yank()
+  autocmd VimEnter,DirChanged * lua fn.refresh_git_info()
   autocmd WinLeave * lua fn.cleanup_window_if_needed()
 augroup end
 

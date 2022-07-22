@@ -35,7 +35,8 @@ require"packer".startup(function(packer_use)
   -- Projects --
 
   use { "ahmedkhalf/project.nvim", cond = fn.is_git_dir }
-  use { "rmagatti/auto-session", after = "project.nvim" }
+  use { "tpope/vim-obsession", after = "project.nvim" }
+  use { "dhruvasagar/vim-prosession", after = "vim-obsession" }
 
   -- Navigation --
 

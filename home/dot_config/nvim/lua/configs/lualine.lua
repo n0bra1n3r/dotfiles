@@ -13,11 +13,9 @@ end
 function get_project_git_status()
   if fn.is_git_dir() then
     local branch = fn.get_git_branch()
-    local up = vim.fn.system(string.format("git rev-list --left-only --count %s@{upstream}...%s", branch, branch))
-    local down = vim.fn.system(string.format("git rev-list --right-only --count %s@{upstream}...%s", branch, branch))
     return {
-      up = tonumber(up),
-      down = tonumber(down),
+      up = fn.git_remote_change_count(),
+      down = fn.git_local_change_count(),
     }
   end
 
@@ -28,61 +26,24 @@ function project_state(values)
   if fn.get_is_job_in_progress() then
     return values.job
   else
-    if fn.project_status() == "debug" then
-      return values.dbg
-    else
-      return values.nor
-    end
+    return values[fn.project_status()] or values.default
   end
 end
 
 function M.config()
-  local theme = "nightfox"
-
   local project_dir = fn.get_project_dir()
   local project_git_status = get_project_git_status()
 
   require"lualine".setup {
     extensions = { "nvim-tree", "quickfix" },
-    inactive_sections = {
-      lualine_a = {},
-      lualine_b = {
-        {
-          "filetype",
-          colored = false,
-          icon_only = true,
-          padding = { left = 1, right = 0 },
-        },
-        {
-          "filename",
-          file_status = true,
-          path = 1,
-          symbols = {
-            modified = ' ●',
-            readonly = ' ﯎',
-            unnamed = "[New File]",
-          },
-        },
-        {
-          'diff',
-          colored = false,
-          symbols = { added = ' ', modified = ' ', removed = ' ' },
-          source = buffer_git_status,
-        },
-      },
-      lualine_c = { "fileformat" },
-      lualine_x = {},
-      lualine_y = { "progress" },
-      lualine_z = { "location" },
-    },
     options = {
-      theme = theme,
       component_separators = "",
-      section_separators = { left = "", right = "" },
+      globalstatus = true,
+      section_separators = "",
+      theme = "nightfox",
     },
     sections = {
-      lualine_a = { "mode" },
-      lualine_b = {
+      lualine_a = {
         {
           "filetype",
           colored = false,
@@ -99,6 +60,8 @@ function M.config()
             unnamed = "[New File]",
           },
         },
+      },
+      lualine_b = {
         {
           'diff',
           colored = false,
@@ -106,22 +69,33 @@ function M.config()
           source = buffer_git_status,
         },
       },
-      lualine_c = { "fileformat" },
-      lualine_x = {},
-      lualine_y = { "progress" },
-      lualine_z = { "location" },
+      lualine_c = {
+        {
+          "diagnostics",
+          sources = { fn.get_qf_diagnostics },
+        },
+      },
+      lualine_x = { "fileformat" },
+      lualine_y = { "location" },
+      lualine_z = {
+        {
+          "mode",
+          fmt = function(str)
+            return str:sub(1, 1)
+          end,
+        },
+      },
     },
     tabline = {
       lualine_a = {
         {
           function()
-            return string.format("%s %s", project_state{ dbg = '', job = '', nor = '' }, project_dir)
+            return string.format("%s %s", project_state{ job = '', default = '' }, project_dir)
           end,
           color = function()
             return project_state {
-              dbg = "lualine_a_command",
               job = "lualine_a_insert",
-              nor = "lualine_a_normal",
+              default = "lualine_a_normal",
             }
           end,
           cond = fn.is_git_dir,
@@ -132,9 +106,8 @@ function M.config()
           "branch",
           color = function()
             return project_state {
-              dbg = "lualine_b_command",
               job = "lualine_b_insert",
-              nor = "lualine_b_normal",
+              default = "lualine_b_normal",
             }
           end,
           cond = fn.is_git_dir,
@@ -145,9 +118,8 @@ function M.config()
           end,
           color = function()
             return project_state {
-              dbg = "lualine_b_command",
               job = "lualine_b_insert",
-              nor = "lualine_b_normal",
+              default = "lualine_b_normal",
             }
           end,
           cond = fn.is_git_dir,
@@ -159,9 +131,8 @@ function M.config()
           end,
           color = function()
             return project_state {
-              dbg = "lualine_b_command",
               job = "lualine_b_insert",
-              nor = "lualine_b_normal",
+              default = "lualine_b_normal",
             }
           end,
           cond = fn.has_git_remote,
@@ -170,12 +141,7 @@ function M.config()
         },
       },
       lualine_c = {},
-      lualine_x = {
-        {
-          "diagnostics",
-          sources = { fn.get_qf_diagnostics },
-        },
-      },
+      lualine_x = {},
       lualine_y = {},
       lualine_z = {
         {
@@ -183,20 +149,18 @@ function M.config()
           buffers_color = {
             active = function()
               return project_state {
-                dbg = "lualine_a_command",
                 job = "lualine_a_insert",
-                nor = "lualine_a_normal",
+                default = "lualine_a_normal",
               }
             end,
             inactive = function()
               return project_state {
-                dbg = "lualine_b_command",
                 job = "lualine_b_insert",
-                nor = "lualine_b_normal",
+                default = "lualine_b_normal",
               }
             end,
           },
-          mode = 2,
+          mode = 4,
           show_modified_status = true,
         },
         {
@@ -204,16 +168,14 @@ function M.config()
           tabs_color = {
             active = function()
               return project_state {
-                dbg = "lualine_a_command",
                 job = "lualine_a_insert",
-                nor = "lualine_a_normal",
+                default = "lualine_a_normal",
               }
             end,
             inactive = function()
               return project_state {
-                dbg = "lualine_b_command",
                 job = "lualine_b_insert",
-                nor = "lualine_b_normal",
+                default = "lualine_b_normal",
               }
             end,
           },

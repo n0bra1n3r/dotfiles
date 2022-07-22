@@ -33,7 +33,7 @@ vim.opt.number = true
 vim.opt.numberwidth = 2
 vim.opt.ruler = false
 vim.opt.scrollback = 9001
-vim.opt.sessionoptions = "buffers,curdir,folds,tabpages,winsize,winpos"
+vim.opt.sessionoptions = "buffers,folds,winsize,winpos"
 vim.opt.shiftwidth = 2
 vim.opt.shortmess:append("sI")
 vim.opt.showbreak = "↪"

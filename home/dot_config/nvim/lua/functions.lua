@@ -85,22 +85,51 @@ end
 
 -- shell --
 
+local is_git_dir = false
+local git_branch = nil
+local has_git_remote = false
+local git_local_change_count = 0
+local git_remote_change_count = 0
+
+function _G.fn.refresh_git_change_info()
+  if is_git_dir then
+    git_local_change_count = tonumber(vim.fn.system(string.format("git rev-list --right-only --count %s@{upstream}...%s", git_branch, git_branch)))
+    git_remote_change_count = tonumber(vim.fn.system(string.format("git rev-list --left-only --count %s@{upstream}...%s", git_branch, git_branch)))
+  end
+end
+
+function _G.fn.refresh_git_info()
+  vim.fn.system[[git rev-parse --is-inside-work-tree]]
+  is_git_dir = vim.v.shell_error == 0
+
+  if is_git_dir then
+    git_branch = vim.fn.system[[git branch --show-current]]:match[[(.-)%s*$]]
+
+    vim.fn.system("git show-branch remotes/origin/"..git_branch)
+    has_git_remote = vim.v.shell_error == 0
+  end
+
+  fn.refresh_git_change_info()
+end
+
 function _G.fn.is_git_dir()
-  vim.cmd[[silent! !git rev-parse --is-inside-work-tree]]
-  return vim.v.shell_error == 0
+  return is_git_dir
 end
 
 function _G.fn.get_git_branch()
-  return vim.fn.system[[git branch --show-current]]:match[[(.-)%s*$]]
+  return git_branch
 end
 
 function _G.fn.has_git_remote()
-  if not fn.is_git_dir() then
-    return false
-  end
+  return has_git_remote
+end
 
-  vim.cmd("silent! !git show-branch remotes/origin/"..fn.get_git_branch())
-  return vim.v.shell_error == 0
+function _G.fn.git_local_change_count()
+  return git_local_change_count
+end
+
+function _G.fn.git_remote_change_count()
+  return git_remote_change_count
 end
 
 function _G.fn.get_project_dir()
@@ -443,6 +472,7 @@ end
 function _G.fn.find_files(opts)
   opts = opts or {}
   if fn.is_git_dir() then
+    opts = vim.tbl_extend("keep", opts, { show_untracked = true })
     require"telescope.builtin".git_files(opts)
   else
     require"telescope.builtin".find_files(opts)
