@@ -17,11 +17,11 @@ augroup conf_editor
   autocmd BufEnter,CursorHold,CursorHoldI,FocusGained * if mode() == "n" && getcmdwintype() == "" | checktime | endif
   autocmd BufWritePost * lua fn.refresh_git_change_info()
   autocmd BufWritePost ~/.local/share/chezmoi/home/* lua fn.save_dot_files()
-  autocmd BufWritePost * lua fn.project_check()
+  autocmd BufWritePost,VimEnter * lua fn.project_check()
   autocmd CmdwinEnter * nnoremap <buffer> <Esc> $l<C-c>
+  autocmd DirChanged,VimEnter * lua fn.refresh_git_info()
   autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
   autocmd TextYankPost * lua vim.highlight.on_yank()
-  autocmd VimEnter,DirChanged * lua fn.refresh_git_info()
   autocmd WinLeave * lua fn.cleanup_window_if_needed()
 augroup end
 
