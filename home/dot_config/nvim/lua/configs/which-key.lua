@@ -28,6 +28,11 @@ function M.config()
         r = { ":Gitsigns reset_hunk<CR>", "reset hunk" },
         s = { ":Gitsigns stage_hunk<CR>", "stage hunk" },
       },
+      f = {
+        name = "file",
+        d = { "<cmd>call delete(expand('%:p')) | bdelete!<CR>", "delete" },
+        e = { "<cmd>lua fn.edit_file()<CR>", "delete" },
+      },
       d = {
         name = "debug",
         b = { "<cmd>lua fn.debug_break()<CR>", "break" },

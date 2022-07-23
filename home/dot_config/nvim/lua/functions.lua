@@ -165,6 +165,19 @@ function _G.fn.save_dot_files()
   vim.cmd[[AsyncRun -strip chezmoi apply --exclude=scripts --force --source-path "%"]]
 end
 
+function _G.fn.edit_file()
+  local rel_dir = vim.fn.expand("%:h").."/"
+  local path = vim.fn.input("file path: ", relative_dir, "dir")
+
+  if #path == 0 or
+      path == rel_dir or
+      path:gsub("[/\\]$", "") == rel_dir then
+    return
+  end
+
+  vim.cmd(string.format("edit '%s'", path))
+end
+
 -- nvim --
 
 function _G.fn.get_map_expr(key)
