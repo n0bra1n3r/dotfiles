@@ -45,6 +45,14 @@ function M.config()
     sections = {
       lualine_a = {
         {
+          "mode",
+          fmt = function(str)
+            return str:sub(1, 1)
+          end,
+        },
+      },
+      lualine_b = {
+        {
           "filetype",
           colored = false,
           icon_only = true,
@@ -60,8 +68,6 @@ function M.config()
             unnamed = "[New File]",
           },
         },
-      },
-      lualine_b = {
         {
           'diff',
           colored = false,
@@ -69,22 +75,10 @@ function M.config()
           source = buffer_git_status,
         },
       },
-      lualine_c = {
-        {
-          "diagnostics",
-          sources = { fn.get_qf_diagnostics },
-        },
-      },
+      lualine_c = {},
       lualine_x = { "fileformat" },
-      lualine_y = { "location" },
-      lualine_z = {
-        {
-          "mode",
-          fmt = function(str)
-            return str:sub(1, 1)
-          end,
-        },
-      },
+      lualine_y = { "encoding" },
+      lualine_z = { "location" },
     },
     tabline = {
       lualine_a = {
@@ -142,7 +136,12 @@ function M.config()
       },
       lualine_c = {},
       lualine_x = {},
-      lualine_y = {},
+      lualine_y = {
+        {
+          "diagnostics",
+          sources = { fn.get_qf_diagnostics },
+        },
+      },
       lualine_z = {
         {
           "buffers",
