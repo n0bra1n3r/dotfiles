@@ -175,6 +175,10 @@ function _G.fn.edit_file()
     return
   end
 
+  rel_dir = vim.fn.fnamemodify(path, ":h")
+  if #vim.fn.glob(rel_dir) == 0 then
+    vim.cmd(string.format("!mkdir -p '%s'", rel_dir))
+  end
   vim.cmd(string.format("edit '%s'", path))
 end
 
