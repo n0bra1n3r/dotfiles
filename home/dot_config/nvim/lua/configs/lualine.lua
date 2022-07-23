@@ -135,13 +135,13 @@ function M.config()
         },
       },
       lualine_c = {},
-      lualine_x = {},
-      lualine_y = {
+      lualine_x = {
         {
           "diagnostics",
           sources = { fn.get_qf_diagnostics },
         },
       },
+      lualine_y = {},
       lualine_z = {
         {
           "buffers",
