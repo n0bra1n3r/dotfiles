@@ -53,8 +53,6 @@ require"packer".startup(function(packer_use)
   -- LSP --
 
   use { "neovim/nvim-lspconfig", event = "BufRead" }
-  use { "j-hui/fidget.nvim", after = "nvim-lspconfig" }
-  use { "ray-x/lsp_signature.nvim", after = "fidget.nvim" }
 
   use { "nvim-treesitter/nvim-treesitter", event = "BufRead" }
 
