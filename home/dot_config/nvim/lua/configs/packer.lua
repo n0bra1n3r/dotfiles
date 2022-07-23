@@ -10,7 +10,7 @@ function M.config()
     auto_clean = true,
     compile_on_sync = true,
     display = {
-      open_cmd = "vnew \\[packer\\] | wincmd L | vertical resize 50",
+      open_fn = require"packer.util".float,
       keybindings = {
         quit = "<ESC>",
       },
