@@ -52,12 +52,7 @@ require"packer".startup(function(packer_use)
 
   -- LSP --
 
-  use { "neovim/nvim-lspconfig",
-    setup = function()
-      fn.lazy_load"nvim-lspconfig"()
-      fn.vim_defer[[if &ft == 'packer' | echo '' | else | silent! e %]]()
-    end,
-  }
+  use { "neovim/nvim-lspconfig", event = "BufRead" }
   use { "j-hui/fidget.nvim", after = "nvim-lspconfig" }
   use { "ray-x/lsp_signature.nvim", after = "fidget.nvim" }
 
