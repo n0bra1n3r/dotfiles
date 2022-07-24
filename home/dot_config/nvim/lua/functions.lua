@@ -165,21 +165,21 @@ function _G.fn.save_dot_files()
   vim.cmd[[AsyncRun -strip chezmoi apply --exclude=scripts --force --source-path "%"]]
 end
 
-function _G.fn.edit_file()
+function _G.fn.open_file()
   local rel_dir = vim.fn.expand("%:h").."/"
-  local path = vim.fn.input("file path: ", relative_dir, "dir")
+  local path = vim.fn.input("file path: ", rel_dir, "dir")
 
   if #path == 0 or
       path == rel_dir or
-      path:gsub("[/\\]$", "") == rel_dir then
+      path.."/" == rel_dir then
     return
   end
 
   rel_dir = vim.fn.fnamemodify(path, ":h")
   if #vim.fn.glob(rel_dir) == 0 then
-    vim.cmd(string.format("!mkdir -p '%s'", rel_dir))
+    vim.cmd(string.format("!mkdir -p \"%s\"", rel_dir))
   end
-  vim.cmd(string.format("edit '%s'", path))
+  vim.cmd(string.format("edit %s", path))
 end
 
 -- nvim --
