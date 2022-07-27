@@ -69,6 +69,8 @@ require"packer".startup(function(packer_use)
 
   use { "echasnovski/mini.nvim", event = "BufRead"}
 
+  use { "famiu/bufdelete.nvim", cmd = { "Bdelete", "Bwipeout" }}
+
   -- Command Runners --
 
   use { "skywind3000/asyncrun.vim", cmd = { "AsyncRun" } }
