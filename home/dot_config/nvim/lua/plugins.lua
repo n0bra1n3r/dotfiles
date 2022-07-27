@@ -21,7 +21,7 @@ require"packer".startup(function(packer_use)
 
   -- File Types --
 
-  use { "zah/nim.vim" }
+  use { "alaviss/nim.nvim", ft = "nim" }
 
   use { "kevinhwang91/nvim-bqf", ft = "qf" }
 
@@ -52,7 +52,8 @@ require"packer".startup(function(packer_use)
 
   -- LSP --
 
-  use { "neovim/nvim-lspconfig", event = "BufRead" }
+  use { "jose-elias-alvarez/null-ls.nvim", event = "BufRead" }
+  use { "neovim/nvim-lspconfig", after = "null-ls.nvim" }
 
   use { "nvim-treesitter/nvim-treesitter", event = "BufRead" }
 
