@@ -1,15 +1,5 @@
 local M = {}
 
-function buffer_git_status()
-  if vim.b.gitsigns_status_dict ~= nil then
-    return {
-      added = vim.b.gitsigns_status_dict.added,
-      modified = vim.b.gitsigns_status_dict.changed,
-      removed = vim.b.gitsigns_status_dict.removed,
-    }
-  end
-end
-
 function get_project_git_status()
   if fn.is_git_dir() then
     local branch = fn.get_git_branch()
@@ -55,13 +45,7 @@ function M.config()
       },
     },
     lualine_c = {},
-    lualine_x = {
-      {
-        "diff",
-        symbols = { added = ' ', modified = ' ', removed = ' ' },
-        source = buffer_git_status,
-      },
-    },
+    lualine_x = {},
     lualine_y = {},
     lualine_z = {
       { "location" },
@@ -135,13 +119,13 @@ function M.config()
           padding = { left = 0, right = 1 },
         },
       },
-      lualine_c = {},
-      lualine_x = {
+      lualine_c = {
         {
           "diagnostics",
           sources = { fn.get_qf_diagnostics },
         },
       },
+      lualine_x = {},
       lualine_y = {},
       lualine_z = {
         {
