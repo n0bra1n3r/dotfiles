@@ -45,6 +45,7 @@ function M.config()
       {
         "filename",
         file_status = true,
+        padding = { left = 0, right = 1 },
         path = 1,
         symbols = {
           modified = ' ●',
@@ -117,6 +118,7 @@ function M.config()
           end,
           cond = fn.is_git_dir,
           icon = '',
+          padding = { left = 0, right = 1 },
         },
         {
           function()
