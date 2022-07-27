@@ -61,8 +61,8 @@ function M.config()
       q = {
         name = "quickfix",
         q = { "<cmd>lua fn.toggle_quickfix()<CR>", "show" },
-        n = { "<cmd>cnext<CR>", "next" },
-        N = { "<cmd>cprev<CR>", "previous" },
+        n = { "<cmd>exec 'lua fn.open_quickfix()' | cnext<CR>", "next" },
+        N = { "<cmd>exec 'lua fn.open_quickfix()' | cprev<CR>", "previous" },
       },
       w = { "<cmd>lua fn.choose_window()<CR>", "window" },
       x = { "<cmd>lua fn.close_buffer()<CR>", "close" },
