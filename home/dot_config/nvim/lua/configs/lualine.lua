@@ -80,9 +80,12 @@ function M.config()
   }
 
   require"lualine".setup {
-    extensions = { "quickfix" },
+    extensions = {},
     options = {
       component_separators = "",
+      disabled_filetypes = {
+        statusline = { "qf" },
+      },
       section_separators = "",
       theme = "nightfox",
     },
