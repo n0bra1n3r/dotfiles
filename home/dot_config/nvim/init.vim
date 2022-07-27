@@ -15,7 +15,7 @@ augroup conf_editor
   autocmd BufEnter * lua fn.set_shell_title()
   autocmd BufEnter * highlight ColorColumn guifg=darkgray ctermfg=darkgray guibg=NONE ctermbg=NONE
   autocmd BufEnter,CursorHold,CursorHoldI,FocusGained * if mode() == "n" && getcmdwintype() == "" | checktime | endif
-  autocmd BufWritePost,TermClose * lua fn.refresh_git_change_info()
+  autocmd BufWritePost * lua fn.refresh_git_change_info()
   autocmd BufWritePost ~/.local/share/chezmoi/home/* lua fn.save_dot_files()
   autocmd BufWritePost,VimEnter * lua fn.project_check()
   autocmd CmdwinEnter * nnoremap <buffer> <Esc> $l<C-c>
@@ -23,6 +23,7 @@ augroup conf_editor
   autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
   autocmd TextYankPost * lua vim.highlight.on_yank()
   autocmd WinLeave * lua fn.cleanup_window_if_needed()
+  autocmd BufLeave floaterm lua fn.refresh_git_change_info()
 augroup end
 
 augroup conf_help
