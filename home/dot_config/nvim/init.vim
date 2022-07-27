@@ -20,7 +20,7 @@ augroup conf_editor
   autocmd BufWritePost,VimEnter * lua fn.project_check()
   autocmd CmdwinEnter * nnoremap <buffer> <Esc> $l<C-c>
   autocmd DirChanged,VimEnter * lua fn.refresh_git_info()
-  autocmd InsertLeave * lua if vim.bo.filetype == "terminal" then fn.refresh_git_change_info() end
+  autocmd InsertLeave * lua fn.refresh_git_change_info()
   autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
   autocmd TextYankPost * lua vim.highlight.on_yank()
   autocmd WinLeave * lua fn.cleanup_window_if_needed()
