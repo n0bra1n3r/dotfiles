@@ -23,7 +23,7 @@ augroup conf_editor
   autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
   autocmd TextYankPost * lua vim.highlight.on_yank()
   autocmd WinLeave * lua fn.cleanup_window_if_needed()
-  autocmd BufLeave floaterm lua fn.refresh_git_change_info()
+  autocmd InsertLeave floaterm lua fn.refresh_git_change_info()
 augroup end
 
 augroup conf_help
