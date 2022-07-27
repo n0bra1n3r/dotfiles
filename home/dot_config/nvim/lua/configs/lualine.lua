@@ -34,52 +34,63 @@ function M.config()
   local project_dir = fn.get_project_dir()
   local project_git_status = get_project_git_status()
 
+  local sections = {
+    lualine_a = {
+      {
+        "mode",
+        fmt = function(str)
+          return str:sub(1, 1)
+        end,
+      },
+    },
+    lualine_b = {
+      {
+        "filetype",
+        colored = false,
+        icon_only = true,
+        padding = { left = 1, right = 0 },
+      },
+      {
+        "filename",
+        file_status = true,
+        path = 1,
+        symbols = {
+          modified = ' ●',
+          readonly = ' ﯎',
+          unnamed = "[New File]",
+        },
+      },
+      {
+        'diff',
+        colored = false,
+        symbols = { added = ' ', modified = ' ', removed = ' ' },
+        source = buffer_git_status,
+      },
+    },
+    lualine_c = {},
+    lualine_x = {},
+    lualine_y = {
+      {
+        "fileformat",
+        symbols = {
+          unix = "unix ",
+          dos = "dos ",
+          mac = "mac ",
+        }
+      }
+    },
+    lualine_z = { "location" },
+  }
+
   require"lualine".setup {
-    extensions = { "nvim-tree", "quickfix" },
+    extensions = { "quickfix" },
     options = {
       component_separators = "",
-      globalstatus = true,
       section_separators = "",
       theme = "nightfox",
     },
-    sections = {
-      lualine_a = {
-        {
-          "mode",
-          fmt = function(str)
-            return str:sub(1, 1)
-          end,
-        },
-      },
-      lualine_b = {
-        {
-          "filetype",
-          colored = false,
-          icon_only = true,
-          padding = { left = 1, right = 0 },
-        },
-        {
-          "filename",
-          file_status = true,
-          path = 1,
-          symbols = {
-            modified = ' ●',
-            readonly = ' ﯎',
-            unnamed = "[New File]",
-          },
-        },
-        {
-          'diff',
-          colored = false,
-          symbols = { added = ' ', modified = ' ', removed = ' ' },
-          source = buffer_git_status,
-        },
-      },
-      lualine_c = {},
-      lualine_x = { "fileformat" },
-      lualine_y = { "encoding" },
-      lualine_z = { "location" },
-    },
+    sections = sections,
+    inactive_sections = sections,
     tabline = {
       lualine_a = {
         {
