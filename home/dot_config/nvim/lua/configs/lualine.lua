@@ -31,9 +31,6 @@ function project_state(values)
 end
 
 function M.config()
-  local project_dir = fn.get_project_dir()
-  local project_git_status = get_project_git_status()
-
   local sections = {
     lualine_a = {
       {
@@ -95,7 +92,7 @@ function M.config()
       lualine_a = {
         {
           function()
-            return string.format("%s %s", project_state{ job = '', default = '' }, project_dir)
+            return string.format("%s %s", project_state{ job = '', default = '' }, fn.get_project_dir())
           end,
           color = function()
             return project_state {
@@ -119,7 +116,7 @@ function M.config()
         },
         {
           function()
-            return project_git_status.down
+            return get_project_git_status().down
           end,
           color = function()
             return project_state {
@@ -132,7 +129,7 @@ function M.config()
         },
         {
           function()
-            return project_git_status.up
+            return get_project_git_status().up
           end,
           color = function()
             return project_state {

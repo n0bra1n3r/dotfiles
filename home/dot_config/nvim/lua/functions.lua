@@ -95,8 +95,6 @@ function _G.fn.refresh_git_change_info()
   if is_git_dir then
     git_local_change_count = tonumber(vim.fn.system(string.format("git rev-list --right-only --count %s@{upstream}...%s", git_branch, git_branch)))
     git_remote_change_count = tonumber(vim.fn.system(string.format("git rev-list --left-only --count %s@{upstream}...%s", git_branch, git_branch)))
-    
-    vim.cmd[[redrawtabline]]
   end
 end
 
