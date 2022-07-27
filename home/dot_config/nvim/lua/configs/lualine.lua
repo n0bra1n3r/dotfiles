@@ -41,12 +41,7 @@ function M.config()
       },
     },
     lualine_b = {
-      {
-        "filetype",
-        colored = false,
-        icon_only = true,
-        padding = { left = 1, right = 0 },
-      },
+      { "fileformat" },
       {
         "filename",
         file_status = true,
@@ -57,26 +52,19 @@ function M.config()
           unnamed = "[New File]",
         },
       },
+    },
+    lualine_c = {},
+    lualine_x = {
       {
-        'diff',
-        colored = false,
+        "diff",
         symbols = { added = ' ', modified = ' ', removed = ' ' },
         source = buffer_git_status,
       },
     },
-    lualine_c = {},
-    lualine_x = {},
-    lualine_y = {
-      {
-        "fileformat",
-        symbols = {
-          unix = "unix ",
-          dos = "dos ",
-          mac = "mac ",
-        }
-      }
+    lualine_y = {},
+    lualine_z = {
+      { "location" },
     },
-    lualine_z = { "location" },
   }
 
   require"lualine".setup {
@@ -170,6 +158,7 @@ function M.config()
               }
             end,
           },
+          hide_filename_extension = true,
           mode = 4,
           show_modified_status = true,
         },
