@@ -16,7 +16,6 @@ function M.config()
       async = true,
       fn = function(params, done)
         vim.fn["nim#suggest#sug#GetAllCandidates"](function(start, candidates)
-          print(vim.inspect(candidates))
           local items = vim.tbl_map(function(candidate)
             return {
               kind = kinds[candidate.kind] or CompletionItemKind.Text,
