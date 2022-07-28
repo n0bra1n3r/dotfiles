@@ -30,7 +30,8 @@ function M.config()
       },
       f = {
         name = "file",
-        d = { "<cmd>call delete(expand('%:p')) | Bdelete!<CR>", "delete" },
+        d = { "<cmd>lua fn.delete_file()<CR>", "delete" },
+        m = { "<cmd>lua fn.move_file()<CR>", "move" },
         o = { "<cmd>lua fn.open_file()<CR>", "open" },
       },
       d = {

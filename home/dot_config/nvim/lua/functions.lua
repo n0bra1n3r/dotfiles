@@ -165,9 +165,14 @@ function _G.fn.save_dot_files()
   vim.cmd[[AsyncRun -strip chezmoi apply --exclude=scripts --force --source-path "%"]]
 end
 
+function _G.fn.delete_file()
+  vim.fn.delete(vim.fn.expand('%:p'))
+  vim.cmd[[Bdelete!]]
+end
+
 function _G.fn.open_file()
   local rel_dir = vim.fn.expand("%:h").."/"
-  local path = vim.fn.input("file path: ", rel_dir, "dir")
+  local path = vim.fn.input("open path: ", rel_dir, "dir")
 
   if #path == 0 or
       path == rel_dir or
@@ -177,9 +182,25 @@ function _G.fn.open_file()
 
   rel_dir = vim.fn.fnamemodify(path, ":h")
   if #vim.fn.glob(rel_dir) == 0 then
-    vim.cmd(string.format("!mkdir -p \"%s\"", rel_dir))
+    vim.cmd(string.format("!bash -c 'mkdir -p \"%s\"'", rel_dir))
   end
   vim.cmd(string.format("edit %s", path))
+end
+
+function _G.fn.move_file()
+  local rel_file = vim.fn.expand("%")
+  local path = vim.fn.input("move path: ", rel_file, "file")
+
+  if #path == 0 or
+      path == rel_file then
+    return
+  end
+
+  local rel_dir = vim.fn.fnamemodify(path, ":h")
+  if #vim.fn.glob(rel_dir) == 0 then
+    vim.cmd(string.format("!bash -c 'mkdir -p \"%s\"'", rel_dir))
+  end
+  vim.cmd(string.format("saveas %s | call delete(\"%s\")", path, rel_file))
 end
 
 -- nvim --
