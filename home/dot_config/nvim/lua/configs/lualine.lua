@@ -2,7 +2,6 @@ local M = {}
 
 function get_project_git_status()
   if fn.is_git_dir() then
-    local branch = fn.get_git_branch()
     return {
       up = fn.git_remote_change_count(),
       down = fn.git_local_change_count(),
@@ -81,7 +80,9 @@ function M.config()
       },
       lualine_b = {
         {
-          "branch",
+          function()
+            return string.format(" %s", fn.get_git_branch())
+          end,
           color = function()
             return project_state {
               job = "lualine_b_insert",
