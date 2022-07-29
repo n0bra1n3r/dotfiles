@@ -25,6 +25,7 @@ vim.opt.hidden = true
 vim.opt.ignorecase = true
 vim.opt.isfname = "@,48-57,/,\\,.,-,_,+,,,#,$,%,~,="
 vim.opt.isident = "@,48-57,_,192-255"
+vim.opt.lazyredraw = true
 vim.opt.linebreak = true
 vim.opt.list = true
 vim.opt.listchars:append("multispace:· ")
