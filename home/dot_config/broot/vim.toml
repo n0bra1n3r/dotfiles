@@ -5,7 +5,13 @@ show_selection_mark = true
 [[verbs]]
   invocation = "open file"
   key = "enter"
-  external = "nvim --server $VIM_SVRNAME --remote-tab {file}"
+  external = 'nvim --server $VIM_SVRNAME --remote-send "<C-\><C-N>:e {file}<CR>"'
+  apply_to = "file"
+
+[[verbs]]
+  invocation = "open file in split"
+  key = "alt-\\"
+  external = 'nvim --server $VIM_SVRNAME --remote-send "<C-\><C-N>:vs {file}<CR>"'
   apply_to = "file"
 
 [[verbs]]
