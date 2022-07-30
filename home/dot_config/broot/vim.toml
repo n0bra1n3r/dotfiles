@@ -3,28 +3,25 @@ max_panels_count = 1
 show_selection_mark = true
 
 [[verbs]]
-  invocation = "open file"
+  invocation = "edit"
   key = "enter"
   external = 'nvim --server $VIM_SVRNAME --remote-send "<C-\><C-N>:e {file}<CR>"'
   apply_to = "file"
 
 [[verbs]]
-  invocation = "open file in split"
+  invocation = "vsplit"
   key = "alt-\\"
   external = 'nvim --server $VIM_SVRNAME --remote-send "<C-\><C-N>:vs {file}<CR>"'
   apply_to = "file"
 
 [[verbs]]
-  invocation = "go back"
   key = "alt-l"
   execution = ":back"
 
 [[verbs]]
-  invocation = "down one line"
   key = "alt-j"
   execution = ":line_down_no_cycle"
 
 [[verbs]]
-  invocation = "up one line"
   key = "alt-k"
   execution = ":line_up_no_cycle"
