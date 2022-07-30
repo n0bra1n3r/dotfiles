@@ -21,9 +21,9 @@ return {
     ["<Up>"]            = { "<Esc><Up>", noremap = false },
   },
   n = {
-    ["<M-j>"]           = { "<C-w>h" },
-    ["<M-k>"]           = { "<C-w>j" },
-    ["<M-l>"]           = { "<C-w>k" },
+    ["<M-l>"]           = { "<C-w>h" },
+    ["<M-j>"]           = { "<C-w>j" },
+    ["<M-k>"]           = { "<C-w>k" },
     ["<M-;>"]           = { "<C-w>l" },
     ["<C-w><C-f>"]      = { "<cmd>lua fn.edit_file('vsplit', vim.fn.expand('<cfile>'))<CR>" },
     ["<C-w>f"]          = { "<cmd>lua fn.edit_file('split', vim.fn.expand('<cfile>'))<CR>" },
