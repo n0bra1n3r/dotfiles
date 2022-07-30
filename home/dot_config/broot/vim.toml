@@ -5,7 +5,7 @@ show_selection_mark = true
 [[verbs]]
   invocation = "open file"
   key = "enter"
-  execution = ":print_path"
+  external = "nvim --server $VIM_SVRNAME --remote-tab {file}"
   apply_to = "file"
 
 [[verbs]]
