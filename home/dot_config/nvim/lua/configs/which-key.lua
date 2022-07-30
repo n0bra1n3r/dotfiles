@@ -59,6 +59,7 @@ function M.config()
         f = { "<cmd>lua fn.find_files()<CR>", "files" },
         s = { "<cmd>lua require'search'.prompt()<CR>", "strings" },
       },
+      t = { "<cmd>lua fn.open_file_tree()<CR>", "file tree" },
       q = {
         name = "quickfix",
         q = { "<cmd>lua fn.toggle_quickfix()<CR>", "show" },

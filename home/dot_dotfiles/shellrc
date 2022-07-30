@@ -7,9 +7,13 @@ MSYS_NT*)
   export MSYS=winsymlinks:nativestrict
   export MSYS2_PATH_TYPE=inherit
 
+  source "$APPDATA/dystroy/broot/config/launcher/bash/br"
+
   alias npm="cmd //c npm.cmd"
   ;;
 MINGW64_NT*)
+  source "$APPDATA/dystroy/broot/config/launcher/bash/br"
+
   alias npm="cmd //c npm.cmd"
   ;;
 *)

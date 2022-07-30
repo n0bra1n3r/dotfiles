@@ -1,0 +1,24 @@
+default_flags = "gt"
+max_panels_count = 1
+show_selection_mark = true
+
+[[verbs]]
+  invocation = "open file"
+  key = "enter"
+  execution = ":print_path"
+  apply_to = "file"
+
+[[verbs]]
+  invocation = "go back"
+  key = "alt-l"
+  execution = ":back"
+
+[[verbs]]
+  invocation = "down one line"
+  key = "alt-j"
+  execution = ":line_down_no_cycle"
+
+[[verbs]]
+  invocation = "up one line"
+  key = "alt-k"
+  execution = ":line_up_no_cycle"

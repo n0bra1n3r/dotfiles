@@ -434,6 +434,27 @@ end
 
 -- floaterm --
 
+function _G.fn.open_file_tree()
+  if vim.fn["floaterm#terminal#get_bufnr"]("files") == -1 then
+    local bufnr = vim.fn["floaterm#new"](0,
+      "br",
+      { [''] = '' },
+      {
+        silent = 1,
+        name = "files",
+        title = "files",
+        height = math.ceil(vim.o.lines) - 2,
+        width = math.ceil(vim.o.columns * 0.3),
+        position = "topright",
+      })
+    vim.api.nvim_create_autocmd("TermLeave", {
+      buffer = bufnr,
+      command = "FloatermHide files",
+    })
+  end
+  vim.cmd[[FloatermShow files]]
+end
+
 function _G.fn.open_shell(command)
   vim.fn["floaterm#new"](0,
     "bash --rcfile ~/.dotfiles/floatermrc",
