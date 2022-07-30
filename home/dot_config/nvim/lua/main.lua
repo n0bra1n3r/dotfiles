@@ -77,7 +77,12 @@ for mode, mapping in pairs(mappings) do
       map.silent = true
     end
 
-    vim.api.nvim_set_keymap(mode, key, targetKey, map)
+    if type(targetKey) == "function" then
+      map = vim.tbl_extend("keep", map, { callback = targetKey })
+      vim.api.nvim_set_keymap(mode, key, [[]], map)
+    else
+      vim.api.nvim_set_keymap(mode, key, targetKey, map)
+    end
   end
 end
 
