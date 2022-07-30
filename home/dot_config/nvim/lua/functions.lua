@@ -469,19 +469,15 @@ function _G.fn.open_shell(command)
       position = "bottom",
     })
 
-  if command ~= nil then
-    vim.cmd(string.format('set ssl | exec "FloatermSend --name=shell %s" | set nossl', command))
-  end
-
-  vim.cmd[[FloatermShow shell]]
-
   function _G.fn.open_shell(command)
+    vim.cmd[[FloatermShow shell]]
+
     if command ~= nil then
       vim.cmd(string.format('set ssl | exec "FloatermSend --name=shell %s" | set nossl', command))
     end
-
-    vim.cmd[[FloatermShow shell]]
   end
+
+  fn.open_shell(command)
 end
 
 function _G.fn.open_run_shell()
