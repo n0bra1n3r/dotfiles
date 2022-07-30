@@ -200,7 +200,7 @@ function _G.fn.move_file()
   if #vim.fn.glob(rel_dir) == 0 then
     vim.cmd(string.format("!bash -c 'mkdir -p \"%s\"'", rel_dir))
   end
-  vim.cmd(string.format("saveas %s | call delete(expand('#')) | Bwipeout! #", path))
+  vim.cmd(string.format("saveas %s | call delete(expand('#')) | bwipeout #", path))
 end
 
 -- nvim --
