@@ -53,12 +53,7 @@ function M.config()
         s = { "<cmd>lua fn.open_run_shell()<CR>", "shell" },
         t = { "<cmd>lua fn.project_test()<CR>", "test" },
       },
-      s = {
-        name = "search",
-        b = { "<cmd>Telescope buffers<CR>", "buffers" },
-        f = { "<cmd>lua fn.find_files()<CR>", "files" },
-        s = { "<cmd>lua require'search'.prompt()<CR>", "strings" },
-      },
+      s = { "<cmd>lua require'search'.prompt()<CR>", "search string" },
       t = { "<cmd>lua fn.open_file_tree()<CR>", "file tree" },
       q = {
         name = "quickfix",
