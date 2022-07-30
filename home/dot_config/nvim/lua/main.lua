@@ -89,12 +89,7 @@ for command, def in pairs(commands) do
   local targetCmd = def[1]
   def[1] = nil
 
-  if def.force == nil then
-    def.force = true
-  end
-
-  -- TODO: Wait for neovim 0.7
-  --vim.api.nvim_add_user_command(command, targetCmd, def)
+  vim.api.nvim_create_user_command(command, targetCmd, def)
 end
 
 -- Plugins --

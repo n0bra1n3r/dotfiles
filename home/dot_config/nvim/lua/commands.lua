@@ -1,3 +1,11 @@
-vim.cmd[[command! -nargs=+ G lua fn.open_shell("git "..<q-args>)]]
+local M = {}
 
-return {}
+M.G = {
+  function(opts)
+    fn.open_shell("git "..opts.args)
+  end,
+  bang = true,
+  nargs = "+",
+}
+
+return M
