@@ -5,10 +5,6 @@ local job = require "plenary.job"
 
 -- Helper functions --
 
-local function get_scroll_up_expr(key)
-  return string.format("getpos('.')[1]<=2?'%s2<C-y>':'%s'", key, key)
-end
-
 local function get_sign_group(namespace, file_name, line_number)
   return string.format("%s-%s:%s", namespace, file_name, line_number)
 end
@@ -25,6 +21,55 @@ local function get_line_number_label(text, padding)
   end
 
   return "  "..result
+end
+
+local function is_search_buf(bufnr)
+  return M.buffers ~= nil and M.buffers[bufnr] ~= nil
+end
+
+local function is_current_search(bufnr, id)
+  local info = M.buffers[bufnr]
+  return info ~= nil and info.search_id == id
+end
+
+local function get_search_info(bufnr)
+  if M.buffers == nil then
+    M.buffers = {}
+  end
+
+  local info = M.buffers[bufnr]
+
+  if info == nil then
+    info = {
+      -- Search info
+      search_id = 0,
+      search_term = nil,
+      search_args = nil,
+      -- Job info
+      args = {},
+      cmd = nil,
+      cwd = vim.fn.getcwd(),
+      job = nil,
+      -- Buffer info
+      bufnr = bufnr,
+      cursor_line = 0,
+      line_number_width = 0,
+      namespace = string.format("search-%d", bufnr),
+      sign_width = 0,
+      -- Result info
+      change_table = {},
+      file_table = {},
+      line_array = {},
+      result_array = {},
+      -- State info
+      is_editing = false,
+      is_searching = false,
+    }
+
+    M.buffers[bufnr] = info
+  end
+
+  return info
 end
 
 local function get_search_command(search_term, search_args)
@@ -45,172 +90,15 @@ local function get_search_command(search_term, search_args)
   return cmd, argList
 end
 
-local function parse_result(result_line)
-  local format = vim.o.grepformat
-
-  local part_index = {}
-  local i = 0
-  local pattern = string.gsub(format, "%%(%a)", function(s)
-    -- convert grepformat format token to regex
-    part_index[s] = i
-    i = i + 1
-    return ({
-      f = "(.+)",
-      l = "(%d+)",
-      c = "(%d+)",
-      m = "(.+)",
-    })[s]
-  end)
-
-  local part_array = {select(3, string.find(result_line, pattern))}
-
-  local parsed_result = {}
-
-  for s, i in pairs(part_index) do
-    local key = ({
-      f = "file_name",
-      l = "line_number",
-      c = "col_number",
-      m = "line_text",
-    })[s]
-
-    parsed_result[key] = part_array[i + 1]
-  end
-
-  return parsed_result
-end
-
--- Global config --
-
-api.nvim_command[[augroup search_on_vim_leave]]
-api.nvim_command[[autocmd!]]
-api.nvim_command[[autocmd VimLeavePre * lua require"search"._on_vim_leave()]]
-api.nvim_command[[augroup end]]
-
--- Initialization --
-
-local function create_buffer_if_needed()
-  local bufnr = api.nvim_get_current_buf()
-
-  if M.buffers == nil or M.buffers[bufnr] == nil then
-    if #api.nvim_buf_get_name(bufnr) > 0 or
-        api.nvim_buf_line_count(bufnr) > 0 then
-      api.nvim_command[[enew]]
-
-      return api.nvim_get_current_buf()
-    end
-
-    return bufnr
-  end
-end
-
-local function get_buffer()
-  local bufnr = create_buffer_if_needed()
-
-  if bufnr ~= nil then
-    local winid = api.nvim_get_current_win()
-
-    -- options
-    api.nvim_buf_set_name(bufnr, "search")
-    api.nvim_buf_set_option(bufnr, "filetype", "search")
-    api.nvim_buf_set_option(bufnr, "swapfile", false)
-    api.nvim_win_set_option(winid, "number", false)
-    api.nvim_win_set_option(winid, "signcolumn", "auto:9")
-
-    -- navigation
-    api.nvim_buf_set_keymap(bufnr, "i", "<Up>", get_scroll_up_expr[[<Up>]], { noremap = true, expr = true })
-    api.nvim_buf_set_keymap(bufnr, "n", "<Enter>", [[<cmd>lua require"search".show_current_result()<CR>]], { noremap = true })
-    api.nvim_buf_set_keymap(bufnr, "n", "<Up>", get_scroll_up_expr[[<Up>]], { noremap = true, expr = true })
-    api.nvim_buf_set_keymap(bufnr, "n", "k", get_scroll_up_expr[[k]], { noremap = true, expr = true })
-    api.nvim_buf_set_keymap(bufnr, "n", "gg", get_scroll_up_expr[[gg]], { noremap = true, expr = true })
-    api.nvim_buf_set_keymap(bufnr, "x", "<Up>", get_scroll_up_expr[[<Up>]], { noremap = true, expr = true })
-    api.nvim_buf_set_keymap(bufnr, "x", "k", get_scroll_up_expr[[k]], { noremap = true, expr = true })
-    api.nvim_buf_set_keymap(bufnr, "x", "gg", get_scroll_up_expr[[gg]], { noremap = true, expr = true })
-
-    -- autocommands
-    api.nvim_command[[augroup search_autocommands]]
-    api.nvim_command[[autocmd BufDelete <buffer> lua require"search"._on_buf_delete(tonumber(vim.fn.expand"<abuf>"))]]
-    api.nvim_command[[autocmd BufEnter <buffer> lua require"search"._on_buf_enter(tonumber(vim.fn.expand"<abuf>"))]]
-    api.nvim_command[[autocmd BufLeave <buffer> lua require"search"._on_buf_leave(tonumber(vim.fn.expand"<abuf>"))]]
-    api.nvim_command[[autocmd BufWriteCmd <buffer> lua require"search"._on_buf_write(tonumber(vim.fn.expand"<abuf>"))]]
-    api.nvim_command[[autocmd CursorMoved,CursorMovedI <buffer> lua require"search"._on_cursor_moved(tonumber(vim.fn.expand"<abuf>"))]]
-    api.nvim_command[[autocmd OptionSet number lua require"search"._on_option_set(tonumber(vim.fn.expand"<abuf>"))]]
-    api.nvim_command[[autocmd OptionSet signcolumn lua require"search"._on_option_set(tonumber(vim.fn.expand"<abuf>"))]]
-    api.nvim_command[[augroup end]]
-  end
-
-  return api.nvim_get_current_buf()
-end
-
--- Updating --
-
-local function is_search_buf(bufnr)
-  return M.buffers ~= nil and M.buffers[bufnr] ~= nil
-end
-
-local function push_result(bufnr, line, result)
-  local info = M.buffers[bufnr]
-
-  result.is_first_line = false
-  result.is_first_col = false
-
-  local file_info = info.file_table[result.file_name]
-  if file_info == nil then
-    line = line + 1
-
-    info.file_table[result.file_name] = {
-      [result.line_number] = line + 1,
-    }
-
-    result.is_first_line = true
-    result.is_first_col = true
-  elseif file_info[result.line_number] == nil then
-    line = line + 1
-
-    file_info[result.line_number] = line + 1
-
-    result.is_first_col = true
-  end
-
-  local results = info.result_array[line + 1]
-  if results == nil then
-    info.result_array[line + 1] = { result }
-  else
-    table.insert(results, result)
-  end
-
-  info.line_array[line + 1] = {
-    file_name = result.file_name,
-    line_number = result.line_number,
-  }
-
-  return line
-end
-
-local function results_at(bufnr, line)
-  local info = M.buffers[bufnr]
-
-  if #info.line_array > 0 then
-    local line_info = info.line_array[line + 1]
-    local line_index = info.file_table[line_info.file_name][line_info.line_number]
-
-    return info.result_array[line_index]
-  end
-
-  return {}
-end
-
-local function is_current_search(info)
-  local current_info = M.buffers[info.bufnr]
-  return current_info ~= nil and current_info.search_id == info.search_id
-end
-
 local function reset_search(bufnr, search_term, search_args)
-  if M.buffers == nil then
-    M.buffers = {}
+  local info
+
+  if M.buffers then
+    info = M.buffers[bufnr]
+    M.buffers[bufnr] = nil
   end
 
-  local info = M.buffers[bufnr]
+  local new_info = get_search_info(bufnr)
 
   if info ~= nil then
     api.nvim_command[[echon]]
@@ -243,56 +131,90 @@ local function reset_search(bufnr, search_term, search_args)
       api.nvim_buf_clear_namespace(bufnr, -1, 0, -1)
       api.nvim_buf_set_lines(bufnr, 0, -1, false, {})
     end
+
+    new_info.search_id = info.search_id + 1
+    new_info.search_term = search_term or info.search_term
+    new_info.search_args = search_args or info.search_args
+  else
+    new_info.search_term = search_term
+    new_info.search_args = search_args
   end
 
-  local cmd, args = get_search_command(search_term, search_args)
-
-  M.buffers[bufnr] = {
-    -- Search info
-    search_id = info and info.search_id + 1 or 1,
-    search_term = search_term,
-    -- Job info
-    args = args,
-    cmd = cmd,
-    cwd = vim.fn.getcwd(),
-    job = nil,
-    -- Buffer info
-    bufnr = bufnr,
-    cursor_line = 0,
-    line_number_width = 0,
-    namespace = string.format("search-%d", bufnr),
-    sign_width = 0,
-    -- Result info
-    change_table = {},
-    file_table = {},
-    line_array = {},
-    result_array = {},
-    -- State info
-    is_editing = false,
-    is_searching = false,
-  }
+  new_info.cmd, new_info.args = get_search_command(new_info.search_term, new_info.search_args)
 
   api.nvim_buf_set_option(bufnr, "buftype", "nofile")
 
-  return M.buffers[bufnr]
+  return new_info
+end
+
+local function results_at(bufnr, line)
+  local info = get_search_info(bufnr)
+
+  if #info.line_array > 0 then
+    local line_info = info.line_array[line + 1]
+    local line_index = info.file_table[line_info.file_name][line_info.line_number]
+
+    return info.result_array[line_index]
+  end
+
+  return {}
+end
+
+-- Modes --
+
+local function init_modes()
+  if M.modes == nil then
+    M.modes = { ' ', ' ' }
+    M.mode_id = 0
+    M.did_mode_change = false
+  end
+end
+
+local function reset_modes()
+  M.modes = nil
+end
+
+local function cycle_mode()
+  if M.modes ~= nil then
+    M.did_mode_change = true
+    M.mode_id = (M.mode_id + 1) % #M.modes
+
+    api.nvim_input("<Enter>")
+  end
+end
+
+local function get_mode()
+  if M.modes ~= nil then
+    return M.mode_id, M.modes[M.mode_id + 1]
+  end
+  return nil, nil
+end
+
+local function pop_mode_change()
+  if M.modes ~= nil then
+    local did_mode_change = M.did_mode_change
+    M.did_mode_change = false
+    return did_mode_change
+  end
+  return nil
 end
 
 -- Event callbacks --
 
-function M._on_prompt_input()
+local function on_cmdline_changed()
   local input = vim.fn.getcmdline()
 
   if #input > 0 then
-    M.run(input, M.search_args)
-  else
-    if is_search_buf(api.nvim_get_current_buf()) then
-      api.nvim_input("<Esc>")
+    if M.mode_id == 0 then
+      M.run(nil, input)
+    elseif M.mode_id == 1 then
+      M.run(input, nil)
     end
   end
 end
 
-function M._on_cursor_moved(bufnr)
-  local info = M.buffers[bufnr]
+local function on_cursor_moved(bufnr)
+  local info = get_search_info(bufnr)
 
   local line = vim.fn.line"." - 1
 
@@ -311,20 +233,28 @@ function M._on_cursor_moved(bufnr)
       vim.fn.sign_define(curr_name, { texthl = "CursorLineNr" })
     end
 
+    local scrolloff = api.nvim_get_option("scrolloff")
+
+    if info.cursor_line > line and line <= scrolloff then
+      -- TODO: Remove this hack when https://github.com/neovim/neovim/issues/16166 is merged
+      vim.fn.winrestview({ topfill = 2 + scrolloff })
+    end
+
     info.cursor_line = line
   end
 end
 
-function M._on_buf_delete(bufnr)
+local function on_buf_delete(bufnr)
   if is_search_buf(bufnr) then
     reset_search(bufnr)
     M.buffers[bufnr] = nil
   end
 end
 
-function M._on_buf_enter(bufnr)
+local function on_buf_enter(bufnr)
   if is_search_buf(bufnr) then
-    M.buffers[bufnr].is_editing = true
+    local info = get_search_info(bufnr)
+    info.is_editing = true
 
     local winid = api.nvim_get_current_win()
 
@@ -333,9 +263,10 @@ function M._on_buf_enter(bufnr)
   end
 end
 
-function M._on_buf_leave(bufnr)
+local function on_buf_leave(bufnr)
   if is_search_buf(bufnr) then
-    M.buffers[bufnr].is_editing = false
+    local info = get_search_info(bufnr)
+    info.is_editing = false
 
     local winid = api.nvim_get_current_win()
 
@@ -344,8 +275,8 @@ function M._on_buf_leave(bufnr)
   end
 end
 
-function M._on_buf_write(bufnr)
-  local info = M.buffers[bufnr]
+local function on_buf_write(bufnr)
+  local info = get_search_info(bufnr)
 
   local change_keys = {}
 
@@ -395,8 +326,8 @@ function M._on_buf_write(bufnr)
   api.nvim_buf_set_option(bufnr, "modified", false)
 end
 
-function M._on_option_set(bufnr)
-  if M.buffers == nil or M.buffers[bufnr] == nil then
+local function on_option_set(bufnr)
+  if not is_search_buf(bufnr) then
     local winid = api.nvim_get_current_win()
 
     M.number_enabled = api.nvim_win_get_option(winid, "number")
@@ -404,16 +335,125 @@ function M._on_option_set(bufnr)
   end
 end
 
-function M._on_vim_leave()
+local function on_vim_leave()
   for bufnr, _ in pairs(M.buffers) do
     api.nvim_buf_delete(bufnr, { force = true })
   end
 end
 
--- Rendering --
+-- Initialization --
 
-local function render_status(bufnr)
-  local info = M.buffers[bufnr]
+local function register_global_events()
+  local group = api.nvim_create_augroup("search_on_vim_leave", { clear = true })
+  api.nvim_create_autocmd("VimLeavePre", {
+    group = group,
+    pattern = "*",
+    callback = on_vim_leave,
+  })
+end
+
+register_global_events()
+
+local function create_buffer_if_needed()
+  local bufnr = api.nvim_get_current_buf()
+
+  if not is_search_buf(bufnr) then
+    if #api.nvim_buf_get_name(bufnr) > 0 or
+        api.nvim_buf_line_count(bufnr) > 0 then
+      api.nvim_command[[tabe]]
+
+      return api.nvim_get_current_buf()
+    end
+
+    return bufnr
+  end
+end
+
+local function show_current_result()
+  local bufnr = api.nvim_get_current_buf()
+  local pos = api.nvim_win_get_cursor(0)
+  local result = results_at(bufnr, pos[1] - 1)[1]
+  local row = tonumber(result.line_number)
+  local col = pos[2]
+
+  api.nvim_command("edit "..result.file_name)
+  api.nvim_win_set_cursor(0, { row, col })
+end
+
+local function get_buffer()
+  local bufnr = create_buffer_if_needed()
+
+  if bufnr ~= nil then
+    local winid = api.nvim_get_current_win()
+
+    -- options
+    api.nvim_buf_set_name(bufnr, "search")
+    api.nvim_buf_set_option(bufnr, "filetype", "search")
+    api.nvim_buf_set_option(bufnr, "swapfile", false)
+    api.nvim_win_set_option(winid, "number", false)
+    api.nvim_win_set_option(winid, "signcolumn", "auto:9")
+
+    -- keybindings
+    api.nvim_buf_set_keymap(bufnr, "n", "<Enter>", [[]], {
+      callback = show_current_result,
+      noremap = true,
+    })
+
+    -- autocommands
+    local group = api.nvim_create_augroup(string.format("search_%d_on_event", bufnr), { clear = true })
+    api.nvim_create_autocmd("BufDelete", {
+      group = group,
+      buffer = bufnr,
+      callback = function()
+        on_buf_delete(bufnr)
+      end,
+    })
+    api.nvim_create_autocmd("BufEnter", {
+      group = group,
+      buffer = bufnr,
+      callback = function()
+        on_buf_enter(bufnr)
+      end,
+    })
+    api.nvim_create_autocmd("BufLeave", {
+      group = group,
+      buffer = bufnr,
+      callback = function()
+        on_buf_leave(bufnr)
+      end,
+    })
+    api.nvim_create_autocmd("BufWriteCmd", {
+      group = group,
+      buffer = bufnr,
+      callback = function()
+        on_buf_write(bufnr)
+      end,
+    })
+    api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+      group = group,
+      buffer = bufnr,
+      callback = function()
+        on_cursor_moved(bufnr)
+      end,
+    })
+    api.nvim_create_autocmd("OptionSet", {
+      group = group,
+      pattern = { "number", "signcolumn" },
+      callback = function(_, _, _, _, bufnr)
+        on_option_set(bufnr)
+      end,
+    })
+
+    return bufnr
+  end
+
+  return api.nvim_get_current_buf()
+end
+
+-- Search results --
+
+local function render_title(bufnr)
+  local info = get_search_info(bufnr)
 
   local total_file_count = vim.tbl_count(info.file_table)
   local total_line_count = #info.line_array
@@ -430,7 +470,7 @@ local function render_status(bufnr)
 end
 
 local function render_file_name(bufnr, line, file_name)
-  local info = M.buffers[bufnr]
+  local info = get_search_info(bufnr)
 
   local namespace = api.nvim_create_namespace(info.namespace.."-"..file_name)
 
@@ -446,8 +486,10 @@ local function render_file_name(bufnr, line, file_name)
       virt_lines_leftcol = true,
     })
 
-    if line == 0 then
-      api.nvim_command[[exec "normal! 2\<C-y>"]]
+    local scrolloff = api.nvim_get_option("scrolloff")
+
+    if line <= scrolloff then
+      vim.fn.winrestview({ topfill = 2 + scrolloff })
     end
   end
 end
@@ -484,7 +526,7 @@ local function render_line_number_sign(bufnr, line, group, label)
 end
 
 local function render_line_number(bufnr, line, file_name, line_number)
-  local info = M.buffers[bufnr]
+  local info = get_search_info(bufnr)
 
   local group = get_sign_group(info.namespace, file_name, line_number)
   local label = get_line_number_label(line_number, math.max(0, info.line_number_width - #line_number))
@@ -505,7 +547,7 @@ local function render_line_number(bufnr, line, file_name, line_number)
 end
 
 local function render_result(bufnr, line, result)
-  local info = M.buffers[bufnr]
+  local info = get_search_info(bufnr)
 
   if result.is_first_col then
     render_line_text(bufnr, line, result.line_text)
@@ -530,10 +572,10 @@ local function render_result(bufnr, line, result)
   end
 end
 
--- Change tracking --
+-- Text replacement --
 
 local function save_modification(bufnr, line)
-  local info = M.buffers[bufnr]
+  local info = get_search_info(bufnr)
   local text = api.nvim_buf_get_lines(bufnr, line, line + 1, {})[1]
   local result = results_at(bufnr, line)[1]
 
@@ -549,7 +591,7 @@ local function save_modification(bufnr, line)
 end
 
 local function watch_modifications(bufnr)
-  local info = M.buffers[bufnr]
+  local info = get_search_info(bufnr)
 
   api.nvim_buf_attach(bufnr, false, {
 	  on_bytes = vim.schedule_wrap(function(
@@ -557,7 +599,7 @@ local function watch_modifications(bufnr)
         first_line, first_line_col, buffer_offset,
         line_offset, last_line_col, change_len,
         new_line_offset, new_last_line_col, new_change_len)
-      if not is_current_search(info) then
+      if not is_current_search(bufnr, info.search_id) then
         return true
       end
 
@@ -661,10 +703,17 @@ local function watch_modifications(bufnr)
   })
 end
 
--- Interface --
+-- API --
+
+local function clear_buffer_undo(bufnr)
+  local undo_levels = api.nvim_buf_get_option(bufnr, "undolevels")
+  api.nvim_buf_set_option(bufnr, "undolevels", -1)
+  api.nvim_command[[exec "normal! a \<BS>\<Esc>"]]
+  api.nvim_buf_set_option(bufnr, "undolevels", undo_levels)
+end
 
 local function finish_search(bufnr)
-  local info = M.buffers[bufnr]
+  local info = get_search_info(bufnr)
 
   local start_line = api.nvim_buf_line_count(bufnr)
   local end_line = #info.result_array - 1
@@ -675,9 +724,8 @@ local function finish_search(bufnr)
     end
   end
 
-  api.nvim_buf_set_option(bufnr, "undolevels", -1)
-  api.nvim_command[[exec "normal! i \<BS>\<Esc>"]]
-  api.nvim_buf_set_option(bufnr, "undolevels", 1000)
+  clear_buffer_undo(bufnr)
+
   api.nvim_buf_set_option(bufnr, "modified", false)
   api.nvim_buf_set_option(bufnr, "buftype", "acwrite")
 
@@ -703,20 +751,38 @@ local function finish_search(bufnr)
 end
 
 local function enable_live_search()
-  api.nvim_command[[augroup search_prompt_watcher]]
-  api.nvim_command[[autocmd!]]
-  api.nvim_command[[autocmd CmdlineChanged * lua require"search"._on_prompt_input()]]
-  api.nvim_command[[augroup end]]
+  local group = api.nvim_create_augroup("search_on_cmdline_changed", { clear = true })
+  api.nvim_create_autocmd("CmdlineChanged", {
+    group = group,
+    pattern = "*",
+    callback = on_cmdline_changed,
+  })
+
+  init_modes()
+
+  vim.fn.inputsave()
 end
 
 local function disable_live_search()
-  api.nvim_command[[autocmd! search_prompt_watcher]]
+  vim.fn.inputrestore()
+
+  reset_modes()
+
+  api.nvim_del_augroup_by_name("search_on_cmdline_changed")
+end
+
+function get_last_search(search_term, search_args)
+  local bufnr = api.nvim_get_current_buf()
+  local info = M.buffers and M.buffers[bufnr]
+
+  if info ~= nil then
+    return info.search_term or search_term, info.search_args or search_args
+  end
+  return search_term, search_args
 end
 
 function M.prompt(search_args, search_term)
   local winid = api.nvim_get_current_win()
-
-  M.search_args = M.search_args or search_args or [[]]
 
   -- save options so we can restore them
   M.hlsearch_enabled = api.nvim_get_option("hlsearch")
@@ -725,29 +791,42 @@ function M.prompt(search_args, search_term)
 
   api.nvim_set_option("hlsearch", false)
 
-  enable_live_search()
-
-  local bufnr = api.nvim_get_current_buf()
-  local info = M.buffers and M.buffers[bufnr]
-
-  if info ~= nil then
-    api.nvim_command[[bwipeout]]
-  end
-
-  vim.fn.inputsave()
-
   local tab_mapping = vim.fn.maparg("<Tab>", "c", 0, 1)
 
   if tab_mapping.buffer == 0 then
     api.nvim_del_keymap("c", "<Tab>")
   end
 
-  api.nvim_set_keymap("c", "<Tab>", [[<cmd>lua require"search".prompt_args()<CR>]], { noremap = true })
+  api.nvim_set_keymap("c", "<Tab>", [[]], { callback = cycle_mode, noremap = true })
 
-  search_term = vim.fn.input {
-    default = search_term or (info and info.search_term),
-    prompt = '   ',
-  }
+  enable_live_search()
+
+  local search_term, search_args = get_last_search(search_term, search_args)
+
+  local search_input = search_term
+
+  while true do
+    local mode_id, mode_icon = get_mode()
+
+    search_input = vim.fn.input {
+      default = search_input,
+      prompt = string.format(" %s ", mode_icon),
+    }
+
+    if not pop_mode_change() then
+      break
+    end
+
+    mode_id, mode_icon = get_mode()
+
+    if mode_id == 0 then
+      search_input, search_args = get_last_search(search_term, search_args)
+    else
+      search_term, search_input = get_last_search(search_term, search_args)
+    end
+  end
+
+  disable_live_search()
 
   api.nvim_del_keymap("c", "<Tab>")
 
@@ -762,86 +841,105 @@ function M.prompt(search_args, search_term)
     })
   end
 
-  vim.fn.inputrestore()
+  local bufnr = api.nvim_get_current_buf()
 
-  disable_live_search()
-
-  bufnr = api.nvim_get_current_buf()
-  info = M.buffers and M.buffers[bufnr]
-
-  if info ~= nil then
-    if #search_term == 0 then
-      api.nvim_command[[bwipeout]]
+  if is_search_buf(bufnr) then
+    if #search_input == 0 then
+      api.nvim_buf_delete(bufnr, { force = true })
       api.nvim_set_option("hlsearch", M.hlsearch_enabled)
     else
+      local info = get_search_info(bufnr)
+
       if not info.is_searching then
-        finish_search(api.nvim_get_current_buf())
+        finish_search(bufnr)
       end
     end
   end
 end
 
-function M.prompt_args()
-  disable_live_search()
+local function parse_result(result_line)
+  local format = vim.o.grepformat
 
-  vim.fn.inputsave()
+  local part_index = {}
+  local i = 0
+  local pattern = string.gsub(format, "%%(%a)", function(s)
+    -- convert grepformat format token to regex
+    part_index[s] = i
+    i = i + 1
+    return ({
+      f = "(.+)",
+      l = "(%d+)",
+      c = "(%d+)",
+      m = "(.+)",
+    })[s]
+  end)
 
-  local tab_mapping = vim.fn.maparg("<Tab>", "c", 0, 1)
+  local part_array = {select(3, string.find(result_line, pattern))}
 
-  if tab_mapping.buffer == 0 then
-    api.nvim_del_keymap("c", "<Tab>")
+  local parsed_result = {}
+
+  for s, i in pairs(part_index) do
+    local key = ({
+      f = "file_name",
+      l = "line_number",
+      c = "col_number",
+      m = "line_text",
+    })[s]
+
+    parsed_result[key] = part_array[i + 1]
   end
 
-  api.nvim_set_keymap("c", "<Tab>", [[<Enter>]], { noremap = true })
+  return parsed_result
+end
 
-  M.search_args = vim.fn.input {
-    cancelreturn = M.search_args,
-    default = M.search_args,
-    prompt = '  ',
+local function push_result(bufnr, line, result)
+  local info = get_search_info(bufnr)
+
+  result.is_first_line = false
+  result.is_first_col = false
+
+  local file_info = info.file_table[result.file_name]
+  if file_info == nil then
+    line = line + 1
+
+    info.file_table[result.file_name] = {
+      [result.line_number] = line + 1,
+    }
+
+    result.is_first_line = true
+    result.is_first_col = true
+  elseif file_info[result.line_number] == nil then
+    line = line + 1
+
+    file_info[result.line_number] = line + 1
+
+    result.is_first_col = true
+  end
+
+  local results = info.result_array[line + 1]
+  if results == nil then
+    info.result_array[line + 1] = { result }
+  else
+    table.insert(results, result)
+  end
+
+  info.line_array[line + 1] = {
+    file_name = result.file_name,
+    line_number = result.line_number,
   }
 
-  api.nvim_del_keymap("c", "<Tab>")
-
-  if tab_mapping.buffer == 0 then
-    api.nvim_set_keymap("c", "<Tab>", tab_mapping.rhs, {
-      expr = tab_mapping.expr,
-      noremap = tab_mapping.noremap,
-      nowait = tab_mapping.nowait,
-      silent = tab_mapping.silent,
-      script = tab_mapping.script,
-      unique = tab_mapping.unique,
-    })
-  end
-
-  vim.fn.inputrestore()
-
-  local bufnr = api.nvim_get_current_buf()
-
-  if is_search_buf(bufnr) then
-    M.run(M.buffers[bufnr].search_term, M.search_args)
-  end
-
-  enable_live_search()
+  return line
 end
 
-function M.show_current_result()
-  local bufnr = api.nvim_get_current_buf()
-  local pos = api.nvim_win_get_cursor(0)
-  local result = results_at(bufnr, pos[1] - 1)[1]
-  local row = tonumber(result.line_number)
-  local col = pos[2]
-
-  api.nvim_command("edit "..result.file_name)
-  api.nvim_win_set_cursor(0, { row, col })
-end
-
--- Runner --
-
-function M.run(search_term, search_args)
+function M.run(search_args, search_term)
   local bufnr = get_buffer()
   local info = reset_search(bufnr, search_term, search_args)
 
-  render_status(bufnr)
+  if info.search_term == nil or #info.search_term == 0 then
+    return
+  end
+
+  render_title(bufnr)
 
   local winid = api.nvim_get_current_win()
 
@@ -856,7 +954,7 @@ function M.run(search_term, search_args)
     enable_recording = false,
     interactive = false,
     on_stdout = vim.schedule_wrap(function(_, result_line)
-      if is_current_search(info) then
+      if is_current_search(bufnr, info.search_id) then
         local result = parse_result(result_line)
 
         local next_line = push_result(bufnr, line, result)
@@ -871,15 +969,13 @@ function M.run(search_term, search_args)
           render_result(bufnr, line, result)
         end
 
-        render_status(bufnr)
-
         if has_next_line and res_height <= win_height + 1 then
           api.nvim_command[[redraw]]
         end
       end
     end),
     on_exit = vim.schedule_wrap(function()
-      if is_current_search(info) then
+      if is_current_search(bufnr, info.search_id) then
         if info.is_editing then
           finish_search(bufnr)
         end
