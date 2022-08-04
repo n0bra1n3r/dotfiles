@@ -85,143 +85,11 @@ end
 
 -- shell --
 
-local is_git_dir = false
-local git_branch = nil
-local has_git_remote = false
-local git_local_change_count = 0
-local git_remote_change_count = 0
-
-function _G.fn.refresh_git_change_info()
-  if is_git_dir then
-    git_local_change_count = tonumber(vim.fn.system(string.format("git rev-list --right-only --count %s@{upstream}...%s", git_branch, git_branch)))
-    git_remote_change_count = tonumber(vim.fn.system(string.format("git rev-list --left-only --count %s@{upstream}...%s", git_branch, git_branch)))
-  end
-end
-
-function _G.fn.refresh_git_info()
-  vim.fn.system[[git rev-parse --is-inside-work-tree]]
-  is_git_dir = vim.v.shell_error == 0
-
-  if is_git_dir then
-    git_branch = vim.fn.system[[git branch --show-current]]:match[[(.-)%s*$]]
-
-    vim.fn.system("git show-branch remotes/origin/"..git_branch)
-    has_git_remote = vim.v.shell_error == 0
-  end
-
-  fn.refresh_git_change_info()
-end
-
-function _G.fn.is_git_dir()
-  return is_git_dir
-end
-
-function _G.fn.get_git_branch()
-  return git_branch
-end
-
-function _G.fn.has_git_remote()
-  return has_git_remote
-end
-
-function _G.fn.git_local_change_count()
-  return git_local_change_count
-end
-
-function _G.fn.git_remote_change_count()
-  return git_remote_change_count
-end
-
-function _G.fn.get_project_dir()
-  local folder = vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.")
-
-  if not fn.is_git_dir() then
-    return folder
-  end
-
-  local branch = fn.get_git_branch()
-
-  local branch_path = branch
-  local folder_path = folder
-
-  while true do
-    local branch_part = vim.fn.fnamemodify(branch_path, ":t")
-    local folder_part = vim.fn.fnamemodify(folder_path, ":t")
-
-    if folder_part ~= branch_part then
-      return folder
-    end
-
-    branch_path = vim.fn.fnamemodify(branch_path, ":h")
-    folder_path = vim.fn.fnamemodify(folder_path, ":h")
-
-    if branch_path == "." then
-      return folder_path
-    end
-  end
-end
-
 function _G.fn.save_dot_files()
   vim.cmd[[AsyncRun -strip chezmoi apply --exclude=scripts --force --source-path "%"]]
 end
 
-function _G.fn.delete_file()
-  vim.fn.delete(vim.fn.expand('%:p'))
-  vim.cmd[[Bdelete!]]
-end
-
-function _G.fn.open_file()
-  local rel_dir = vim.fn.expand("%:h").."/"
-  local path = vim.fn.input("open path: ", rel_dir, "dir")
-
-  if #path == 0 or
-      path == rel_dir or
-      path.."/" == rel_dir then
-    return
-  end
-
-  rel_dir = vim.fn.fnamemodify(path, ":h")
-  if #vim.fn.glob(rel_dir) == 0 then
-    vim.cmd(string.format("!bash -c 'mkdir -p \"%s\"'", rel_dir))
-  end
-  vim.cmd(string.format("edit %s", path))
-end
-
-function _G.fn.move_file()
-  local rel_file = vim.fn.expand("%")
-  local path = vim.fn.input("move path: ", rel_file, "file")
-
-  if #path == 0 or
-      path == rel_file then
-    return
-  end
-
-  local rel_dir = vim.fn.fnamemodify(path, ":h")
-  if #vim.fn.glob(rel_dir) == 0 then
-    vim.cmd(string.format("!bash -c 'mkdir -p \"%s\"'", rel_dir))
-  end
-  vim.cmd(string.format("saveas %s | call delete(expand('#')) | bwipeout #", path))
-end
-
 -- nvim --
-
-function _G.fn.get_map_expr(key)
-  return string.format("v:count || mode(1)[0:1] == 'no' ? '%s' : 'g%s'", key, key)
-end
-
-function _G.fn.vim_defer(fn, timer)
-  return function()
-    if fn ~= nil then
-      if type(fn) == "function" then
-        vim.defer_fn(fn, timer or 0)
-      else
-        vim.defer_fn(function()
-          vim.cmd(fn)
-        end, timer or 0)
-      end
-    end
-  end
-end
 
 function _G.fn.open_quickfix()
   local cur_win = vim.fn.winnr()
@@ -395,65 +263,7 @@ function _G.fn.set_is_job_in_progress(value)
   vim.cmd[[redrawtabline]]
 end
 
--- packer --
-
-function _G.fn.get_config(module)
-  return "require'configs."..module.."'.config()"
-end
-
-function _G.fn.get_setup(module)
-  return "require'configs."..module.."'.setup()"
-end
-
-function _G.fn.lazy_load(plugin, timer)
-  return function()
-    fn.vim_defer(function()
-      require"packer".loader(plugin)
-    end, timer)
-  end
-end
-
-function _G.fn.define_use(packer_use)
-  return function(opts)
-    local plugin = opts[1]
-    local config = vim.fn.fnamemodify(plugin, ":t:r")
-
-    local hasConfig, module = pcall(require, "configs."..config)
-    if hasConfig then
-      if module.setup ~= nil and opts.setup == nil then
-        opts.setup = fn.get_setup(config)
-      end
-      if module.config ~= nil and opts.config == nil then
-        opts.config = fn.get_config(config)
-      end
-    end
-
-    return packer_use(opts)
-  end
-end
-
 -- floaterm --
-
-function _G.fn.open_file_tree()
-  if vim.fn["floaterm#terminal#get_bufnr"]("files") == -1 then
-    local bufnr = vim.fn["floaterm#new"](0,
-      "br",
-      { [''] = '' },
-      {
-        silent = 1,
-        name = "files",
-        title = "files",
-        height = math.ceil(vim.o.lines) - 2,
-        width = math.ceil(vim.o.columns * 0.3),
-        position = "topright",
-      })
-    vim.api.nvim_create_autocmd("TermLeave", {
-      buffer = bufnr,
-      command = "FloatermHide files",
-    })
-  end
-  vim.cmd[[FloatermShow files]]
-end
 
 function _G.fn.open_shell(command)
   vim.fn["floaterm#new"](0,
@@ -519,18 +329,6 @@ function _G.fn.run_command(command)
   if fn.open_run_shell() then
     send_to_floaterm("run_shell", string.format("\x1b[F\x1b[1;5H%s\r", command))
     vim.cmd(string.format("stopinsert | exec 'normal G' | %dwincmd w", vim.fn.winnr()))
-  end
-end
-
--- Telescope --
-
-function _G.fn.find_files(opts)
-  opts = opts or {}
-  if fn.is_git_dir() then
-    opts = vim.tbl_extend("keep", opts, { show_untracked = true })
-    require"telescope.builtin".git_files(opts)
-  else
-    require"telescope.builtin".find_files(opts)
   end
 end
 

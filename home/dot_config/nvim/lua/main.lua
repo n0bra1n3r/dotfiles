@@ -1,5 +1,7 @@
 require "functions"
 
+_G.fn = vim.tbl_extend("keep", _G.fn, require "functions.init")
+
 -- Options --
 
 vim.g.mapleader = " "

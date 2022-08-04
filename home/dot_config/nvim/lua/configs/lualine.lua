@@ -67,7 +67,7 @@ function M.config()
       lualine_a = {
         {
           function()
-            return string.format("%s %s", project_state{ job = '', default = '' }, fn.get_project_dir())
+            return string.format("%s %s", project_state{ job = '', default = '' }, fn.get_workspace_dir())
           end,
           color = function()
             return project_state {
