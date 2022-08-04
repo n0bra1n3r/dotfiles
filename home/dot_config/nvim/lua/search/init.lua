@@ -837,7 +837,6 @@ function M.prompt(search_args, search_term)
       nowait = tab_mapping.nowait,
       silent = tab_mapping.silent,
       script = tab_mapping.script,
-      unique = tab_mapping.unique,
     })
   end
 
