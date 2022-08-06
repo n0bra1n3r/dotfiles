@@ -199,9 +199,16 @@ local function pop_mode_change()
   return nil
 end
 
--- Event callbacks --
+-- Input --
 
-local function on_cmdline_changed()
+local function clear_input_timer()
+  if M.input_timer ~= nil then
+    M.input_timer:close()
+    M.input_timer = nil
+  end
+end
+
+local function process_search_input()
   local input = vim.fn.getcmdline()
 
   if #input > 0 then
@@ -218,6 +225,18 @@ local function on_cmdline_changed()
       api.nvim_command[[redraw]]
     end
   end
+end
+
+-- Event callbacks --
+
+local function on_cmdline_changed()
+  clear_input_timer()
+
+  M.input_timer = vim.loop.new_timer()
+  M.input_timer:start(100, 0, vim.schedule_wrap(function()
+    process_search_input()
+    clear_input_timer()
+  end))
 end
 
 local function on_cursor_moved(bufnr)
@@ -253,6 +272,7 @@ end
 
 local function on_buf_delete(bufnr)
   if is_search_buf(bufnr) then
+    clear_input_timer()
     reset_search(bufnr)
     M.buffers[bufnr] = nil
   end
@@ -749,6 +769,9 @@ local function finish_search(bufnr)
     api.nvim_command[[redraw]]
   end
 
+  clear_input_timer()
+  process_search_input()
+
   watch_modifications(bufnr)
 end
 
@@ -869,6 +892,7 @@ function M.prompt(search_args, search_term)
     if #search_input == 0 then
       api.nvim_buf_delete(bufnr, { force = true })
       api.nvim_set_option("hlsearch", M.hlsearch_enabled)
+      api.nvim_command[[redraw]]
     else
       local info = get_search_info(bufnr)
 
@@ -877,8 +901,6 @@ function M.prompt(search_args, search_term)
       end
     end
   end
-
-  api.nvim_command[[redraw]]
 end
 
 local function parse_result(result_line)
