@@ -210,6 +210,13 @@ local function on_cmdline_changed()
     elseif M.mode_id == 1 then
       M.run(input, nil)
     end
+  else
+    local bufnr = api.nvim_get_current_buf()
+
+    if is_search_buf(bufnr) then
+      api.nvim_buf_delete(bufnr, { force = true })
+      api.nvim_command[[redraw]]
+    end
   end
 end
 
@@ -455,18 +462,13 @@ end
 local function render_title(bufnr)
   local info = get_search_info(bufnr)
 
-  local total_file_count = vim.tbl_count(info.file_table)
-  local total_line_count = #info.line_array
-
   local status_string = string.format(
-    "<%s> %dl:%df",
-    info.search_term,
-    total_line_count,
-    total_file_count)
+    "Search <%s>",
+    info.search_term)
 
   api.nvim_buf_set_name(bufnr, status_string)
 
-  api.nvim_command[[redrawstatus]]
+  api.nvim_command[[redraw]]
 end
 
 local function render_file_name(bufnr, line, file_name)
@@ -771,7 +773,42 @@ local function disable_live_search()
   api.nvim_del_augroup_by_name("search_on_cmdline_changed")
 end
 
-function get_last_search(search_term, search_args)
+local function search_entry_add_mapping(lhs, callback, expr)
+  local mapping = vim.fn.maparg(lhs, "c", 0, 1)
+
+  mapping.lhs = lhs
+
+  if mapping.rhs ~= nil then
+    api.nvim_del_keymap("c", lhs)
+  end
+
+  api.nvim_set_keymap("c", lhs, [[]], { callback = callback, noremap = true, expr = expr })
+
+  return mapping
+end
+
+local function search_entry_del_mapping(mapping)
+  api.nvim_del_keymap("c", mapping.lhs)
+
+  if mapping.rhs ~= nil then
+    api.nvim_set_keymap("c", mapping.lhs, mapping.rhs, {
+      expr = mapping.expr,
+      noremap = mapping.noremap,
+      nowait = mapping.nowait,
+      silent = mapping.silent,
+      script = mapping.script,
+    })
+  end
+end
+
+local function dismiss_if_needed()
+  if #vim.fn.getcmdline() == 0 then
+    api.nvim_input("<Esc>")
+  end
+  return api.nvim_replace_termcodes("<Backspace>", true, true, true)
+end
+
+local function get_last_search(search_term, search_args)
   local bufnr = api.nvim_get_current_buf()
   local info = M.buffers and M.buffers[bufnr]
 
@@ -791,13 +828,8 @@ function M.prompt(search_args, search_term)
 
   api.nvim_set_option("hlsearch", false)
 
-  local tab_mapping = vim.fn.maparg("<Tab>", "c", 0, 1)
-
-  if tab_mapping.buffer == 0 then
-    api.nvim_del_keymap("c", "<Tab>")
-  end
-
-  api.nvim_set_keymap("c", "<Tab>", [[]], { callback = cycle_mode, noremap = true })
+  local tab_mapping = search_entry_add_mapping("<Tab>", cycle_mode)
+  local bs_mapping = search_entry_add_mapping("<Backspace>", dismiss_if_needed, true)
 
   enable_live_search()
 
@@ -828,17 +860,8 @@ function M.prompt(search_args, search_term)
 
   disable_live_search()
 
-  api.nvim_del_keymap("c", "<Tab>")
-
-  if tab_mapping.buffer == 0 then
-    api.nvim_set_keymap("c", "<Tab>", tab_mapping.rhs, {
-      expr = tab_mapping.expr,
-      noremap = tab_mapping.noremap,
-      nowait = tab_mapping.nowait,
-      silent = tab_mapping.silent,
-      script = tab_mapping.script,
-    })
-  end
+  search_entry_del_mapping(bs_mapping)
+  search_entry_del_mapping(tab_mapping)
 
   local bufnr = api.nvim_get_current_buf()
 
@@ -854,6 +877,8 @@ function M.prompt(search_args, search_term)
       end
     end
   end
+
+  api.nvim_command[[redraw]]
 end
 
 local function parse_result(result_line)
@@ -934,11 +959,11 @@ function M.run(search_args, search_term)
   local bufnr = get_buffer()
   local info = reset_search(bufnr, search_term, search_args)
 
-  if info.search_term == nil or #info.search_term == 0 then
+  render_title(bufnr)
+
+  if info.search_term == nil then
     return
   end
-
-  render_title(bufnr)
 
   local winid = api.nvim_get_current_win()
 
