@@ -365,24 +365,11 @@ local function on_option_set(bufnr)
   end
 end
 
-local function on_vim_leave()
-  for bufnr, _ in pairs(M.buffers) do
-    api.nvim_buf_delete(bufnr, { force = true })
-  end
+local function on_exit(bufnr)
+  api.nvim_buf_delete(bufnr, { force = false })
 end
 
 -- Initialization --
-
-local function set_global_options()
-  local group = api.nvim_create_augroup("search_on_vim_leave", { clear = true })
-  api.nvim_create_autocmd("VimLeavePre", {
-    group = group,
-    pattern = "*",
-    callback = on_vim_leave,
-  })
-end
-
-set_global_options()
 
 local function create_buffer_if_needed()
   local bufnr = api.nvim_get_current_buf()
@@ -435,6 +422,7 @@ local function get_buffer()
       group = group,
       buffer = bufnr,
       callback = function()
+        api.nvim_del_augroup_by_name(string.format("search_%d_on_event", bufnr))
         on_buf_delete(bufnr)
       end,
     })
@@ -469,8 +457,15 @@ local function get_buffer()
     api.nvim_create_autocmd("OptionSet", {
       group = group,
       pattern = { "number", "signcolumn" },
-      callback = function(_, _, _, _, bufnr)
-        on_option_set(bufnr)
+      callback = function(args)
+        on_option_set(args.buf)
+      end,
+    })
+    api.nvim_create_autocmd("ExitPre", {
+      group = group,
+      pattern = "*",
+      callback = function()
+        on_exit(bufnr)
       end,
     })
 
