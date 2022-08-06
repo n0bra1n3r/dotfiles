@@ -1017,6 +1017,7 @@ function M.run(search_args, search_term)
   info.is_searching = true
 
   local line = -1
+  local redraw_threshold = -1
 
   info.job = job:new {
     command = info.cmd,
@@ -1038,11 +1039,14 @@ function M.run(search_args, search_term)
 
         if res_height <= win_height then
           render_result(bufnr, line, result)
-          render_stats(bufnr)
         end
 
-        if has_next_line and res_height <= win_height + 1 then
+        if line > redraw_threshold then
+          render_stats(bufnr)
+
           api.nvim_command[[redraw]]
+
+          redraw_threshold = line + line / 3
         end
       end
     end),
