@@ -417,7 +417,7 @@ local function get_buffer()
     local winid = api.nvim_get_current_win()
 
     -- options
-    api.nvim_buf_set_name(bufnr, "search")
+    api.nvim_buf_set_name(bufnr, string.format(" Search #%d", vim.tbl_count(M.buffers or {}) + 1))
     api.nvim_buf_set_option(bufnr, "filetype", "search")
     api.nvim_buf_set_option(bufnr, "swapfile", false)
     api.nvim_win_set_option(winid, "number", false)
@@ -481,18 +481,6 @@ local function get_buffer()
 end
 
 -- Search results --
-
-local function render_title(bufnr)
-  local info = get_search_info(bufnr)
-
-  local status_string = string.format(
-    "Search <%s>",
-    info.search_term)
-
-  api.nvim_buf_set_name(bufnr, status_string)
-
-  api.nvim_command[[redraw]]
-end
 
 local function render_file_name(bufnr, line, file_name)
   local info = get_search_info(bufnr)
@@ -1019,8 +1007,6 @@ end
 function M.run(search_args, search_term)
   local bufnr = get_buffer()
   local info = reset_search(bufnr, search_term, search_args)
-
-  render_title(bufnr)
 
   if info.search_term == nil then
     return
