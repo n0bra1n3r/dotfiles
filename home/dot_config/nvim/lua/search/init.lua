@@ -217,14 +217,9 @@ local function process_search_input()
     elseif M.mode_id == 1 then
       M.run(input, nil)
     end
-  else
-    local bufnr = api.nvim_get_current_buf()
-
-    if is_search_buf(bufnr) then
-      api.nvim_buf_delete(bufnr, { force = true })
-      api.nvim_command[[redraw]]
-    end
   end
+
+  return input
 end
 
 -- Event callbacks --
@@ -234,8 +229,16 @@ local function on_cmdline_changed()
 
   M.input_timer = vim.loop.new_timer()
   M.input_timer:start(100, 0, vim.schedule_wrap(function()
-    process_search_input()
     clear_input_timer()
+
+    if #process_search_input() == 0 then
+      local bufnr = api.nvim_get_current_buf()
+
+      if is_search_buf(bufnr) then
+        api.nvim_buf_delete(bufnr, { force = true })
+        api.nvim_command[[redraw]]
+      end
+    end
   end))
 end
 
