@@ -266,7 +266,7 @@ local function on_cursor_moved(bufnr)
 
     if info.cursor_line > line and line <= scrolloff then
       -- TODO: Remove this hack when https://github.com/neovim/neovim/issues/16166 is merged
-      vim.fn.winrestview({ topfill = 2 + scrolloff })
+      vim.fn.winrestview({ topfill = 3 + scrolloff })
     end
 
     info.cursor_line = line
@@ -373,7 +373,7 @@ end
 
 -- Initialization --
 
-local function register_global_events()
+local function set_global_options()
   local group = api.nvim_create_augroup("search_on_vim_leave", { clear = true })
   api.nvim_create_autocmd("VimLeavePre", {
     group = group,
@@ -382,7 +382,7 @@ local function register_global_events()
   })
 end
 
-register_global_events()
+set_global_options()
 
 local function create_buffer_if_needed()
   local bufnr = api.nvim_get_current_buf()
@@ -514,7 +514,7 @@ local function render_file_name(bufnr, line, file_name)
     local scrolloff = api.nvim_get_option("scrolloff")
 
     if line <= scrolloff then
-      vim.fn.winrestview({ topfill = 2 + scrolloff })
+      vim.fn.winrestview({ topfill = 3 + scrolloff })
     end
   end
 end
@@ -595,6 +595,41 @@ local function render_result(bufnr, line, result)
   if result.is_first_line then
     render_file_name(bufnr, line, result.file_name)
   end
+end
+
+local function render_stats(bufnr)
+  local info = get_search_info(bufnr)
+  local line_info = info.line_array[info.cursor_line + 1]
+
+  local namespace = api.nvim_create_namespace(info.namespace.."-"..line_info.file_name)
+  local header = api.nvim_buf_get_extmark_by_id(bufnr, namespace, 1, { details = true })[3]
+
+  local total_file_count = vim.tbl_count(info.file_table)
+  local total_line_count = #info.line_array
+
+  local search_stats
+
+  if info.is_searching then 
+    search_stats = {{
+      string.format(" Found <%s> in %d lines in %d files... ", info.search_term, total_line_count, total_file_count),
+      "Substitute",
+    }}
+  else
+    search_stats = {{
+      string.format(" Found <%s> in %d lines in %d files. ", info.search_term, total_line_count, total_file_count),
+      "IncSearch",
+    }}
+  end
+
+  header.id = 1
+
+  if #header.virt_lines == 2 then
+    table.insert(header.virt_lines, 1, search_stats)
+  else
+    header.virt_lines[1] = search_stats
+  end
+
+  api.nvim_buf_set_extmark(bufnr, namespace, 0, 0, header)
 end
 
 -- Text replacement --
@@ -749,6 +784,8 @@ local function finish_search(bufnr)
     end
   end
 
+  render_stats(bufnr)
+
   clear_buffer_undo(bufnr)
 
   api.nvim_buf_set_option(bufnr, "modified", false)
@@ -769,7 +806,6 @@ local function finish_search(bufnr)
 
   if M.hlsearch_enabled then
     api.nvim_set_option("hlsearch", true)
-    api.nvim_command[[redraw]]
   end
 
   clear_input_timer()
@@ -1016,6 +1052,7 @@ function M.run(search_args, search_term)
 
         if res_height <= win_height then
           render_result(bufnr, line, result)
+          render_stats(bufnr)
         end
 
         if has_next_line and res_height <= win_height + 1 then
@@ -1024,15 +1061,17 @@ function M.run(search_args, search_term)
       end
     end),
     on_exit = vim.schedule_wrap(function()
+      info.is_searching = false
+
       if is_current_search(bufnr, info.search_id) then
         if info.is_editing then
           finish_search(bufnr)
+        else
+          render_stats(bufnr)
         end
 
         api.nvim_command[[redraw]]
       end
-
-      info.is_searching = false
     end),
   }
   info.job:start()
