@@ -281,7 +281,7 @@ local function on_buf_delete(bufnr)
   end
 end
 
-local function on_buf_enter(bufnr)
+local function on_buf_win_enter(bufnr)
   if is_search_buf(bufnr) then
     local info = get_search_info(bufnr)
     info.is_editing = true
@@ -293,7 +293,7 @@ local function on_buf_enter(bufnr)
   end
 end
 
-local function on_buf_leave(bufnr)
+local function on_buf_win_leave(bufnr)
   if is_search_buf(bufnr) then
     local info = get_search_info(bufnr)
     info.is_editing = false
@@ -426,18 +426,18 @@ local function get_buffer()
         on_buf_delete(bufnr)
       end,
     })
-    api.nvim_create_autocmd("BufEnter", {
+    api.nvim_create_autocmd("BufWinEnter", {
       group = group,
       buffer = bufnr,
       callback = function()
-        on_buf_enter(bufnr)
+        on_buf_win_enter(bufnr)
       end,
     })
-    api.nvim_create_autocmd("BufLeave", {
+    api.nvim_create_autocmd("BufWinLeave", {
       group = group,
       buffer = bufnr,
       callback = function()
-        on_buf_leave(bufnr)
+        on_buf_win_leave(bufnr)
       end,
     })
     api.nvim_create_autocmd("BufWriteCmd", {
