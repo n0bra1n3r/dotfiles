@@ -26,6 +26,7 @@ require"packer".startup(function(packer_use)
   use { "alaviss/nim.nvim", ft = "nim" }
 
   use { "kevinhwang91/nvim-bqf", ft = "qf" }
+  use { "https://gitlab.com/yorickpeterse/nvim-pqf.git", as = "nvim-pqf", after = "packer.nvim" }
 
   -- Motions --
 
