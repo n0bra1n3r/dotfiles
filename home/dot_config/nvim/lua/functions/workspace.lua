@@ -29,4 +29,9 @@ function M.get_workspace_dir()
   end
 end
 
+function M.switch_workspace(path)
+  vim.cmd[[FloatermKill!]]
+  vim.cmd("Prosession "..path)
+end
+
 return M

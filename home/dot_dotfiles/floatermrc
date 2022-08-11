@@ -1,3 +1,5 @@
 source ~/.bash_profile
 
-alias nvim='nvim --server ${VIM_SVRNAME:?"not a floaterm terminal"} --remote-tab'
+if [ ! -z "$VIM_SVRNAME" ]; then
+  alias nvim='nvim --server $VIM_SVRNAME --remote-tab'
+fi

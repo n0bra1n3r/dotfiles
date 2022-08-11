@@ -266,28 +266,26 @@ end
 -- floaterm --
 
 function _G.fn.open_shell(command)
-  vim.fn["floaterm#new"](0,
-    "bash --rcfile ~/.dotfiles/floatermrc",
-    { [''] = '' },
-    {
-      silent = 1,
-      name = "shell",
-      title = " shell [$1:$2]",
-      borderchars = "",
-      height = math.ceil(vim.o.lines * 0.3),
-      width = math.ceil(vim.o.columns),
-      position = "bottom",
-    })
-
-  function _G.fn.open_shell(command)
-    vim.cmd[[FloatermShow shell]]
-
-    if command ~= nil then
-      vim.cmd(string.format('set ssl | exec "FloatermSend --name=shell %s" | set nossl', command))
-    end
+  if vim.fn["floaterm#terminal#get_bufnr"]("shell") == -1 then
+    vim.fn["floaterm#new"](0,
+      "bash --rcfile ~/.dotfiles/floatermrc",
+      { [''] = '' },
+      {
+        silent = 1,
+        name = "shell",
+        title = " shell [$1:$2]",
+        borderchars = "",
+        height = math.ceil(vim.o.lines * 0.3),
+        width = math.ceil(vim.o.columns),
+        position = "bottom",
+      })
   end
 
-  fn.open_shell(command)
+  vim.cmd[[FloatermShow shell]]
+
+  if command ~= nil then
+    vim.cmd(string.format('set ssl | exec "FloatermSend --name=shell %s" | set nossl', command))
+  end
 end
 
 function _G.fn.open_run_shell()

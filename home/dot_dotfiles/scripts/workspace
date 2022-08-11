@@ -143,5 +143,13 @@ else
   git worktree repair
 fi
 
+if [ ! -z "$VIM_SVRNAME" ]; then
+  local CWD="$(pwd)"
+  if [ ! -z "$MSYSTEM" ]; then
+    CWD="$(cygpath --windows "$CWD")"
+  fi
+  nvim --server $VIM_SVRNAME --remote-send "<C-\><C-N>:lua fn.switch_workspace[[$CWD]]<CR>"
+fi
+
 unset -f push_workspace
 unset -f pop_workspace
