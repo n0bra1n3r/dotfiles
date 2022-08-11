@@ -40,7 +40,7 @@ return {
     ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up>$l':'<Left>'", expr = true },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
     ["<PageDown>"]      = { "L<Down>", noremap = false },
-    ["<Space><Space>"]  = { "<C-^>" },
+    ["<Space><Space>"]  = { "<C-^>", desc = "alternate buffer" },
     [";"]               = { "l" },
     gf                  = { function() fn.edit_file("edit", vim.fn.expand("<cfile>")) end },
     gm                  = { "m" },

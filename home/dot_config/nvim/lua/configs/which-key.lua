@@ -54,6 +54,8 @@ function M.config()
         s = { "<cmd>lua fn.open_run_shell()<CR>", "shell" },
         t = { "<cmd>lua fn.project_test()<CR>", "test" },
       },
+      P = { "paste unformatted before" },
+      p = { "paste unformatted after" },
       s = { "<cmd>lua require'search'.prompt()<CR>", "search string" },
       t = { "<cmd>lua fn.open_file_tree()<CR>", "file tree" },
       q = {
