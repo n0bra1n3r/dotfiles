@@ -18,4 +18,4 @@ function _workspace() {
   fi
 }
 
-compctl -K _workspace workspace
+compctl -K _workspace -V workspaces workspace
