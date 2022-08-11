@@ -13,6 +13,10 @@ local function pick_window(exclude)
   local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
 
   local selectable = vim.tbl_filter(function(id)
+    if id == vim.api.nvim_get_current_win() then
+      return false
+    end
+
     if exclude ~= nil then
       local bufid = vim.api.nvim_win_get_buf(id)
       for option, v in pairs(exclude) do
@@ -27,8 +31,13 @@ local function pick_window(exclude)
     return win_config.focusable and not win_config.external
   end, win_ids)
 
-  if #selectable == 0 then return -1 end
-  if #selectable == 1 then return selectable[1] end
+  if #selectable == 0 then
+    return -1
+  end
+
+  if #selectable == 1 then
+    return selectable[1]
+  end
 
   local chars = "asdfgtv;lkjhnyqwerpoiu"
 
@@ -49,18 +58,20 @@ local function pick_window(exclude)
     }
     win_map[char] = id
 
-    vim.cmd[[highlight WindowPicker guibg=NONE guifg=lightred gui=bold]]
-    vim.cmd[[highlight WindowPickerNC guibg=NONE guifg=lightred gui=italic]]
-
-    vim.api.nvim_win_set_option(id, "statusline", string.format("%%=%s%%=", char))
-    vim.api.nvim_win_set_option(id, "winhl", "StatusLine:WindowPicker,StatusLineNC:WindowPickerNC")
+    vim.api.nvim_win_set_option(id, "statusline", string.format("%%=易%s%%=", char))
+    vim.api.nvim_win_set_option(id, "winhl", "StatusLine:Identifier,StatusLineNC:Identifier")
 
     i = i + 1
-    if i > #chars then break end
+
+    if i > #chars then
+      break
+    end
   end
 
   vim.cmd[[redraw]]
+
   local resp = vim.fn.nr2char(vim.fn.getchar()):lower()
+
   for _, id in ipairs(selectable) do
     for opt, value in pairs(win_opts[id]) do
       vim.api.nvim_win_set_option(id, opt, value)
@@ -181,7 +192,11 @@ function _G.fn.edit_file(mode, path)
 end
 
 function _G.fn.choose_window()
-  vim.api.nvim_set_current_win(pick_window())
+  local picked = pick_window()
+
+  if picked ~= nil then
+    vim.api.nvim_set_current_win(picked)
+  end
 end
 
 function _G.fn.set_shell_title()
