@@ -31,7 +31,8 @@ function M.config()
 
   require"null-ls".setup {
     sources = {
-      nim_completion
+      --[[ We're using NimLSP for autocomplete ]]
+      --nim_completion
     },
   }
 end

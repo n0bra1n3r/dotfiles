@@ -9,6 +9,7 @@ end
 
 load_functions "file"
 load_functions "git"
+load_functions "lsp"
 load_functions "packerutils"
 load_functions "vimutils"
 load_functions "workspace"
