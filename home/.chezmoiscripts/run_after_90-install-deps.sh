@@ -4,4 +4,4 @@ set -e
 
 cp -rf ~/.dotfiles/deps/*/.local ~
 
-chmod 600 ~/.ssh/keys/*
+chmod 644 ~/.ssh/keys/*
