@@ -24,8 +24,8 @@ function _workspace() {
   fi
 }
 
-complete -F _workspace workspace
-complete -F _workspace ws
+complete -o nosort -F _workspace workspace
+complete -o nosort -F _workspace ws
 
 if [ -e ~/.bashrc ]; then
   source ~/.bashrc
