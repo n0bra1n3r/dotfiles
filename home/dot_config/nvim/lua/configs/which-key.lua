@@ -44,6 +44,13 @@ function M.config()
         S = { "<cmd>lua fn.debug_show_symbols()<CR>", "symbols" },
         x = { "<cmd>lua fn.debug_exit()<CR>", "exit" }
       },
+      l = {
+        name = "LSP",
+        d = { "go to definition" },
+        h = { "show hover" },
+        r = { "rename symbol" },
+        s = { "show references" },
+      },
       r = {
         name = "runner",
         b = { "<cmd>lua fn.project_build()<CR>", "build" },
