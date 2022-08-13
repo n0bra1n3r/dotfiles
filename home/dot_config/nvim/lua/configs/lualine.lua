@@ -130,26 +130,6 @@ function M.config()
       lualine_y = {},
       lualine_z = {
         {
-          "buffers",
-          buffers_color = {
-            active = function()
-              return project_state {
-                job = "lualine_a_insert",
-                default = "lualine_a_normal",
-              }
-            end,
-            inactive = function()
-              return project_state {
-                job = "lualine_b_insert",
-                default = "lualine_b_normal",
-              }
-            end,
-          },
-          hide_filename_extension = true,
-          mode = 4,
-          show_modified_status = true,
-        },
-        {
           "tabs",
           tabs_color = {
             active = function()
