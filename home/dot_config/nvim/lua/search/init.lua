@@ -461,7 +461,7 @@ local function get_buffer()
         on_option_set(args.buf)
       end,
     })
-    api.nvim_create_autocmd("ExitPre", {
+    api.nvim_create_autocmd({ "ExitPre", "TabClosed" }, {
       group = group,
       pattern = "*",
       callback = function()
