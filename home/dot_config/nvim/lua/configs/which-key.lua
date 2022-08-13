@@ -17,6 +17,7 @@ function M.config()
   require"which-key".register({
     ["<leader>"] = {
       ["`"] = { "<cmd>lua fn.open_shell()<CR>", "shell" },
+      b = { "<cmd>lua require'telescope.builtin'.buffers{ sort_lastused = true }<CR>", "buffers" },
       g = {
         name = "git",
         b = { "<cmd>Gitsigns blame_line<CR>", "blame" },
