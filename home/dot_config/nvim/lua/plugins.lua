@@ -8,14 +8,13 @@ require"packer".startup(function(packer_use)
   use { "lewis6991/impatient.nvim" } -- must be loaded first
   use { "nvim-lua/plenary.nvim" }
   use { "nathom/filetype.nvim" }
+  use { "kyazdani42/nvim-web-devicons" }
 
   use { "wbthomason/packer.nvim", event = "VimEnter" }
-  use { "kyazdani42/nvim-web-devicons", after = "packer.nvim" }
+
   use { "nvim-lualine/lualine.nvim", after = "nvim-web-devicons" }
 
   use { "folke/which-key.nvim", after = "packer.nvim" }
-
-  use { "luukvbaal/stabilize.nvim", after = "packer.nvim" }
 
   -- Color Schemes --
 
@@ -26,7 +25,7 @@ require"packer".startup(function(packer_use)
   use { "alaviss/nim.nvim", ft = "nim" }
 
   use { "kevinhwang91/nvim-bqf", ft = "qf" }
-  use { "https://gitlab.com/yorickpeterse/nvim-pqf.git", as = "nvim-pqf", after = "packer.nvim" }
+  use { "https://gitlab.com/yorickpeterse/nvim-pqf.git", as = "nvim-pqf" }
 
   -- Motions --
 
