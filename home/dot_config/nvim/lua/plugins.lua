@@ -44,6 +44,8 @@ require"packer".startup(function(packer_use)
 
   use { "ggandor/lightspeed.nvim", event = "BufRead" }
 
+  use { "kevinhwang91/nvim-hlslens" }
+
   use { "nvim-telescope/telescope.nvim", module = "telescope", cmd = "Telescope" }
 
   -- VCS --

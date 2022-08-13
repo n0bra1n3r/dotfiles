@@ -33,7 +33,7 @@ return {
     ["<C-Right>"]       = { "<C-w>l" },
     ["<C-Up>"]          = { "<C-w>k" },
     ["<C-Tab>"]         = { function() require"telescope.builtin".buffers{ sort_lastused = true } end },
-    ["<Esc>"]           = { "<cmd>nohlsearch<CR>" },
+    ["<Esc>"]           = { ":nohlsearch<CR>" },
     ["<End>"]           = { "$", noremap = false },
     ["<Home>"]          = { "^", noremap = false },
     ["<Enter>"]         = { "<cmd>update<CR>" },
