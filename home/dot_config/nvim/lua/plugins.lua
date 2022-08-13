@@ -31,8 +31,8 @@ require"packer".startup(function(packer_use)
 
   use { "tpope/vim-repeat", event = "BufEnter" }
   use { "svermeulen/vim-easyclip", after = "vim-repeat" }
-  use { "tpope/vim-unimpaired", event = "BufRead" }
-  use { "tpope/vim-surround", event = "BufRead" }
+  use { "tpope/vim-unimpaired", event = "BufEnter" }
+  use { "tpope/vim-surround", event = "BufEnter" }
 
   -- Projects --
 
@@ -42,9 +42,9 @@ require"packer".startup(function(packer_use)
 
   -- Navigation --
 
-  use { "ggandor/lightspeed.nvim", event = "BufRead" }
+  use { "ggandor/lightspeed.nvim", event = "BufEnter" }
 
-  use { "kevinhwang91/nvim-hlslens" }
+  use { "kevinhwang91/nvim-hlslens", event = "BufEnter" }
 
   use { "nvim-telescope/telescope.nvim", module = "telescope", cmd = "Telescope" }
 
@@ -70,7 +70,7 @@ require"packer".startup(function(packer_use)
 
   -- Editing --
 
-  use { "numToStr/Comment.nvim", event = "BufRead" }
+  use { "numToStr/Comment.nvim", event = "BufEnter" }
 
   use { "echasnovski/mini.nvim", event = "BufRead"}
 
