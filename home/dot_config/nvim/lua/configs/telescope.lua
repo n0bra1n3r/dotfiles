@@ -54,7 +54,7 @@ function M.config()
         mappings = {
           i = {
             ["<Tab>"] = function(bufnr)
-              require"telescope.actions.set".edit(bufnr, "edit")
+              require"telescope.actions.set".edit(bufnr, "drop")
             end,
             ["<C-S-Tab>"] = function(bufnr)
               require"telescope.actions".move_selection_previous(bufnr)
