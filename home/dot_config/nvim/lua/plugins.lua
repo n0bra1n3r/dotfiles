@@ -45,6 +45,7 @@ require"packer".startup(function(packer_use)
   use { "ggandor/lightspeed.nvim", event = "BufEnter" }
 
   use { "kevinhwang91/nvim-hlslens", event = "BufEnter" }
+  use { "haya14busa/vim-asterisk", event = "BufEnter" }
 
   use { "nvim-telescope/telescope.nvim", module = "telescope", cmd = "Telescope" }
 
