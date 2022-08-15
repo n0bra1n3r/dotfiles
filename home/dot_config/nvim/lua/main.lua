@@ -42,7 +42,7 @@ vim.opt.shortmess:append("sI")
 vim.opt.showbreak = "↪"
 vim.opt.showcmd = false
 vim.opt.showmode = false
-vim.opt.showtabline = 2
+vim.opt.showtabline = 0
 vim.opt.signcolumn = "yes"
 vim.opt.scrolloff = 3
 vim.opt.smartcase = true

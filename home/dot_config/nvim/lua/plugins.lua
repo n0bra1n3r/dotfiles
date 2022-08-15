@@ -16,6 +16,8 @@ require"packer".startup(function(packer_use)
 
   use { "folke/which-key.nvim", after = "packer.nvim" }
 
+  use { "b0o/incline.nvim", event = "BufRead" }
+
   -- Color Schemes --
 
   use { "EdenEast/nightfox.nvim" }

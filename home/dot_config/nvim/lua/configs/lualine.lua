@@ -23,31 +23,58 @@ function M.config()
   local sections = {
     lualine_a = {
       {
-        "mode",
-        fmt = function(str)
-          return str:sub(1, 1)
+        function()
+          local mode = require"lualine.utils.mode".get_mode():sub(1, 1)
+          if fn.is_git_dir() then
+            return string.format("%s | %s", project_state{ job = '', default = mode }, fn.get_workspace_dir())
+          end
+          return mode
         end,
       },
     },
     lualine_b = {
-      { "fileformat" },
       {
-        "filename",
-        file_status = true,
+        function()
+          return fn.get_git_branch()
+        end,
+        cond = fn.is_git_dir,
+        icon = '',
+      },
+      {
+        function()
+          return get_project_git_status().down
+        end,
+        cond = fn.is_git_dir,
+        icon = '',
         padding = { left = 0, right = 1 },
-        path = 1,
-        symbols = {
-          modified = ' ●',
-          readonly = ' ﯎',
-          unnamed = "[New File]",
-        },
+      },
+      {
+        function()
+          return get_project_git_status().up
+        end,
+        cond = fn.has_git_remote,
+        icon = '',
+        padding = { left = 0, right = 1 },
       },
     },
-    lualine_c = {},
+    lualine_c = {
+      {
+        "diagnostics",
+        sources = { fn.get_qf_diagnostics },
+      },
+    },
     lualine_x = {},
-    lualine_y = {},
-    lualine_z = {
+    lualine_y = {
       { "location" },
+    },
+    lualine_z = {
+      {
+        function()
+          local tab = vim.api.nvim_tabpage_get_number(0)
+          local tabCount = #vim.api.nvim_list_tabpages()
+          return string.format("%d | %d", tab, tabCount)
+        end,
+      },
     },
   }
 
@@ -55,99 +82,12 @@ function M.config()
     extensions = {},
     options = {
       component_separators = "",
-      disabled_filetypes = {
-        statusline = { "qf" },
-      },
+      globalstatus = true,
       section_separators = "",
       theme = "nightfox",
     },
     sections = sections,
-    inactive_sections = sections,
-    tabline = {
-      lualine_a = {
-        {
-          function()
-            return string.format("%s %s", project_state{ job = '', default = '' }, fn.get_workspace_dir())
-          end,
-          color = function()
-            return project_state {
-              job = "lualine_a_insert",
-              default = "lualine_a_normal",
-            }
-          end,
-          cond = fn.is_git_dir,
-        },
-      },
-      lualine_b = {
-        {
-          function()
-            return string.format(" %s", fn.get_git_branch())
-          end,
-          color = function()
-            return project_state {
-              job = "lualine_b_insert",
-              default = "lualine_b_normal",
-            }
-          end,
-          cond = fn.is_git_dir,
-        },
-        {
-          function()
-            return get_project_git_status().down
-          end,
-          color = function()
-            return project_state {
-              job = "lualine_b_insert",
-              default = "lualine_b_normal",
-            }
-          end,
-          cond = fn.is_git_dir,
-          icon = '',
-          padding = { left = 0, right = 1 },
-        },
-        {
-          function()
-            return get_project_git_status().up
-          end,
-          color = function()
-            return project_state {
-              job = "lualine_b_insert",
-              default = "lualine_b_normal",
-            }
-          end,
-          cond = fn.has_git_remote,
-          icon = '',
-          padding = { left = 0, right = 1 },
-        },
-      },
-      lualine_c = {
-        {
-          "diagnostics",
-          sources = { fn.get_qf_diagnostics },
-        },
-      },
-      lualine_x = {},
-      lualine_y = {},
-      lualine_z = {
-        {
-          "tabs",
-          tabs_color = {
-            active = function()
-              return project_state {
-                job = "lualine_a_insert",
-                default = "lualine_a_normal",
-              }
-            end,
-            inactive = function()
-              return project_state {
-                job = "lualine_b_insert",
-                default = "lualine_b_normal",
-              }
-            end,
-          },
-        },
-      },
-    },
+    tabline = {},
   }
 end
 
