@@ -7,23 +7,19 @@ show_selection_mark = true
   key = "enter"
   external = 'nvim --server $VIM_SVRNAME --remote-send "<C-\><C-N>:e {file}<CR>"'
   apply_to = "file"
-  leave_broot = false
 
 [[verbs]]
   invocation = "vsplit"
   key = "alt-\\"
   external = 'nvim --server $VIM_SVRNAME --remote-send "<C-\><C-N>:vs {file}<CR>"'
   apply_to = "file"
-  leave_broot = false
 
 [[verbs]]
-  key = "alt-l"
+  invocation = "split"
+  key = "alt-="
+  external = 'nvim --server $VIM_SVRNAME --remote-send "<C-\><C-N>:sp {file}<CR>"'
+  apply_to = "file"
+
+[[verbs]]
+  key = "alt-6"
   execution = ":back"
-
-[[verbs]]
-  key = "alt-j"
-  execution = ":line_down_no_cycle"
-
-[[verbs]]
-  key = "alt-k"
-  execution = ":line_up_no_cycle"

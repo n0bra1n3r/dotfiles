@@ -47,9 +47,9 @@ function M.open_file_tree()
         silent = 1,
         name = "files",
         title = "files",
-        height = math.ceil(vim.o.lines) - 2,
-        width = math.ceil(vim.o.columns * 0.3),
-        position = "topright",
+        height = math.ceil(vim.o.lines * 0.9),
+        width = math.ceil(vim.o.columns * 0.9),
+        position = "center",
       })
     vim.api.nvim_create_autocmd("TermLeave", {
       buffer = bufnr,
