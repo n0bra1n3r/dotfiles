@@ -1,7 +1,8 @@
 case "$(uname -s)" in
 Darwin*)
   export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin":$PATH
-  export PATH="/Applications/Android Studio.app/Contents/MacOS":$PATH
+
+  alias studio="open -a /Applications/Android\ Studio.app"
   ;;
 MSYS_NT*)
   export PATH=$(echo "$PATH" | xargs -d ';' cygpath -u | grep . | paste -sd : -)
