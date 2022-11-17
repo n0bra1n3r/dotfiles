@@ -51,8 +51,26 @@ else
     echo "$INFO_MSG: using '$WORKSPACE_BRANCH' as default branch" >&2
   fi
 
-  [ "$BRANCH" != "-" ] || BRANCH="$(pop_workspace)"
-  [ ! -z "$BRANCH" ] || BRANCH="$WORKSPACE_BRANCH"
+  case "$BRANCH" in
+  "staging"|"main"|"master")
+    if ! git show-ref --quiet refs/heads/$BRANCH; then
+      echo -n "Did you mean default branch '$WORKSPACE_BRANCH'? [Y/n] "
+      read MEANT_WORKSPACE_BRANCH
+      if [ -z "${MEANT_WORKSPACE_BRANCH#[Yy]}" ]; then
+        BRANCH="$WORKSPACE_BRANCH"
+      fi
+    fi
+    ;;
+  "-") 
+    BRANCH="$(pop_workspace)"
+    ;;
+  "")
+    BRANCH="$WORKSPACE_BRANCH"
+    ;;
+  *)
+    ;;
+  esac
+
   push_workspace "$THIS_BRANCH"
 
   if [ -z "$WORKSPACE_ROOT_DIR" ]; then
