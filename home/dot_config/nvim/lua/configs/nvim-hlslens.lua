@@ -1,6 +1,8 @@
 local M = {}
 
 function M.config()
+  require"hlslens".setup()
+
   vim.api.nvim_set_keymap("n", "n",
     [[<Cmd>execute("normal! " . v:count1 . "n")<CR><Cmd>lua require"hlslens".start()<CR>]],
     { noremap = true, silent = true })
