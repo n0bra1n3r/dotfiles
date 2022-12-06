@@ -18,7 +18,7 @@ function M.config()
     capabilities = capabilities,
     cmd = { "cmd", "/c", "nimlsp.cmd" },
     on_attach = function(client, bufnr)
-      client.resolved_capabilities.text_document_save = false
+      client.server_capabilities.textDocumentSync.save = false
 
       vim.api.nvim_buf_set_keymap(bufnr, "n", "gd", [[]], {
         callback = vim.lsp.buf.definition,

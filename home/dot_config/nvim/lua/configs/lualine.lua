@@ -26,7 +26,7 @@ function M.config()
         function()
           local mode = require"lualine.utils.mode".get_mode():sub(1, 1)
           if fn.is_git_dir() then
-            return string.format("%s | %s", project_state{ job = '', default = mode }, fn.get_workspace_dir())
+            return string.format("%s  %s", project_state{ job = 'ﲊ', default = mode }, fn.get_workspace_dir())
           end
           return mode
         end,
@@ -72,8 +72,30 @@ function M.config()
         function()
           local tab = vim.api.nvim_tabpage_get_number(0)
           local tabCount = #vim.api.nvim_list_tabpages()
-          return string.format("%d | %d", tab, tabCount)
+          return string.format("%d  %d", tab, tabCount)
         end,
+      },
+    },
+  }
+  local winbar = {
+    lualine_a = {
+      { "fileformat" },
+      {
+        "filename",
+        path = 1,
+      },
+    },
+  }
+  local inactive_winbar = {
+    lualine_a = {
+      {
+        "fileformat",
+        color = "lualine_a_inactive",
+      },
+      {
+        "filename",
+        path = 1,
+        color = "lualine_a_inactive",
       },
     },
   }
@@ -88,6 +110,8 @@ function M.config()
     },
     sections = sections,
     tabline = {},
+    winbar = winbar,
+    inactive_winbar = inactive_winbar,
   }
 end
 
