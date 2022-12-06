@@ -104,6 +104,9 @@ function M.config()
     extensions = {},
     options = {
       component_separators = "",
+      disabled_filetypes = {
+        winbar = { "qf" },
+      },
       globalstatus = true,
       section_separators = "",
       theme = "nightfox",
