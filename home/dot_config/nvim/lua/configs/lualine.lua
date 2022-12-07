@@ -42,6 +42,13 @@ function M.config()
       },
       {
         function()
+          return ""
+        end,
+        cond = fn.is_git_dir,
+        padding = { left = 0, right = 1 },
+      },
+      {
+        function()
           return get_project_git_status().down
         end,
         cond = fn.is_git_dir,
