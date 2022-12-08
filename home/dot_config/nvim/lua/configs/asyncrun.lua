@@ -1,11 +1,22 @@
 local M = {}
 
 function M.setup()
-  vim.cmd[[augroup conf_asyncrun]]
-  vim.cmd[[autocmd!]]
-  vim.cmd[[autocmd User AsyncRunStart cclose | lua fn.set_is_job_in_progress(true)]]
-  vim.cmd[[autocmd User AsyncRunStop lua fn.show_quickfix() ; fn.set_is_job_in_progress(false)]]
-  vim.cmd[[augroup end]]
+  local group = vim.api.nvim_create_augroup("conf_asyncrun", { clear = true })
+  vim.api.nvim_create_autocmd("User", {
+    pattern = "AsyncRunStart",
+    callback = function()
+      vim.cmd[[cclose]]
+      fn.set_is_job_in_progress(true)
+    end
+  })
+  vim.api.nvim_create_autocmd("User", {
+    pattern = "AsyncRunStop",
+    callback = function()
+      fn.show_quickfix()
+      fn.set_qf_diagnostics()
+      fn.set_is_job_in_progress(false)
+    end
+  })
 
   vim.g.asyncrun_rootmarks = {}
   vim.g.asyncrun_runner = {
