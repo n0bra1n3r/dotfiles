@@ -13,7 +13,6 @@ lua require "main"
 augroup conf_editor
   autocmd!
   autocmd BufEnter * lua fn.set_shell_title()
-  autocmd BufEnter * highlight ColorColumn guifg=darkgray ctermfg=darkgray guibg=NONE ctermbg=NONE
   autocmd BufEnter * lua vim.diagnostic.show()
   autocmd BufEnter,CursorHold,CursorHoldI,FocusGained * if mode() == "n" && getcmdwintype() == "" | checktime | endif
   autocmd BufWritePost,TermLeave * lua fn.refresh_git_change_info()
