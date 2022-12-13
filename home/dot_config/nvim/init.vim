@@ -13,7 +13,7 @@ lua require "main"
 augroup conf_editor
   autocmd!
   autocmd BufEnter * lua fn.set_shell_title()
-  autocmd BufEnter * lua vim.diagnostic.show()
+  autocmd BufEnter * lua fn.set_qf_diagnostics()
   autocmd BufEnter,CursorHold,CursorHoldI,FocusGained * if mode() == "n" && getcmdwintype() == "" | checktime | endif
   autocmd BufWritePost,TermLeave * lua fn.refresh_git_change_info()
   autocmd BufWritePost ~/.local/share/chezmoi/home/* lua fn.save_dot_files()
