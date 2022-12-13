@@ -88,8 +88,18 @@ function M.config()
     lualine_a = {
       { "fileformat" },
       {
+        function()
+          return ""
+        end,
+        padding = { left = 0, right = 0 },
+      },
+      {
         "filename",
         path = 1,
+        symbols = {
+          modified = ' ●',
+          readonly = ' ',
+        },
       },
     },
   }
@@ -98,6 +108,12 @@ function M.config()
       {
         "fileformat",
         color = "lualine_a_inactive",
+      },
+      {
+        function()
+          return ""
+        end,
+        padding = { left = 0, right = 0 },
       },
       {
         "filename",
