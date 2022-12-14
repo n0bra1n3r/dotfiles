@@ -39,3 +39,5 @@ function workspace() {
 }
 
 alias ws='workspace'
+
+cd ~
