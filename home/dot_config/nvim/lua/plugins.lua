@@ -36,7 +36,7 @@ require"packer".startup(function(packer_use)
 
   -- Projects --
 
-  use { "ahmedkhalf/project.nvim", cond = fn.is_git_dir }
+  use { "ahmedkhalf/project.nvim", event = "VimEnter", cond = fn.is_git_dir }
   use { "tpope/vim-obsession", after = "project.nvim" }
   use { "dhruvasagar/vim-prosession", after = "vim-obsession" }
 
