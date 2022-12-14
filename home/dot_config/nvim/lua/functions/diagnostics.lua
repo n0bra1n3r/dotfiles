@@ -18,6 +18,8 @@ function M.set_qf_diagnostics()
     table.insert(buf_diagnostics[buf_key], diagnostic)
   end
 
+  vim.diagnostic.reset(namespace)
+
   for buf_key, diagnostics in pairs(buf_diagnostics) do
     vim.diagnostic.set(namespace, buf_key, diagnostics)
   end
