@@ -5,16 +5,16 @@ require"packer".startup(function(packer_use)
 
   -- Misc --
 
+  use { "wbthomason/packer.nvim", opt = true }
+
   use { "lewis6991/impatient.nvim" } -- must be loaded first
   use { "nvim-lua/plenary.nvim" }
   use { "nathom/filetype.nvim" }
   use { "kyazdani42/nvim-web-devicons" }
 
-  use { "wbthomason/packer.nvim", event = "VimEnter" }
-
   use { "nvim-lualine/lualine.nvim", after = "nvim-web-devicons" }
 
-  use { "folke/which-key.nvim", after = "packer.nvim" }
+  use { "folke/which-key.nvim", event = "VimEnter" }
 
   -- Color Schemes --
 
