@@ -40,4 +40,6 @@ function workspace() {
 
 alias ws='workspace'
 
-cd ~
+if [ -z "$SHOULD_NOT_CD_TO_HOME" ]; then
+  cd ~
+fi

@@ -1,3 +1,5 @@
+export SHOULD_NOT_CD_TO_HOME=1
+
 source ~/.bash_profile
 
 if [ ! -z "$VIM_SVRNAME" ]; then
