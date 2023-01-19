@@ -8,7 +8,7 @@ function M.config()
 
   require"mini.indentscope".setup {
     draw = {
-      animation = require"mini.indentscope".gen_animation("none"),
+      animation = require"mini.indentscope".gen_animation.none(),
     },
     options = {
       border = "top",
