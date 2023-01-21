@@ -52,6 +52,7 @@ local function get_search_info(bufnr)
       job = nil,
       -- Buffer info
       bufnr = bufnr,
+      tabpage = 1,
       cursor_line = 0,
       line_number_width = 0,
       namespace = string.format("search-%d", bufnr),
@@ -99,6 +100,8 @@ local function reset_search(bufnr, search_term, search_args)
   end
 
   local new_info = get_search_info(bufnr)
+
+  new_info.tabpage = api.nvim_get_current_tabpage()
 
   if info ~= nil then
     api.nvim_command[[echon]]
@@ -228,7 +231,7 @@ local function on_cmdline_changed()
   clear_input_timer()
 
   M.input_timer = vim.loop.new_timer()
-  M.input_timer:start(100, 0, vim.schedule_wrap(function()
+  M.input_timer:start(200, 0, vim.schedule_wrap(function()
     clear_input_timer()
 
     if #process_search_input() == 0 then
@@ -356,17 +359,10 @@ local function on_buf_write(bufnr)
   api.nvim_buf_set_option(bufnr, "modified", false)
 end
 
-local function on_option_set(bufnr)
-  if not is_search_buf(bufnr) then
-    local winid = api.nvim_get_current_win()
-
-    M.number_enabled = api.nvim_win_get_option(winid, "number")
-    M.signcolumn_option = api.nvim_win_get_option(winid, "signcolumn")
-  end
-end
-
 local function on_exit(bufnr)
-  api.nvim_buf_delete(bufnr, { force = false })
+  if api.nvim_buf_is_valid(bufnr) then
+    api.nvim_buf_delete(bufnr, { force = false })
+  end
 end
 
 -- Initialization --
@@ -452,13 +448,6 @@ local function get_buffer()
       buffer = bufnr,
       callback = function()
         on_cursor_moved(bufnr)
-      end,
-    })
-    api.nvim_create_autocmd("OptionSet", {
-      group = group,
-      pattern = { "number", "signcolumn" },
-      callback = function(args)
-        on_option_set(args.buf)
       end,
     })
     api.nvim_create_autocmd({ "ExitPre", "TabClosed" }, {
@@ -767,6 +756,8 @@ local function finish_search(bufnr)
     end
   end
 
+  api.nvim_buf_set_name(bufnr, " "..info.search_term)
+
   render_stats(bufnr)
 
   clear_buffer_undo(bufnr)
@@ -864,17 +855,24 @@ local function get_last_search(search_term, search_args)
 end
 
 function M.prompt(search_args, search_term)
+  local bufnr = api.nvim_get_current_buf()
   local winid = api.nvim_get_current_win()
 
-  -- save options so we can restore them
-  M.hlsearch_enabled = api.nvim_get_option("hlsearch")
-  M.number_enabled = api.nvim_win_get_option(winid, "number")
-  M.signcolumn_option = api.nvim_win_get_option(winid, "signcolumn")
+  local is_restarted = is_search_buf(bufnr)
 
-  api.nvim_set_option("hlsearch", false)
+  local tab_mapping, bs_mapping
 
-  local tab_mapping = search_entry_add_mapping("<Tab>", cycle_mode)
-  local bs_mapping = search_entry_add_mapping("<Backspace>", dismiss_if_needed, true)
+  if not is_restarted then
+    -- save options so we can restore them
+    M.hlsearch_enabled = api.nvim_get_option("hlsearch")
+    M.number_enabled = api.nvim_win_get_option(winid, "number")
+    M.signcolumn_option = api.nvim_win_get_option(winid, "signcolumn")
+
+    api.nvim_set_option("hlsearch", false)
+
+    tab_mapping = search_entry_add_mapping("<Tab>", cycle_mode)
+    bs_mapping = search_entry_add_mapping("<Backspace>", dismiss_if_needed, true)
+  end
 
   enable_live_search()
 
@@ -905,10 +903,12 @@ function M.prompt(search_args, search_term)
 
   disable_live_search()
 
-  search_entry_del_mapping(bs_mapping)
-  search_entry_del_mapping(tab_mapping)
+  if not is_restarted then
+    search_entry_del_mapping(bs_mapping)
+    search_entry_del_mapping(tab_mapping)
+  end
 
-  local bufnr = api.nvim_get_current_buf()
+  bufnr = api.nvim_get_current_buf()
 
   if is_search_buf(bufnr) then
     if #search_input == 0 then
