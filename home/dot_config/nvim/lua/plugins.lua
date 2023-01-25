@@ -37,8 +37,7 @@ require"packer".startup(function(packer_use)
   -- Projects --
 
   use { "ahmedkhalf/project.nvim", event = "VimEnter", cond = fn.is_git_dir }
-  use { "tpope/vim-obsession", after = "project.nvim" }
-  use { "dhruvasagar/vim-prosession", after = "vim-obsession" }
+  use { "rmagatti/auto-session", after = "project.nvim"}
 
   -- Navigation --
 
@@ -75,9 +74,9 @@ require"packer".startup(function(packer_use)
 
   use { "echasnovski/mini.nvim", event = "BufRead"}
 
-  use { "famiu/bufdelete.nvim", cmd = { "Bdelete", "Bwipeout" }}
-
   use { "xiyaowong/virtcolumn.nvim", event = "BufEnter" }
+
+  use { "famiu/bufdelete.nvim", cmd = { "Bdelete", "Bwipeout" }}
 
   -- Command Runners --
 
