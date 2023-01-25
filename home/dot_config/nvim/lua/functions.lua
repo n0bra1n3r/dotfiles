@@ -150,7 +150,7 @@ end
 
 function _G.fn.close_buffer()
   if vim.fn.tabpagenr() > 1 then
-    vim.cmd[[windo bwipeout]]
+    vim.cmd[[tabclose]]
   elseif vim.fn.winnr("$") > 1 then
     vim.cmd[[close]]
   else
