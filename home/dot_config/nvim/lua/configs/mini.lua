@@ -4,6 +4,8 @@ function M.config()
   vim.cmd[[autocmd FileType * if len(&buftype) > 0 | let b:miniindentscope_disable=v:true | endif]]
   vim.cmd[[autocmd FileType * if len(&buftype) > 0 | let b:minicursorword_disable=v:true | endif]]
 
+  require"mini.bufremove".setup()
+
   require"mini.cursorword".setup()
 
   require"mini.indentscope".setup {

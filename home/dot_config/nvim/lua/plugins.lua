@@ -76,8 +76,6 @@ require"packer".startup(function(packer_use)
 
   use { "xiyaowong/virtcolumn.nvim", event = "BufEnter" }
 
-  use { "famiu/bufdelete.nvim", cmd = { "Bdelete", "Bwipeout" }}
-
   -- Command Runners --
 
   use { "skywind3000/asyncrun.vim", cmd = { "AsyncRun" } }
