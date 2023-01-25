@@ -16,6 +16,8 @@ function M.config()
     },
     symbol = '·',
   }
+
+  require"mini.trailspace".setup()
 end
 
 return M
