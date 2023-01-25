@@ -5,7 +5,7 @@ source ~/.bash_profile
 if [ ! -z "$VIM_SVRNAME" ]; then
   alias nvim='nvim --server $VIM_SVRNAME --remote-tab'
 
-  function nvimrun {
+  function vimr {
     nvim --server $VIM_SVRNAME --remote-send "<C-\\><C-n><ESC>:AsyncRun! -silent -strip $*<CR>"
   }
 fi
