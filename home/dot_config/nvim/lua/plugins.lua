@@ -48,6 +48,8 @@ require"packer".startup(function(packer_use)
 
   use { "nvim-telescope/telescope.nvim", module = "telescope", cmd = "Telescope" }
 
+  use { "lewis6991/satellite.nvim", event = "VimEnter" }
+
   -- VCS --
 
   use { "lewis6991/gitsigns.nvim", cond = fn.is_git_dir }
