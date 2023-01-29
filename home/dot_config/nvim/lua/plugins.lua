@@ -66,9 +66,7 @@ require"packer".startup(function(packer_use)
   use { "onsails/lspkind-nvim", event = "InsertEnter" }
   use { "hrsh7th/nvim-cmp", after = "lspkind-nvim" }
   use { "windwp/nvim-autopairs", after = "nvim-cmp" }
-  use { "L3MON4D3/LuaSnip", after = "nvim-autopairs" }
-  use { "saadparwaiz1/cmp_luasnip", after = "LuaSnip" }
-  use { "hrsh7th/cmp-nvim-lsp", after = "cmp_luasnip" }
+  use { "hrsh7th/cmp-nvim-lsp", after = "nvim-autopairs" }
 
   -- Editing --
 
