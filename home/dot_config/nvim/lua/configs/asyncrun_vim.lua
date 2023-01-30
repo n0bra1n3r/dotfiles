@@ -17,7 +17,7 @@ function M.setup()
     pattern = "AsyncRunStop",
     callback = function()
       local focus_win = vim.api.nvim_get_current_win()
-      if vim.api.nvim_win_is_valid(cur_win) then
+      if cur_win ~= nil and vim.api.nvim_win_is_valid(cur_win) then
         vim.api.nvim_set_current_win(cur_win)
       end
       fn.show_quickfix()

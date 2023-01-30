@@ -41,6 +41,8 @@ require"packer".startup(function(packer_use)
 
   -- Navigation --
 
+  use { "echasnovski/mini.bufremove", event = "BufEnter"}
+
   use { "ggandor/lightspeed.nvim", event = "BufEnter" }
 
   use { "kevinhwang91/nvim-hlslens", event = "BufEnter" }
@@ -70,11 +72,12 @@ require"packer".startup(function(packer_use)
 
   -- Editing --
 
-  use { "numToStr/Comment.nvim", event = "BufEnter" }
+  use { "numToStr/Comment.nvim", event = "BufRead" }
+  use { "echasnovski/mini.cursorword", event = "BufRead"}
+  use { "echasnovski/mini.trailspace", event = "BufRead"}
 
-  use { "echasnovski/mini.nvim", event = "BufRead"}
-
-  use { "xiyaowong/virtcolumn.nvim", event = "BufEnter" }
+  use { "echasnovski/mini.indentscope", event = "BufRead"}
+  use { "xiyaowong/virtcolumn.nvim", event = "BufRead" }
 
   -- Command Runners --
 
