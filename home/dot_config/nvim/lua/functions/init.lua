@@ -9,12 +9,14 @@ function load_functions(name)
   end
 end
 
-load_functions "diagnostics"
-load_functions "file"
-load_functions "git"
-load_functions "lsp"
-load_functions "packerutils"
-load_functions "vimutils"
-load_functions "workspace"
+local functions_path = "~/.config/nvim/lua/functions/*.lua"
+
+for _, path in pairs(vim.fn.glob(functions_path, 0, 1)) do
+  local module = vim.fn.fnamemodify(path, ":t:r")
+
+  if module ~= "init" then
+    load_functions(module)
+  end
+end
 
 return M
