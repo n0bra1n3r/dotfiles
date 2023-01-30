@@ -6,6 +6,7 @@ function M.setup()
   local cur_win
 
   vim.api.nvim_create_autocmd("User", {
+    group = group,
     pattern = "AsyncRunStart",
     callback = function()
       vim.cmd[[cclose]]
@@ -14,6 +15,7 @@ function M.setup()
     end
   })
   vim.api.nvim_create_autocmd("User", {
+    group = group,
     pattern = "AsyncRunStop",
     callback = function()
       local focus_win = vim.api.nvim_get_current_win()
