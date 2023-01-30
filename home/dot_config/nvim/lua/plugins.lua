@@ -11,6 +11,7 @@ require"packer".startup(function(packer_use)
   use { "nvim-lua/plenary.nvim" }
   use { "nathom/filetype.nvim" }
   use { "kyazdani42/nvim-web-devicons" }
+  use { "voldikss/vim-floaterm" }
 
   use { "nvim-lualine/lualine.nvim", after = "nvim-web-devicons" }
 
@@ -85,8 +86,6 @@ require"packer".startup(function(packer_use)
 
   use { "skywind3000/asynctasks.vim",
     cmd = { "AsyncTask", "AsyncTaskMacro", "AsyncTaskList", "AsyncTaskProfile", "AsyncTaskEdit" } }
-
-  use { "voldikss/vim-floaterm" }
 
   if vim.g.bootstrapped then
     require"packer".sync()
