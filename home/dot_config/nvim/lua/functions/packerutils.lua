@@ -19,7 +19,7 @@ end
 function M.define_use(packer_use)
   return function(opts)
     local plugin = opts[1]
-    local config = vim.fn.fnamemodify(plugin, ":t:r")
+    local config = string.gsub(vim.fn.fnamemodify(plugin, ":t"), "%.", "_")
 
     local hasConfig, module = pcall(require, "configs."..config)
     if hasConfig then

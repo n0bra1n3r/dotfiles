@@ -1,4 +1,4 @@
-require"configs.packer".config()
+require"configs.packer_nvim".config()
 
 require"packer".startup(function(packer_use)
   local use = fn.define_use(packer_use)
