@@ -36,8 +36,6 @@ function M.config()
           if require"cmp".get_selected_entry() == nil then
             require"cmp".select_next_item({ behavior = "select" })
           end
-        elseif require"luasnip".expand_or_jumpable() then
-          require"luasnip".expand_or_jump()
         else
           fallback()
         end
@@ -48,16 +46,9 @@ function M.config()
           if require"cmp".get_selected_entry() == nil then
             require"cmp".select_prev_item({ behavior = "select" })
           end
-        elseif require"luasnip".jumpable(-1) then
-          require"luasnip".jump(-1)
         else
           fallback()
         end
-      end,
-    },
-    snippet = {
-      expand = function(args)
-        require"luasnip".lsp_expand(args.body)
       end,
     },
     sorting = {
@@ -69,7 +60,6 @@ function M.config()
     },
     sources = {
       { name = "nvim_lsp" },
-      { name = "luasnip" },
     },
   }
 end
