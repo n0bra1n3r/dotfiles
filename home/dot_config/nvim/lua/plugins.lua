@@ -73,10 +73,10 @@ require"packer".startup(function(packer_use)
   -- Editing --
 
   use { "numToStr/Comment.nvim", event = "BufRead" }
-  use { "echasnovski/mini.cursorword", event = "BufRead"}
-  use { "echasnovski/mini.trailspace", event = "BufRead"}
+  use { "echasnovski/mini.cursorword", event = "BufRead" }
+  use { "echasnovski/mini.trailspace", event = { "BufRead", "BufWritePre", "FileWritePre" } }
 
-  use { "echasnovski/mini.indentscope", event = "BufRead"}
+  use { "echasnovski/mini.indentscope", event = "BufRead" }
   use { "xiyaowong/virtcolumn.nvim", event = "BufRead" }
 
   -- Command Runners --
