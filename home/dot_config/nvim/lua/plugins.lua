@@ -37,7 +37,7 @@ require"packer".startup(function(packer_use)
 
   -- Projects --
 
-  use { "ahmedkhalf/project.nvim", event = "VimEnter", cond = fn.is_git_dir }
+  use { "ahmedkhalf/project.nvim", cond = fn.is_git_dir }
   use { "rmagatti/auto-session", after = "project.nvim"}
 
   -- Navigation --
