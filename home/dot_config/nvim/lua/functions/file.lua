@@ -2,7 +2,7 @@ local M = {}
 
 function M.delete_file()
   vim.fn.delete(vim.fn.expand('%:p'))
-  vim.cmd[[Bdelete!]]
+  vim.cmd[[bwipeout!]]
 end
 
 function M.open_file()
