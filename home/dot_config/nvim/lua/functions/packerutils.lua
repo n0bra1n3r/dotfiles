@@ -1,13 +1,5 @@
 local M = {}
 
-function M.lazy_load(plugin, timer)
-  return function()
-    require"functions.vimutils".vim_defer(function()
-      require"packer".loader(plugin)
-    end, timer)
-  end
-end
-
 local function get_config(module)
   return "require'configs."..module.."'.config()"
 end
