@@ -1,93 +1,82 @@
-require"configs.packer_nvim".config()
-
-require"packer".startup(function(packer_use)
-  local use = fn.define_use(packer_use)
-
+return {
   -- Misc --
 
-  use { "wbthomason/packer.nvim", opt = true }
+  { "nvim-lua/plenary.nvim" },
+  { "kyazdani42/nvim-web-devicons" },
 
-  use { "lewis6991/impatient.nvim" } -- must be loaded first
-  use { "nvim-lua/plenary.nvim" }
-  use { "nathom/filetype.nvim" }
-  use { "kyazdani42/nvim-web-devicons" }
-  use { "voldikss/vim-floaterm" }
+  { "nathom/filetype.nvim", lazy = false },
 
-  use { "nvim-lualine/lualine.nvim", after = "nvim-web-devicons" }
+  { "EdenEast/nightfox.nvim", lazy = false },
+  { "nvim-lualine/lualine.nvim", lazy = false },
 
-  use { "folke/which-key.nvim", event = "VimEnter" }
+  { "folke/which-key.nvim", keys = "<leader>" },
 
-  -- Color Schemes --
-
-  use { "EdenEast/nightfox.nvim" }
+  { "voldikss/vim-floaterm", event = "VeryLazy" },
 
   -- File Types --
 
-  use { "alaviss/nim.nvim", ft = "nim" }
+  { "alaviss/nim.nvim", ft = "nim" },
 
-  use { "kevinhwang91/nvim-bqf", ft = "qf" }
-  use { "https://gitlab.com/yorickpeterse/nvim-pqf.git", as = "nvim-pqf" }
+  { "kevinhwang91/nvim-bqf", ft = "qf" },
+  { "https://gitlab.com/yorickpeterse/nvim-pqf.git", name = "nvim-pqf", ft = "qf" },
 
   -- Motions --
 
-  use { "tpope/vim-repeat", event = "BufEnter" }
-  use { "svermeulen/vim-cutlass", after = "vim-repeat" }
-  use { "tpope/vim-unimpaired", event = "BufEnter" }
-  use { "tpope/vim-surround", event = "BufEnter" }
+  { "tpope/vim-repeat", event = "BufModifiedSet" },
+  { "svermeulen/vim-cutlass", event = { "BufRead", "BufModifiedSet" } },
+  { "tpope/vim-unimpaired", event = { "BufRead", "BufModifiedSet" } },
+  { "tpope/vim-surround", event = { "BufRead", "BufModifiedSet" } },
 
   -- Projects --
 
-  use { "ahmedkhalf/project.nvim", cond = fn.is_git_dir }
-  use { "rmagatti/auto-session", after = "project.nvim"}
+  --{ "ahmedkhalf/project.nvim", event = "VeryLazy", cond = fn.is_git_dir },
+  --{ "rmagatti/auto-session", event = "VeryLazy", cond = fn.is_git_dir },
 
   -- Navigation --
 
-  use { "echasnovski/mini.bufremove", event = "BufEnter"}
+  { "echasnovski/mini.bufremove", event = "BufEnter" },
 
-  use { "ggandor/lightspeed.nvim", event = "BufEnter" }
+  { "ggandor/lightspeed.nvim", event = { "BufRead", "BufModifiedSet" } },
 
-  use { "kevinhwang91/nvim-hlslens", event = "BufEnter" }
-  use { "haya14busa/vim-asterisk", event = "BufEnter" }
+  { "kevinhwang91/nvim-hlslens", event = { "BufRead", "BufModifiedSet" } },
+  { "haya14busa/vim-asterisk", event = { "BufRead", "BufModifiedSet" } },
 
-  use { "nvim-telescope/telescope.nvim", module = "telescope", cmd = "Telescope" }
+  { "nvim-telescope/telescope.nvim", cmd = "Telescope" },
 
-  use { "lewis6991/satellite.nvim", event = "VimEnter" }
+  { "lewis6991/satellite.nvim", event = "BufEnter" },
 
   -- VCS --
 
-  use { "lewis6991/gitsigns.nvim", cond = fn.is_git_dir }
+  { "lewis6991/gitsigns.nvim", event = "BufRead", cond = fn.is_git_dir },
 
-  use { "sindrets/diffview.nvim", cond = fn.is_git_dir }
+  { "sindrets/diffview.nvim", cmd = { "DiffViewFileHistory", "DiffViewOpen" }, cond = fn.is_git_dir },
 
   -- LSP --
 
-  use { "jose-elias-alvarez/null-ls.nvim", event = "BufRead" }
-  use { "neovim/nvim-lspconfig", after = "null-ls.nvim" }
+  { "jose-elias-alvarez/null-ls.nvim", event = "BufRead" },
+  { "neovim/nvim-lspconfig", event = "BufRead" },
 
-  use { "nvim-treesitter/nvim-treesitter", event = "BufRead" }
+  { "nvim-treesitter/nvim-treesitter", event = "BufRead" },
 
-  use { "onsails/lspkind-nvim", event = "InsertEnter" }
-  use { "hrsh7th/nvim-cmp", after = "lspkind-nvim" }
-  use { "windwp/nvim-autopairs", after = "nvim-cmp" }
-  use { "hrsh7th/cmp-nvim-lsp", after = "nvim-autopairs" }
+  { "onsails/lspkind-nvim", ft = "*", event = "InsertEnter" },
+  { "hrsh7th/cmp-nvim-lsp", ft = "*", event = "InsertEnter" },
+  { "hrsh7th/nvim-cmp", ft = "*", event = "InsertEnter" },
+
+  { "windwp/nvim-autopairs", event = "BufModifiedSet" },
 
   -- Editing --
 
-  use { "numToStr/Comment.nvim", event = "BufRead" }
-  use { "echasnovski/mini.cursorword", event = "BufRead" }
-  use { "echasnovski/mini.trailspace", event = { "BufRead", "BufWritePre", "FileWritePre" } }
+  { "numToStr/Comment.nvim", event = { "BufRead", "BufModifiedSet" } },
+  { "echasnovski/mini.cursorword", event = { "BufRead", "BufModifiedSet" } },
+  { "echasnovski/mini.trailspace", event = { "BufRead", "BufModifiedSet", "BufWritePre", "FileWritePre" } },
 
-  use { "echasnovski/mini.indentscope", event = "BufRead" }
-  use { "xiyaowong/virtcolumn.nvim", event = "BufRead" }
+  { "echasnovski/mini.indentscope", event = { "BufRead", "BufModifiedSet" } },
+  { "xiyaowong/virtcolumn.nvim", event = "BufEnter" },
 
   -- Command Runners --
 
-  use { "skywind3000/asyncrun.vim", cmd = { "AsyncRun" } }
+  { "skywind3000/asyncrun.vim", cmd = "AsyncRun" },
 
-  use { "skywind3000/asynctasks.vim",
-    cmd = { "AsyncTask", "AsyncTaskMacro", "AsyncTaskList", "AsyncTaskProfile", "AsyncTaskEdit" } }
-
-  if vim.g.bootstrapped then
-    require"packer".sync()
-  end
-end)
+  { "skywind3000/asynctasks.vim",
+    cmd = { "AsyncTask", "AsyncTaskMacro", "AsyncTaskList", "AsyncTaskProfile", "AsyncTaskEdit" } },
+}

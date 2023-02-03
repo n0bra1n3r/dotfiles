@@ -1,6 +1,6 @@
 local M = {}
 
-function M.setup()
+function M.init()
   vim.g.asynctasks_config_name = ".tasks.ini"
   vim.g.asynctasks_extra_config = {
     "~/.config/nvim/tasks/global.ini",

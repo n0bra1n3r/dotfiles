@@ -127,23 +127,52 @@ for _, plugin in pairs(disabled_built_ins) do
    vim.g["loaded_"..plugin] = 1
 end
 
-local packer_path = vim.fn.stdpath("data").."/site/pack/packer/opt/packer.nvim"
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
-if vim.fn.empty(vim.fn.glob(packer_path)) > 0 then
-  print("Bootstrapping...")
-
-  vim.fn.system {
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
     "git",
     "clone",
-    "https://github.com/wbthomason/packer.nvim",
-    "--depth",
-    "1",
-    packer_path,
-  }
-
-  vim.g.bootstrapped = true
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", -- latest stable release
+    lazypath,
+  })
 end
 
-vim.cmd[[packadd packer.nvim]]
+vim.opt.rtp:prepend(lazypath)
 
-require "plugins"
+local plugins = require "plugins"
+
+for _, spec in pairs(plugins) do
+  local plugin = spec[1]
+  local config = string.gsub(vim.fn.fnamemodify(plugin, ":t"), "%.", "_")
+
+  local hasConfig, module = pcall(require, "configs."..config)
+  if hasConfig then
+    if module.init ~= nil then
+      if spec.init == nil then
+        spec.init = module.init
+      else
+        local spec_init = spec.init
+        spec.init = function()
+          spec_init()
+          module.init()
+        end
+      end
+    end
+    if module.config ~= nil then
+      if spec.config == nil then
+        spec.config = module.config
+      else
+        local spec_config = spec.config
+        spec.config = function()
+          spec_config()
+          module.config()
+        end
+      end
+    end
+  end
+end
+
+require'lazy'.setup(plugins, { defaults = { lazy = true } })

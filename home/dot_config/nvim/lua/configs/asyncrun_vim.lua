@@ -1,6 +1,6 @@
 local M = {}
 
-function M.setup()
+function M.init()
   local group = vim.api.nvim_create_augroup("conf_asyncrun", { clear = true })
 
   local cur_win
