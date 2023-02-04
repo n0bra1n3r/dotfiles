@@ -41,7 +41,7 @@ end
 function M.open_file_tree()
   if vim.fn["floaterm#terminal#get_bufnr"]("files") == -1 then
     local bufnr = vim.fn["floaterm#new"](0,
-      "br",
+      "bash --rcfile ~/.dotfiles/brootrc",
       { [''] = '' },
       {
         silent = 1,
