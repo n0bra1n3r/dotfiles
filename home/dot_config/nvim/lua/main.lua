@@ -102,29 +102,15 @@ end
 
 -- Plugins --
 
-local disabled_built_ins = {
-   "2html_plugin",
-   "getscript",
-   "getscriptPlugin",
-   "gzip",
-   "logipat",
-   "netrw",
-   "netrwPlugin",
-   "netrwSettings",
-   "netrwFileHandlers",
-   "matchit",
-   "tar",
-   "tarPlugin",
-   "rrhelper",
-   "spellfile_plugin",
-   "vimball",
-   "vimballPlugin",
-   "zip",
-   "zipPlugin",
+local default_providers = {
+  "node",
+  "perl",
+  "python3",
+  "ruby",
 }
 
-for _, plugin in pairs(disabled_built_ins) do
-   vim.g["loaded_"..plugin] = 1
+for _, provider in ipairs(default_providers) do
+  vim.g["loaded_" .. provider .. "_provider"] = 0
 end
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -163,7 +149,9 @@ for _, spec in pairs(plugins) do
     end
     if module.config ~= nil then
       if spec.config == nil then
-        spec.config = module.config
+        spec.config = function()
+          module.config()
+        end
       else
         local spec_config = spec.config
         spec.config = function()
@@ -175,4 +163,40 @@ for _, spec in pairs(plugins) do
   end
 end
 
-require'lazy'.setup(plugins, { defaults = { lazy = true } })
+require'lazy'.setup(plugins, {
+  defaults = { lazy = true },
+  performance = {
+    rtp = {
+      disabled_plugins = {
+        "2html_plugin",
+        "bugreport",
+        "compiler",
+        "ftplugin",
+        "getscript",
+        "getscriptPlugin",
+        "gzip",
+        "logipat",
+        "netrw",
+        "netrwPlugin",
+        "netrwSettings",
+        "netrwFileHandlers",
+        "matchit",
+        "optwin",
+        "rplugin",
+        "rrhelper",
+        "spellfile",
+        "spellfile_plugin",
+        "syntax",
+        "synmenu",
+        "tar",
+        "tarPlugin",
+        "tohtml",
+        "tutor",
+        "vimball",
+        "vimballPlugin",
+        "zip",
+        "zipPlugin",
+      },
+    },
+  },
+})

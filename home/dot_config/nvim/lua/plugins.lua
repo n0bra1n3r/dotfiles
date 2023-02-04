@@ -11,7 +11,16 @@ return {
 
   { "folke/which-key.nvim", keys = "<leader>" },
 
-  { "voldikss/vim-floaterm", event = "VeryLazy" },
+  {
+    "voldikss/vim-floaterm",
+    init = function()
+      vim.api.nvim_create_autocmd("FuncUndefined", {
+        pattern = "floaterm*",
+        once = true,
+        command = [[Lazy load vim-floaterm]]
+      })
+    end
+  },
 
   -- File Types --
 
@@ -29,8 +38,8 @@ return {
 
   -- Projects --
 
-  --{ "ahmedkhalf/project.nvim", event = "VeryLazy", cond = fn.is_git_dir },
-  --{ "rmagatti/auto-session", event = "VeryLazy", cond = fn.is_git_dir },
+  { "ahmedkhalf/project.nvim", event = "VimEnter" },
+  { "rmagatti/auto-session", event = "VimEnter" },
 
   -- Navigation --
 
@@ -47,22 +56,23 @@ return {
 
   -- VCS --
 
-  { "lewis6991/gitsigns.nvim", event = "BufRead", cond = fn.is_git_dir },
+  { "lewis6991/gitsigns.nvim", event = "BufRead" },
 
-  { "sindrets/diffview.nvim", cmd = { "DiffViewFileHistory", "DiffViewOpen" }, cond = fn.is_git_dir },
+  { "sindrets/diffview.nvim", cmd = { "DiffViewFileHistory", "DiffViewOpen" } },
 
   -- LSP --
 
-  { "jose-elias-alvarez/null-ls.nvim", event = "BufRead" },
+  { "nvim-treesitter/nvim-treesitter" },
+  { "onsails/lspkind-nvim" },
+
   { "neovim/nvim-lspconfig", event = "BufRead" },
 
-  { "nvim-treesitter/nvim-treesitter", event = "BufRead" },
+  { "jose-elias-alvarez/null-ls.nvim", event = "BufRead" },
 
-  { "onsails/lspkind-nvim", ft = "*", event = "InsertEnter" },
-  { "hrsh7th/cmp-nvim-lsp", ft = "*", event = "InsertEnter" },
-  { "hrsh7th/nvim-cmp", ft = "*", event = "InsertEnter" },
+  { "hrsh7th/cmp-nvim-lsp", event = "InsertEnter" },
+  { "hrsh7th/nvim-cmp", event = "InsertEnter" },
 
-  { "windwp/nvim-autopairs", event = "BufModifiedSet" },
+  { "windwp/nvim-autopairs", event = "InsertEnter" },
 
   -- Editing --
 

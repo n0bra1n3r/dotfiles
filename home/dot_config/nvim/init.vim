@@ -1,8 +1,4 @@
-if has("win32")
-  set runtimepath+=~/.config/nvim
-
-  let &packpath = &runtimepath
-endif
+set runtimepath+=~/.config/nvim
 
 """ Lua
 
@@ -18,7 +14,6 @@ augroup conf_editor
   autocmd BufWritePost,TermLeave * lua fn.refresh_git_change_info()
   autocmd BufWritePost ~/.local/share/chezmoi/home/* lua fn.save_dot_files()
   autocmd BufWritePost,VimEnter * lua fn.project_check()
-  autocmd BufWritePre,FileWritePre * lua MiniTrailspace.trim()
   autocmd CmdwinEnter * nnoremap <buffer> <Esc> $l<C-c>
   autocmd DirChanged,VimEnter * lua fn.refresh_git_info()
   autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
