@@ -164,7 +164,15 @@ for _, spec in pairs(plugins) do
 end
 
 require'lazy'.setup(plugins, {
-  defaults = { lazy = true },
+  defaults = {
+    lazy = true,
+  },
+  install = {
+    colorscheme = { "nightfox" },
+  },
+  ui = {
+    border = "single",
+  },
   performance = {
     rtp = {
       disabled_plugins = {
