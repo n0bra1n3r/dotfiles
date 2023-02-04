@@ -56,7 +56,7 @@ function M.config()
       },
       P = { "paste unformatted before" },
       p = { "paste unformatted after" },
-      s = { "<cmd>lua require'search'.prompt()<CR>", "search string" },
+      s = { "<cmd>lua fn.search.prompt()<CR>", "search string" },
       t = { "<cmd>lua fn.open_file_tree()<CR>", "file tree" },
       q = {
         name = "quickfix",
@@ -74,7 +74,7 @@ function M.config()
     ["<leader>"] = {
       s = {
         name = "search",
-        s = { "<cmd>lua require'search'.prompt([[]], vim.fn.expand[[<cword>]])<CR>", "strings" },
+        s = { "<cmd>lua fn.search.prompt([[]], vim.fn.expand[[<cword>]])<CR>", "strings" },
       },
     },
   }, { mode = "x" })
