@@ -25,6 +25,7 @@ return {
   -- File Types --
 
   { "alaviss/nim.nvim", ft = "nim" },
+  { "akinsho/flutter-tools.nvim", ft = "dart" },
 
   { "kevinhwang91/nvim-bqf", ft = "qf" },
   { "https://gitlab.com/yorickpeterse/nvim-pqf.git", name = "nvim-pqf", ft = "qf" },
@@ -89,4 +90,9 @@ return {
 
   { "skywind3000/asynctasks.vim",
     cmd = { "AsyncTask", "AsyncTaskMacro", "AsyncTaskList", "AsyncTaskProfile", "AsyncTaskEdit" } },
+
+  -- Debuggers --
+
+  { "mfussenegger/nvim-dap", dependencies = { "rcarriga/nvim-dap-ui" } },
+  { "rcarriga/nvim-dap-ui" },
 }
