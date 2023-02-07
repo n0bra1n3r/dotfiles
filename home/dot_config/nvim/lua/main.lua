@@ -169,7 +169,7 @@ require'lazy'.setup(plugins, {
     lazy = true,
   },
   install = {
-    colorscheme = { "nightfox" },
+    colorscheme = { "nordfox" },
   },
   ui = {
     border = "single",
