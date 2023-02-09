@@ -93,6 +93,5 @@ return {
 
   -- Debuggers --
 
-  { "mfussenegger/nvim-dap", dependencies = { "rcarriga/nvim-dap-ui" } },
-  { "rcarriga/nvim-dap-ui" },
+  { "mfussenegger/nvim-dap" },
 }
