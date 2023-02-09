@@ -11,12 +11,14 @@
 {{- $fd := "fd-v[0-9.]+-x86_64-pc-windows-msvc[.]zip" }}
 {{- $rg := "ripgrep-[0-9.]+-x86_64-pc-windows-msvc[.]zip" }}
 {{- $starship := "starship-x86_64-pc-windows-msvc.zip" }}
+{{- $vscode_cpptools := "cpptools-win64.vsix" }}
 ## Darwin
 {{- if eq .chezmoi.os "darwin" }}
 {{-   $nvim = "nvim-macos.tar.gz" }}
 {{-   $fd = "fd-v[0-9.]+-x86_64-apple-darwin[.]tar[.]gz" }}
 {{-   $rg = "ripgrep-[0-9.]+-x86_64-apple-darwin[.]tar[.]gz" }}
 {{-   $starship := "starship-x86_64-apple-darwin.tar.gz" }}
+{{-   $vscode_cpptools := "cpptools-osx-arm64.vsix" }}
 {{- end }}
 
 [".dotfiles/deps/nvim/.local"]
@@ -45,6 +47,10 @@
 [".dotfiles/deps/cascadiacode-nf/.local/share/fonts"]
   type = "archive"
   url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
+
+[".dotfiles/deps/vscode-cpptools/vscode-cpptools.zip"]
+  type = "file"
+  url = "https://github.com/microsoft/vscode-cpptools/releases/latest/download/{{ $vscode_cpptools }}"
 
 {{- if eq .chezmoi.os "windows" }}
 [".dotfiles/deps/broot/.local/bin/broot.exe"]
