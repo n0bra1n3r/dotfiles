@@ -1,10 +1,8 @@
 [directory]
   truncate_to_repo = false
 
-#[directory.substitution_regexes]
-#  "src/([^/]*)/main" = "$1/main"
-#  "src/([^/]*)/master" = "$1/master"
-#  "src/([^/]*)/staging" = "$1/staging"
-
 [nim]
   symbol = ' '
+
+[package]
+  disabled = true
