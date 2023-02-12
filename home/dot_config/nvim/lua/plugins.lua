@@ -71,7 +71,8 @@ return {
   { "jose-elias-alvarez/null-ls.nvim", event = "BufRead" },
 
   { "hrsh7th/cmp-nvim-lsp", event = "InsertEnter" },
-  { "hrsh7th/nvim-cmp", event = "InsertEnter" },
+  { "hrsh7th/nvim-cmp", event = "InsertEnter", dependencies = { "tzachar/cmp-tabnine" } },
+  { "tzachar/cmp-tabnine", build = "powershell ./install.ps1" },
 
   { "windwp/nvim-autopairs", event = "InsertEnter" },
 

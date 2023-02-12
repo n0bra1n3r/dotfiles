@@ -60,6 +60,7 @@ function M.config()
     },
     sources = {
       { name = "nvim_lsp" },
+      { name = "cmp_tabnine" },
     },
   }
 end
