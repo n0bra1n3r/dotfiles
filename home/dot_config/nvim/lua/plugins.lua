@@ -72,7 +72,8 @@ return {
 
   { "hrsh7th/cmp-nvim-lsp", event = "InsertEnter" },
   { "hrsh7th/nvim-cmp", event = "InsertEnter", dependencies = { "tzachar/cmp-tabnine" } },
-  { "tzachar/cmp-tabnine", build = "powershell ./install.ps1" },
+  { "tzachar/cmp-tabnine", build = "powershell ./install.ps1", cond = vim.fn.has("win32") },
+  { "tzachar/cmp-tabnine", build = "./install.sh", cond = not vim.fn.has("win32") },
 
   { "windwp/nvim-autopairs", event = "InsertEnter" },
 
