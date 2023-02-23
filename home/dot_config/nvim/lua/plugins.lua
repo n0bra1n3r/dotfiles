@@ -9,7 +9,7 @@ return {
   { "EdenEast/nightfox.nvim", lazy = false },
   { "nvim-lualine/lualine.nvim", lazy = false },
 
-  { "folke/which-key.nvim", keys = "<leader>" },
+  { "folke/which-key.nvim", event = "VeryLazy" },
 
   {
     "voldikss/vim-floaterm",
