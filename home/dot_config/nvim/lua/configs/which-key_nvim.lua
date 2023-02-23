@@ -57,7 +57,6 @@ function M.config()
       P = { "paste unformatted before" },
       p = { "paste unformatted after" },
       s = { "<cmd>lua fn.search.prompt()<CR>", "search string" },
-      t = { "<cmd>lua fn.open_file_tree()<CR>", "file tree" },
       q = {
         name = "quickfix",
         q = { "<cmd>lua fn.toggle_quickfix()<CR>", "show" },

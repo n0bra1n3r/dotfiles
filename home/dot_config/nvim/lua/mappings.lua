@@ -41,7 +41,7 @@ return {
     ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up>$l':'<Left>'", expr = true },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
     ["<PageDown>"]      = { "L<Down>", noremap = false },
-    ["<Space><Space>"]  = { ":", silent = false, desc = "command mode" },
+    ["<Space><Space>"]  = { fn.open_file_tree, desc = "file tree" },
     [";"]               = { "l" },
     gf                  = { function() fn.edit_file("edit", vim.fn.expand("<cfile>")) end },
     h                   = { ";" },
