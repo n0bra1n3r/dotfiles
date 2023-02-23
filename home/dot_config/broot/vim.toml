@@ -32,3 +32,6 @@ show_selection_mark = true
   key = "alt-backspace"
   internal = "input_clear"
   leave_broot = false
+
+[special-paths]
+  "**/.git" = "no-enter"
