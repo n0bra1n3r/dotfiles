@@ -1,4 +1,4 @@
-default_flags = "gt"
+default_flags = "ht"
 max_panels_count = 1
 show_selection_mark = true
 
