@@ -571,37 +571,40 @@ end
 
 local function render_stats(bufnr)
   local info = get_search_info(bufnr)
-  local line_info = info.line_array[info.cursor_line + 1]
 
-  local namespace = api.nvim_create_namespace(info.namespace.."-"..line_info.file_name)
-  local header = api.nvim_buf_get_extmark_by_id(bufnr, namespace, 1, { details = true })[3]
+  if #info.line_array > 0 then
+    local line_info = info.line_array[info.cursor_line + 1]
 
-  local total_file_count = vim.tbl_count(info.file_table)
-  local total_line_count = #info.line_array
+    local namespace = api.nvim_create_namespace(info.namespace.."-"..line_info.file_name)
+    local header = api.nvim_buf_get_extmark_by_id(bufnr, namespace, 1, { details = true })[3]
 
-  local search_stats
+    local total_file_count = vim.tbl_count(info.file_table)
+    local total_line_count = #info.line_array
 
-  if info.is_searching then 
-    search_stats = {{
-      string.format(" Found <%s> in %d lines in %d files... ", info.search_term, total_line_count, total_file_count),
-      "Substitute",
-    }}
-  else
-    search_stats = {{
-      string.format(" Found <%s> in %d lines in %d files. ", info.search_term, total_line_count, total_file_count),
-      "IncSearch",
-    }}
+    local search_stats
+
+    if info.is_searching then
+      search_stats = {{
+        string.format(" Found <%s> in %d lines in %d files... ", info.search_term, total_line_count, total_file_count),
+        "Substitute",
+      }}
+    else
+      search_stats = {{
+        string.format(" Found <%s> in %d lines in %d files. ", info.search_term, total_line_count, total_file_count),
+        "IncSearch",
+      }}
+    end
+
+    header.id = 1
+
+    if #header.virt_lines == 2 then
+      table.insert(header.virt_lines, 1, search_stats)
+    else
+      header.virt_lines[1] = search_stats
+    end
+
+    api.nvim_buf_set_extmark(bufnr, namespace, 0, 0, header)
   end
-
-  header.id = 1
-
-  if #header.virt_lines == 2 then
-    table.insert(header.virt_lines, 1, search_stats)
-  else
-    header.virt_lines[1] = search_stats
-  end
-
-  api.nvim_buf_set_extmark(bufnr, namespace, 0, 0, header)
 end
 
 -- Text replacement --
