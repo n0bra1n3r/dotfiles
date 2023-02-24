@@ -51,7 +51,7 @@ return {
   { "kevinhwang91/nvim-hlslens", event = { "BufRead", "BufModifiedSet" } },
   { "haya14busa/vim-asterisk", event = { "BufRead", "BufModifiedSet" } },
 
-  { "nvim-telescope/telescope.nvim", cmd = "Telescope" },
+  { "nvim-telescope/telescope.nvim", event = "VeryLazy" },
 
   { "lewis6991/satellite.nvim", event = "BufEnter" },
 
