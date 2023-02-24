@@ -45,17 +45,6 @@ function M.config()
         x = { "<cmd>lua fn.debug_exit()<CR>", "exit" }
       },
       l = { name = "LSP" },
-      r = {
-        name = "runner",
-        b = { "<cmd>lua fn.project_build()<CR>", "build" },
-        d = { "<cmd>lua fn.project_build_and_debug()<CR>", "build and debug" },
-        r = { "<cmd>lua fn.project_build_and_run()<CR>", "build and run" },
-        R = { "<cmd>lua fn.project_run()<CR>", "run" },
-        s = { "<cmd>lua fn.open_run_shell()<CR>", "shell" },
-        t = { "<cmd>lua fn.project_test()<CR>", "test" },
-      },
-      P = { "paste unformatted before" },
-      p = { "paste unformatted after" },
       s = { "<cmd>lua fn.search.prompt()<CR>", "search string" },
       q = {
         name = "quickfix",
@@ -71,10 +60,7 @@ function M.config()
 
   require"which-key".register({
     ["<leader>"] = {
-      s = {
-        name = "search",
-        s = { "<cmd>lua fn.search.prompt([[]], vim.fn.expand[[<cword>]])<CR>", "strings" },
-      },
+      s = { "<cmd>lua fn.search.prompt([[]], vim.fn.expand[[<cword>]])<CR>", "search string" },
     },
   }, { mode = "x" })
 end
