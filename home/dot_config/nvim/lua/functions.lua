@@ -176,7 +176,7 @@ function _G.fn.edit_file(mode, path)
   if target_winid == nil then
     local exclude = {
       filetype = {
-        "packer",
+        "lazy",
         "qf",
         "floaterm",
       },
