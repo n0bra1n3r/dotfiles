@@ -88,7 +88,7 @@ return {
 
   -- Command Runners --
 
-  { "skywind3000/asyncrun.vim", cmd = "AsyncRun" },
+  { "skywind3000/asyncrun.vim", cmd = { "AsyncRun", "AsyncStop" } },
 
   { "skywind3000/asynctasks.vim",
     cmd = { "AsyncTask", "AsyncTaskMacro", "AsyncTaskList", "AsyncTaskProfile", "AsyncTaskEdit" } },
