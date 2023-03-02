@@ -2,12 +2,6 @@ _G.fn = {}
 
 -- helpers --
 
-local function get_wins_for_buf_type(buf_type)
-  return vim.fn.filter(
-    vim.fn.range(1, vim.fn.winnr("$")),
-    string.format("getwinvar(v:val, '&bt') == '%s'", buf_type))
-end
-
 local function pick_window(exclude)
   local tabpage = vim.api.nvim_get_current_tabpage()
   local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
@@ -83,17 +77,6 @@ local function pick_window(exclude)
   return win_map[resp]
 end
 
-local function send_to_floaterm(name, command)
-  local success = pcall(vim.fn["floaterm#send"],
-    0,
-    vim.fn.visualmode(),
-    0,
-    0,
-    0,
-    string.format("--name=%s %s", name, command))
-  return success
-end
-
 -- shell --
 
 function _G.fn.save_dot_files()
@@ -101,52 +84,6 @@ function _G.fn.save_dot_files()
 end
 
 -- nvim --
-
-function _G.fn.open_quickfix()
-  local cur_win = vim.fn.winnr()
-  local term_wins = get_wins_for_buf_type("terminal")
-
-  if #term_wins > 0 then
-    vim.cmd(string.format("%dwincmd w "
-      .."| stopinsert "
-      .."| vertical copen "
-      .."| setlocal nonumber "
-      .."| vertical resize %d", term_wins[1], vim.o.columns / 2))
-  else
-    vim.cmd(string.format("%dcopen "
-      .."| setlocal nonumber "
-      .."| wincmd J", math.min(#vim.fn.getqflist(), vim.o.lines / 3)))
-  end
-
-  vim.cmd(string.format("%dwincmd w", cur_win))
-end
-
-local is_quickfix_force_closed = false
-
-function _G.fn.toggle_quickfix()
-  if #get_wins_for_buf_type("quickfix") == 0 then
-    if #vim.fn.getqflist() > 0 then
-      fn.open_quickfix()
-    end
-
-    is_quickfix_force_closed = false
-  else
-    vim.cmd[[cclose]]
-
-    is_quickfix_force_closed = true
-  end
-end
-
-function _G.fn.show_quickfix()
-  if is_quickfix_force_closed == false then
-    local diagnostics = fn.get_qf_diagnostics()
-    if diagnostics.error > 0 or
-        diagnostics.warn > 0 or
-        diagnostics.hint > 0 then
-      fn.open_quickfix()
-    end
-  end
-end
 
 function _G.fn.close_buffer()
   if vim.fn.tabpagenr() > 1 then
@@ -209,63 +146,7 @@ function _G.fn.set_shell_title()
   end
 end
 
-function _G.fn.cleanup_window_if_needed()
-  local win_config = vim.api.nvim_win_get_config(0)
-
-  if win_config.relative ~= "" then
-    if vim.bo.filetype == "floaterm" then
-      vim.cmd[[FloatermHide]]
-    end
-  end
-end
-
--- cmp --
-
-local prev_line
-
-function _G.fn.trigger_completion()
-  local line = vim.api.nvim_get_current_line()
-  local cursor = vim.api.nvim_win_get_cursor(0)[2]
-
-  local before_line = string.sub(line, 1, cursor + 1)
-  local after_line = string.sub(line, cursor + 1, -1)
-
-  if prev_line == nil or #prev_line < #before_line then
-    if string.len(after_line) == 0 and (
-      string.match(before_line, "[%w%.]%w$") or
-      string.match(before_line, "[%.]$")) then
-      require"cmp".complete()
-    else
-      require"cmp".close()
-    end
-  else
-    require"cmp".close()
-  end
-
-  prev_line = before_line
-end
-
-function _G.fn.end_completion()
-  require"cmp".close()
-end
-
 -- lualine --
-
-function _G.fn.get_qf_diagnostics()
-  local error_count = 0
-  local hint_count = 0
-  local warn_count = 0
-  for _, value in ipairs(vim.fn.getqflist()) do
-    if value.type == "E" then
-      error_count = error_count + 1
-    elseif value.type == "N" then
-      hint_count = hint_count + 1
-    elseif value.type == "W" then
-      warn_count = warn_count + 1
-    end
-  end
-  return { error = error_count, hint = hint_count, warn = warn_count }
-end
 
 local is_job_in_progress = false
 
@@ -276,73 +157,6 @@ end
 function _G.fn.set_is_job_in_progress(value)
   is_job_in_progress = value
   vim.cmd[[redrawtabline]]
-end
-
--- floaterm --
-
-function _G.fn.open_shell(command)
-  if vim.fn["floaterm#terminal#get_bufnr"]("shell") == -1 then
-    vim.fn["floaterm#new"](0,
-      "bash --rcfile ~/.dotfiles/floatermrc",
-      { [''] = '' },
-      {
-        silent = 1,
-        name = "shell",
-        title = " shell [$1:$2]",
-        borderchars = "",
-        height = math.ceil(vim.o.lines * 0.3),
-        width = math.ceil(vim.o.columns),
-        position = "bottom",
-      })
-  end
-
-  vim.cmd[[FloatermShow shell]]
-
-  if command ~= nil then
-    vim.cmd(string.format('set ssl | exec "FloatermSend --name=shell %s" | set nossl', command))
-  end
-end
-
-function _G.fn.open_run_shell()
-  local qf_wins = get_wins_for_buf_type("quickfix")
-
-  vim.cmd[[cclose]]
-  local success = pcall(vim.fn["floaterm#show"], 0, 0, "run_shell")
-
-  if #qf_wins > 0 then
-    fn.open_quickfix()
-  end
-
-  return success
-end
-
-function _G.fn.run_process(command, notify)
-  vim.fn["floaterm#new"](0,
-    command,
-    {
-      on_exit = function()
-        vim.cmd(notify)
-      end,
-    },
-    {
-      silent = 1,
-      name = "run_shell",
-      title = "run",
-      wintype = "split",
-      height = math.floor(vim.o.lines / 3),
-    })
-
-  if fn.open_run_shell() then
-    vim.api.nvim_buf_set_name(0, command)
-    vim.cmd(string.format("stopinsert | exec 'normal G' | %dwincmd w", vim.fn.winnr()))
-  end
-end
-
-function _G.fn.run_command(command)
-  if fn.open_run_shell() then
-    send_to_floaterm("run_shell", string.format("\x1b[F\x1b[1;5H%s\r", command))
-    vim.cmd(string.format("stopinsert | exec 'normal G' | %dwincmd w", vim.fn.winnr()))
-  end
 end
 
 -- AsyncTask --

@@ -16,7 +16,7 @@ function M.config()
   }
   require"which-key".register({
     ["<leader>"] = {
-      ["`"] = { "<cmd>lua fn.open_shell()<CR>", "shell" },
+      ["`"] = { "<cmd>lua fn.open_terminal()<CR>", "terminal" },
       g = {
         name = "git",
         b = { "<cmd>Gitsigns blame_line<CR>", "blame" },
@@ -30,37 +30,27 @@ function M.config()
       },
       f = {
         name = "file",
-        d = { "<cmd>lua fn.delete_file()<CR>", "delete" },
-        m = { "<cmd>lua fn.move_file()<CR>", "move" },
-        o = { "<cmd>lua fn.open_file()<CR>", "open" },
-      },
-      d = {
-        name = "debug",
-        b = { "<cmd>lua fn.debug_break()<CR>", "break" },
-        B = { "<cmd>lua fn.project_debug()<CR>", "restart" },
-        c = { "<cmd>lua fn.debug_continue()<CR>", "continue" },
-        d = { "<cmd>lua fn.debug_step()<CR>", "step" },
-        s = { "<cmd>lua fn.debug_show_symbol()<CR>", "symbol" },
-        S = { "<cmd>lua fn.debug_show_symbols()<CR>", "symbols" },
-        x = { "<cmd>lua fn.debug_exit()<CR>", "exit" }
+        d = { fn.delete_file, "delete" },
+        m = { fn.move_file, "move" },
+        o = { fn.open_file, "open" },
       },
       l = { name = "LSP" },
-      s = { "<cmd>lua fn.search.prompt()<CR>", "search string" },
+      s = { fn.search.prompt, "search string" },
       q = {
         name = "quickfix",
-        q = { "<cmd>lua fn.toggle_quickfix()<CR>", "show" },
-        n = { "<cmd>exec 'lua fn.open_quickfix()' | cnext<CR>", "next" },
-        N = { "<cmd>exec 'lua fn.open_quickfix()' | cprev<CR>", "previous" },
+        q = { fn.toggle_quickfix, "toggle" },
+        j = { fn.next_quickfix, "next" },
+        k = { fn.prev_quickfix, "previous" },
       },
-      w = { "<cmd>lua fn.choose_window()<CR>", "window" },
-      x = { "<cmd>lua fn.close_buffer()<CR>", "close" },
+      w = { fn.choose_window, "window" },
+      x = { fn.close_buffer, "close" },
       z = { "<cmd>only<CR>", "zoom" },
     },
   }, { mode = "n" })
 
   require"which-key".register({
     ["<leader>"] = {
-      s = { "<cmd>lua fn.search.prompt([[]], vim.fn.expand[[<cword>]])<CR>", "search string" },
+      s = { function() fn.search.prompt([[]], vim.fn.expand[[<cword>]]) end, "search string" },
     },
   }, { mode = "x" })
 end

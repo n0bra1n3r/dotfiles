@@ -6,11 +6,28 @@ function M.init()
 end
 
 function M.config()
-  vim.cmd[[augroup conf_floaterm]]
-  vim.cmd[[autocmd!]]
-  vim.cmd[[autocmd FileType floaterm nnoremap <buffer><silent> <Esc> <cmd>FloatermHide<CR>]]
-  vim.cmd[[autocmd VimLeavePre * FloatermKill!]]
-  vim.cmd[[augroup end]]
+  local group = vim.api.nvim_create_augroup("conf_floaterm", { clear = true })
+
+  vim.api.nvim_create_autocmd("FileType", {
+    group = group,
+    pattern = "floaterm",
+    command = [[nnoremap <buffer><silent> <Esc> <cmd>FloatermHide<CR>]],
+  })
+  vim.api.nvim_create_autocmd("WinLeave", {
+    group = group,
+    pattern = "floaterm",
+    callback = function()
+      local win_config = vim.api.nvim_win_get_config(0)
+      if win_config.relative ~= "" then
+        vim.cmd[[FloatermHide]]
+      end
+    end,
+  })
+  vim.api.nvim_create_autocmd("VimLeavePre", {
+    group = group,
+    pattern = "*",
+    command = [[FloatermKill!]],
+  })
 end
 
 return M

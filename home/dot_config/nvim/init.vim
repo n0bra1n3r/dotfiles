@@ -18,7 +18,6 @@ augroup conf_editor
   autocmd DirChanged,VimEnter * lua fn.refresh_git_info()
   autocmd TextChanged,TextChangedI * let b:changedtime = localtime()
   autocmd TextYankPost * lua vim.highlight.on_yank()
-  autocmd WinLeave * lua fn.cleanup_window_if_needed()
 augroup end
 
 augroup conf_help
