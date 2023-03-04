@@ -101,10 +101,8 @@ function _G.fn.edit_file(mode, path)
 
   local target_winid
 
-  local found = false
   for _, id in ipairs(win_ids) do
     if path == vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(id)) then
-      found = true
       target_winid = id
       break
     end
@@ -121,7 +119,10 @@ function _G.fn.edit_file(mode, path)
         "terminal",
       },
     }
-    vim.api.nvim_set_current_win(pick_window(exclude))
+    target_winid = pick_window(exclude)
+    if target_winid ~= -1 then
+      vim.api.nvim_set_current_win(target_winid)
+    end
     vim.cmd(string.format("%s %s", mode, path))
   else
     vim.api.nvim_set_current_win(target_winid)
