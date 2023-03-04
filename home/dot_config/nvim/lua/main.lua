@@ -18,7 +18,7 @@ vim.opt.display:append("lastline")
 vim.opt.display:append("uhex")
 vim.opt.equalalways = true
 vim.opt.expandtab = true
-vim.opt.fillchars = { eob = " " }
+vim.opt.fillchars = "eob: ,fold: ,foldopen:,foldsep: ,foldclose:"
 vim.opt.foldenable = false
 vim.opt.foldmethod = "indent"
 vim.opt.grepprg = "rg --vimgrep --no-heading --smart-case"

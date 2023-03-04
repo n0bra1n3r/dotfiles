@@ -30,7 +30,6 @@ augroup conf_quickfix
   autocmd!
   autocmd FileType qf setlocal nobuflisted
   autocmd FileType qf setlocal colorcolumn=
-  autocmd FileType qf setlocal wrap
   autocmd FileType qf nnoremap <buffer><silent> <Esc> <cmd>close<CR>
   autocmd VimLeavePre * cclose
 augroup end

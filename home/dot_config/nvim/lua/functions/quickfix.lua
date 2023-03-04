@@ -6,13 +6,21 @@ local function open_quickfix()
     .."| wincmd J", math.min(#vim.fn.getqflist(), vim.o.lines / 6)))
 end
 
+local function close_quickfix()
+  vim.cmd[[cclose]]
+end
+
+function M.is_quickfix_visible()
+  return #fn.get_wins_for_buf_type("quickfix") > 0
+end
+
 function M.toggle_quickfix()
-  if #require'functions.vimutils'.get_wins_for_buf_type("quickfix") == 0 then
+  if not M.is_quickfix_visible() then
     if #vim.fn.getqflist() > 0 then
       open_quickfix()
     end
   else
-    vim.cmd[[cclose]]
+    close_quickfix()
   end
 end
 
@@ -23,6 +31,10 @@ function M.show_quickfix()
       diagnostics.hint > 0 then
     open_quickfix()
   end
+end
+
+function M.hide_quickfix()
+  close_quickfix()
 end
 
 function M.next_quickfix()
