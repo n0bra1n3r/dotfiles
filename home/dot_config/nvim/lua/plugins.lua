@@ -71,9 +71,7 @@ return {
   { "jose-elias-alvarez/null-ls.nvim", event = "BufRead" },
 
   { "hrsh7th/cmp-nvim-lsp", event = "InsertEnter" },
-  { "hrsh7th/nvim-cmp", event = "InsertEnter", dependencies = { "tzachar/cmp-tabnine" } },
-  { "tzachar/cmp-tabnine", build = "powershell ./install.ps1", cond = vim.fn.has("win32") },
-  { "tzachar/cmp-tabnine", build = "./install.sh", cond = not vim.fn.has("win32") },
+  { "hrsh7th/nvim-cmp", event = "InsertEnter" },
 
   { "windwp/nvim-autopairs", event = "InsertEnter" },
 
@@ -91,7 +89,9 @@ return {
   { "skywind3000/asyncrun.vim", cmd = { "AsyncRun", "AsyncStop" } },
 
   { "skywind3000/asynctasks.vim",
-    cmd = { "AsyncTask", "AsyncTaskMacro", "AsyncTaskList", "AsyncTaskProfile", "AsyncTaskEdit" } },
+    cmd = { "AsyncTask", "AsyncTaskMacro", "AsyncTaskList", "AsyncTaskProfile", "AsyncTaskEdit" },
+    dependencies = { "skywind3000/asyncrun.vim" },
+  },
 
   -- Debuggers --
 
