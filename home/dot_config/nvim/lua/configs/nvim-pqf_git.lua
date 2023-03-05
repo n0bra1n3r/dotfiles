@@ -22,6 +22,8 @@ function M.config()
       vim.wo.foldcolumn = "2"
       vim.wo.foldtext = "getline(v:foldstart)"
       vim.wo.foldenable = true
+
+      vim.api.nvim_buf_set_keymap(0, "n", [[<Tab>]], [[foldclosed('.')!=-1?'zMzO[z':'zM']], { expr = true, noremap = true })
     end,
   })
 
