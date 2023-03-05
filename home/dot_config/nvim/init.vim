@@ -1,5 +1,9 @@
 set runtimepath+=~/.config/nvim
 
+""" Init settings
+
+set modeline
+
 """ Lua
 
 lua require "main"

@@ -1,7 +1,203 @@
-_G.fn = {}
+-- vim: foldmethod=marker foldlevel=0 foldenable
 
--- helpers --
+--{{{ Diagnostics
+  function fn.get_qf_diagnostics()
+    local error_count = 0
+    local hint_count = 0
+    local warn_count = 0
+    for _, value in ipairs(vim.fn.getqflist()) do
+      if value.type == "E" then
+        error_count = error_count + 1
+      elseif value.type == "N" then
+        hint_count = hint_count + 1
+      elseif value.type == "W" then
+        warn_count = warn_count + 1
+      end
+    end
+    return { error = error_count, hint = hint_count, warn = warn_count }
+  end
 
+  function fn.set_qf_diagnostics()
+    local namespace = vim.api.nvim_create_namespace("qf-diagnostics")
+    local buf_diagnostics = {}
+
+    for _, diagnostic in ipairs(vim.diagnostic.fromqflist(vim.fn.getqflist())) do
+      local buf_key = diagnostic.bufnr
+
+      if buf_diagnostics[buf_key] == nil then
+        buf_diagnostics[buf_key] = {}
+      end
+
+      table.insert(buf_diagnostics[buf_key], diagnostic)
+    end
+
+    vim.diagnostic.reset(namespace)
+
+    for buf_key, diagnostics in pairs(buf_diagnostics) do
+      vim.diagnostic.set(namespace, buf_key, diagnostics)
+    end
+  end
+--}}}
+
+--{{{ Git
+local is_git_dir = false
+local git_branch = nil
+local has_git_remote = false
+local git_local_change_count = 0
+local git_remote_change_count = 0
+
+function fn.refresh_git_change_info()
+  if is_git_dir then
+    git_local_change_count = tonumber(vim.fn.system(string.format("git rev-list --right-only --count %s@{upstream}...%s", git_branch, git_branch)))
+    git_remote_change_count = tonumber(vim.fn.system(string.format("git rev-list --left-only --count %s@{upstream}...%s", git_branch, git_branch)))
+  end
+end
+
+function fn.refresh_git_info()
+  vim.fn.system[[git rev-parse --is-inside-work-tree]]
+  is_git_dir = vim.v.shell_error == 0
+
+  if is_git_dir then
+    git_branch = vim.fn.system[[git branch --show-current]]:match[[(.-)%s*$]]
+
+    vim.fn.system("git show-branch remotes/origin/"..git_branch)
+    has_git_remote = vim.v.shell_error == 0
+  end
+
+  fn.refresh_git_change_info()
+end
+
+function fn.is_git_dir()
+  return is_git_dir
+end
+
+function fn.get_git_branch()
+  return git_branch
+end
+
+function fn.has_git_remote()
+  return has_git_remote
+end
+
+function fn.git_local_change_count()
+  return git_local_change_count
+end
+
+function fn.git_remote_change_count()
+  return git_remote_change_count
+end
+--}}}
+
+--{{{ Files
+function fn.delete_file()
+  vim.fn.delete(vim.fn.expand('%:p'))
+  vim.cmd[[bwipeout!]]
+end
+
+function fn.open_file()
+  local rel_dir = vim.fn.expand("%:h").."/"
+  local path = vim.fn.input("open path: ", rel_dir, "dir")
+
+  if #path == 0 or
+      path == rel_dir or
+      path.."/" == rel_dir then
+    return
+  end
+
+  rel_dir = vim.fn.fnamemodify(path, ":h")
+  if #vim.fn.glob(rel_dir) == 0 then
+    vim.cmd(string.format("!bash -c 'mkdir -p \"%s\"'", rel_dir))
+  end
+  vim.cmd(string.format("edit %s", path))
+end
+
+function fn.move_file()
+  local rel_file = vim.fn.expand("%")
+  local path = vim.fn.input("move path: ", rel_file, "file")
+
+  if #path == 0 or
+      path == rel_file then
+    return
+  end
+
+  local rel_dir = vim.fn.fnamemodify(path, ":h")
+  if #vim.fn.glob(rel_dir) == 0 then
+    vim.cmd(string.format("!bash -c 'mkdir -p \"%s\"'", rel_dir))
+  end
+  vim.cmd(string.format("saveas %s | call delete(expand('#')) | bwipeout #", path))
+end
+
+function fn.open_file_tree()
+  if vim.fn["floaterm#terminal#get_bufnr"]("files") == -1 then
+    local bufnr = vim.fn["floaterm#new"](0,
+      "bash --rcfile ~/.dotfiles/brootrc",
+      { [''] = '' },
+      {
+        silent = 1,
+        name = "files",
+        title = "files",
+        height = math.ceil(vim.o.lines * 0.9),
+        width = math.ceil(vim.o.columns * 0.9),
+        position = "center",
+      })
+    vim.api.nvim_create_autocmd("TermLeave", {
+      buffer = bufnr,
+      command = "FloatermHide files",
+    })
+  end
+  vim.cmd[[FloatermShow files]]
+end
+--}}}
+
+--{{{ LSP
+local function preview_location_callback(_, result, ctx)
+  if result == nil or vim.tbl_isempty(result) then
+    vim.lsp.log.info(ctx, "No location found")
+    return nil
+  end
+
+  if vim.tbl_islist(result) then
+    vim.lsp.util.preview_location(result[1])
+  else
+    vim.lsp.util.preview_location(result)
+  end
+end
+
+function fn.peek_definition()
+  local params = vim.lsp.util.make_position_params()
+  return vim.lsp.buf_request(0, "textDocument/definition", params, preview_location_callback)
+end
+
+local prev_line
+
+function fn.trigger_completion()
+  local line = vim.api.nvim_get_current_line()
+  local cursor = vim.api.nvim_win_get_cursor(0)[2]
+
+  local before_line = string.sub(line, 1, cursor + 1)
+  local after_line = string.sub(line, cursor + 1, -1)
+
+  if prev_line == nil or #prev_line < #before_line then
+    if string.len(after_line) == 0 and (
+      string.match(before_line, "[%w%.]%w$") or
+      string.match(before_line, "[%.]$")) then
+      require"cmp".complete()
+    else
+      require"cmp".close()
+    end
+  else
+    require"cmp".close()
+  end
+
+  prev_line = before_line
+end
+
+function fn.end_completion()
+  require"cmp".close()
+end
+--}}}
+
+--{{{ Navigation
 local function pick_window(exclude)
   local tabpage = vim.api.nvim_get_current_tabpage()
   local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
@@ -77,15 +273,7 @@ local function pick_window(exclude)
   return win_map[resp]
 end
 
--- shell --
-
-function _G.fn.save_dot_files()
-  vim.cmd[[AsyncRun -strip chezmoi apply --exclude=scripts --force --source-path "%"]]
-end
-
--- nvim --
-
-function _G.fn.close_buffer()
+function fn.close_buffer()
   if vim.fn.tabpagenr() > 1 then
     vim.cmd[[tabclose]]
   elseif vim.fn.winnr("$") > 1 then
@@ -95,7 +283,7 @@ function _G.fn.close_buffer()
   end
 end
 
-function _G.fn.edit_file(mode, path)
+function fn.edit_file(mode, path)
   local tabpage = vim.api.nvim_get_current_tabpage()
   local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
 
@@ -129,15 +317,66 @@ function _G.fn.edit_file(mode, path)
   end
 end
 
-function _G.fn.choose_window()
+function fn.choose_window()
   local picked = pick_window()
 
   if picked ~= nil then
     vim.api.nvim_set_current_win(picked)
   end
 end
+--}}}
 
-function _G.fn.set_shell_title()
+--{{{ Quickfix
+local function open_quickfix()
+  vim.cmd(string.format("%dcopen "
+    .."| setlocal nonumber "
+    .."| wincmd J", math.min(#vim.fn.getqflist(), vim.o.lines / 6)))
+end
+
+local function close_quickfix()
+  vim.cmd[[cclose]]
+end
+
+function fn.is_quickfix_visible()
+  return #fn.get_wins_for_buf_type("quickfix") > 0
+end
+
+function fn.toggle_quickfix()
+  if not fn.is_quickfix_visible() then
+    if #vim.fn.getqflist() > 0 then
+      open_quickfix()
+    end
+  else
+    close_quickfix()
+  end
+end
+
+function fn.show_quickfix()
+  local diagnostics = fn.get_qf_diagnostics()
+  if diagnostics.error > 0 or
+      diagnostics.warn > 0 or
+      diagnostics.hint > 0 then
+    open_quickfix()
+  end
+end
+
+function fn.hide_quickfix()
+  close_quickfix()
+end
+
+function fn.next_quickfix()
+  open_quickfix()
+  vim.cmd[[cnext]]
+end
+
+function fn.prev_quickfix()
+  open_quickfix()
+  vim.cmd[[cprev]]
+end
+--}}}
+
+--{{{ Shell
+function fn.set_shell_title()
   if #vim.bo.buftype == 0 then
     local file_name = vim.fn.expand("%:t")
 
@@ -146,28 +385,119 @@ function _G.fn.set_shell_title()
     end
   end
 end
+--}}}
 
--- lualine --
-
+--{{{ Tasks
 local is_job_in_progress = false
 
-function _G.fn.get_is_job_in_progress()
+function fn.get_is_job_in_progress()
   return is_job_in_progress
 end
 
-function _G.fn.set_is_job_in_progress(value)
+function fn.set_is_job_in_progress(value)
   is_job_in_progress = value
   vim.cmd[[redrawtabline]]
 end
 
--- AsyncTask --
-
-function _G.fn.project_status()
+function fn.project_status()
   return vim.g.asynctasks_profile
 end
 
-function _G.fn.project_check()
+function fn.project_check()
   if not fn.get_is_job_in_progress() then
     vim.cmd[[AsyncTask project-check]]
   end
 end
+
+function fn.save_dot_files()
+  vim.cmd[[AsyncRun -strip chezmoi apply --exclude=scripts --force --source-path "%"]]
+end
+--}}}
+
+--{{{ Terminal
+function fn.open_terminal(command)
+  if vim.fn["floaterm#terminal#get_bufnr"]("terminal") == -1 then
+    vim.fn["floaterm#new"](0,
+      "bash --rcfile ~/.dotfiles/floatermrc",
+      { [''] = '' },
+      {
+        silent = 1,
+        name = "terminal",
+        title = " terminal [$1:$2]",
+        borderchars = "",
+        height = math.ceil(vim.o.lines * 0.3),
+        width = math.ceil(vim.o.columns),
+        position = "bottom",
+      })
+  end
+
+  vim.cmd[[FloatermShow terminal]]
+
+  if command ~= nil then
+    vim.cmd(string.format('set ssl | exec "FloatermSend --name=terminal %s" | set nossl', command))
+  end
+end
+--}}}
+
+--{{{ Utilities
+function fn.get_map_expr(key)
+  return string.format("v:count || mode(1)[0:1] == 'no' ? '%s' : 'g%s'", key, key)
+end
+
+function fn.get_wins_for_buf_type(buf_type)
+  return vim.fn.filter(
+    vim.fn.range(1, vim.fn.winnr("$")),
+    string.format("getwinvar(v:val, '&bt') == '%s'", buf_type))
+end
+
+
+function fn.vim_defer(fn, timer)
+  return function()
+    if fn ~= nil then
+      if type(fn) == "function" then
+        vim.defer_fn(fn, timer or 0)
+      else
+        vim.defer_fn(function()
+          vim.cmd(fn)
+        end, timer or 0)
+      end
+    end
+  end
+end
+--}}}
+
+--{{{ Workspace
+function fn.get_workspace_dir()
+  local folder = vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.")
+
+  if not fn.is_git_dir() then
+    return folder
+  end
+
+  local branch = fn.get_git_branch()
+
+  local branch_path = branch
+  local folder_path = folder
+
+  while true do
+    local branch_part = vim.fn.fnamemodify(branch_path, ":t")
+    local folder_part = vim.fn.fnamemodify(folder_path, ":t")
+
+    if folder_part ~= branch_part then
+      return folder
+    end
+
+    branch_path = vim.fn.fnamemodify(branch_path, ":h")
+    folder_path = vim.fn.fnamemodify(folder_path, ":h")
+
+    if branch_path == "." then
+      return folder_path
+    end
+  end
+end
+
+function fn.switch_workspace(path)
+  vim.cmd[[FloatermKill!]]
+  vim.cmd("Prosession "..path)
+end
+--}}}

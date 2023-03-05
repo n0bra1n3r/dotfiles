@@ -1,26 +1,29 @@
-require "functions"
+-- vim: foldmethod=marker foldlevel=0 foldenable
 
-_G.fn = vim.tbl_extend("keep", _G.fn, require "functions.init")
+--{{{ Load Functions
+_G.fn = {}
+
 _G.fn.search = require "search"
 
--- Options --
+require "functions"
+--}}}
 
+--{{{ Options
 vim.g.mapleader = " "
 
 vim.opt.background = "dark"
-vim.opt.clipboard:append({ "unnamed", "unnamedplus" })
+vim.opt.clipboard:append { "unnamed", "unnamedplus" }
 vim.opt.cmdheight = 1
 vim.opt.colorcolumn = "81,120"
 vim.opt.confirm = true
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = "number"
-vim.opt.display:append("lastline")
-vim.opt.display:append("uhex")
+vim.opt.display:append "lastline"
+vim.opt.display:append "uhex"
 vim.opt.equalalways = true
 vim.opt.expandtab = true
-vim.opt.fillchars = "eob: ,fold: ,foldopen:,foldsep: ,foldclose:"
+vim.opt.fillchars = { eob = " ", fold = " ", foldopen = "", foldsep = " ", foldclose = "" }
 vim.opt.foldenable = false
-vim.opt.foldmethod = "indent"
 vim.opt.grepprg = "rg --vimgrep --no-heading --smart-case"
 vim.opt.grepformat = "%f:%l:%c:%m"
 vim.opt.guicursor = "v-n-sm:block,i-c-ci-ve:ver25,r-cr:hor20,o:hor20-blinkwait0-blinkon400-blinkoff250"
@@ -31,8 +34,8 @@ vim.opt.isident = "@,48-57,_,192-255"
 vim.opt.lazyredraw = true
 vim.opt.linebreak = true
 vim.opt.list = true
-vim.opt.listchars:append("multispace:· ")
-vim.opt.listchars:append("tab:▸ ")
+vim.opt.listchars:append "multispace:· "
+vim.opt.listchars:append "tab:▸ "
 vim.opt.mouse = ""
 vim.opt.number = true
 vim.opt.numberwidth = 2
@@ -40,7 +43,7 @@ vim.opt.ruler = false
 vim.opt.scrollback = 9001
 vim.opt.sessionoptions = "buffers,curdir,folds,winsize,winpos"
 vim.opt.shiftwidth = 2
-vim.opt.shortmess:append("sI")
+vim.opt.shortmess:append "sI"
 vim.opt.showbreak = "↪"
 vim.opt.showcmd = false
 vim.opt.showmode = false
@@ -58,51 +61,55 @@ vim.opt.timeoutlen = 400
 vim.opt.undofile = true
 vim.opt.updatetime = 250
 vim.opt.virtualedit = "onemore"
-vim.opt.whichwrap:append("<>[]hl")
+vim.opt.whichwrap:append "<>[]hl"
 vim.opt.wrap = true
 
-if os.getenv("MSYSTEM") ~= nil then
+if os.getenv"MSYSTEM" ~= nil then
   vim.opt.shell = "cmd.exe"
 end
+--}}}
 
--- Mappings --
+--{{{ Load Commands
+_G.commands = function(commands)
+  for command, def in pairs(commands) do
+    local targetCmd = def[1]
+    def[1] = nil
 
-local mappings = require "mappings"
+    vim.api.nvim_create_user_command(command, targetCmd, def)
+  end
+end
 
-for mode, mapping in pairs(mappings) do
-  for key, map in pairs(mapping) do
-    local targetKey = map[1]
-    map[1] = nil
+require "commands"
+--}}}
 
-    if map.noremap == nil then
-      map.noremap = true
-    end
-    if map.silent == nil then
-      map.silent = true
-    end
+--{{{ Load Mappings
+_G.mappings = function(mappings)
+  for mode, mapping in pairs(mappings) do
+    for key, map in pairs(mapping) do
+      local targetKey = map[1]
+      map[1] = nil
 
-    if type(targetKey) == "function" then
-      map = vim.tbl_extend("keep", map, { callback = targetKey })
-      vim.api.nvim_set_keymap(mode, key, [[]], map)
-    else
-      vim.api.nvim_set_keymap(mode, key, targetKey, map)
+      if map.noremap == nil then
+        map.noremap = true
+      end
+      if map.silent == nil then
+        map.silent = true
+      end
+
+      if type(targetKey) == "function" then
+        map = vim.tbl_extend("keep", map, { callback = targetKey })
+        vim.api.nvim_set_keymap(mode, key, [[]], map)
+      else
+        vim.api.nvim_set_keymap(mode, key, targetKey, map)
+      end
     end
   end
 end
 
--- Commands --
+require "mappings"
+--}}}
 
-local commands = require "commands"
-
-for command, def in pairs(commands) do
-  local targetCmd = def[1]
-  def[1] = nil
-
-  vim.api.nvim_create_user_command(command, targetCmd, def)
-end
-
--- Plugins --
-
+--{{{ Load Plugins
 local default_providers = {
   "node",
   "perl",
@@ -114,98 +121,101 @@ for _, provider in ipairs(default_providers) do
   vim.g["loaded_" .. provider .. "_provider"] = 0
 end
 
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+local lazypath = vim.fn.stdpath("data").."/lazy/lazy.nvim"
 
 if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
+  vim.fn.system {
     "git",
     "clone",
     "--filter=blob:none",
     "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- latest stable release
+    "--branch=stable",
     lazypath,
-  })
+  }
 end
 
 vim.opt.rtp:prepend(lazypath)
 
-local plugins = require "plugins"
+_G.plugins = function(plugins)
+  for _, spec in pairs(plugins) do
+    local plugin = spec[1]
+    local config = string.gsub(vim.fn.fnamemodify(plugin, ":t"), "%.", "_")
 
-for _, spec in pairs(plugins) do
-  local plugin = spec[1]
-  local config = string.gsub(vim.fn.fnamemodify(plugin, ":t"), "%.", "_")
-
-  local hasConfig, module = pcall(require, "configs."..config)
-  if hasConfig then
-    if module.init ~= nil then
-      if spec.init == nil then
-        spec.init = module.init
-      else
-        local spec_init = spec.init
-        spec.init = function()
-          spec_init()
-          module.init()
+    local hasConfig, module = pcall(require, "configs."..config)
+    if hasConfig then
+      if module.init ~= nil then
+        if spec.init == nil then
+          spec.init = module.init
+        else
+          local spec_init = spec.init
+          spec.init = function()
+            spec_init()
+            module.init()
+          end
         end
       end
-    end
-    if module.config ~= nil then
-      if spec.config == nil then
-        spec.config = function()
-          module.config()
-        end
-      else
-        local spec_config = spec.config
-        spec.config = function()
-          spec_config()
-          module.config()
+      if module.config ~= nil then
+        if spec.config == nil then
+          spec.config = function()
+            module.config()
+          end
+        else
+          local spec_config = spec.config
+          spec.config = function()
+            spec_config()
+            module.config()
+          end
         end
       end
     end
   end
-end
 
-require'lazy'.setup(plugins, {
-  defaults = {
-    lazy = true,
-  },
-  install = {
-    colorscheme = { "nordfox" },
-  },
-  ui = {
-    border = "single",
-  },
-  performance = {
-    rtp = {
-      disabled_plugins = {
-        "2html_plugin",
-        "bugreport",
-        "compiler",
-        "ftplugin",
-        "getscript",
-        "getscriptPlugin",
-        "gzip",
-        "logipat",
-        "netrw",
-        "netrwPlugin",
-        "netrwSettings",
-        "netrwFileHandlers",
-        "matchit",
-        "optwin",
-        "rplugin",
-        "rrhelper",
-        "spellfile",
-        "spellfile_plugin",
-        "syntax",
-        "synmenu",
-        "tar",
-        "tarPlugin",
-        "tohtml",
-        "tutor",
-        "vimball",
-        "vimballPlugin",
-        "zip",
-        "zipPlugin",
+  require'lazy'.setup(plugins, {
+    defaults = {
+      lazy = true,
+    },
+    install = {
+      colorscheme = { "nordfox" },
+    },
+    ui = {
+      border = "single",
+    },
+    performance = {
+      rtp = {
+        disabled_plugins = {
+          "2html_plugin",
+          "bugreport",
+          "compiler",
+          "ftplugin",
+          "getscript",
+          "getscriptPlugin",
+          "gzip",
+          "logipat",
+          "netrw",
+          "netrwPlugin",
+          "netrwSettings",
+          "netrwFileHandlers",
+          "matchit",
+          "optwin",
+          "rplugin",
+          "rrhelper",
+          "spellfile",
+          "spellfile_plugin",
+          "syntax",
+          "synmenu",
+          "tar",
+          "tarPlugin",
+          "tohtml",
+          "tutor",
+          "vimball",
+          "vimballPlugin",
+          "zip",
+          "zipPlugin",
+        },
       },
     },
-  },
-})
+  })
+end
+
+require "plugins"
+--}}}

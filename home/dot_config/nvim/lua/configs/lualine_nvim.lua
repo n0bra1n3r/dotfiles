@@ -1,16 +1,5 @@
 local M = {}
 
-function get_project_git_status()
-  if fn.is_git_dir() then
-    return {
-      up = fn.git_remote_change_count(),
-      down = fn.git_local_change_count(),
-    }
-  end
-
-  return { up = [[]], down = [[]] }
-end
-
 function project_state(values)
   if fn.get_is_job_in_progress() then
     return values.job
@@ -24,9 +13,12 @@ function M.config()
     lualine_a = {
       {
         function()
-          local mode = require"lualine.utils.mode".get_mode():sub(1, 1)
+          local mode = require'lualine.utils.mode'.get_mode():sub(1, 1)
           if fn.is_git_dir() then
-            return string.format("%s  %s", project_state{ job = 'ﲊ', default = mode }, fn.get_workspace_dir())
+            return string.format("%s  %s", project_state {
+              job = 'ﲊ',
+              default = mode,
+            }, fn.get_workspace_dir())
           end
           return mode
         end,
@@ -34,31 +26,23 @@ function M.config()
     },
     lualine_b = {
       {
-        function()
-          return fn.get_git_branch()
-        end,
+        fn.get_git_branch,
         cond = fn.is_git_dir,
         icon = '',
       },
       {
-        function()
-          return ""
-        end,
+        function() return "" end,
         cond = fn.is_git_dir,
         padding = { left = 0, right = 1 },
       },
       {
-        function()
-          return get_project_git_status().down
-        end,
+        fn.git_local_change_count,
         cond = fn.is_git_dir,
         icon = '',
         padding = { left = 0, right = 1 },
       },
       {
-        function()
-          return get_project_git_status().up
-        end,
+        fn.git_remote_change_count,
         cond = fn.has_git_remote,
         icon = '',
         padding = { left = 0, right = 1 },
@@ -88,9 +72,7 @@ function M.config()
     lualine_a = {
       { "fileformat" },
       {
-        function()
-          return ""
-        end,
+        function() return "" end,
         padding = { left = 0, right = 0 },
       },
       {
