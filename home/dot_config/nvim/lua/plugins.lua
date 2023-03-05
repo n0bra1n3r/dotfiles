@@ -28,7 +28,7 @@ plugins {
   { "akinsho/flutter-tools.nvim", ft = "dart" },
 
   { "kevinhwang91/nvim-bqf", ft = "qf" },
-  { "https://gitlab.com/yorickpeterse/nvim-pqf.git", name = "nvim-pqf", event = "VeryLazy" },
+  { "https://gitlab.com/yorickpeterse/nvim-pqf.git", event = "VeryLazy" },
 
   -- Motions --
 

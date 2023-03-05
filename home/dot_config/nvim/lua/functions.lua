@@ -203,10 +203,6 @@ local function pick_window(exclude)
   local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
 
   local selectable = vim.tbl_filter(function(id)
-    if id == vim.api.nvim_get_current_win() then
-      return false
-    end
-
     if exclude ~= nil then
       local bufid = vim.api.nvim_win_get_buf(id)
       for option, v in pairs(exclude) do

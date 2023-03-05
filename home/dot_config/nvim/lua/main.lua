@@ -136,10 +136,14 @@ end
 
 vim.opt.rtp:prepend(lazypath)
 
+local function get_plugin_config_name(plugin)
+  return string.gsub(vim.fn.fnamemodify(plugin, ":t"), "%.", "_")
+end
+
 _G.plugins = function(plugins)
   for _, spec in pairs(plugins) do
     local plugin = spec[1]
-    local config = string.gsub(vim.fn.fnamemodify(plugin, ":t"), "%.", "_")
+    local config = get_plugin_config_name(plugin)
 
     local hasConfig, module = pcall(require, "configs."..config)
     if hasConfig then
@@ -216,6 +220,29 @@ _G.plugins = function(plugins)
     },
   })
 end
+
+local function set_plugins_keymap(key, method)
+  local config_folder = "~/.local/share/chezmoi/home/dot_config/nvim/lua/configs/"
+
+  vim.api.nvim_buf_set_keymap(0, "n", key, [[]], {
+    noremap = true,
+    callback = function()
+      local plugin = vim.fn.expand("<cfile>")
+      local config = get_plugin_config_name(plugin)
+      fn.edit_file(method, config_folder..config..".lua")
+    end,
+  })
+end
+
+vim.api.nvim_create_autocmd("BufEnter", {
+  once = true,
+  pattern = "*/nvim/lua/plugins.lua",
+  callback = function()
+    set_plugins_keymap("gf", "edit")
+    set_plugins_keymap("<C-w><C-f>", "vsplit")
+    set_plugins_keymap("<C-w>f", "split")
+  end,
+})
 
 require "plugins"
 --}}}
