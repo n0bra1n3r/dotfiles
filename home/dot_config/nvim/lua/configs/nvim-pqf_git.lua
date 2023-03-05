@@ -23,7 +23,7 @@ function M.config()
       vim.wo.foldtext = "getline(v:foldstart)"
       vim.wo.foldenable = true
 
-      vim.api.nvim_buf_set_keymap(0, "n", [[<Space><Space>]], [[za]], { noremap = true })
+      vim.api.nvim_buf_set_keymap(0, "n", [[<Tab>]], [[za]], { noremap = true })
     end,
   })
 
