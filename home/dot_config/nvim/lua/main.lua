@@ -67,6 +67,18 @@ vim.opt.wrap = true
 if os.getenv"MSYSTEM" ~= nil then
   vim.opt.shell = "cmd.exe"
 end
+
+local diagnostic_signs = {
+  Error = "",
+  Warn = "",
+  Hint = "",
+  Info = ""
+}
+
+for type, icon in pairs(diagnostic_signs) do
+  local hl = "DiagnosticSign"..type
+  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+end
 --}}}
 
 --{{{ Load Commands
