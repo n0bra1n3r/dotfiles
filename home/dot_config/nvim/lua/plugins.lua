@@ -46,7 +46,7 @@ plugins {
 
   { "echasnovski/mini.bufremove", event = "BufEnter" },
 
-  { "ggandor/lightspeed.nvim", event = { "BufRead", "BufModifiedSet" } },
+  { "ggandor/leap.nvim", event = { "BufRead", "BufModifiedSet" }, dependencies = { "tpope/vim-repeat" } },
 
   { "kevinhwang91/nvim-hlslens", event = { "BufRead", "BufModifiedSet" } },
   { "haya14busa/vim-asterisk", event = { "BufRead", "BufModifiedSet" } },
