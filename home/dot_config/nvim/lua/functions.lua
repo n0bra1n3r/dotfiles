@@ -399,14 +399,36 @@ function fn.project_status()
   return vim.g.asynctasks_profile
 end
 
-function fn.project_check()
+local queued_task
+
+local group = vim.api.nvim_create_augroup("queued_task_runner", { clear = true })
+
+vim.api.nvim_create_autocmd("User", {
+  group = group,
+  pattern = "AsyncRunStop",
+  callback = function()
+    if queued_task ~= nil then
+      vim.cmd("AsyncTask "..queued_task)
+      queued_task = nil
+    end
+  end,
+})
+
+function fn.run_task(name)
   if not fn.get_is_job_in_progress() then
-    vim.cmd[[AsyncTask project-check]]
+    queued_task = nil
+    vim.cmd("AsyncTask "..name)
+  else
+    queued_task = name
   end
 end
 
+function fn.project_check()
+  fn.run_task("project-check")
+end
+
 function fn.save_dot_files()
-  vim.cmd[[AsyncRun -strip chezmoi apply --exclude=scripts --force --source-path "%"]]
+  fn.run_task("apply-config")
 end
 --}}}
 

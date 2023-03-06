@@ -2,7 +2,7 @@ local M = {}
 
 function project_state(values)
   if fn.get_is_job_in_progress() then
-    return values.job
+    return values.job[vim.loop.gettimeofday() % #values.job + 1]
   else
     return values[fn.project_status()] or values.default
   end
@@ -16,7 +16,7 @@ function M.config()
           local mode = require'lualine.utils.mode'.get_mode():sub(1, 1)
           if fn.is_git_dir() then
             return string.format("%s  %s", project_state {
-              job = 'ﲊ',
+              job = { '', '', '' },
               default = mode,
             }, fn.get_workspace_dir())
           end
