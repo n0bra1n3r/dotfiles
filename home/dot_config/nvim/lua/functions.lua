@@ -86,6 +86,10 @@ end
 function fn.git_remote_change_count()
   return git_remote_change_count
 end
+
+function fn.open_commit_log()
+  fn.run_terminal_app("commits", "tigrc", vim.o.lines * 0.9, vim.o.columns * 0.9, "center", true)
+end
 --}}}
 
 --{{{ Files
@@ -128,24 +132,7 @@ function fn.move_file()
 end
 
 function fn.open_file_tree()
-  if vim.fn["floaterm#terminal#get_bufnr"]("files") == -1 then
-    local bufnr = vim.fn["floaterm#new"](0,
-      "bash --rcfile ~/.dotfiles/brootrc",
-      { [''] = '' },
-      {
-        silent = 1,
-        name = "files",
-        title = "files",
-        height = math.ceil(vim.o.lines * 0.9),
-        width = math.ceil(vim.o.columns * 0.9),
-        position = "center",
-      })
-    vim.api.nvim_create_autocmd("TermLeave", {
-      buffer = bufnr,
-      command = "FloatermHide files",
-    })
-  end
-  vim.cmd[[FloatermShow files]]
+  fn.run_terminal_app("files", "brootrc", vim.o.lines * 0.9, vim.o.columns * 0.9, "center", true)
 end
 --}}}
 
@@ -434,26 +421,34 @@ end
 
 --{{{ Terminal
 function fn.open_terminal(command)
-  if vim.fn["floaterm#terminal#get_bufnr"]("terminal") == -1 then
-    vim.fn["floaterm#new"](0,
-      "bash --rcfile ~/.dotfiles/floatermrc",
-      { [''] = '' },
-      {
-        silent = 1,
-        name = "terminal",
-        title = " terminal [$1:$2]",
-        borderchars = "",
-        height = math.ceil(vim.o.lines * 0.3),
-        width = math.ceil(vim.o.columns),
-        position = "bottom",
-      })
-  end
-
-  vim.cmd[[FloatermShow terminal]]
+  fn.run_terminal_app("terminal", "floatermrc", vim.o.lines * 0.3, vim.o.columns, "bottom", false)
 
   if command ~= nil then
     vim.cmd(string.format('set ssl | exec "FloatermSend --name=terminal %s" | set nossl', command))
   end
+end
+
+function fn.run_terminal_app(name, rcfile, height, width, position, autodismiss)
+  if vim.fn["floaterm#terminal#get_bufnr"](name) == -1 then
+    local bufnr = vim.fn["floaterm#new"](0,
+      "bash --rcfile ~/.dotfiles/"..rcfile,
+      { [''] = '' },
+      {
+        silent = 1,
+        name = name,
+        title = name,
+        height = math.ceil(height),
+        width = math.ceil(width),
+        position = position,
+      })
+    if autodismiss then
+      vim.api.nvim_create_autocmd("TermLeave", {
+        buffer = bufnr,
+        command = "FloatermHide "..name,
+      })
+    end
+  end
+  vim.cmd("FloatermShow "..name)
 end
 --}}}
 

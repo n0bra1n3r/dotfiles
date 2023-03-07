@@ -21,6 +21,7 @@ function M.config()
         name = "git",
         b = { "<cmd>Gitsigns blame_line<CR>", "blame" },
         d = { "<cmd>DiffviewOpen<CR>", "diff" },
+        g = { fn.open_commit_log, "commits" },
         h = { "<cmd>DiffviewFileHistory<CR>", "history" },
         n = { "<cmd>Gitsigns next_hunk<CR>", "next hunk" },
         N = { "<cmd>Gitsigns prev_hunk<CR>", "prev hunk" },
