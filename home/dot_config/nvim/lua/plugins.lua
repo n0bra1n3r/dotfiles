@@ -39,7 +39,6 @@ plugins {
 
   -- Projects --
 
-  { "ahmedkhalf/project.nvim", event = "VimEnter" },
   { "rmagatti/auto-session", event = "VimEnter" },
 
   -- Navigation --
@@ -52,8 +51,6 @@ plugins {
   { "haya14busa/vim-asterisk", event = { "BufRead", "BufModifiedSet" } },
 
   { "nvim-telescope/telescope.nvim", event = "VeryLazy" },
-
-  { "lewis6991/satellite.nvim", event = "BufEnter" },
 
   -- VCS --
 
