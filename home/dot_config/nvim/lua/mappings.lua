@@ -46,7 +46,6 @@ mappings {
     ["<PageUp>"]        = { "H<Up>", noremap = false },
     ["<PageDown>"]      = { "L<Down>", noremap = false },
     ["<Space><Space>"]  = { fn.open_file_tree, desc = "file tree" },
-    ["<Tab>"]           = { "foldclosed('.')!=-1?'zMzO[z':'zM'", expr = true },
     [";"]               = { "l" },
     gf                  = { function() fn.edit_file("edit", vim.fn.expand("<cfile>")) end },
     h                   = { ";" },
@@ -56,6 +55,7 @@ mappings {
     s                   = { "<Plug>Lightspeed_omni_s", noremap = false },
     S                   = { "<Plug>Lightspeed_omni_s", noremap = false },
     x                   = { "col('$')==col('.')?'gJ':'\"_x'", expr = true },
+    zQ                  = { "foldclosed('.')!=-1?'zMzO[z':'zM'", expr = true, desc = "Open fold under cursor and close all others" },
   }, --}}}
 
   t = { --{{{
