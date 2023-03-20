@@ -9,8 +9,6 @@ bind 'set completion-ignore-case off'
 bind '"\e[A":history-search-backward'
 bind '"\e[B":history-search-forward'
 
-export HISTCONTROL=ignoreboth:erasedups
-
 __git_complete g __git_main
 __git_complete cg __git_main
 
