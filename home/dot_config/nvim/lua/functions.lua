@@ -88,7 +88,7 @@ function fn.git_remote_change_count()
 end
 
 function fn.open_commit_log()
-  fn.run_terminal_app("commits", "tigrc", vim.o.lines * 0.9, vim.o.columns * 0.9, "center", true)
+  fn.run_terminal_app("commits", "tigrc")
 end
 --}}}
 
@@ -132,7 +132,7 @@ function fn.move_file()
 end
 
 function fn.open_file_tree()
-  fn.run_terminal_app("files", "brootrc", vim.o.lines * 0.9, vim.o.columns * 0.9, "center", true)
+  fn.run_terminal_app("files", "brootrc")
 end
 --}}}
 
@@ -421,14 +421,14 @@ end
 
 --{{{ Terminal
 function fn.open_terminal(command)
-  fn.run_terminal_app("terminal", "floatermrc", vim.o.lines * 0.3, vim.o.columns, "bottom", false)
+  fn.run_terminal_app("terminal", "floatermrc", vim.o.lines * 0.3, vim.o.columns, "bottom", false, false)
 
   if command ~= nil then
     vim.cmd(string.format('set ssl | exec "FloatermSend --name=terminal %s" | set nossl', command))
   end
 end
 
-function fn.run_terminal_app(name, rcfile, height, width, position, autodismiss)
+function fn.run_terminal_app(name, rcfile, height, width, position, autodismiss, autoinsert)
   if vim.fn["floaterm#terminal#get_bufnr"](name) == -1 then
     local bufnr = vim.fn["floaterm#new"](0,
       "bash --rcfile ~/.dotfiles/"..rcfile,
@@ -437,12 +437,23 @@ function fn.run_terminal_app(name, rcfile, height, width, position, autodismiss)
         silent = 1,
         name = name,
         title = name,
-        height = math.ceil(height),
-        width = math.ceil(width),
-        position = position,
+        height = math.ceil(height or (vim.o.lines * 0.9)),
+        width = math.ceil(width or (vim.o.columns * 0.9)),
+        position = position or "center",
       })
-    if autodismiss then
+    local group = vim.api.nvim_create_augroup("conf_terminal", { clear = true })
+    if autoinsert == nil or autoinsert then
+      vim.api.nvim_create_autocmd("BufEnter", {
+        group = group,
+        buffer = bufnr,
+        callback = fn.vim_defer(function()
+          vim.cmd[[startinsert]]
+        end),
+      })
+    end
+    if autodismiss == nil or autodismiss then
       vim.api.nvim_create_autocmd("TermLeave", {
+        group = group,
         buffer = bufnr,
         command = "FloatermHide "..name,
       })
