@@ -88,7 +88,8 @@ function fn.git_remote_change_count()
 end
 
 function fn.open_commit_log()
-  fn.run_terminal_app("commits", "tigrc")
+  fn.make_terminal_app("commits", "tigrc")
+  vim.cmd[[FloatermShow commits]]
 end
 --}}}
 
@@ -132,7 +133,8 @@ function fn.move_file()
 end
 
 function fn.open_file_tree()
-  fn.run_terminal_app("files", "brootrc")
+  fn.make_terminal_app("files", "brootrc")
+  vim.cmd[[FloatermShow files]]
 end
 --}}}
 
@@ -421,14 +423,53 @@ end
 
 --{{{ Terminal
 function fn.open_terminal(command)
-  fn.run_terminal_app("terminal", "floatermrc", vim.o.lines * 0.3, vim.o.columns, "bottom", false, false)
+  local bufnr = fn.make_terminal_app("terminal", "floatermrc", vim.o.lines * 0.3, vim.o.columns, "bottom", false, false)
+  if bufnr ~= nil then
+    local dismiss_time_secs = 0
+    local dismiss_time_micros = 0
+    local is_insert_mode = true
+    local did_leave_terminal = false
 
+    local group = vim.api.nvim_create_augroup("conf_terminal", { clear = true })
+    vim.api.nvim_create_autocmd("BufEnter", {
+      group = group,
+      buffer = bufnr,
+      callback = fn.vim_defer(function()
+        did_leave_terminal = false
+        if is_insert_mode then
+          vim.cmd[[startinsert]]
+        end
+      end),
+    })
+    vim.api.nvim_create_autocmd("TermLeave", {
+      group = group,
+      buffer = bufnr,
+      callback = function()
+        dismiss_time_secs, dismiss_time_micros = vim.loop.gettimeofday()
+        is_insert_mode = true
+        did_leave_terminal = true
+      end,
+    })
+    vim.api.nvim_create_autocmd("BufLeave", {
+      group = group,
+      buffer = bufnr,
+      callback = function()
+        if did_leave_terminal then
+          local now_secs, now_micros = vim.loop.gettimeofday()
+          local elapsed = (now_secs - dismiss_time_secs) * 1000000 + (now_micros - dismiss_time_micros)
+          is_insert_mode = (elapsed / 1000) <= vim.o.updatetime
+          did_leave_terminal = false
+        end
+      end,
+    })
+  end
+  vim.cmd[[FloatermShow terminal]]
   if command ~= nil then
     vim.cmd(string.format('set ssl | exec "FloatermSend --name=terminal %s" | set nossl', command))
   end
 end
 
-function fn.run_terminal_app(name, rcfile, height, width, position, autodismiss, autoinsert)
+function fn.make_terminal_app(name, rcfile, height, width, position, autodismiss, autoinsert)
   if vim.fn["floaterm#terminal#get_bufnr"](name) == -1 then
     local bufnr = vim.fn["floaterm#new"](0,
       "bash --rcfile ~/.dotfiles/"..rcfile,
@@ -441,7 +482,7 @@ function fn.run_terminal_app(name, rcfile, height, width, position, autodismiss,
         width = math.ceil(width or (vim.o.columns * 0.9)),
         position = position or "center",
       })
-    local group = vim.api.nvim_create_augroup("conf_terminal", { clear = true })
+    local group = vim.api.nvim_create_augroup("conf_terminal_apps", { clear = true })
     if autoinsert == nil or autoinsert then
       vim.api.nvim_create_autocmd("BufEnter", {
         group = group,
@@ -455,11 +496,13 @@ function fn.run_terminal_app(name, rcfile, height, width, position, autodismiss,
       vim.api.nvim_create_autocmd("TermLeave", {
         group = group,
         buffer = bufnr,
-        command = "FloatermHide "..name,
+        callback = function()
+          vim.cmd("FloatermHide "..name)
+        end,
       })
     end
+    return bufnr
   end
-  vim.cmd("FloatermShow "..name)
 end
 --}}}
 

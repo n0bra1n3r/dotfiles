@@ -2,7 +2,9 @@ local M = {}
 
 function project_state(values)
   if fn.get_is_job_in_progress() then
-    return values.job[vim.loop.gettimeofday() % #values.job + 1]
+    local secs, micros = vim.loop.gettimeofday()
+    local time = secs * 1000000 + micros
+    return values.job[time % #values.job + 1]
   else
     return values[fn.project_status()] or values.default
   end
