@@ -1,5 +1,13 @@
 local M = {}
 
+function left_separator()
+  return ""
+end
+
+function right_separator()
+  return ""
+end
+
 function project_state(values)
   if fn.get_is_job_in_progress() then
     local secs, micros = vim.loop.gettimeofday()
@@ -17,14 +25,22 @@ function M.config()
         function()
           local mode = require'lualine.utils.mode'.get_mode():sub(1, 1)
           if fn.is_git_dir() then
-            return string.format("%s  %s", project_state {
+            return project_state {
               job = { '', '', '' },
               default = mode,
-            }, fn.get_workspace_dir())
+            }
           end
           return mode
         end,
       },
+      {
+        left_separator,
+        padding = { left = 0, right = 0 },
+      },
+      {
+        fn.get_workspace_dir,
+        cond = fn.has_git_remote,
+      }
     },
     lualine_b = {
       {
@@ -33,7 +49,7 @@ function M.config()
         icon = '',
       },
       {
-        function() return "" end,
+        left_separator,
         cond = fn.is_git_dir,
         padding = { left = 0, right = 1 },
       },
@@ -63,9 +79,16 @@ function M.config()
     lualine_z = {
       {
         function()
-          local tab = vim.api.nvim_tabpage_get_number(0)
-          local tabCount = #vim.api.nvim_list_tabpages()
-          return string.format("%d  %d", tab, tabCount)
+          return vim.api.nvim_tabpage_get_number(0)
+        end,
+      },
+      {
+        right_separator,
+        padding = { left = 0, right = 0 },
+      },
+      {
+        function()
+          return #vim.api.nvim_list_tabpages()
         end,
       },
     },
@@ -74,7 +97,7 @@ function M.config()
     lualine_a = {
       { "fileformat" },
       {
-        function() return "" end,
+        left_separator,
         padding = { left = 0, right = 0 },
       },
       {
@@ -85,6 +108,14 @@ function M.config()
           readonly = ' ',
         },
       },
+      {
+        left_separator,
+        cond = function()
+          return vim.b.gitsigns_status ~= nil and #vim.b.gitsigns_status > 0
+        end,
+        padding = { left = 0, right = 0 },
+      },
+      { "b:gitsigns_status" },
     },
   }
   local inactive_winbar = {
@@ -94,14 +125,27 @@ function M.config()
         color = "lualine_a_inactive",
       },
       {
-        function()
-          return ""
-        end,
+        left_separator,
         padding = { left = 0, right = 0 },
       },
       {
         "filename",
         path = 1,
+        color = "lualine_a_inactive",
+        symbols = {
+          modified = ' ●',
+          readonly = ' ',
+        },
+      },
+      {
+        left_separator,
+        cond = function()
+          return vim.b.gitsigns_status ~= nil and #vim.b.gitsigns_status > 0
+        end,
+        padding = { left = 0, right = 0 },
+      },
+      {
+        "b:gitsigns_status",
         color = "lualine_a_inactive",
       },
     },
@@ -115,6 +159,9 @@ function M.config()
         winbar = { "qf" },
       },
       globalstatus = true,
+      refresh = {
+        statusline = 500,
+      },
       section_separators = "",
       theme = "nightfox",
     },
