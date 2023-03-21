@@ -422,21 +422,21 @@ end
 --}}}
 
 --{{{ Terminal
+local is_terminal_in_insert_mode = true
+
 function fn.open_terminal(command)
   local bufnr = fn.make_terminal_app("terminal", "floatermrc", vim.o.lines * 0.3, vim.o.columns, "bottom", false, false)
   if bufnr ~= nil then
+    local is_in_terminal = false
     local dismiss_time_secs = 0
     local dismiss_time_micros = 0
-    local is_insert_mode = true
-    local did_leave_terminal = false
 
     local group = vim.api.nvim_create_augroup("conf_terminal", { clear = true })
     vim.api.nvim_create_autocmd("BufEnter", {
       group = group,
       buffer = bufnr,
       callback = fn.vim_defer(function()
-        did_leave_terminal = false
-        if is_insert_mode then
+        if is_terminal_in_insert_mode then
           vim.cmd[[startinsert]]
         end
       end),
@@ -446,27 +446,27 @@ function fn.open_terminal(command)
       buffer = bufnr,
       callback = function()
         dismiss_time_secs, dismiss_time_micros = vim.loop.gettimeofday()
-        is_insert_mode = true
-        did_leave_terminal = true
+        is_in_terminal = true
       end,
     })
     vim.api.nvim_create_autocmd("BufLeave", {
       group = group,
       buffer = bufnr,
       callback = function()
-        if did_leave_terminal then
+        if is_in_terminal then
           local now_secs, now_micros = vim.loop.gettimeofday()
           local elapsed = (now_secs - dismiss_time_secs) * 1000000 + (now_micros - dismiss_time_micros)
-          is_insert_mode = (elapsed / 1000) <= vim.o.updatetime
-          did_leave_terminal = false
+          is_terminal_in_insert_mode = (elapsed / 1000) <= vim.o.updatetime
+          is_in_terminal = false
         end
       end,
     })
   end
-  vim.cmd[[FloatermShow terminal]]
   if command ~= nil then
+    is_terminal_in_insert_mode = true
     vim.cmd(string.format('set ssl | exec "FloatermSend --name=terminal %s" | set nossl', command))
   end
+  vim.cmd[[FloatermShow terminal]]
 end
 
 function fn.make_terminal_app(name, rcfile, height, width, position, autodismiss, autoinsert)
