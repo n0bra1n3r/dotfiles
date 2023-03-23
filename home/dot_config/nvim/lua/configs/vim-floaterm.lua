@@ -11,6 +11,11 @@ function M.config()
   vim.api.nvim_create_autocmd("FileType", {
     group = group,
     pattern = "floaterm",
+    command = [[nnoremap <buffer> <Enter> i]],
+  })
+  vim.api.nvim_create_autocmd("FileType", {
+    group = group,
+    pattern = "floaterm",
     command = [[nnoremap <buffer><silent> <Esc> <cmd>FloatermHide<CR>]],
   })
   vim.api.nvim_create_autocmd("WinLeave", {

@@ -11,17 +11,21 @@ mappings {
     k                   = { fn.get_map_expr("k"), expr = true },
   }, --}}}
 
+  c = { --{{{
+    ["<Enter>"]         = { "getcmdline()==''?'update<CR>':'<CR>'", expr = true }
+  }, --}}}
+
   i = { --{{{
     ["<End>"]           = { "<C-o>$", noremap = false },
     ["<Home>"]          = { "<C-o>^", noremap = false },
     ["<Insert>"]        = { "<Esc>" },
+    ["<M-;>"]           = { "<C-o>l" },
+    ["<M-j>"]           = { "<C-o>j" },
+    ["<M-k>"]           = { "<C-o>k" },
+    ["<M-l>"]           = { "<C-o>h" },
     ["<PageUp>"]        = { "<Esc>H<Up>", noremap = false },
     ["<PageDown>"]      = { "<Esc>L<Down>", noremap = false },
     ["<S-Tab>"]         = { "<C-d>" },
-    ["<Down>"]          = { "<Esc><Down>", noremap = false },
-    ["<Left>"]          = { "<Esc><Left>", noremap = false },
-    ["<Right>"]         = { "<Right><Esc><Right>", noremap = false },
-    ["<Up>"]            = { "<Esc><Up>", noremap = false },
   }, --}}}
 
   n = { --{{{
@@ -40,7 +44,7 @@ mappings {
     ["<Esc>"]           = { ":nohlsearch<CR>" },
     ["<End>"]           = { "$", noremap = false },
     ["<Home>"]          = { "^", noremap = false },
-    ["<Enter>"]         = { "<cmd>update<CR>" },
+    ["<Enter>"]         = { ":", silent = false },
     ["<F1>"]            = { ":help <C-r><C-w><CR>" },
     ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up>$l':'<Left>'", expr = true },
     ["<PageUp>"]        = { "H<Up>", noremap = false },

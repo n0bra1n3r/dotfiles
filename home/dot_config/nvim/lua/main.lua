@@ -13,7 +13,7 @@ vim.g.mapleader = " "
 
 vim.opt.background = "dark"
 vim.opt.clipboard:append { "unnamed", "unnamedplus" }
-vim.opt.cmdheight = 1
+vim.opt.cmdheight = 0
 vim.opt.colorcolumn = "81,120"
 vim.opt.confirm = true
 vim.opt.cursorline = true
@@ -31,7 +31,6 @@ vim.opt.hidden = true
 vim.opt.ignorecase = true
 vim.opt.isfname = "@,48-57,/,\\,.,-,_,+,,,#,$,%,~,="
 vim.opt.isident = "@,48-57,_,192-255"
-vim.opt.lazyredraw = true
 vim.opt.linebreak = true
 vim.opt.list = true
 vim.opt.listchars:append "multispace:· "
