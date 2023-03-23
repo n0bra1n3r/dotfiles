@@ -7,30 +7,26 @@ end
 
 function M.config()
   local group = vim.api.nvim_create_augroup("conf_floaterm", { clear = true })
-
   vim.api.nvim_create_autocmd("FileType", {
-    group = group,
-    pattern = "floaterm",
-    command = [[nnoremap <buffer> <Enter> i]],
-  })
-  vim.api.nvim_create_autocmd("FileType", {
-    group = group,
-    pattern = "floaterm",
-    command = [[nnoremap <buffer><silent> <Esc> <cmd>FloatermHide<CR>]],
-  })
-  vim.api.nvim_create_autocmd("WinLeave", {
     group = group,
     pattern = "floaterm",
     callback = function()
-      local win_config = vim.api.nvim_win_get_config(0)
-      if win_config.relative ~= "" then
+      vim.api.nvim_buf_set_keymap(0, "n", "<Esc>", [[<cmd>FloatermHide<CR>]],
+        { noremap = true, silent = true })
+      vim.api.nvim_buf_set_keymap(0, "n", "<Enter>", [[i]],
+        { noremap = true, silent = true })
+    end,
+  })
+  vim.api.nvim_create_autocmd("WinLeave", {
+    group = group,
+    callback = function()
+      if vim.o.filetype == "floaterm" then
         vim.cmd[[FloatermHide]]
       end
     end,
   })
   vim.api.nvim_create_autocmd("VimLeavePre", {
     group = group,
-    pattern = "*",
     command = [[FloatermKill!]],
   })
 end

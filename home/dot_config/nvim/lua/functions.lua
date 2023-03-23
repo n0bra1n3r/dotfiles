@@ -425,8 +425,12 @@ end
 local is_terminal_in_insert_mode = true
 
 function fn.open_terminal(command)
-  local bufnr = fn.make_terminal_app("terminal", "floatermrc", vim.o.lines * 0.3, vim.o.columns, "bottom", false, false)
+  local width = math.ceil(vim.o.columns)
+  local height = math.ceil(vim.o.lines * 0.3)
+  local position = "bottom"
+  local bufnr = fn.make_terminal_app("terminal", "floatermrc", height, width, position, false, false)
   if bufnr ~= nil then
+    local is_zoomed = false
     local is_in_terminal = false
     local dismiss_time_secs = 0
     local dismiss_time_micros = 0
@@ -461,6 +465,30 @@ function fn.open_terminal(command)
         end
       end,
     })
+    vim.api.nvim_buf_set_keymap(bufnr, "n", "z", [[]],
+      { noremap = true, silent = true,
+        callback = function()
+          local new_width
+          local new_height
+          local new_position
+          if not is_zoomed then
+            new_width = math.ceil(vim.o.columns * 0.9)
+            new_height = math.ceil(vim.o.lines * 0.9)
+            new_position = "center"
+          else
+            new_width = width
+            new_height = height
+            new_position = position
+          end
+          vim.cmd("FloatermUpdate "
+            .."--position="..new_position
+            .." --width="
+            ..tostring(new_width)
+            .." --height="
+            ..tostring(new_height))
+          is_zoomed = not is_zoomed
+        end,
+      })
   end
   if command ~= nil then
     is_terminal_in_insert_mode = true
@@ -478,8 +506,8 @@ function fn.make_terminal_app(name, rcfile, height, width, position, autodismiss
         silent = 1,
         name = name,
         title = name,
-        height = math.ceil(height or (vim.o.lines * 0.9)),
-        width = math.ceil(width or (vim.o.columns * 0.9)),
+        height = height or math.ceil(vim.o.lines * 0.9),
+        width = width or math.ceil(vim.o.columns * 0.9),
         position = position or "center",
       })
     local group = vim.api.nvim_create_augroup("conf_terminal_apps", { clear = true })
