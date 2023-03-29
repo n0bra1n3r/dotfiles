@@ -9,6 +9,10 @@ bind 'set completion-ignore-case off'
 bind '"\e[A":history-search-backward'
 bind '"\e[B":history-search-forward'
 
+export HISTCONTROL=ignoreboth:erasedups
+
+PROMPT_COMMAND="history -a $HISTFILE; $PROMPT_COMMAND"
+
 __git_complete g __git_main
 __git_complete cg __git_main
 
@@ -28,19 +32,5 @@ complete -o nosort -F _workspace ws
 if [ -e ~/.bashrc ]; then
   source ~/.bashrc
 fi
-
-function br {
-  local cmd cmd_file code
-  cmd_file=$(mktemp)
-  if broot --outcmd "$cmd_file" "$@"; then
-    cmd=$(<"$cmd_file")
-    command rm -f "$cmd_file"
-    eval "$cmd"
-  else
-    code=$?
-    command rm -f "$cmd_file"
-    return "$code"
-  fi
-}
 
 eval "$(~/.local/bin/starship init bash)"
