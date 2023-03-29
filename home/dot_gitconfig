@@ -36,6 +36,7 @@
   sa = stash
   sap = stash pop
   sas = stash --staged
+  sau = !git stash --staged && git stash && git stash pop --index stash@{1}
   st = status
   sw = switch
   clog = !git log --pretty=format:\"%h %ad | %s%d [%an]\" --date=short --no-merges $(git describe --abbrev=0)..HEAD
