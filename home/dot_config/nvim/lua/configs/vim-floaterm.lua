@@ -13,8 +13,6 @@ function M.config()
     callback = function()
       vim.api.nvim_buf_set_keymap(0, "n", "<Esc>", [[<cmd>FloatermHide<CR>]],
         { noremap = true, silent = true })
-      vim.api.nvim_buf_set_keymap(0, "n", "<Enter>", [[i]],
-        { noremap = true, silent = true })
     end,
   })
   vim.api.nvim_create_autocmd("WinLeave", {

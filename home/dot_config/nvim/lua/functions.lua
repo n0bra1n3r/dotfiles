@@ -420,8 +420,6 @@ end
 --}}}
 
 --{{{ Terminal
-local is_terminal_in_insert_mode = true
-
 function fn.open_terminal(command)
   local width = math.ceil(vim.o.columns)
   local height = math.ceil(vim.o.lines * 0.3)
@@ -429,50 +427,8 @@ function fn.open_terminal(command)
   local bufnr = fn.make_terminal_app("terminal", "floatermrc", height, width, position, false, false)
   if bufnr ~= nil then
     local is_zoomed = false
-    local is_in_terminal = false
-    local dismiss_time_secs = 0
-    local dismiss_time_micros = 0
-
-    local group = vim.api.nvim_create_augroup("conf_terminal", { clear = true })
-    vim.api.nvim_create_autocmd("BufEnter", {
-      group = group,
-      buffer = bufnr,
-      callback = fn.vim_defer(function()
-        if is_terminal_in_insert_mode then
-          vim.cmd[[startinsert]]
-        end
-      end),
-    })
-    vim.api.nvim_create_autocmd("TabClosed", {
-      group = group,
-      callback = fn.vim_defer(function()
-        if vim.bo.filetype == "floaterm" then
-          if is_terminal_in_insert_mode then
-            vim.cmd[[startinsert]]
-          end
-        end
-      end, 200),
-    })
-    vim.api.nvim_create_autocmd("TermLeave", {
-      group = group,
-      buffer = bufnr,
-      callback = function()
-        dismiss_time_secs, dismiss_time_micros = vim.loop.gettimeofday()
-        is_in_terminal = true
-      end,
-    })
-    vim.api.nvim_create_autocmd("BufLeave", {
-      group = group,
-      buffer = bufnr,
-      callback = function()
-        if is_in_terminal then
-          local now_secs, now_micros = vim.loop.gettimeofday()
-          local elapsed = (now_secs - dismiss_time_secs) * 1000000 + (now_micros - dismiss_time_micros)
-          is_terminal_in_insert_mode = (elapsed / 1000) <= vim.o.updatetime
-          is_in_terminal = false
-        end
-      end,
-    })
+    vim.api.nvim_buf_set_keymap(bufnr, "n", "<Enter>", [[i]],
+      { noremap = true, silent = true })
     vim.api.nvim_buf_set_keymap(bufnr, "n", "z", [[]],
       { noremap = true, silent = true,
         callback = function()
@@ -488,13 +444,18 @@ function fn.open_terminal(command)
             new_height = height
             new_position = position
           end
-          vim.cmd("FloatermUpdate "
-            .."--position="..new_position
+          is_zoomed = not is_zoomed
+          vim.api.nvim_create_autocmd("BufEnter", {
+            once = true,
+            buffer = bufnr,
+            callback = fn.vim_defer[[startinsert]],
+          })
+          vim.cmd("FloatermUpdate"
+            .." --position="..new_position
             .." --width="
             ..tostring(new_width)
             .." --height="
             ..tostring(new_height))
-          is_zoomed = not is_zoomed
         end,
       })
   end

@@ -1,3 +1,5 @@
 source ~/.dotfiles/floatermrc
 
+export TIGRC_USER="$HOME/.dotfiles/bindings.tigrc"
+
 tig

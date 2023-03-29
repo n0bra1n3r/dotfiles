@@ -26,6 +26,8 @@ fi
 
 export EDITOR=nvim
 
+export TIGRC_USER="$HOME/.tigrc"
+
 alias c='chezmoi'
 alias ce='chezmoi edit'
 alias cg='chezmoi git --'

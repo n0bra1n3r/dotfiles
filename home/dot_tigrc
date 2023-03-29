@@ -1,0 +1,7 @@
+bind log I !git rebase --interactive %(commit)
+bind main I !git rebase --interactive %(commit)
+bind pager I !git rebase --interactive %(commit)
+bind refs I !git rebase --interactive %(branch)
+bind log S !?git reset --soft %(commit)
+bind main S !?git reset --soft %(commit)
+bind pager S !?git reset --soft %(commit)

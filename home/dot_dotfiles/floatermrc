@@ -12,12 +12,11 @@ if [ ! -z "$VIM_SVRNAME" ]; then
   save-function git _git_super
 
   function git() {
-    if [[ "$1" == "log" && "$@" != *"--help"* ]]; then
+    if [[ "$1" == "log" ]]; then
       shift 1
-      command nvim --server $VIM_SVRNAME --remote-send "<C-\\><C-n>zi"
-      sleep 0.2
+      command nvim --server $VIM_SVRNAME --remote-send "<C-\\><C-n>z"
       _git_super log "$@"
-      command nvim --server $VIM_SVRNAME --remote-send "<C-\\><C-n>zi"
+      command nvim --server $VIM_SVRNAME --remote-send "<C-\\><C-n>z"
     else
       command git "$@"
     fi
