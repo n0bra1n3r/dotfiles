@@ -5,7 +5,21 @@ source ~/.bash_profile
 if [ ! -z "$VIM_SVRNAME" ]; then
   alias nvim='nvim --server $VIM_SVRNAME --remote-tab'
 
-  function vimr {
-    nvim --server $VIM_SVRNAME --remote-send "<C-\\><C-n><ESC>:AsyncRun! -silent -strip $*<CR>"
+  function vimr() {
+    command nvim --server $VIM_SVRNAME --remote-send "<C-\\><C-n><ESC>:AsyncRun! -silent -strip $*<CR>"
+  }
+
+  save-function git _git_super
+
+  function git() {
+    if [[ "$1" == "log" && "$@" != *"--help"* ]]; then
+      shift 1
+      command nvim --server $VIM_SVRNAME --remote-send "<C-\\><C-n>zi"
+      sleep 0.2
+      _git_super log "$@"
+      command nvim --server $VIM_SVRNAME --remote-send "<C-\\><C-n>zi"
+    else
+      command git "$@"
+    fi
   }
 fi

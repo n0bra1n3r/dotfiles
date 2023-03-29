@@ -34,6 +34,12 @@ alias g='git'
 alias vim='nvim'
 alias bfg='java -jar "$HOME/.local/bin/bfg.jar"'
 
+function save-function() {
+  local ORIG_FUNC=$(declare -f $1)
+  local NEWNAME_FUNC="$2${ORIG_FUNC#$1}"
+  eval "$NEWNAME_FUNC"
+}
+
 function workspace() {
   source "$HOME/.dotfiles/scripts/workspace"
 }
@@ -51,6 +57,15 @@ function br() {
     code=$?
     command rm -f "$cmd_file"
     return "$code"
+  fi
+}
+
+function git() {
+  if [[ "$1" == "log" && "$@" != *"--help"* ]]; then
+    shift 1
+    command git log "$@" | tig
+  else
+    command git "$@"
   fi
 }
 
