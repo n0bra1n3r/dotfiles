@@ -20,7 +20,7 @@ function M.config()
   vim.api.nvim_create_autocmd("WinLeave", {
     group = group,
     callback = function()
-      if vim.o.filetype == "floaterm" then
+      if vim.bo.filetype == "floaterm" then
         vim.cmd[[FloatermHide]]
       end
     end,

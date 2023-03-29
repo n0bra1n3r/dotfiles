@@ -390,10 +390,8 @@ end
 
 local queued_task
 
-local group = vim.api.nvim_create_augroup("queued_task_runner", { clear = true })
-
 vim.api.nvim_create_autocmd("User", {
-  group = group,
+  group = vim.api.nvim_create_augroup("queued_task_runner", { clear = true }),
   pattern = "AsyncRunStop",
   callback = function()
     if queued_task ~= nil then
@@ -444,6 +442,16 @@ function fn.open_terminal(command)
           vim.cmd[[startinsert]]
         end
       end),
+    })
+    vim.api.nvim_create_autocmd("TabClosed", {
+      group = group,
+      callback = fn.vim_defer(function()
+        if vim.bo.filetype == "floaterm" then
+          if is_terminal_in_insert_mode then
+            vim.cmd[[startinsert]]
+          end
+        end
+      end, 200),
     })
     vim.api.nvim_create_autocmd("TermLeave", {
       group = group,
@@ -515,9 +523,7 @@ function fn.make_terminal_app(name, rcfile, height, width, position, autodismiss
       vim.api.nvim_create_autocmd("BufEnter", {
         group = group,
         buffer = bufnr,
-        callback = fn.vim_defer(function()
-          vim.cmd[[startinsert]]
-        end),
+        callback = fn.vim_defer[[startinsert]]
       })
     end
     if autodismiss == nil or autodismiss then
