@@ -426,10 +426,10 @@ function fn.open_terminal(command)
   local position = "bottom"
   local bufnr = fn.make_terminal_app("terminal", "floatermrc", height, width, position, false, false)
   if bufnr ~= nil then
-    local is_zoomed = false
     vim.api.nvim_buf_set_keymap(bufnr, "n", "<Enter>", [[i]],
       { noremap = true, silent = true })
-    vim.api.nvim_buf_set_keymap(bufnr, "n", "z", [[]],
+    local is_zoomed = false
+    vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>z", [[]],
       { noremap = true, silent = true,
         callback = function()
           local new_width
@@ -445,17 +445,10 @@ function fn.open_terminal(command)
             new_position = position
           end
           is_zoomed = not is_zoomed
-          vim.api.nvim_create_autocmd("BufEnter", {
-            once = true,
-            buffer = bufnr,
-            callback = fn.vim_defer[[startinsert]],
-          })
           vim.cmd("FloatermUpdate"
             .." --position="..new_position
-            .." --width="
-            ..tostring(new_width)
-            .." --height="
-            ..tostring(new_height))
+            .." --width="..tostring(new_width)
+            .." --height="..tostring(new_height))
         end,
       })
   end

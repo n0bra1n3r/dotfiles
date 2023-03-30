@@ -8,17 +8,4 @@ if [ ! -z "$VIM_SVRNAME" ]; then
   function vimr() {
     command nvim --server $VIM_SVRNAME --remote-send "<C-\\><C-n><ESC>:AsyncRun! -silent -strip $*<CR>"
   }
-
-  save-function git _git_super
-
-  function git() {
-    if [[ "$1" == "log" ]]; then
-      shift 1
-      command nvim --server $VIM_SVRNAME --remote-send "<C-\\><C-n>z"
-      _git_super log "$@"
-      command nvim --server $VIM_SVRNAME --remote-send "<C-\\><C-n>z"
-    else
-      command git "$@"
-    fi
-  }
 fi

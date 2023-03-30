@@ -2,6 +2,7 @@ local M = {}
 
 function M.init()
   vim.g.floaterm_autoinsert = false
+  vim.g.floaterm_giteditor = false
   vim.g.floaterm_opener = "tabe"
 end
 
