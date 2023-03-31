@@ -453,7 +453,6 @@ function fn.open_terminal(command)
       })
   end
   if command ~= nil then
-    is_terminal_in_insert_mode = true
     vim.cmd(string.format('set ssl | exec "FloatermSend --name=terminal %s" | set nossl', command))
   end
   vim.cmd[[FloatermShow terminal]]
@@ -492,6 +491,11 @@ function fn.make_terminal_app(name, rcfile, height, width, position, autodismiss
     return bufnr
   end
 end
+
+function fn.execute_last_terminal_command()
+  fn.open_terminal[[!!]]
+end
+
 --}}}
 
 --{{{ Utilities

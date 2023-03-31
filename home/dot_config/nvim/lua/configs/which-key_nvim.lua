@@ -16,7 +16,8 @@ function M.config()
   }
   require"which-key".register({
     ["<leader>"] = {
-      ["`"] = { "<cmd>lua fn.open_terminal()<CR>", "terminal" },
+      ["`"] = { fn.open_terminal, "terminal" },
+      ["."] = { fn.execute_last_terminal_command, "exec last" },
       g = {
         name = "git",
         b = { "<cmd>Gitsigns blame_line<CR>", "blame" },
