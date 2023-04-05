@@ -424,7 +424,7 @@ function fn.open_terminal(command)
   local width = math.ceil(vim.o.columns)
   local height = math.ceil(vim.o.lines * 0.3)
   local position = "bottom"
-  local bufnr = fn.make_terminal_app("terminal", "floatermrc", height, width, position, false, false)
+  local bufnr = fn.make_terminal_app("terminal", "terminalrc", height, width, position, false, false)
   if bufnr ~= nil then
     vim.api.nvim_buf_set_keymap(bufnr, "n", "<Enter>", [[i]],
       { noremap = true, silent = true })

@@ -1,4 +1,4 @@
-source ~/.dotfiles/floatermrc
+source ~/.dotfiles/terminalrc
 
 export TIGRC_USER="$HOME/.dotfiles/bindings.tigrc"
 
