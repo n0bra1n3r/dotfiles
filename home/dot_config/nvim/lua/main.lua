@@ -42,7 +42,7 @@ vim.opt.ruler = false
 vim.opt.scrollback = 9001
 vim.opt.sessionoptions = "buffers,curdir,folds,winsize,winpos"
 vim.opt.shiftwidth = 2
-vim.opt.shortmess:append "sI"
+vim.opt.shortmess:append { s = true, F = true, I = true, S = true, W = true }
 vim.opt.showbreak = "↪"
 vim.opt.showcmd = false
 vim.opt.showmode = false
@@ -62,7 +62,6 @@ vim.opt.updatetime = 250
 vim.opt.virtualedit = "onemore"
 vim.opt.whichwrap:append "<>[]hl"
 vim.opt.wrap = true
-
 
 local diagnostic_signs = {
   Error = "",
