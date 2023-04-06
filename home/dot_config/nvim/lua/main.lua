@@ -35,7 +35,8 @@ vim.opt.linebreak = true
 vim.opt.list = true
 vim.opt.listchars:append "multispace:· "
 vim.opt.listchars:append "tab:▸ "
-vim.opt.mouse = ""
+vim.opt.more = false
+vim.opt.mouse = "a"
 vim.opt.number = true
 vim.opt.numberwidth = 2
 vim.opt.ruler = false
@@ -62,6 +63,32 @@ vim.opt.updatetime = 250
 vim.opt.virtualedit = "onemore"
 vim.opt.whichwrap:append "<>[]hl"
 vim.opt.wrap = true
+
+local conf_mouse_group = vim.api.nvim_create_augroup("conf_mouse", { clear = true })
+vim.api.nvim_create_autocmd("FocusLost", {
+  group = conf_mouse_group,
+  callback = function()
+    vim.opt.mouse = ""
+  end
+})
+vim.api.nvim_create_autocmd("FocusGained", {
+  group = conf_mouse_group,
+  callback = fn.vim_defer(function()
+    vim.opt.mouse = "a"
+  end, 100),
+})
+vim.api.nvim_create_autocmd("TermLeave", {
+  group = conf_mouse_group,
+  callback = function()
+    vim.opt.mouse = "a"
+  end,
+})
+vim.api.nvim_create_autocmd("TermEnter", {
+  group = conf_mouse_group,
+  callback = function()
+    vim.opt.mouse = ""
+  end,
+})
 
 local diagnostic_signs = {
   Error = "",
