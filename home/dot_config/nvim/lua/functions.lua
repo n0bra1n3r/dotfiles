@@ -453,7 +453,7 @@ function fn.open_terminal(command)
       })
   end
   if command ~= nil then
-    vim.cmd(string.format('set ssl | exec "FloatermSend --name=terminal %s" | set nossl', command))
+    vim.cmd('FloatermSend --name=terminal ' .. command)
   end
   vim.cmd[[FloatermShow terminal]]
 end

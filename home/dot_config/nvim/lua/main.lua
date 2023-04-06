@@ -63,9 +63,6 @@ vim.opt.virtualedit = "onemore"
 vim.opt.whichwrap:append "<>[]hl"
 vim.opt.wrap = true
 
-if os.getenv"MSYSTEM" ~= nil then
-  vim.opt.shell = "cmd.exe"
-end
 
 local diagnostic_signs = {
   Error = "",
