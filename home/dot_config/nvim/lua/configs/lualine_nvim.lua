@@ -30,6 +30,7 @@ function bar_color(section)
 end
 
 function M.config()
+  vim.api.nvim_set_hl(0, "MsgArea", { link = "lualine_a_command" })
   local sections = {
     lualine_a = {
       {
