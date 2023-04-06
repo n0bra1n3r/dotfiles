@@ -197,7 +197,6 @@ function M.config()
         statusline = 250,
       },
       section_separators = "",
-      theme = "nightfox",
     },
     sections = sections,
     tabline = {},

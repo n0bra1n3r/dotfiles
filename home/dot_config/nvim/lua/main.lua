@@ -176,7 +176,7 @@ end
 
 _G.plugins = function(plugins)
   for _, spec in pairs(plugins) do
-    local plugin = spec[1]
+    local plugin = spec.name or spec[1]
     local config = get_plugin_config_name(plugin)
 
     local hasConfig, module = pcall(require, "configs."..config)
@@ -211,9 +211,6 @@ _G.plugins = function(plugins)
   require'lazy'.setup(plugins, {
     defaults = {
       lazy = true,
-    },
-    install = {
-      colorscheme = { "nordfox" },
     },
     ui = {
       border = "single",

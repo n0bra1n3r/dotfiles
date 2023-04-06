@@ -6,7 +6,7 @@ plugins {
 
   { "nathom/filetype.nvim", lazy = false },
 
-  { "EdenEast/nightfox.nvim", lazy = false },
+  { "catppuccin/nvim", name = "catppuccin.nvim", lazy = false },
   { "nvim-lualine/lualine.nvim", lazy = false },
 
   { "folke/which-key.nvim", event = "VeryLazy" },
