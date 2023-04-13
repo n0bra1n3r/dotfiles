@@ -19,6 +19,11 @@
 {{-   $starship := "starship-x86_64-apple-darwin.tar.gz" }}
 {{- end }}
 
+[".dotfiles/deps/cascadiacode-nf/.local/share/fonts"]
+  type = "archive"
+  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
+  exact = true
+
 [".dotfiles/deps/nvim/.local"]
   type = "archive"
   url = "https://github.com/neovim/neovim/releases/latest/download/{{ $nvim }}"
