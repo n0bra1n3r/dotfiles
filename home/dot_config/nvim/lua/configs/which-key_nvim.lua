@@ -45,7 +45,7 @@ function M.config()
         k = { fn.prev_quickfix, "previous" },
       },
       w = { fn.choose_window, "window" },
-      x = { fn.close_buffer, "close" },
+      x = { require'mini.bufremove'.unshow, "close" },
       z = { "<cmd>only<CR>", "zoom" },
     },
   }, { mode = "n" })
