@@ -48,11 +48,6 @@
   exact = true
 
 {{- if eq .chezmoi.os "windows" }}
-[".dotfiles/deps/broot/.local/bin/broot.exe"]
-  type = "file"
-  url = "https://dystroy.org/broot/download/x86_64-pc-windows-gnu/broot.exe"
-  executable = true
-
 [".dotfiles/deps/jq/.local/bin/jq.exe"]
   type = "file"
   url = "https://github.com/stedolan/jq/releases/latest/download/jq-win64.exe"

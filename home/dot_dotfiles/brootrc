@@ -1,3 +1,0 @@
-source ~/.dotfiles/terminalrc
-
-br --conf ~/.config/broot/vim.toml -c :open_preview

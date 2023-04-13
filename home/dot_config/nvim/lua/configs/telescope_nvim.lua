@@ -51,6 +51,7 @@ function M.config()
     },
     pickers = {
       buffers = {
+        ignore_current_buffer = true,
         mappings = {
           i = {
             ["<Tab>"] = function(bufnr)
@@ -68,7 +69,11 @@ function M.config()
           },
         },
         path_display = { "smart" },
+        sort_mru = true,
         theme = "dropdown",
+      },
+      find_files = {
+        hidden = true,
       },
     },
     extensions = {
