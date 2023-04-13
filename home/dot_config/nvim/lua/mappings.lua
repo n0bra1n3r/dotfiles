@@ -54,10 +54,6 @@ mappings {
     gf                  = { function() fn.edit_file("edit", vim.fn.expand("<cfile>")) end },
     h                   = { ";" },
     l                   = { "col('.')==1&&col([line('.')-1,'$'])>1?'k$l':'h'", expr = true },
-    mm                  = { "dd" },
-    M                   = { "D" },
-    s                   = { "<Plug>Lightspeed_omni_s", noremap = false },
-    S                   = { "<Plug>Lightspeed_omni_s", noremap = false },
     x                   = { "col('$')==col('.')?'gJ':'\"_x'", expr = true },
     zQ                  = { "foldclosed('.')!=-1?'zMzO[z':'zM'", expr = true, desc = "Open fold under cursor and close all others" },
   }, --}}}
@@ -86,8 +82,6 @@ mappings {
     [";"]               = { "l" },
     h                   = { ";" },
     l                   = { "h" },
-    m                   = { "d" },
-    p                   = { "\"_dP" },
     s                   = { "<Plug>Lightspeed_omni_s", noremap = false },
     S                   = { "<Plug>Lightspeed_omni_s", noremap = false },
   }, --}}}

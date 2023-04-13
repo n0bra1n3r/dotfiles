@@ -33,8 +33,6 @@ plugins {
   -- Motions --
 
   { "tpope/vim-repeat", event = "BufModifiedSet" },
-  { "svermeulen/vim-cutlass", event = { "BufRead", "BufModifiedSet" } },
-  { "tpope/vim-unimpaired", event = { "BufRead", "BufModifiedSet" } },
   { "tpope/vim-surround", event = { "BufRead", "BufModifiedSet" } },
 
   -- Projects --
