@@ -1,5 +1,0 @@
-source ~/.dotfiles/terminalrc
-
-export TIGRC_USER="$HOME/.dotfiles/bindings.tigrc"
-
-tig

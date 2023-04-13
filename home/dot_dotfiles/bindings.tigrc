@@ -1,4 +1,0 @@
-source ~/.tigrc
-
-bind main q none
-bind main <Esc> quit
