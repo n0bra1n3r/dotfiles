@@ -247,6 +247,7 @@ _G.plugins = function(plugins)
           "zip",
           "zipPlugin",
         },
+        reset = false,
       },
     },
   })

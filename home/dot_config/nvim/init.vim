@@ -1,10 +1,10 @@
-if has('win32') || has('win64')
+if has("win32") || has("win64")
   let $PATH = 'C:\PROGRA~1\Git\usr\bin;' . $PATH
-  let $TMP = '/tmp'
-  let &shell='sh.exe'
-  let &shellcmdflag = '-c'
-  let &shellredir = '>%s 2>&1'
-  let &shellpipe='2>&1| tee'
+  let $TMP = "/tmp"
+  let &shell = "sh.exe"
+  let &shellcmdflag = "-c"
+  let &shellredir = ">%s 2>&1"
+  let &shellpipe = "2>&1 | tee"
   set shellslash
   set shellquote=
   set shellxescape=
