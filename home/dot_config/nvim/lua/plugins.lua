@@ -2,14 +2,24 @@ plugins {
   -- Misc --
 
   { "nvim-lua/plenary.nvim" },
-  { "kyazdani42/nvim-web-devicons" },
 
   { "nathom/filetype.nvim", lazy = false },
+
+  -- UI --
+
+  { "kyazdani42/nvim-web-devicons" },
 
   { "catppuccin/nvim", name = "catppuccin.nvim", lazy = false },
   { "nvim-lualine/lualine.nvim", lazy = false },
 
+  { "kevinhwang91/nvim-bqf", ft = "qf" },
+  { "https://gitlab.com/yorickpeterse/nvim-pqf.git", event = "VeryLazy" },
+
+  -- Key Mappings --
+
   { "folke/which-key.nvim", event = "VeryLazy" },
+
+  -- Terminal --
 
   {
     "voldikss/vim-floaterm",
@@ -22,26 +32,19 @@ plugins {
     end
   },
 
-  -- File Types --
+  -- Frameworks --
 
   { "alaviss/nim.nvim", ft = "nim" },
   { "akinsho/flutter-tools.nvim", ft = "dart" },
-
-  { "kevinhwang91/nvim-bqf", ft = "qf" },
-  { "https://gitlab.com/yorickpeterse/nvim-pqf.git", event = "VeryLazy" },
 
   -- Motions --
 
   { "tpope/vim-repeat", event = "BufModifiedSet" },
   { "tpope/vim-surround", event = { "BufRead", "BufModifiedSet" } },
 
-  -- Projects --
-
-  { "rmagatti/auto-session", event = "VimEnter" },
-
   -- Navigation --
 
-  { "echasnovski/mini.bufremove", event = "BufEnter" },
+  { "echasnovski/mini.bufremove" },
 
   { "ggandor/leap.nvim", event = { "BufRead", "BufModifiedSet" }, dependencies = { "tpope/vim-repeat" } },
 
@@ -54,28 +57,35 @@ plugins {
 
   { "lewis6991/gitsigns.nvim", event = "BufRead" },
 
-  { "sindrets/diffview.nvim", cmd = { "DiffViewFileHistory", "DiffViewOpen" } },
-
-  -- LSP --
+  -- Completion --
 
   { "nvim-treesitter/nvim-treesitter" },
   { "onsails/lspkind-nvim" },
 
   { "neovim/nvim-lspconfig", event = "BufRead" },
 
-  { "jose-elias-alvarez/null-ls.nvim", event = "BufRead" },
-
   { "hrsh7th/cmp-nvim-lsp", event = "InsertEnter" },
   { "hrsh7th/nvim-cmp", event = "InsertEnter" },
 
-  { "windwp/nvim-autopairs", event = "InsertEnter" },
+  {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    dependencies = "hrsh7th/nvim-cmp",
+  },
 
-  -- Editing --
+  -- Editor --
 
   { "numToStr/Comment.nvim", event = { "BufRead", "BufModifiedSet" } },
   { "echasnovski/mini.cursorword", event = { "BufRead", "BufModifiedSet" } },
-  { "echasnovski/mini.trailspace", event = { "BufRead", "BufModifiedSet", "BufWritePre", "FileWritePre" } },
-
+  {
+    "echasnovski/mini.trailspace",
+    event = {
+      "BufRead",
+      "BufModifiedSet",
+      "BufWritePre",
+      "FileWritePre",
+    },
+  },
   { "echasnovski/mini.indentscope", event = { "BufRead", "BufModifiedSet" } },
   { "xiyaowong/virtcolumn.nvim", event = "BufEnter" },
 
@@ -84,7 +94,13 @@ plugins {
   { "skywind3000/asyncrun.vim", cmd = { "AsyncRun", "AsyncStop" } },
 
   { "skywind3000/asynctasks.vim",
-    cmd = { "AsyncTask", "AsyncTaskMacro", "AsyncTaskList", "AsyncTaskProfile", "AsyncTaskEdit" },
+    cmd = {
+      "AsyncTask",
+      "AsyncTaskMacro",
+      "AsyncTaskList",
+      "AsyncTaskProfile",
+      "AsyncTaskEdit",
+    },
     dependencies = { "skywind3000/asyncrun.vim" },
   },
 
