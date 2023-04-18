@@ -20,30 +20,12 @@ commands {
     nargs = "+",
   }, --}}}
   W = "WorkspaceOpen",
-  GitInfoRefresh = { --{{{
-    function(opts)
-      fn.refresh_git_info()
-    end,
-    desc = "Refresh git info",
-  }, --}}}
   TerminalModeStart = { --{{{
     function()
       fn.open_terminal()
       vim.cmd[[tabonly]]
     end,
     desc = "Start terminal mode",
-  }, --}}}
-  NotifyJobStarted = { --{{{
-    function()
-      fn.set_is_job_in_progress(true)
-    end,
-    desc = "Notify job started",
-  }, --}}}
-  NotifyJobStopped = { --{{{
-    function()
-      fn.set_is_job_in_progress(false)
-    end,
-    desc = "Notify job stopped",
   }, --}}}
   WorkspaceFreeze = { --{{{
     function()

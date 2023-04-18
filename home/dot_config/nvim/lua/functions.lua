@@ -525,6 +525,7 @@ end
 
 function fn.set_terminal_dir(cwd)
   get_terminal().dir = cwd
+  fn.set_tab_cwd(cwd)
 end
 
 function fn.send_terminal(command)

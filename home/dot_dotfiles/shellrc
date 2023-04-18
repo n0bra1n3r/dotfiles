@@ -30,6 +30,10 @@ function save-function() {
   eval "$NEWNAME_FUNC"
 }
 
+function silent-background() {
+  ("$@" &>/dev/null &)
+}
+
 function _git_ext() {
   if [[ "$1" == "log" && "$@" != *"--help"* ]]; then
     shift 1
@@ -49,20 +53,18 @@ if [ ! -z "$NVIM" ]; then
   function cd() {
     command cd "$@"
     local dir="$(cygpath -m "$PWD")"
-    _nvim_remote --remote-send "<cmd>\
-      call v:lua.fn.set_terminal_dir(\"$dir\")\
-      |call v:lua.fn.set_tab_cwd(\"$dir\")\
-      <CR>"
+    silent-background _nvim_remote --remote-expr "v:lua.fn.set_terminal_dir(\"$dir\")"
   }
 
   function git() {
     _git_ext "$@"
-    _nvim_remote --remote-send "<cmd>GitInfoRefresh<CR>"
+    silent-background _nvim_remote --remote-expr "v:lua.fn.refresh_git_info()"
   }
 
   function nvim() {
     if [ $# -eq 0 ]; then
-      _nvim_remote --remote-send "<cmd>WorkspaceOpen "$(cygpath -m "$PWD")"<CR>"
+      local dir="$(cygpath -m "$PWD")"
+      silent-background _nvim_remote --remote-expr "v:lua.fn.open_workspace(\"$dir\")"
     else
       _nvim_remote --remote-tab "$@"
     fi
@@ -70,7 +72,7 @@ if [ ! -z "$NVIM" ]; then
 
   function workspace() {
     source "$HOME/.dotfiles/scripts/workspace"
-    _nvim_remote --remote-send "<cmd>WorkspaceOpen "$(cygpath -m "$PWD")"<CR>"
+    nvim
   }
 
   function exit() {
