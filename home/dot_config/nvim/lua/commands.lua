@@ -1,19 +1,18 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
 commands {
-  G = { -- {{{
+  G = { --{{{
     function(opts)
-      fn.open_terminal("git "..opts.args)
+      fn.send_terminal("git "..opts.args)
+      fn.open_terminal()
     end,
-    bang = true,
     complete = function(lead)
-      local script = "git-complete.bash"
-      local pipe = io.popen("bash -c '"..script.." "..lead.."'")
+      local pipe = io.popen("bash -c 'git-complete.bash "..lead.."'")
       local completions = pipe:read("*a")
       pipe:close()
       return vim.fn.split(completions, "\n")
     end,
-    desc = "Run git command",
+    desc = "Git command",
     nargs = "+",
   }, --}}}
 }

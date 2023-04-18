@@ -22,14 +22,13 @@ plugins {
   -- Terminal --
 
   {
-    "voldikss/vim-floaterm",
-    init = function()
-      vim.api.nvim_create_autocmd("FuncUndefined", {
-        pattern = "floaterm*",
-        once = true,
-        command = [[Lazy load vim-floaterm]]
-      })
-    end
+    "akinsho/toggleterm.nvim",
+    cmd = {
+      "ToggleTerm",
+      "ToggleTermToggleAll",
+      "TermExec",
+      "ToggleTermSetName"
+    },
   },
 
   -- Frameworks --

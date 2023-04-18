@@ -190,7 +190,7 @@ function M.config()
     options = {
       component_separators = "",
       disabled_filetypes = {
-        winbar = { "qf" },
+        winbar = { "qf", "toggleterm" },
       },
       globalstatus = true,
       refresh = {

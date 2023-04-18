@@ -1,5 +1,17 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
+--{{{ Helpers
+local function get_tab_cwd(tabnr)
+  return tabnr and vim.fn.getcwd(-1, tabnr) or vim.fn.getcwd(-1)
+end
+
+local function create_parent_dirs(path)
+  local dir = vim.fn.fnamemodify(path, ":h")
+  if #vim.fn.glob(dir) == 0 then
+    vim.cmd(string.format("silent !bash -c 'mkdir -p \"%s\"'", dir))
+  end
+end
+--}}}
 --{{{ Diagnostics
   function fn.get_qf_diagnostics()
     local error_count = 0
@@ -94,47 +106,114 @@ end
 --}}}
 
 --{{{ Files
+function fn.get_open_files()
+  local files = {}
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(buf) and #vim.api.nvim_buf_get_option(buf, "buftype") == 0 then
+      table.insert(files, vim.api.nvim_buf_get_name(buf))
+    end
+  end
+  return files
+end
+
 function fn.delete_file()
   vim.fn.delete(vim.fn.expand('%:p'))
   vim.cmd[[bwipeout!]]
 end
 
 function fn.open_file()
-  local rel_dir = vim.fn.expand("%:h").."/"
-  local path = vim.fn.input("open path: ", rel_dir, "dir")
-
-  if #path == 0 or
-      path == rel_dir or
-      path.."/" == rel_dir then
+  local rel_dir = vim.fn.expand("%:~:.:h")
+  local path = vim.fn.input("  Open at: ", rel_dir.."/", "dir")
+  if #path == 0 or path == rel_dir or path.."/" == rel_dir then
     return
   end
-
-  rel_dir = vim.fn.fnamemodify(path, ":h")
-  if #vim.fn.glob(rel_dir) == 0 then
-    vim.cmd(string.format("!bash -c 'mkdir -p \"%s\"'", rel_dir))
-  end
-  vim.cmd(string.format("edit %s", path))
+  create_parent_dirs(rel_dir)
+  vim.cmd("edit "..vim.fn.fnameescape(path))
 end
 
 function fn.move_file()
-  local rel_file = vim.fn.expand("%")
-  local path = vim.fn.input("move path: ", rel_file, "file")
-
-  if #path == 0 or
-      path == rel_file then
+  local rel_file = vim.fn.expand("%:~:.")
+  local path = vim.fn.input("  Move to: ", rel_file, "file")
+  if #path == 0 or path == rel_file then
     return
   end
-
-  local rel_dir = vim.fn.fnamemodify(path, ":h")
-  if #vim.fn.glob(rel_dir) == 0 then
-    vim.cmd(string.format("!bash -c 'mkdir -p \"%s\"'", rel_dir))
-  end
-  vim.cmd(string.format("saveas %s | call delete(expand('#')) | bwipeout #", path))
+  create_parent_dirs(rel_dir)
+  vim.cmd(string.format("saveas %s | call delete(expand('#')) | bwipeout #", vim.fn.fnameescape(path)))
 end
 
-function fn.open_file_tree()
-  fn.make_terminal_app("files", "brootrc")
-  vim.cmd[[FloatermShow files]]
+function fn.save_file()
+  if not fn.is_empty_buffer() then
+    vim.cmd[[silent update]]
+    return
+  end
+  local rel_dir = vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.")
+  local path = vim.fn.input("  Save to: ", rel_dir.."/", "dir")
+  if #path == 0 or path == rel_dir or path.."/" == rel_dir then
+    return
+  end
+  create_parent_dirs(rel_dir)
+  vim.cmd("saveas "..vim.fn.fnameescape(path))
+end
+--}}}
+--{{{ Jobs
+local job_count = 0
+
+function fn.get_is_job_in_progress()
+  return job_count > 0
+end
+
+function fn.set_is_job_in_progress(value)
+  if value then
+    job_count = job_count + 1
+  else
+    job_count = math.max(job_count - 1, 0)
+  end
+end
+
+function fn.project_status()
+  return vim.g.asynctasks_profile
+end
+
+local queued_jobs = {}
+
+vim.api.nvim_create_autocmd("User", {
+  group = vim.api.nvim_create_augroup("queued_job_runner", { clear = true }),
+  pattern = "AsyncRunStop",
+  callback = function()
+    local job
+    for j, _ in pairs(queued_jobs) do
+      job = j
+      break
+    end
+    if job ~= nil then
+      queued_jobs[job] = nil
+      if job.task ~= nil then
+        vim.cmd("AsyncTask "..job.task)
+      elseif job.cmd ~= nil then
+        vim.cmd("AsyncRun "..job.cmd)
+      end
+    end
+  end,
+})
+
+function fn.run_task(name)
+  if not fn.get_is_job_in_progress() then
+    vim.cmd("AsyncTask "..name)
+  else
+    queued_jobs[{ task = name }] = true
+  end
+end
+
+function fn.run_command(command)
+  if not fn.get_is_job_in_progress() then
+    vim.cmd("AsyncRun "..command)
+  else
+    queued_jobs[{ cmd = command }] = true
+  end
+end
+
+function fn.project_check()
+  fn.run_task("project-check")
 end
 --}}}
 
@@ -286,7 +365,6 @@ function fn.edit_file(mode, path)
       filetype = {
         "lazy",
         "qf",
-        "floaterm",
       },
       buftype = {
         "terminal",
@@ -359,148 +437,88 @@ function fn.prev_quickfix()
   vim.cmd[[cprev]]
 end
 --}}}
-
---{{{ Shell
-function fn.set_shell_title()
-  if #vim.bo.buftype == 0 then
-    local file_name = vim.fn.expand("%:t")
-
-    if #file_name > 0 then
-      vim.o.titlestring = "nvim - "..file_name
-    end
-  end
-end
---}}}
-
---{{{ Tasks
-local is_job_in_progress = false
-
-function fn.get_is_job_in_progress()
-  return is_job_in_progress
-end
-
-function fn.set_is_job_in_progress(value)
-  is_job_in_progress = value
-  vim.cmd[[redrawtabline]]
-end
-
-function fn.project_status()
-  return vim.g.asynctasks_profile
-end
-
-local queued_task
-
-vim.api.nvim_create_autocmd("User", {
-  group = vim.api.nvim_create_augroup("queued_task_runner", { clear = true }),
-  pattern = "AsyncRunStop",
-  callback = function()
-    if queued_task ~= nil then
-      vim.cmd("AsyncTask "..queued_task)
-      queued_task = nil
-    end
-  end,
-})
-
-function fn.run_task(name)
-  if not fn.get_is_job_in_progress() then
-    queued_task = nil
-    vim.cmd("AsyncTask "..name)
-  else
-    queued_task = name
-  end
-end
-
-function fn.project_check()
-  fn.run_task("project-check")
-end
-
-function fn.save_dot_files()
-  fn.run_task("apply-config")
-end
---}}}
-
 --{{{ Terminal
-function fn.open_terminal(command)
-  local width = math.ceil(vim.o.columns)
-  local height = math.ceil(vim.o.lines * 0.3)
-  local position = "bottom"
-  local bufnr = fn.make_terminal_app("terminal", "terminalrc", height, width, position, false, false)
-  if bufnr ~= nil then
-    vim.api.nvim_buf_set_keymap(bufnr, "n", "<Enter>", [[i]],
-      { noremap = true, silent = true })
-    local is_zoomed = false
-    vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>z", [[]],
-      { noremap = true, silent = true,
-        callback = function()
-          local new_width
-          local new_height
-          local new_position
-          if not is_zoomed then
-            new_width = math.ceil(vim.o.columns * 0.9)
-            new_height = math.ceil(vim.o.lines * 0.9)
-            new_position = "center"
-          else
-            new_width = width
-            new_height = height
-            new_position = position
-          end
-          is_zoomed = not is_zoomed
-          vim.cmd("FloatermUpdate"
-            .." --position="..new_position
-            .." --width="..tostring(new_width)
-            .." --height="..tostring(new_height))
-        end,
-      })
-  end
-  if command ~= nil then
-    vim.cmd('FloatermSend --name=terminal ' .. command)
-  end
-  vim.cmd[[FloatermShow terminal]]
+local function get_terminal()
+  return require'toggleterm.terminal'.Terminal:new{
+    id = 0,
+    cmd = "bash --login",
+    direction = "tab",
+  }
 end
 
-function fn.make_terminal_app(name, rcfile, height, width, position, autodismiss, autoinsert)
-  if vim.fn["floaterm#terminal#get_bufnr"](name) == -1 then
-    local bufnr = vim.fn["floaterm#new"](0,
-      "bash --rcfile ~/.dotfiles/"..rcfile,
-      { [''] = '' },
-      {
-        silent = 1,
-        name = name,
-        title = name,
-        height = height or math.ceil(vim.o.lines * 0.9),
-        width = width or math.ceil(vim.o.columns * 0.9),
-        position = position or "center",
-      })
-    local group = vim.api.nvim_create_augroup("conf_terminal_apps", { clear = true })
-    if autoinsert == nil or autoinsert then
-      vim.api.nvim_create_autocmd("BufEnter", {
-        group = group,
-        buffer = bufnr,
-        callback = fn.vim_defer[[startinsert]]
-      })
+function fn.open_terminal()
+  local terminal = require'toggleterm.terminal'.get(0, true)
+  if terminal == nil then
+    get_terminal():open()
+    fn.freeze_workspace()
+  else
+    local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
+    if vim.api.nvim_get_current_tabpage() ~= tabpage then
+      vim.api.nvim_set_current_tabpage(tabpage)
     end
-    if autodismiss == nil or autodismiss then
-      vim.api.nvim_create_autocmd("TermLeave", {
-        group = group,
-        buffer = bufnr,
-        callback = function()
-          vim.cmd("FloatermHide "..name)
-        end,
-      })
-    end
-    return bufnr
   end
+end
+
+function fn.dismiss_terminal()
+  local terminal = require'toggleterm.terminal'.get(0, true)
+  if terminal ~= nil then
+    local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
+    if vim.api.nvim_get_current_tabpage() == tabpage then
+      fn.switch_prior_tab()
+    end
+  end
+end
+
+function fn.toggle_terminal()
+  if not get_terminal():is_focused() then
+    fn.open_terminal()
+  else
+    fn.dismiss_terminal()
+  end
+end
+
+function fn.set_terminal_dir(cwd)
+  get_terminal().dir = cwd
+end
+
+function fn.send_terminal(command)
+  get_terminal():send(" "..command, false)
 end
 
 function fn.execute_last_terminal_command()
-  fn.open_terminal[[!!]]
+  fn.send_terminal[[!!]]
+  fn.open_terminal()
 end
 
+function fn.sync_terminal()
+  local terminal = get_terminal()
+  if terminal.window ~= nil then
+    local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
+    if vim.api.nvim_get_current_tabpage() == tabpage then
+      local cwd = vim.fn.getcwd(-1, vim.fn.tabpagenr[[#]])
+      if terminal.dir ~= cwd then
+        fn.send_terminal("cd "..cwd)
+        fn.set_terminal_dir(cwd)
+      end
+    end
+  end
+end
 --}}}
-
 --{{{ Utilities
+function fn.is_empty_buffer(buf)
+  local name = vim.api.nvim_buf_get_name(buf or 0)
+  local lines = vim.api.nvim_buf_get_lines(buf or 0, 0, -1, false)
+  return name == ""
+    and #lines == 0
+    or (#lines == 1 and lines[1] == "")
+end
+
+function fn.did_cwd_change()
+  return vim.fn.getcwd(-1) ~= vim.fn.getcwd(-1, vim.fn.tabpagenr[[#]])
+end
+
 function fn.get_map_expr(key)
-  return string.format("v:count || mode(1)[0:1] == 'no' ? '%s' : 'g%s'", key, key)
+  return string.format("(v:count!=0||mode(1)[0:1]=='no'?'%s':'g%s')", key, key)
 end
 
 function fn.get_wins_for_buf_type(buf_type)
@@ -508,7 +526,6 @@ function fn.get_wins_for_buf_type(buf_type)
     vim.fn.range(1, vim.fn.winnr("$")),
     string.format("getwinvar(v:val, '&bt') == '%s'", buf_type))
 end
-
 
 function fn.vim_defer(fn, timer)
   return function()
@@ -523,8 +540,20 @@ function fn.vim_defer(fn, timer)
     end
   end
 end
---}}}
 
+function fn.is_subpath(path, other)
+    local path_parts = vim.split(path, "/")
+    local other_parts = vim.split(other, "/")
+    local common_parts = vim.list_slice(path_parts, 1, #other_parts)
+    return vim.deep_equal(common_parts, other_parts)
+end
+
+function fn.set_tab_cwd(path)
+  if vim.fn.getcwd(-1) ~= path then
+    vim.cmd("silent tcd "..vim.fn.fnameescape(path))
+  end
+end
+--}}}
 --{{{ Workspace
 function fn.get_workspace_dir()
   local folder = vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.")

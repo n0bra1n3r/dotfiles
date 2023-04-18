@@ -14,10 +14,8 @@ function M.config()
       v = { "j", "k" },
     },
   }
-  require"which-key".register({
+  require'which-key'.register({
     ["<leader>"] = {
-      ["`"] = { fn.open_terminal, "terminal" },
-      ["."] = { fn.execute_last_terminal_command, "exec last" },
       g = {
         name = "git",
         b = { "<cmd>Gitsigns blame_line<CR>", "blame" },

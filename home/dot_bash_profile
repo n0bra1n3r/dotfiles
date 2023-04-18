@@ -11,7 +11,7 @@ bind '"\e[B":history-search-forward'
 
 export HISTCONTROL=ignoreboth:erasedups
 
-PROMPT_COMMAND="history -a $HISTFILE; $PROMPT_COMMAND"
+PROMPT_COMMAND="history -a $HISTFILE;$PROMPT_COMMAND"
 
 __git_complete g __git_main
 __git_complete cg __git_main

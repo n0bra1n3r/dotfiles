@@ -1,7 +1,7 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
 mappings {
-  [""] = { --{{{
+  [""] = { --{{{ normal mode, visual mode, operator pending mode
     ["<Down>"]          = { fn.get_map_expr("<Down>"), expr = true },
     ["<Up>"]            = { fn.get_map_expr("<Up>"), expr = true },
     ["^"]               = { fn.get_map_expr("^"), expr = true },
@@ -19,16 +19,20 @@ mappings {
     ["<End>"]           = { "<C-o>$", noremap = false },
     ["<Home>"]          = { "<C-o>^", noremap = false },
     ["<Insert>"]        = { "<Esc>" },
-    ["<M-;>"]           = { "<C-o>l" },
-    ["<M-j>"]           = { "<C-o>j" },
-    ["<M-k>"]           = { "<C-o>k" },
-    ["<M-l>"]           = { "<C-o>h" },
+    ["<M-`>"]           = { fn.toggle_terminal },
+    ["<M-1>"]           = { fn.execute_last_terminal_command },
+    ["<M-;>"]           = { "<Right>" },
+    ["<M-j>"]           = { "'<C-o>'."..fn.get_map_expr("<Down>"), expr = true },
+    ["<M-k>"]           = { "'<C-o>'."..fn.get_map_expr("<Up>"), expr = true },
+    ["<M-l>"]           = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up><End>':'<Left>'", expr = true },
     ["<PageUp>"]        = { "<Esc>H<Up>", noremap = false },
     ["<PageDown>"]      = { "<Esc>L<Down>", noremap = false },
     ["<S-Tab>"]         = { "<C-d>" },
   }, --}}}
 
   n = { --{{{
+    ["<M-`>"]           = { fn.toggle_terminal },
+    ["<M-1>"]           = { fn.execute_last_terminal_command },
     ["<M-;>"]           = { "<C-w>l" },
     ["<M-j>"]           = { "<C-w>j" },
     ["<M-k>"]           = { "<C-w>k" },
@@ -59,19 +63,21 @@ mappings {
   }, --}}}
 
   t = { --{{{
-    ["<C-h>"]           = { "<C-\\><C-n><C-w>h" },
-    ["<C-j>"]           = { "<C-\\><C-n><C-w>j" },
-    ["<C-k>"]           = { "<C-\\><C-n><C-w>k" },
-    ["<C-l>"]           = { "<C-\\><C-n><C-w>l" },
-    ["<C-Down>"]        = { "<C-\\><C-n><C-w>j" },
-    ["<C-Left>"]        = { "<C-\\><C-n><C-w>h" },
-    ["<C-Right>"]       = { "<C-\\><C-n><C-w>l" },
-    ["<C-Up>"]          = { "<C-\\><C-n><C-w>k" },
+    ["<C-;>"]           = { "<End>" },
+    ["<C-j>"]           = { "<C-\\><C-n><C-e>" },
+    ["<C-k>"]           = { "<C-\\><C-n><C-y>" },
+    ["<C-l>"]           = { "<Home>" },
+    ["<C-Down>"]        = { "<C-\\><C-n><C-e>" },
+    ["<C-Left>"]        = { "<Home>" },
+    ["<C-Right>"]       = { "<End>" },
+    ["<C-Up>"]          = { "<C-\\><C-n><C-y>" },
     ["<Esc>"]           = { "<C-\\><C-n>" },
-    ["<M-;>"]           = { "<C-\\><C-n>l" },
+    ["<M-`>"]           = { fn.toggle_terminal },
+    ["<M-1>"]           = { fn.execute_last_terminal_command },
+    ["<M-;>"]           = { "<Right>" },
     ["<M-j>"]           = { "<C-\\><C-n>j" },
     ["<M-k>"]           = { "<C-\\><C-n>k" },
-    ["<M-l>"]           = { "<C-\\><C-n>h" },
+    ["<M-l>"]           = { "<Left>" },
     ["<PageUp>"]        = { "<C-\\><C-n>H<Up>" },
     ["<PageDown>"]      = { "<C-\\><C-n>L<Down>" },
   }, --}}}
@@ -82,7 +88,5 @@ mappings {
     [";"]               = { "l" },
     h                   = { ";" },
     l                   = { "h" },
-    s                   = { "<Plug>Lightspeed_omni_s", noremap = false },
-    S                   = { "<Plug>Lightspeed_omni_s", noremap = false },
   }, --}}}
 }

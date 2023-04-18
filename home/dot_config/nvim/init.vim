@@ -62,8 +62,3 @@ augroup conf_lsp
   autocmd TextChangedI,TextChangedP * lua fn.trigger_completion()
   autocmd CursorMovedI * lua fn.end_completion()
 augroup end
-
-if &t_ts == ""
-  let &t_ts = "\e]2;"
-  set title
-endif
