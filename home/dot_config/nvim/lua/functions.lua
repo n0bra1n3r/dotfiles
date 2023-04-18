@@ -524,6 +524,7 @@ function fn.toggle_terminal()
 end
 
 function fn.set_terminal_dir(cwd)
+  fn.open_terminal()
   get_terminal().dir = cwd
   fn.set_tab_cwd(cwd)
 end
@@ -545,7 +546,6 @@ function fn.sync_terminal()
       local cwd = vim.fn.getcwd(-1, vim.fn.tabpagenr[[#]])
       if terminal.dir ~= cwd then
         fn.send_terminal("cd "..cwd)
-        fn.set_terminal_dir(cwd)
       end
     end
   end
