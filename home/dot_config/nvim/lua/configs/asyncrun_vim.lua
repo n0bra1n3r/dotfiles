@@ -1,10 +1,6 @@
-local M = {}
-
-function M.init()
-  local group = vim.api.nvim_create_augroup("conf_asyncrun", { clear = true })
-
+function plug.init()
   local should_show_quickfix
-
+  local group = vim.api.nvim_create_augroup("conf_asyncrun", { clear = true })
   vim.api.nvim_create_autocmd("User", {
     group = group,
     pattern = "AsyncRunStart",
@@ -27,8 +23,6 @@ function M.init()
       end
     end
   })
-
   vim.g.asyncrun_rootmarks = {}
 end
 
-return M

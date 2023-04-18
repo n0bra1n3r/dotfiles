@@ -1,7 +1,5 @@
-local M = {}
-
-function M.config()
-  require"which-key".setup {
+function plug.config()
+  require'which-key'.setup {
     window = {
       border = "single",
       margin = { 0, 0, 0, 0 },
@@ -45,12 +43,9 @@ function M.config()
       z = { "<cmd>only<CR>", "zoom" },
     },
   }, { mode = "n" })
-
-  require"which-key".register({
+  require'which-key'.register({
     ["<leader>"] = {
       s = { function() fn.search.prompt([[]], vim.fn.expand[[<cword>]]) end, "search string" },
     },
   }, { mode = "x" })
 end
-
-return M

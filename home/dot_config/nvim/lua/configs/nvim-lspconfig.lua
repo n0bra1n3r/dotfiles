@@ -1,6 +1,4 @@
-local M = {}
-
-function M.config()
+function plug.config()
   local capabilities = vim.lsp.protocol.make_client_capabilities()
   capabilities.textDocument.did_save = false
   capabilities.textDocument.completion.completionItem.commitCharactersSupport = true
@@ -14,7 +12,7 @@ function M.config()
   }
   capabilities.textDocument.completion.completionItem.tagSupport = { valueSet = { 1 } }
 
-  require"lspconfig".nimls.setup {
+  require'lspconfig'.nimls.setup {
     capabilities = capabilities,
     cmd = { "cmd", "/c", "nimlsp.cmd" },
     on_attach = function(client, bufnr)
@@ -24,34 +22,32 @@ function M.config()
         callback = vim.lsp.buf.definition,
         noremap = true,
         silent = true,
+        desc = "Go to definition",
       })
-
       vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>ld", [[]], {
         callback = vim.lsp.buf.definition,
         noremap = true,
         silent = true,
-        desc = "go to definition",
+        desc = "Go to definition",
       })
       vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>lh", [[]], {
         callback = vim.lsp.buf.hover,
         noremap = true,
         silent = true,
-        desc = "show hover",
+        desc = "Show hover",
       })
       vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>lr", [[]], {
         callback = vim.lsp.buf.rename,
         noremap = true,
         silent = true,
-        desc = "rename symbol",
+        desc = "Rename symbol",
       })
       vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>ls", [[]], {
         callback = vim.lsp.buf.references,
         noremap = true,
         silent = true,
-        desc = "show references",
+        desc = "Show references",
       })
     end,
   }
 end
-
-return M

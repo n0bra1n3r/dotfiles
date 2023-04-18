@@ -1,21 +1,16 @@
-local M = {}
+function plug.config()
+  vim.b.miniindentscope_disable = #vim.bo.buftype > 0
 
-function M.config()
-  local group = vim.api.nvim_create_augroup("conf_mini_indentscope", { clear = true })
-
-  vim.api.nvim_create_autocmd("FileType", {
-    group = group,
-    pattern = "*",
-    callback = function()
-      if #vim.bo.buftype > 0 then
-        vim.api.nvim_buf_set_var(0, "miniindentscope_disable", true)
-      end
-    end
+  vim.api.nvim_create_autocmd("BufEnter", {
+    group = vim.api.nvim_create_augroup("conf_mini_indentscope", { clear = true }),
+    callback = fn.vim_defer(function()
+      vim.b.miniindentscope_disable = #vim.bo.buftype > 0
+    end),
   })
 
-  require"mini.indentscope".setup {
+  require'mini.indentscope'.setup {
     draw = {
-      animation = require"mini.indentscope".gen_animation.none(),
+      animation = require'mini.indentscope'.gen_animation.none(),
     },
     options = {
       border = "top",
@@ -24,5 +19,3 @@ function M.config()
     symbol = '·',
   }
 end
-
-return M

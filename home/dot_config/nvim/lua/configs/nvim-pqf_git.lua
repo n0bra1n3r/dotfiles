@@ -1,6 +1,4 @@
-local M = {}
-
-function M.config()
+function plug.config()
   require'pqf'.setup {
     show_multiple_lines = true,
   }
@@ -41,5 +39,3 @@ function M.config()
   })
 
 end
-
-return M

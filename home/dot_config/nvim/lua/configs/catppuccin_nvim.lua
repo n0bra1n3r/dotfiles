@@ -1,14 +1,9 @@
-local M = {}
-
-function M.config()
+function plug.config()
   require'catppuccin'.setup {
-    flavour = "mocha",
-    dim_inactive = {
-      enabled = true,
-    },
+    flavour = "frappe",
+    term_colors = true,
+    transparent_background = true,
   }
 
   vim.cmd[[colorscheme catppuccin]]
 end
-
-return M

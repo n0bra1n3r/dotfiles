@@ -1,7 +1,5 @@
-local M = {}
-
-function M.config()
-  require"cmp".setup {
+function plug.config()
+  require'cmp'.setup {
     completion = {
       autocomplete = false,
       completeopt = "menu,menuone",
@@ -20,31 +18,31 @@ function M.config()
       end
     },
     mapping = {
-      ["<C-p>"] = require"cmp".mapping.select_prev_item(),
-      ["<C-n>"] = require"cmp".mapping.select_next_item(),
-      ["<C-d>"] = require"cmp".mapping.scroll_docs(-4),
-      ["<C-f>"] = require"cmp".mapping.scroll_docs(4),
-      ["<C-Space>"] = require"cmp".mapping.complete(),
-      ["<C-e>"] = require"cmp".mapping.close(),
-      ["<CR>"] = require"cmp".mapping.confirm {
-        behavior = require"cmp".ConfirmBehavior.Replace,
+      ["<C-p>"] = require'cmp'.mapping.select_prev_item(),
+      ["<C-n>"] = require'cmp'.mapping.select_next_item(),
+      ["<C-d>"] = require'cmp'.mapping.scroll_docs(-4),
+      ["<C-f>"] = require'cmp'.mapping.scroll_docs(4),
+      ["<C-Space>"] = require'cmp'.mapping.complete(),
+      ["<C-e>"] = require'cmp'.mapping.close(),
+      ["<CR>"] = require'cmp'.mapping.confirm {
+        behavior = require'cmp'.ConfirmBehavior.Replace,
         select = true,
       },
       ["<Tab>"] = function(fallback)
-        if require"cmp".visible() then
-          require"cmp".select_next_item({ behavior = "select" })
-          if require"cmp".get_selected_entry() == nil then
-            require"cmp".select_next_item({ behavior = "select" })
+        if require'cmp'.visible() then
+          require'cmp'.select_next_item({ behavior = "select" })
+          if require'cmp'.get_selected_entry() == nil then
+            require'cmp'.select_next_item({ behavior = "select" })
           end
         else
           fallback()
         end
       end,
       ["<S-Tab>"] = function(fallback)
-        if require"cmp".visible() then
-          require"cmp".select_prev_item({ behavior = "select" })
-          if require"cmp".get_selected_entry() == nil then
-            require"cmp".select_prev_item({ behavior = "select" })
+        if require'cmp'.visible() then
+          require'cmp'.select_prev_item({ behavior = "select" })
+          if require'cmp'.get_selected_entry() == nil then
+            require'cmp'.select_prev_item({ behavior = "select" })
           end
         else
           fallback()
@@ -53,9 +51,9 @@ function M.config()
     },
     sorting = {
       comparators = {
-        require"cmp".config.compare.score,
-        require"cmp".config.compare.offset,
-        require"cmp".config.compare.recently_used,
+        require'cmp'.config.compare.score,
+        require'cmp'.config.compare.offset,
+        require'cmp'.config.compare.recently_used,
       },
     },
     sources = {
@@ -64,5 +62,3 @@ function M.config()
     },
   }
 end
-
-return M

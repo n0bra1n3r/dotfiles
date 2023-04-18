@@ -29,8 +29,7 @@ function bar_color(section)
   end
 end
 
-function M.config()
-  vim.api.nvim_set_hl(0, "MsgArea", { link = "lualine_a_command" })
+function plug.config()
   local sections = {
     lualine_a = {
       {
@@ -185,7 +184,7 @@ function M.config()
     },
   }
 
-  require"lualine".setup {
+  require'lualine'.setup {
     extensions = {},
     options = {
       component_separators = "",
@@ -204,5 +203,3 @@ function M.config()
     inactive_winbar = inactive_winbar,
   }
 end
-
-return M

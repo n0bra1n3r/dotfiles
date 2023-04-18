@@ -1,7 +1,5 @@
-local M = {}
-
-function M.config()
-  require"nvim-web-devicons".setup {
+function plug.config()
+  require'nvim-web-devicons'.setup {
     override = {
       nim = {
         icon = '',
@@ -21,5 +19,3 @@ function M.config()
     },
   }
 end
-
-return M

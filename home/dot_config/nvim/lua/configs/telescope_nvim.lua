@@ -1,8 +1,6 @@
-local M = {}
-
-function previewer(path, bufnr, opts)
+local function previewer(path, bufnr, opts)
   path = vim.fn.expand(path)
-  require"plenary.job":new({
+  require'plenary.job':new({
     command = "file",
     args = { "--mime-type", "-b", path },
     on_exit = function(output)
@@ -36,8 +34,8 @@ function previewer(path, bufnr, opts)
   }):sync()
 end
 
-function M.config()
-  require"telescope".setup {
+function plug.config()
+  require'telescope'.setup {
     defaults = {
       buffer_previewer_maker = previewer,
       file_ignore_patterns = {
@@ -45,7 +43,7 @@ function M.config()
       },
       mappings = {
         i = {
-          ["<Esc>"] = require"telescope.actions".close,
+          ["<Esc>"] = require'telescope.actions'.close,
         },
       },
     },
@@ -55,16 +53,16 @@ function M.config()
         mappings = {
           i = {
             ["<Tab>"] = function(bufnr)
-              require"telescope.actions.set".edit(bufnr, "drop")
+              require'telescope.actions.set'.edit(bufnr, "drop")
             end,
             ["<C-S-Tab>"] = function(bufnr)
-              require"telescope.actions".move_selection_previous(bufnr)
+              require'telescope.actions'.move_selection_previous(bufnr)
             end,
             ["<S-Tab>"] = function(bufnr)
-              require"telescope.actions".move_selection_previous(bufnr)
+              require'telescope.actions'.move_selection_previous(bufnr)
             end,
             ["<C-Tab>"] = function(bufnr)
-              require"telescope.actions".move_selection_next(bufnr)
+              require'telescope.actions'.move_selection_next(bufnr)
             end,
           },
         },
@@ -86,5 +84,3 @@ function M.config()
     },
   }
 end
-
-return M

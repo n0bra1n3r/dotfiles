@@ -1,7 +1,3 @@
-local M = {}
-
-function M.config()
+function plug.config()
   require"gitsigns".setup()
 end
-
-return M
