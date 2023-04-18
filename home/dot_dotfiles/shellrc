@@ -18,23 +18,11 @@ MINGW64_NT*)
   ;;
 esac
 
-export PATH=$HOME/.local/bin:$HOME/.dotfiles/scripts:$PATH
+export PATH="$HOME/.local/bin:$HOME/.dotfiles/scripts:$PATH"
 
 if [ ! "$(command -v git)" ]; then
   sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- --bin-dir "$HOME/.local/bin" --yes
 fi
-
-export EDITOR=nvim
-
-export TIGRC_USER="$HOME/.tigrc"
-
-alias c='chezmoi'
-alias ce='chezmoi edit'
-alias cg='chezmoi git --'
-alias e='nvim'
-alias g='git'
-alias vim='nvim'
-alias bfg='java -jar "$HOME/.local/bin/bfg.jar"'
 
 function save-function() {
   local ORIG_FUNC=$(declare -f $1)
@@ -42,27 +30,7 @@ function save-function() {
   eval "$NEWNAME_FUNC"
 }
 
-function workspace() {
-  source "$HOME/.dotfiles/scripts/workspace"
-}
-
-alias ws='workspace'
-
-function br() {
-  local cmd cmd_file code
-  cmd_file=$(mktemp)
-  if broot --outcmd "$cmd_file" "$@"; then
-    cmd=$(<"$cmd_file")
-    command rm -f "$cmd_file"
-    eval "$cmd"
-  else
-    code=$?
-    command rm -f "$cmd_file"
-    return "$code"
-  fi
-}
-
-function git() {
+function _git_ext() {
   if [[ "$1" == "log" && "$@" != *"--help"* ]]; then
     shift 1
     command git log "$@" | tig
@@ -71,6 +39,58 @@ function git() {
   fi
 }
 
-if [ -z "$SHOULD_NOT_CD_TO_HOME" ]; then
-  cd ~
+if [ ! -z "$NVIM" ]; then
+  export EDITOR="$HOME/.dotfiles/scripts/nvim-nested"
+
+  function _nvim_remote() {
+    command nvim --clean --headless --server "$NVIM" "$@"
+  }
+
+  function cd() {
+    command cd "$@"
+    local dir="$(cygpath -m "$PWD")"
+    _nvim_remote --remote-send "<cmd>\
+      call v:lua.fn.set_terminal_dir(\"$dir\")\
+      |call v:lua.fn.set_tab_cwd(\"$dir\")\
+      <CR>"
+  }
+
+  function git() {
+    _git_ext "$@"
+    _nvim_remote --remote-send "<cmd>GitInfoRefresh<CR>"
+  }
+
+  function nvim() {
+    if [ $# -eq 0 ]; then
+      _nvim_remote --remote-send "<cmd>WorkspaceOpen "$(cygpath -m "$PWD")"<CR>"
+    else
+      _nvim_remote --remote-tab "$@"
+    fi
+  }
+
+  function workspace() {
+    source "$HOME/.dotfiles/scripts/workspace"
+    _nvim_remote --remote-send "<cmd>WorkspaceOpen "$(cygpath -m "$PWD")"<CR>"
+  }
+
+  function exit() {
+    _nvim_remote --remote-send "<cmd>quitall<CR>"
+  }
+else
+  export EDITOR="nvim"
+
+  function workspace() {
+    source "$HOME/.dotfiles/scripts/workspace"
+  }
+
+  alias git='_git_ext'
 fi
+
+alias c='chezmoi'
+alias ce='chezmoi edit'
+alias cg='chezmoi git --'
+alias bfg='java -jar "$HOME/.local/bin/bfg.jar"'
+alias e='nvim'
+alias g='git'
+alias vim='nvim'
+alias ws='workspace'

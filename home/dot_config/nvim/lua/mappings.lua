@@ -10,11 +10,6 @@ mappings {
     j                   = { fn.get_map_expr("j"), expr = true },
     k                   = { fn.get_map_expr("k"), expr = true },
   }, --}}}
-
-  c = { --{{{
-    ["<Enter>"]         = { "getcmdline()==''?'update<CR>':'<CR>'", expr = true }
-  }, --}}}
-
   i = { --{{{
     ["<End>"]           = { "<C-o>$", noremap = false },
     ["<Home>"]          = { "<C-o>^", noremap = false },
@@ -29,7 +24,6 @@ mappings {
     ["<PageDown>"]      = { "<Esc>L<Down>", noremap = false },
     ["<S-Tab>"]         = { "<C-d>" },
   }, --}}}
-
   n = { --{{{
     ["<M-`>"]           = { fn.toggle_terminal },
     ["<M-1>"]           = { fn.execute_last_terminal_command },
@@ -37,31 +31,31 @@ mappings {
     ["<M-j>"]           = { "<C-w>j" },
     ["<M-k>"]           = { "<C-w>k" },
     ["<M-l>"]           = { "<C-w>h" },
-    ["<C-w><C-f>"]      = { function() fn.edit_file("vsplit", vim.fn.expand("<cfile>")) end },
-    ["<C-w>f"]          = { function() fn.edit_file("split", vim.fn.expand("<cfile>")) end },
-    ["<C-w>gf"]         = { "<cmd>tabe <cfile><CR>" },
+    ["<C-c>"]           = { "<cmd>tabclose<CR>" },
+    ["<C-w><C-f>"]      = { function() fn.edit_file("vsplit", vim.fn.expand("<cfile>")) end, desc = "Edit file in vertical split" },
+    ["<C-w>f"]          = { function() fn.edit_file("split", vim.fn.expand("<cfile>")) end, desc = "Edit file in split" },
+    ["<C-w>gf"]         = { "<cmd>tabe <cfile><CR>", desc = "Edit file in tab" },
     ["<C-Down>"]        = { "<C-w>j" },
     ["<C-Left>"]        = { "<C-w>h" },
     ["<C-Right>"]       = { "<C-w>l" },
     ["<C-Up>"]          = { "<C-w>k" },
-    ["<C-Tab>"]         = { require'telescope.builtin'.buffers, desc = "buffer list" },
+    ["<C-Tab>"]         = { require'telescope.builtin'.buffers },
     ["<Esc>"]           = { ":nohlsearch<CR>" },
     ["<End>"]           = { "$", noremap = false },
     ["<Home>"]          = { "^", noremap = false },
-    ["<Enter>"]         = { ":", silent = false },
+    ["<Enter>"]         = { fn.save_file, silent = false },
     ["<F1>"]            = { ":help <C-r><C-w><CR>" },
-    ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up>$l':'<Left>'", expr = true },
+    ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up><End><Right>':'<Left>'", expr = true },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
     ["<PageDown>"]      = { "L<Down>", noremap = false },
-    ["<Space><Space>"]  = { require'telescope.builtin'.find_files, desc = "file tree" },
+    ["<Space><Space>"]  = { require'telescope.builtin'.find_files, desc = "File tree" },
     [";"]               = { "l" },
-    gf                  = { function() fn.edit_file("edit", vim.fn.expand("<cfile>")) end },
+    gf                  = { function() fn.edit_file("edit", vim.fn.expand("<cfile>")) end, desc = "Edit file" },
     h                   = { ";" },
     l                   = { "col('.')==1&&col([line('.')-1,'$'])>1?'k$l':'h'", expr = true },
     x                   = { "col('$')==col('.')?'gJ':'\"_x'", expr = true },
-    zQ                  = { "foldclosed('.')!=-1?'zMzO[z':'zM'", expr = true, desc = "Open fold under cursor and close all others" },
+    zq                  = { "foldclosed('.')!=-1?'zMzO[z':'zM'", expr = true, desc = "Open fold under cursor and close all others" },
   }, --}}}
-
   t = { --{{{
     ["<C-;>"]           = { "<End>" },
     ["<C-l>"]           = { "<Home>" },
@@ -77,7 +71,6 @@ mappings {
     ["<PageUp>"]        = { "<C-\\><C-n>H<Up>" },
     ["<PageDown>"]      = { "<C-\\><C-n>L<Down>" },
   }, --}}}
-
   x = { --{{{
     ["<S-Tab>"]         = { "<gv" },
     ["<Tab>"]           = { ">gv" },

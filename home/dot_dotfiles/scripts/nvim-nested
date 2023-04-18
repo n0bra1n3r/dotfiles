@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+set -e
+
+if [ -z "$NVIM" ]; then
+  echo "This script must be run inside a neovim instance."
+  exit 1
+fi
+
+command nvim --clean --headless --server "$NVIM" --remote-tab "$1"
+
+while command nvim \
+  --clean \
+  --headless \
+  --server "$NVIM" \
+  --remote-expr "json_encode(v:lua.fn.get_open_files())" 2>&1 \
+  | jq -e "any(. == \"$1\")" >/dev/null; do
+  sleep 1
+done

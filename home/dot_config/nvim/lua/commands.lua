@@ -19,4 +19,65 @@ commands {
     desc = "Git command",
     nargs = "+",
   }, --}}}
+  W = "WorkspaceOpen",
+  GitInfoRefresh = { --{{{
+    function(opts)
+      fn.refresh_git_info()
+    end,
+    desc = "Refresh git info",
+  }, --}}}
+  TerminalModeStart = { --{{{
+    function()
+      fn.open_terminal()
+      vim.cmd[[tabonly]]
+    end,
+    desc = "Start terminal mode",
+  }, --}}}
+  NotifyJobStarted = { --{{{
+    function()
+      fn.set_is_job_in_progress(true)
+    end,
+    desc = "Notify job started",
+  }, --}}}
+  NotifyJobStopped = { --{{{
+    function()
+      fn.set_is_job_in_progress(false)
+    end,
+    desc = "Notify job stopped",
+  }, --}}}
+  WorkspaceFreeze = { --{{{
+    function()
+      fn.freeze_workspace()
+    end,
+    desc = "Freeze workspace",
+  }, --}}}
+  WorkspaceOpen = { --{{{
+    function(opts)
+      fn.open_workspace(opts.args)
+    end,
+    complete = function(lead)
+      local completions = {}
+      for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
+        local tabnr = vim.api.nvim_tabpage_get_number(tabpage)
+        local cwd = vim.fn.getcwd(-1, tabnr)
+        if cwd:find(lead) ~= nil
+            and vim.fn.getcwd(-1) ~= cwd
+            and not fn.is_workspace_frozen(tabnr) then
+          table.insert(completions, vim.fn.fnamemodify(cwd, ":~"))
+        end
+      end
+      if #vim.trim(lead) ~= 0 or #completions == 0 then
+        completions = vim.fn.extend(completions, vim.fn.getcompletion(lead, "dir"))
+      end
+      return completions
+    end,
+    desc = "Open workspace",
+    nargs = 1,
+  }, --}}}
+  WorkspaceSave = { --{{{
+    function()
+      fn.save_workspace(nil, true)
+    end,
+    desc = "Save workspace",
+  }, --}}}
 }

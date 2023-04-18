@@ -50,61 +50,110 @@ end
     end
   end
 --}}}
-
 --{{{ Git
-local is_git_dir = false
-local git_branch = nil
-local has_git_remote = false
-local git_local_change_count = 0
-local git_remote_change_count = 0
+local dir_git_info = {}
 
-function fn.refresh_git_change_info()
-  if is_git_dir then
-    git_local_change_count = tonumber(vim.fn.system(string.format("git rev-list --right-only --count %s@{upstream}...%s", git_branch, git_branch)))
-    git_remote_change_count = tonumber(vim.fn.system(string.format("git rev-list --left-only --count %s@{upstream}...%s", git_branch, git_branch)))
+local function get_git_info(tabnr)
+  return dir_git_info[get_tab_cwd(tabnr)]
+end
+
+local function set_git_info(tabnr, info)
+  local key = get_tab_cwd(tabnr)
+  local val = dir_git_info[key]
+  dir_git_info[key] = info and vim.tbl_extend("force", val or {}, info)
+end
+
+local function run_git_command(tabnr, command)
+  local git = string.format("git -C '%s' ", get_tab_cwd(tabnr))
+  return vim.trim(vim.fn.system(git..command))
+end
+
+function fn.is_git_dir(tabnr)
+  local info = get_git_info(tabnr)
+  return info and (info.is_git_dir or false) or false
+end
+
+function fn.get_git_branch(tabnr)
+  local info = get_git_info(tabnr)
+  return info and info.branch
+end
+
+function fn.refresh_git_diff_info(tabnr)
+  if fn.is_git_dir(tabnr) then
+    local branch = fn.get_git_branch(tabnr)
+    local command = string.format("rev-list --left-right --count %s@{upstream}...%s", branch, branch)
+    local results = vim.split(run_git_command(tabnr, command), "\t", { trimempty = true })
+    local has_remote = vim.v.shell_error == 0
+    set_git_info(tabnr, { has_remote = has_remote })
+    if has_remote then
+      set_git_info(tabnr, {
+        local_change_count = tonumber(results[2]),
+        remote_change_count = tonumber(results[1]),
+      })
+    else
+      command = string.format("rev-list --count %s", branch)
+      results = run_git_command(tabnr, command)
+      set_git_info(tabnr, { local_change_count = tonumber(results) })
+    end
   end
 end
 
-function fn.refresh_git_info()
-  vim.fn.system[[git rev-parse --is-inside-work-tree]]
-  is_git_dir = vim.v.shell_error == 0
-
+function fn.refresh_git_info(tabnr)
+  local branch = run_git_command(tabnr, "branch --show-current")
+  local is_git_dir = vim.v.shell_error == 0
+  set_git_info(tabnr, { is_git_dir = is_git_dir })
   if is_git_dir then
-    git_branch = vim.fn.system[[git branch --show-current]]:match[[(.-)%s*$]]
-
-    vim.fn.system("git show-branch remotes/origin/"..git_branch)
-    has_git_remote = vim.v.shell_error == 0
+    set_git_info(tabnr, { branch = branch })
+    local dir = run_git_command(tabnr, "rev-parse --show-toplevel")
+    set_git_info(tabnr, { dir = dir })
+    fn.refresh_git_diff_info(tabnr)
+  else
+    set_git_info(tabnr, nil)
   end
-
-  fn.refresh_git_change_info()
 end
 
-function fn.is_git_dir()
-  return is_git_dir
+function fn.get_git_dir(tabnr)
+  local info = get_git_info(tabnr)
+  return info and info.dir
 end
 
-function fn.get_git_branch()
-  return git_branch
+function fn.has_git_remote(tabnr)
+  local info = get_git_info(tabnr)
+  return info and (info.has_remote or false) or false
 end
 
-function fn.has_git_remote()
-  return has_git_remote
+function fn.git_local_change_count(tabnr)
+  local info = get_git_info(tabnr)
+  return info and (info.local_change_count or 0) or 0
 end
 
-function fn.git_local_change_count()
-  return git_local_change_count
+function fn.git_remote_change_count(tabnr)
+  local info = get_git_info(tabnr)
+  return info and (info.remote_change_count or 0) or 0
 end
 
-function fn.git_remote_change_count()
-  return git_remote_change_count
-end
-
-function fn.open_commit_log()
-  fn.make_terminal_app("commits", "tigrc")
-  vim.cmd[[FloatermShow commits]]
+function fn.get_git_worktree_root(tabnr)
+  local folder = get_tab_cwd(tabnr)
+  if not fn.is_git_dir(tabnr) then
+    return folder
+  end
+  local branch = fn.get_git_branch(tabnr)
+  local branch_path = branch
+  local folder_path = folder
+  while true do
+    local branch_part = vim.fn.fnamemodify(branch_path, ":t")
+    local folder_part = vim.fn.fnamemodify(folder_path, ":t")
+    if folder_part ~= branch_part then
+      return folder
+    end
+    branch_path = vim.fn.fnamemodify(branch_path, ":h")
+    folder_path = vim.fn.fnamemodify(folder_path, ":h")
+    if branch_path == "." then
+      return folder_path
+    end
+  end
 end
 --}}}
-
 --{{{ Files
 function fn.get_open_files()
   local files = {}
@@ -118,7 +167,7 @@ end
 
 function fn.delete_file()
   vim.fn.delete(vim.fn.expand('%:p'))
-  vim.cmd[[bwipeout!]]
+  require'mini.bufremove'.wipeout()
 end
 
 function fn.open_file()
@@ -216,7 +265,6 @@ function fn.project_check()
   fn.run_task("project-check")
 end
 --}}}
-
 --{{{ LSP
 local function preview_location_callback(_, result, ctx)
   if result == nil or vim.tbl_isempty(result) then
@@ -264,7 +312,6 @@ function fn.end_completion()
   require"cmp".close()
 end
 --}}}
-
 --{{{ Navigation
 local function pick_window(exclude)
   local tabpage = vim.api.nvim_get_current_tabpage()
@@ -337,16 +384,6 @@ local function pick_window(exclude)
   return win_map[resp]
 end
 
-function fn.close_buffer()
-  if vim.fn.tabpagenr() > 1 then
-    vim.cmd[[tabclose]]
-  elseif vim.fn.winnr("$") > 1 then
-    vim.cmd[[close]]
-  else
-    vim.cmd[[bwipeout]]
-  end
-end
-
 function fn.edit_file(mode, path)
   local tabpage = vim.api.nvim_get_current_tabpage()
   local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
@@ -387,8 +424,17 @@ function fn.choose_window()
     vim.api.nvim_set_current_win(picked)
   end
 end
---}}}
 
+function fn.switch_prior_tab()
+  local tabnr = vim.fn.tabpagenr[[#]]
+  for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
+    if vim.api.nvim_tabpage_get_number(tabpage) == tabnr then
+      vim.api.nvim_set_current_tabpage(tabpage)
+      break
+    end
+  end
+end
+--}}}
 --{{{ Quickfix
 local function open_quickfix()
   vim.cmd(string.format("%dcopen "
@@ -555,37 +601,101 @@ function fn.set_tab_cwd(path)
 end
 --}}}
 --{{{ Workspace
-function fn.get_workspace_dir()
-  local folder = vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.")
+function get_workspace_file_path(tabnr)
+  return fn.get_workspace_dir(tabnr).."/"..vim.g.workspace_file_name
+end
 
-  if not fn.is_git_dir() then
-    return folder
+function get_workspace_file(tabnr)
+  return io.open(get_workspace_file_path(tabnr), "r")
+end
+
+function fn.has_workspace_file(tabnr)
+  local workspace_file = get_workspace_file(tabnr)
+  local has_workspace_file = workspace_file ~= nil
+  if has_workspace_file then
+    io.close(workspace_file)
   end
+  return has_workspace_file
+end
 
-  local branch = fn.get_git_branch()
+function fn.get_workspace_dir(tabnr)
+  if fn.is_git_dir(tabnr) then
+    return fn.get_git_dir(tabnr)
+  else
+    return get_tab_cwd(tabnr)
+  end
+end
 
-  local branch_path = branch
-  local folder_path = folder
+function fn.is_workspace_frozen(tabnr)
+  if tabnr == nil then
+    return vim.t.is_workspace_frozen or false
+  end
+  return vim.fn.gettabvar(tabnr, "is_workspace_frozen", false)
+end
 
-  while true do
-    local branch_part = vim.fn.fnamemodify(branch_path, ":t")
-    local folder_part = vim.fn.fnamemodify(folder_path, ":t")
+function fn.freeze_workspace(tabnr, value)
+  local new_value = value == nil or value
+  if tabnr == nil then
+    vim.t.is_workspace_frozen = new_value
+  else
+    vim.fn.settabvar(tabnr, "is_workspace_frozen", new_value)
+  end
+end
 
-    if folder_part ~= branch_part then
-      return folder
-    end
-
-    branch_path = vim.fn.fnamemodify(branch_path, ":h")
-    folder_path = vim.fn.fnamemodify(folder_path, ":h")
-
-    if branch_path == "." then
-      return folder_path
+function fn.show_workspace(tabnr, value)
+  if not fn.is_workspace_frozen(tabnr) then
+    local root = fn.get_workspace_dir(tabnr)
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+      if vim.api.nvim_buf_is_valid(buf) then
+        local name = vim.api.nvim_buf_get_name(buf)
+        if fn.is_subpath(name, root) then
+          vim.bo[buf].buflisted = value == nil or value
+        end
+      end
     end
   end
 end
 
-function fn.switch_workspace(path)
-  vim.cmd[[FloatermKill!]]
-  vim.cmd("Prosession "..path)
+function fn.save_workspace(tabnr, force)
+  if not fn.is_workspace_frozen(tabnr) or (force or false) then
+    fn.freeze_workspace(tabnr, false)
+    local save_path = get_workspace_file_path(tabnr)
+    create_parent_dirs(save_path)
+    vim.cmd("silent mksession! "..vim.fn.fnameescape(save_path))
+  end
+end
+
+function fn.load_workspace(tabnr)
+  if not fn.is_workspace_frozen(tabnr) then
+    local workspace_file = get_workspace_file(tabnr)
+    if workspace_file ~= nil then
+      fn.freeze_workspace(tabnr, false)
+      local work_dir = fn.get_workspace_dir(tabnr)
+      local load_path = get_workspace_file_path(tabnr)
+      local workspace = workspace_file:read("*a")
+      vim.api.nvim_exec2(workspace, { output = false })
+      io.close(workspace_file)
+      fn.set_tab_cwd(work_dir)
+    end
+  end
+end
+
+function fn.open_workspace(path)
+  local workspace_path = vim.fn.expand(path)
+  for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
+    local tabnr = vim.api.nvim_tabpage_get_number(tabpage)
+    local cwd = get_tab_cwd(tabnr)
+    if cwd == workspace_path then
+      if not fn.is_workspace_frozen(tabnr) then
+        vim.api.nvim_set_current_tabpage(tabpage)
+        return
+      end
+    end
+  end
+  if vim.fn.isdirectory(workspace_path) then
+    vim.cmd[[tabnew]]
+    fn.set_tab_cwd(workspace_path)
+    fn.load_workspace()
+  end
 end
 --}}}
