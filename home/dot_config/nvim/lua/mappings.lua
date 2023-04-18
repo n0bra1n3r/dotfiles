@@ -64,13 +64,9 @@ mappings {
 
   t = { --{{{
     ["<C-;>"]           = { "<End>" },
-    ["<C-j>"]           = { "<C-\\><C-n><C-e>" },
-    ["<C-k>"]           = { "<C-\\><C-n><C-y>" },
     ["<C-l>"]           = { "<Home>" },
-    ["<C-Down>"]        = { "<C-\\><C-n><C-e>" },
     ["<C-Left>"]        = { "<Home>" },
     ["<C-Right>"]       = { "<End>" },
-    ["<C-Up>"]          = { "<C-\\><C-n><C-y>" },
     ["<Esc>"]           = { "<C-\\><C-n>" },
     ["<M-`>"]           = { fn.toggle_terminal },
     ["<M-1>"]           = { fn.execute_last_terminal_command },
