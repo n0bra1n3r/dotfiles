@@ -3,7 +3,11 @@
 commands {
   G = { --{{{
     function(opts)
-      fn.send_terminal("git "..opts.args)
+      local args = {}
+      for _, arg in ipairs(opts.fargs) do
+        table.insert(args, vim.fn.expand(arg))
+      end
+      fn.send_terminal("git "..vim.fn.join(args))
       fn.open_terminal()
     end,
     complete = function(lead)
