@@ -31,11 +31,17 @@ local function section_color(section)
   end
 end
 
-local function section_separator_color(left, right)
+local function section_separator_color(left, right, mode)
   return function()
+    local left_highlight = mode
+      and "lualine_"..left.."_normal"
+      or section_color(left)()
+    local right_highlight = mode
+      and "lualine_"..right.."_normal"
+      or section_color(right)()
     local highlight = require'lualine.highlight'.get_transitional_highlights(
-      section_color(left)(),
-      section_color(right)())
+      left_highlight,
+      right_highlight)
     if highlight ~= nil then
       return highlight:sub(3, -2)
     end
@@ -173,68 +179,57 @@ function plug.config()
     },
   }
   local winbar = {
-    lualine_a = {
+    lualine_b = {
       {
-        "fileformat",
+        function()
+          if vim.bo.modified then
+            return ''
+          end
+          if vim.bo.readonly then
+            return ''
+          end
+          local name = vim.fn.expand[[%:t]]
+          local ext = vim.fn.expand[[%:e]]
+          return require'nvim-web-devicons'.get_icon(name, ext)
+        end,
         color = "lualine_b_normal",
-      },
-      {
-        left_component_separator,
-        color = "lualine_b_normal",
-        padding = { left = 0, right = 0 },
       },
       {
         "filename",
-        color = "lualine_b_normal",
         path = 1,
+        color = "lualine_b_normal",
         symbols = {
-          modified = ' ●',
-          readonly = ' ',
+          modified = '',
+          readonly = '',
         },
       },
       {
-        left_component_separator,
-        color = "lualine_b_normal",
-        cond = function()
-          return vim.b.gitsigns_status ~= nil and #vim.b.gitsigns_status > 0
-        end,
+        left_section_separator,
+        color = section_separator_color("b", "c", "normal"),
         padding = { left = 0, right = 0 },
       },
+    },
+    lualine_c = {
       {
         "b:gitsigns_status",
-        color = "lualine_b_normal",
+        color = "lualine_c_normal",
       },
     },
   }
   local inactive_winbar = {
-    lualine_a = {
+    lualine_b = {
       {
-        "fileformat",
-        color = "lualine_a_inactive",
-      },
-      {
-        left_component_separator,
-        padding = { left = 0, right = 0 },
+        winbar.lualine_b[1][1],
+        color = "lualine_b_inactive",
       },
       {
         "filename",
         path = 1,
-        color = "lualine_a_inactive",
+        color = "lualine_b_inactive",
         symbols = {
-          modified = ' ●',
-          readonly = ' ',
+          modified = '',
+          readonly = '',
         },
-      },
-      {
-        left_component_separator,
-        cond = function()
-          return vim.b.gitsigns_status ~= nil and #vim.b.gitsigns_status > 0
-        end,
-        padding = { left = 0, right = 0 },
-      },
-      {
-        "b:gitsigns_status",
-        color = "lualine_a_inactive",
       },
     },
   }
