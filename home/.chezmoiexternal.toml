@@ -19,6 +19,12 @@
 {{-   $starship := "starship-x86_64-apple-darwin.tar.gz" }}
 {{- end }}
 
+[".dotfiles/deps/catppuccin/.config/alacritty/catppuccin"]
+  type = "archive"
+  url = "https://github.com/catppuccin/alacritty/archive/refs/heads/main.zip"
+  exact = true
+  stripComponents = 1
+
 [".dotfiles/deps/cascadiacode-nf/.local/share/fonts"]
   type = "archive"
   url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
