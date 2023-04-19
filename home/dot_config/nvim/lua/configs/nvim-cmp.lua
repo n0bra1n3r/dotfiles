@@ -1,5 +1,6 @@
 function plug.config()
-  require'cmp'.setup {
+  local cmp = require'cmp'
+  cmp.setup {
     formatting = {
       format = function(entry, vim_item)
         if vim.tbl_contains({ "path" }, entry.source.name) then
@@ -17,33 +18,33 @@ function plug.config()
         })(entry, vim_item)
       end,
     },
-    mapping = require'cmp'.mapping.preset.insert {
-      ["<C-Space>"] = require'cmp'.mapping.complete(),
-      ["<CR>"] = require'cmp'.mapping {
-        c = require'cmp'.mapping.confirm {
-          behavior = require'cmp'.ConfirmBehavior.Replace,
+    mapping = cmp.mapping.preset.insert {
+      ["<C-Space>"] = cmp.mapping.complete(),
+      ["<CR>"] = cmp.mapping {
+        c = cmp.mapping.confirm {
+          behavior = cmp.ConfirmBehavior.Replace,
           select = true,
         },
         i = function(fallback)
-         if require'cmp'.visible() and require'cmp'.get_selected_entry() ~= nil then
-           require'cmp'.confirm {
-             behavior = require'cmp'.ConfirmBehavior.Replace,
+         if cmp.visible() and cmp.get_selected_entry() ~= nil then
+           cmp.confirm {
+             behavior = cmp.ConfirmBehavior.Replace,
              select = false,
            }
          else
            fallback()
          end
         end,
-        s = require'cmp'.mapping.confirm{ select = true },
+        s = cmp.mapping.confirm{ select = true },
       },
-      ["<Tab>"] = require'cmp'.mapping(function(fallback)
-        if require'cmp'.visible() then
-          require'cmp'.select_next_item {
-            behavior = require'cmp'.SelectBehavior.Select,
+      ["<Tab>"] = cmp.mapping(function(fallback)
+        if cmp.visible() then
+          cmp.select_next_item {
+            behavior = cmp.SelectBehavior.Select,
           }
-          if #require'cmp'.get_entries() == 1 then
-            require'cmp'.confirm {
-              behavior = require'cmp'.ConfirmBehavior.Replace,
+          if #cmp.get_entries() == 1 then
+            cmp.confirm {
+              behavior = cmp.ConfirmBehavior.Replace,
               select = false,
             }
           end
@@ -51,17 +52,17 @@ function plug.config()
           fallback()
         end
       end, { "c", "i", "s" }),
-      ["<S-Tab>"] = require'cmp'.mapping(function(fallback)
-        if require'cmp'.visible() then
-          require'cmp'.select_prev_item {
-            behavior = require'cmp'.SelectBehavior.Select,
+      ["<S-Tab>"] = cmp.mapping(function(fallback)
+        if cmp.visible() then
+          cmp.select_prev_item {
+            behavior = cmp.SelectBehavior.Select,
           }
         else
           fallback()
         end
       end, { "c", "i", "s" }),
     },
-    sources = require'cmp'.config.sources(
+    sources = cmp.config.sources(
       {
         { name = "nvim_lsp" },
         { name = "nvim_lsp_signature_help" },
@@ -83,19 +84,19 @@ function plug.config()
       }
     ),
     window = {
-      completion = require'cmp'.config.window.bordered(),
-      documentation = require'cmp'.config.window.bordered(),
+      completion = cmp.config.window.bordered(),
+      documentation = cmp.config.window.bordered(),
     },
   }
-  require'cmp'.setup.cmdline({ "/", "?" }, {
-    mapping = require'cmp'.mapping.preset.cmdline(),
+  cmp.setup.cmdline({ "/", "?" }, {
+    mapping = cmp.mapping.preset.cmdline(),
     sources = {
       { name = "buffer" }
     }
   })
-  require'cmp'.setup.cmdline(":", {
-    mapping = require'cmp'.mapping.preset.cmdline(),
-    sources = require'cmp'.config.sources(
+  cmp.setup.cmdline(":", {
+    mapping = cmp.mapping.preset.cmdline(),
+    sources = cmp.config.sources(
       { { name = "path" } },
       { { name = "cmdline" } }
     )

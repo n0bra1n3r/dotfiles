@@ -14,5 +14,11 @@ function plug.config()
       ):format(vim.fn.expand[[~]], vim.fn.expand[[~]]),
     },
   })
+  lsp.set_sign_icons {
+    error = '✘',
+    warn = '▲',
+    hint = '⚑',
+    info = '»'
+  }
   lsp.setup()
 end

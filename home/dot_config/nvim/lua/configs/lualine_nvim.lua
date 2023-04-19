@@ -151,7 +151,10 @@ function plug.config()
     lualine_c = {
       {
         "diagnostics",
-        sources = { fn.get_qf_diagnostics },
+        sources = {
+          fn.get_qf_diagnostics,
+          "nvim_lsp",
+        },
       },
     },
     lualine_x = {},
