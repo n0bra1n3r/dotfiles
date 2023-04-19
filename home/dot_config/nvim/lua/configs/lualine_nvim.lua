@@ -154,10 +154,17 @@ function plug.config()
         function()
           local local_hl = "%#lualine_x_diff_modified_command#"
           local remote_hl = "%#lualine_x_diff_added_command#"
-          local status = local_hl.." "..fn.git_local_change_count()
+          local status = ""
+          local local_count = fn.git_local_change_count()
+          if local_count > 0 then
+            status = local_hl.." "..local_count
+          end
           if fn.has_git_remote() then
-            local remote_status = remote_hl.." "..fn.git_remote_change_count()
-            status = status.." "..remote_status
+            local remote_count = fn.git_remote_change_count()
+            if remote_count > 0 then
+              local remote_status = remote_hl.." "..remote_count
+              status = status.." "..remote_status
+            end
           end
           return status
         end,
