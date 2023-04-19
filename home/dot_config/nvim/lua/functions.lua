@@ -271,7 +271,6 @@ local function preview_location_callback(_, result, ctx)
     vim.lsp.log.info(ctx, "No location found")
     return nil
   end
-
   if vim.tbl_islist(result) then
     vim.lsp.util.preview_location(result[1])
   else
@@ -672,7 +671,6 @@ function fn.load_workspace(tabnr)
     if workspace_file ~= nil then
       fn.freeze_workspace(tabnr, false)
       local work_dir = fn.get_workspace_dir(tabnr)
-      local load_path = get_workspace_file_path(tabnr)
       local workspace = workspace_file:read("*a")
       vim.api.nvim_exec2(workspace, { output = false })
       io.close(workspace_file)

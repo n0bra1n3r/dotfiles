@@ -1,64 +1,103 @@
 function plug.config()
   require'cmp'.setup {
-    completion = {
-      autocomplete = false,
-      completeopt = "menu,menuone",
-    },
-    experimental = {
-      ghost_text = true,
-    },
     formatting = {
       format = function(entry, vim_item)
-        if entry.source.name == 'nvim_lsp' then
-          vim_item.dup = 0
+        if vim.tbl_contains({ "path" }, entry.source.name) then
+          local icon, hl_group = require'nvim-web-devicons'.get_icon(entry:get_completion_item().label)
+          if icon then
+            vim_item.kind = icon
+            vim_item.kind_hl_group = hl_group
+            return vim_item
+          end
         end
-        return require"lspkind".cmp_format({
+        return require'lspkind'.cmp_format({
+          mode = "symbol",
           maxwidth = 50,
+          ellipsis_char = '...',
         })(entry, vim_item)
-      end
+      end,
     },
-    mapping = {
-      ["<C-p>"] = require'cmp'.mapping.select_prev_item(),
-      ["<C-n>"] = require'cmp'.mapping.select_next_item(),
-      ["<C-d>"] = require'cmp'.mapping.scroll_docs(-4),
-      ["<C-f>"] = require'cmp'.mapping.scroll_docs(4),
+    mapping = require'cmp'.mapping.preset.insert {
       ["<C-Space>"] = require'cmp'.mapping.complete(),
-      ["<C-e>"] = require'cmp'.mapping.close(),
-      ["<CR>"] = require'cmp'.mapping.confirm {
-        behavior = require'cmp'.ConfirmBehavior.Replace,
-        select = true,
+      ["<CR>"] = require'cmp'.mapping {
+        c = require'cmp'.mapping.confirm {
+          behavior = require'cmp'.ConfirmBehavior.Replace,
+          select = true,
+        },
+        i = function(fallback)
+         if require'cmp'.visible() and require'cmp'.get_selected_entry() ~= nil then
+           require'cmp'.confirm {
+             behavior = require'cmp'.ConfirmBehavior.Replace,
+             select = false,
+           }
+         else
+           fallback()
+         end
+        end,
+        s = require'cmp'.mapping.confirm{ select = true },
       },
-      ["<Tab>"] = function(fallback)
+      ["<Tab>"] = require'cmp'.mapping(function(fallback)
         if require'cmp'.visible() then
-          require'cmp'.select_next_item({ behavior = "select" })
-          if require'cmp'.get_selected_entry() == nil then
-            require'cmp'.select_next_item({ behavior = "select" })
+          require'cmp'.select_next_item {
+            behavior = require'cmp'.SelectBehavior.Select,
+          }
+          if #require'cmp'.get_entries() == 1 then
+            require'cmp'.confirm {
+              behavior = require'cmp'.ConfirmBehavior.Replace,
+              select = false,
+            }
           end
         else
           fallback()
         end
-      end,
-      ["<S-Tab>"] = function(fallback)
+      end, { "c", "i", "s" }),
+      ["<S-Tab>"] = require'cmp'.mapping(function(fallback)
         if require'cmp'.visible() then
-          require'cmp'.select_prev_item({ behavior = "select" })
-          if require'cmp'.get_selected_entry() == nil then
-            require'cmp'.select_prev_item({ behavior = "select" })
-          end
+          require'cmp'.select_prev_item {
+            behavior = require'cmp'.SelectBehavior.Select,
+          }
         else
           fallback()
         end
-      end,
+      end, { "c", "i", "s" }),
     },
-    sorting = {
-      comparators = {
-        require'cmp'.config.compare.score,
-        require'cmp'.config.compare.offset,
-        require'cmp'.config.compare.recently_used,
+    sources = require'cmp'.config.sources(
+      {
+        { name = "nvim_lsp" },
+        { name = "nvim_lsp_signature_help" },
       },
-    },
-    sources = {
-      { name = "nvim_lsp" },
-      { name = "cmp_tabnine" },
+      {
+        {
+          name = "buffer",
+          option = {
+            get_bufnrs = function()
+              local buf = vim.api.nvim_get_current_buf()
+              local byte_size = vim.api.nvim_buf_get_offset(buf, vim.api.nvim_buf_line_count(buf))
+              if byte_size > 1024 * 1024 then -- 1 Megabyte max
+                return {}
+              end
+              return { buf }
+            end,
+          },
+        },
+      }
+    ),
+    window = {
+      completion = require'cmp'.config.window.bordered(),
+      documentation = require'cmp'.config.window.bordered(),
     },
   }
+  require'cmp'.setup.cmdline({ "/", "?" }, {
+    mapping = require'cmp'.mapping.preset.cmdline(),
+    sources = {
+      { name = "buffer" }
+    }
+  })
+  require'cmp'.setup.cmdline(":", {
+    mapping = require'cmp'.mapping.preset.cmdline(),
+    sources = require'cmp'.config.sources(
+      { { name = "path" } },
+      { { name = "cmdline" } }
+    )
+  })
 end

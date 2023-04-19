@@ -15,6 +15,8 @@ plugins {
   { "kevinhwang91/nvim-bqf", ft = "qf" },
   { "https://gitlab.com/yorickpeterse/nvim-pqf.git", event = "VeryLazy" },
 
+  { "j-hui/fidget.nvim", event = "BufEnter" },
+
   -- Key Mappings --
 
   { "folke/which-key.nvim", event = "VeryLazy" },
@@ -68,17 +70,45 @@ plugins {
   -- Completion --
 
   { "nvim-treesitter/nvim-treesitter" },
-  { "onsails/lspkind-nvim" },
 
-  { "neovim/nvim-lspconfig", event = "BufRead" },
+  { "onsails/lspkind.nvim" },
 
-  { "hrsh7th/cmp-nvim-lsp", event = "InsertEnter" },
-  { "hrsh7th/nvim-cmp", event = "InsertEnter" },
+  { "neovim/nvim-lspconfig" },
+
+  { "hrsh7th/cmp-nvim-lsp-signature-help" },
+  { "hrsh7th/cmp-buffer" },
+  { "hrsh7th/cmp-cmdline" },
+  { "hrsh7th/cmp-path" },
+  {
+    "hrsh7th/nvim-cmp",
+    dependencies = {
+      "onsails/lspkind.nvim",
+      "hrsh7th/cmp-nvim-lsp-signature-help",
+      "hrsh7th/cmp-buffer",
+      "hrsh7th/cmp-cmdline",
+      "hrsh7th/cmp-path",
+    },
+  },
+
+  { "hrsh7th/cmp-nvim-lsp" },
+
+  { "L3MON4D3/LuaSnip" },
+
+  {
+    "VonHeikemen/lsp-zero.nvim",
+    event = "BufEnter",
+    dependencies = {
+      "neovim/nvim-lspconfig",
+      "hrsh7th/nvim-cmp",
+      "hrsh7th/cmp-nvim-lsp",
+      "L3MON4D3/LuaSnip",
+    },
+  },
 
   {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
-    dependencies = "hrsh7th/nvim-cmp",
+    dependencies = { "hrsh7th/nvim-cmp" },
   },
 
   -- Editor --

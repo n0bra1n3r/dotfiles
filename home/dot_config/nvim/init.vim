@@ -1,4 +1,4 @@
-if has("win32") || has("win64")
+if has("win32")
   let $PATH = 'C:\PROGRA~1\Git\usr\bin;' . $PATH
   let $TMP = "/tmp"
   let &shell = "sh.exe"
@@ -31,6 +31,6 @@ augroup end
 
 augroup conf_lsp
   autocmd!
-  autocmd TextChangedI,TextChangedP * lua fn.trigger_completion()
-  autocmd CursorMovedI * lua fn.end_completion()
+  "autocmd TextChangedI,TextChangedP * lua fn.trigger_completion()
+  "autocmd CursorMovedI * lua fn.end_completion()
 augroup end

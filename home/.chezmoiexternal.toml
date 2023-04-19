@@ -63,4 +63,9 @@
   type = "file"
   url = "https://glare.now.sh/alacritty/alacritty/Alacritty-v[0-9.]+-portable[.]exe"
   executable = true
+
+[".dotfiles/deps/LuaLS/.dotfiles/lua-language-server"]
+  type = "archive"
+  url = "https://glare.now.sh/LuaLS/lua-language-server/lua-language-server-[0-9.]+-win32-x64.zip"
+  exact = true
 {{- end }}

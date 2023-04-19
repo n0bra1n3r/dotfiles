@@ -18,7 +18,7 @@ MINGW64_NT*)
   ;;
 esac
 
-export PATH="$HOME/.local/bin:$HOME/.dotfiles/scripts:$PATH"
+export PATH=$HOME/.local/bin:$HOME/.dotfiles/scripts:$PATH
 
 if [ ! "$(command -v git)" ]; then
   sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- --bin-dir "$HOME/.local/bin" --yes
