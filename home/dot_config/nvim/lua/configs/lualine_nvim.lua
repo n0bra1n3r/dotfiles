@@ -22,7 +22,7 @@ local function project_state(values)
   end
 end
 
-local function section_color(section)
+local function section_highlight(section)
   return function()
     if fn.get_is_job_in_progress() then
       return "lualine_"..section.."_command"
@@ -31,14 +31,14 @@ local function section_color(section)
   end
 end
 
-local function section_separator_color(left, right, mode)
+local function section_separator_highlight(left, right, mode)
   return function()
     local left_highlight = mode
-      and "lualine_"..left.."_normal"
-      or section_color(left)()
+      and "lualine_"..left.."_"..mode
+      or section_highlight(left)()
     local right_highlight = mode
-      and "lualine_"..right.."_normal"
-      or section_color(right)()
+      and "lualine_"..right.."_"..mode
+      or section_highlight(right)()
     local highlight = require'lualine.highlight'.get_transitional_highlights(
       left_highlight,
       right_highlight)
@@ -46,6 +46,19 @@ local function section_separator_color(left, right, mode)
       return highlight:sub(3, -2)
     end
   end
+end
+
+local function highlight_color(name)
+  local hl = vim.api.nvim_get_hl(0, { name = name })
+  return ('%06X'):format(hl.bg)
+end
+
+local function section_color(section)
+  return highlight_color(section_highlight(section)())
+end
+
+local function mode_color(mode)
+  return highlight_color("lualine_a_"..mode)
 end
 
 local function tab_name(name, context)
@@ -90,22 +103,23 @@ function plug.config()
             default = require'lualine.utils.mode'.get_mode():sub(1, 1),
           }
         end,
-        color = section_color'a',
-      },
-      {
-        left_component_separator,
-        color = section_color'a',
-        padding = { left = 0, right = 0 },
+        color = function()
+          return {
+            bg = 'none',
+            fg = section_color'a',
+          }
+        end,
+        padding = { left = 2, right = 2 },
       },
       {
         function()
           return vim.fn.fnamemodify(fn.get_git_worktree_root(), ":~:.")
         end,
-        color = section_color'a',
+        color = section_highlight'a',
       },
       {
         left_section_separator,
-        color = section_separator_color('a', 'b'),
+        color = section_separator_highlight('a', 'b'),
         padding = { left = 0, right = 0 },
       },
     },
@@ -114,69 +128,60 @@ function plug.config()
         function()
           return fn.get_git_branch()
         end,
-        color = section_color'b',
+        color = section_highlight'b',
         cond = function()
           return fn.is_git_dir()
         end,
         icon = '',
       },
       {
-        left_component_separator,
-        color = section_color'b',
-        cond = function()
-          return fn.is_git_dir()
-        end,
-        padding = { left = 0, right = 0 },
-      },
-      {
-        function()
-          local status = " "..fn.git_local_change_count()
-          if fn.has_git_remote() then
-            local remote_status = " "..fn.git_remote_change_count()
-            status = status.." "..remote_status
-          end
-          return status
-        end,
-        color = section_color'b',
-        cond = function()
-          return fn.is_git_dir()
-        end,
-      },
-      {
         left_section_separator,
-        color = section_separator_color('b', 'c'),
+        color = section_separator_highlight('b', 'c'),
         padding = { left = 0, right = 0 },
       },
     },
     lualine_c = {
       {
-        "diagnostics",
-        sources = {
-          fn.get_qf_diagnostics,
-          "nvim_lsp",
-        },
+        function()
+          local local_hl = "%#lualine_c_diff_modified_command#"
+          local remote_hl = "%#lualine_c_diff_added_command#"
+          local status = local_hl.." "..fn.git_local_change_count()
+          if fn.has_git_remote() then
+            local remote_status = remote_hl.." "..fn.git_remote_change_count()
+            status = status.." "..remote_status
+          end
+          return status
+        end,
+        color = "lualine_a_inactive",
+        cond = function()
+          return fn.is_git_dir()
+        end,
       },
     },
     lualine_x = {},
-    lualine_y = {
+    lualine_y = {},
+    lualine_z = {
       {
-        right_section_separator,
-        color = section_separator_color('b', 'c'),
-        padding = { left = 0, right = 0 },
+        "diagnostics",
+        color = "lualine_a_inactive",
+        sources = { fn.get_qf_diagnostics },
       },
       {
         "location",
-        color = section_color'b',
+        color = function()
+          return {
+            bg = 'none',
+            fg = section_color'a',
+          }
+        end,
       },
-    },
-    lualine_z = {
       {
         "tabs",
         fmt = tab_name,
         mode = 1,
         tabs_color = {
-          active = section_color'a',
-          inactive = section_color'c',
+          active = section_highlight'a',
+          inactive = section_highlight'b',
         },
       },
     },
@@ -186,7 +191,7 @@ function plug.config()
       {
         function()
           if vim.bo.modified then
-            return ''
+            return ''
           end
           if vim.bo.readonly then
             return ''
@@ -195,51 +200,92 @@ function plug.config()
           local ext = vim.fn.expand[[%:e]]
           return require'nvim-web-devicons'.get_icon(name, ext, { default = true })
         end,
-        color = "lualine_b_normal",
+        color = function()
+          if vim.bo.modified then
+            return {
+              bg = 'none',
+              fg = mode_color'insert',
+            }
+          end
+          return {
+            bg = 'none',
+            fg = mode_color'normal',
+          }
+        end,
+        padding = { left = 2, right = 2 },
       },
       {
         "filename",
+        color = function()
+          if vim.bo.modified then
+            return "lualine_a_insert"
+          end
+          return "lualine_a_normal"
+        end,
+        file_status = false,
         path = 1,
-        color = "lualine_b_normal",
-        symbols = {
-          modified = '',
-          readonly = '',
-        },
       },
       {
         left_section_separator,
-        color = section_separator_color("b", "c", "normal"),
+        color = function()
+          if vim.bo.modified then
+            return section_separator_highlight('a', 'c', 'insert')()
+          end
+          return section_separator_highlight('a', 'c', 'normal')()
+        end,
         padding = { left = 0, right = 0 },
       },
     },
     lualine_c = {
       {
-        "b:gitsigns_status",
-        color = "lualine_c_normal",
-      },
-    },
-  }
-  local inactive_winbar = {
-    lualine_b = {
-      {
-        winbar.lualine_b[1][1],
-        color = "lualine_b_inactive",
-      },
-      {
-        "filename",
-        path = 1,
-        color = "lualine_b_inactive",
+        "diff",
+        color = "lualine_a_inactive",
+        colored = true,
+        cond = function()
+          local status = vim.b.gitsigns_status_dict
+          return status ~= nil and vim.tbl_count(status) > 0
+        end,
+        source = function()
+          local status = vim.b.gitsigns_status_dict
+          status.modified = status.changed
+          return status
+        end,
         symbols = {
-          modified = '',
-          readonly = '',
+           added = ' ',
+           modified = ' ',
+           removed = ' ',
         },
       },
     },
+    lualine_x = {
+      {
+        "diagnostics",
+        color = "lualine_a_inactive",
+        colored = true,
+        sources = { "nvim_lsp" },
+      },
+    },
   }
-
+  local inactive_winbar = vim.deepcopy(winbar)
+  for name, section in pairs(inactive_winbar) do
+    for _, component in pairs(section) do
+      if component.color ~= nil then
+        component.color = name.."_inactive"
+        if component.colored ~= nil then
+          component.colored = false
+        end
+        if component[1] == left_section_separator then
+          component[1] = left_component_separator
+        elseif component[1] == right_section_separator then
+          component[1] = right_component_separator
+        end
+      end
+    end
+  end
   require'lualine'.setup {
     extensions = {},
     options = {
+      always_divide_middle = false,
       component_separators = "",
       disabled_filetypes = {
         winbar = { "qf", "toggleterm" },
@@ -247,6 +293,7 @@ function plug.config()
       globalstatus = true,
       refresh = {
         statusline = 500,
+        winbar = 500,
       },
       section_separators = '',
       theme = "catppuccin",
