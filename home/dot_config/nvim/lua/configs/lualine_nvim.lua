@@ -109,7 +109,7 @@ function plug.config()
             fg = section_color'a',
           }
         end,
-        padding = { left = 2, right = 2 },
+        padding = 2,
       },
       {
         function()
@@ -120,7 +120,7 @@ function plug.config()
       {
         left_section_separator,
         color = section_separator_highlight('a', 'b'),
-        padding = { left = 0, right = 0 },
+        padding = 0,
       },
     },
     lualine_b = {
@@ -137,7 +137,7 @@ function plug.config()
       {
         left_section_separator,
         color = section_separator_highlight('b', 'c'),
-        padding = { left = 0, right = 0 },
+        padding = 0,
       },
     },
     lualine_c = {
@@ -212,7 +212,7 @@ function plug.config()
             fg = mode_color'normal',
           }
         end,
-        padding = { left = 2, right = 2 },
+        padding = 2,
       },
       {
         "filename",
@@ -233,7 +233,7 @@ function plug.config()
           end
           return section_separator_highlight('a', 'c', 'normal')()
         end,
-        padding = { left = 0, right = 0 },
+        padding = 0,
       },
     },
     lualine_c = {
