@@ -162,7 +162,6 @@ function plug.config()
       },
       {
         "diagnostics",
-        color = "lualine_a_inactive",
         sources = { fn.get_qf_diagnostics },
       },
     },
@@ -183,8 +182,13 @@ function plug.config()
         fmt = tab_name,
         mode = 1,
         tabs_color = {
-          active = section_highlight'a',
-          inactive = section_highlight'b',
+          active = function()
+            return {
+              bg = 'none',
+              fg = section_color'a',
+            }
+          end,
+          inactive = section_highlight'a',
         },
       },
     },
@@ -194,7 +198,7 @@ function plug.config()
       {
         function()
           if vim.bo.modified then
-            return ''
+            return ''
           end
           if vim.bo.readonly then
             return ''
@@ -242,7 +246,6 @@ function plug.config()
     lualine_c = {
       {
         "diagnostics",
-        color = "lualine_a_inactive",
         colored = true,
         sources = { "nvim_lsp" },
       },
