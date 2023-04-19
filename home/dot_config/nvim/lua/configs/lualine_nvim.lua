@@ -142,6 +142,25 @@ function plug.config()
     },
     lualine_c = {
       {
+        "diff",
+        colored = true,
+        cond = function()
+          return fn.is_git_dir()
+        end,
+        source = function()
+          return {
+            added = fn.git_remote_change_count(),
+            modified = fn.git_local_change_count(),
+            removed = 0,
+          }
+        end,
+        symbols = {
+           added = ' ',
+           modified = ' ',
+           removed = '',
+        },
+      },
+      {
         "diagnostics",
         color = "lualine_a_inactive",
         sources = { fn.get_qf_diagnostics },
@@ -150,29 +169,6 @@ function plug.config()
     lualine_x = {},
     lualine_y = {},
     lualine_z = {
-      {
-        function()
-          local local_hl = "%#lualine_x_diff_modified_command#"
-          local remote_hl = "%#lualine_x_diff_added_command#"
-          local status = ""
-          local local_count = fn.git_local_change_count()
-          if local_count > 0 then
-            status = local_hl.." "..local_count
-          end
-          if fn.has_git_remote() then
-            local remote_count = fn.git_remote_change_count()
-            if remote_count > 0 then
-              local remote_status = remote_hl.." "..remote_count
-              status = status.." "..remote_status
-            end
-          end
-          return status
-        end,
-        color = "lualine_a_inactive",
-        cond = function()
-          return fn.is_git_dir()
-        end,
-      },
       {
         "location",
         color = function()
@@ -249,27 +245,6 @@ function plug.config()
         color = "lualine_a_inactive",
         colored = true,
         sources = { "nvim_lsp" },
-      },
-    },
-    lualine_x = {
-      {
-        "diff",
-        color = "lualine_a_inactive",
-        colored = true,
-        cond = function()
-          local status = vim.b.gitsigns_status_dict
-          return status ~= nil and vim.tbl_count(status) > 0
-        end,
-        source = function()
-          local status = vim.b.gitsigns_status_dict
-          status.modified = status.changed
-          return status
-        end,
-        symbols = {
-           added = ' ',
-           modified = ' ',
-           removed = ' ',
-        },
       },
     },
   }
