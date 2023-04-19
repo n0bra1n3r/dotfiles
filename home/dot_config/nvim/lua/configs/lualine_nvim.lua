@@ -190,7 +190,7 @@ function plug.config()
           end
           local name = vim.fn.expand[[%:t]]
           local ext = vim.fn.expand[[%:e]]
-          return require'nvim-web-devicons'.get_icon(name, ext)
+          return require'nvim-web-devicons'.get_icon(name, ext, { default = true })
         end,
         color = "lualine_b_normal",
       },
@@ -246,6 +246,7 @@ function plug.config()
         statusline = 500,
       },
       section_separators = '',
+      theme = "catppuccin",
     },
     sections = sections,
     tabline = {},
