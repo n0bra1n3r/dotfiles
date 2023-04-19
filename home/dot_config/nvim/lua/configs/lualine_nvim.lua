@@ -142,9 +142,18 @@ function plug.config()
     },
     lualine_c = {
       {
+        "diagnostics",
+        color = "lualine_a_inactive",
+        sources = { fn.get_qf_diagnostics },
+      },
+    },
+    lualine_x = {},
+    lualine_y = {},
+    lualine_z = {
+      {
         function()
-          local local_hl = "%#lualine_c_diff_modified_command#"
-          local remote_hl = "%#lualine_c_diff_added_command#"
+          local local_hl = "%#lualine_x_diff_modified_command#"
+          local remote_hl = "%#lualine_x_diff_added_command#"
           local status = local_hl.." "..fn.git_local_change_count()
           if fn.has_git_remote() then
             local remote_status = remote_hl.." "..fn.git_remote_change_count()
@@ -156,15 +165,6 @@ function plug.config()
         cond = function()
           return fn.is_git_dir()
         end,
-      },
-    },
-    lualine_x = {},
-    lualine_y = {},
-    lualine_z = {
-      {
-        "diagnostics",
-        color = "lualine_a_inactive",
-        sources = { fn.get_qf_diagnostics },
       },
       {
         "location",
@@ -238,6 +238,14 @@ function plug.config()
     },
     lualine_c = {
       {
+        "diagnostics",
+        color = "lualine_a_inactive",
+        colored = true,
+        sources = { "nvim_lsp" },
+      },
+    },
+    lualine_x = {
+      {
         "diff",
         color = "lualine_a_inactive",
         colored = true,
@@ -255,14 +263,6 @@ function plug.config()
            modified = ' ',
            removed = ' ',
         },
-      },
-    },
-    lualine_x = {
-      {
-        "diagnostics",
-        color = "lualine_a_inactive",
-        colored = true,
-        sources = { "nvim_lsp" },
       },
     },
   }
