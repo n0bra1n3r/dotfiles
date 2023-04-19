@@ -126,13 +126,13 @@ function plug.config()
     lualine_b = {
       {
         function()
-          return fn.get_git_branch()
+          local icon = fn.has_git_remote() and '󱓎' or '󰘬'
+          return icon.." "..fn.get_git_branch()
         end,
         color = section_highlight'b',
         cond = function()
           return fn.is_git_dir()
         end,
-        icon = '',
       },
       {
         left_section_separator,
