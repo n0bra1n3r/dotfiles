@@ -34,7 +34,10 @@ local menu_icons = {
 }
 
 function plug.config()
-  require'lsp-zero.cmp'.extend()
+  require'lsp-zero.cmp'.extend {
+    set_sources = false,
+    set_format = false,
+  }
   local cmp = require'cmp'
   cmp.setup {
     formatting = {

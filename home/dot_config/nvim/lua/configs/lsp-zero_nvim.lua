@@ -6,5 +6,5 @@ function plug.config()
     hint = '⚑',
     info = '»'
   }
-  require'lsp-zero.settings'.preset({})
+  require'lsp-zero.settings'.preset{}
 end
