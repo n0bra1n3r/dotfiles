@@ -67,7 +67,18 @@ plugins {
 
   { "lewis6991/gitsigns.nvim", event = "BufRead" },
 
+  -- Package Management --
+
+  {
+    "williamboman/mason.nvim",
+    build = function()
+      pcall(vim.cmd, "MasonUpdate")
+    end,
+  },
+
   -- Completion --
+
+  { "williamboman/mason-lspconfig.nvim" },
 
   { "nvim-treesitter/nvim-treesitter" },
 
@@ -99,6 +110,8 @@ plugins {
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
+      "williamboman/mason-lspconfig.nvim",
+      "williamboman/mason.nvim",
     },
   },
 
