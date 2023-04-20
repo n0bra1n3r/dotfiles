@@ -15,7 +15,7 @@ plugins {
   { "kevinhwang91/nvim-bqf", ft = "qf" },
   { "https://gitlab.com/yorickpeterse/nvim-pqf.git", event = "VeryLazy" },
 
-  { "j-hui/fidget.nvim", event = "BufEnter" },
+  { "https://git.sr.ht/~whynothugo/lsp_lines.nvim", event = "LspAttach" },
 
   -- Key Mappings --
 
@@ -29,7 +29,7 @@ plugins {
       "ToggleTerm",
       "ToggleTermToggleAll",
       "TermExec",
-      "ToggleTermSetName"
+      "ToggleTermSetName",
     },
   },
 
@@ -71,9 +71,9 @@ plugins {
 
   { "nvim-treesitter/nvim-treesitter" },
 
-  { "onsails/lspkind.nvim" },
+  { "L3MON4D3/LuaSnip" },
 
-  { "neovim/nvim-lspconfig" },
+  { "VonHeikemen/lsp-zero.nvim" },
 
   { "hrsh7th/cmp-nvim-lsp-signature-help" },
   { "hrsh7th/cmp-buffer" },
@@ -81,8 +81,9 @@ plugins {
   { "hrsh7th/cmp-path" },
   {
     "hrsh7th/nvim-cmp",
+    event = "InsertEnter",
     dependencies = {
-      "onsails/lspkind.nvim",
+      "L3MON4D3/LuaSnip",
       "hrsh7th/cmp-nvim-lsp-signature-help",
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-cmdline",
@@ -92,16 +93,12 @@ plugins {
 
   { "hrsh7th/cmp-nvim-lsp" },
 
-  { "L3MON4D3/LuaSnip" },
-
   {
-    "VonHeikemen/lsp-zero.nvim",
-    event = "BufEnter",
+    "neovim/nvim-lspconfig",
+    cmd = "LspInfo",
+    event = { "BufReadPre", "BufNewFile" },
     dependencies = {
-      "neovim/nvim-lspconfig",
-      "hrsh7th/nvim-cmp",
       "hrsh7th/cmp-nvim-lsp",
-      "L3MON4D3/LuaSnip",
     },
   },
 

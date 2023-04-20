@@ -1,7 +1,45 @@
+local kind_icons = {
+  Text = '',
+  Method = '',
+  Function = '',
+  Constructor = '',
+  Field = '',
+  Variable = '',
+  Class = 'ﴯ',
+  Interface = '',
+  Module = '',
+  Property = 'ﰠ',
+  Unit = '',
+  Value = '',
+  Enum = '',
+  Keyword = '',
+  Snippet = '',
+  Color = '',
+  File = '',
+  Reference = '',
+  Folder = '',
+  EnumMember = '',
+  Constant = '',
+  Struct = '',
+  Event = '',
+  Operator = '',
+  TypeParameter = ''
+}
+local menu_icons = {
+  nvim_lsp = 'λ',
+  luasnip = '⋗',
+  buffer = 'Ω',
+  path = '🖫',
+  nvim_lua = 'Π',
+}
+
 function plug.config()
+  require'lsp-zero.cmp'.extend()
   local cmp = require'cmp'
   cmp.setup {
     formatting = {
+      expandable_indicator = false,
+      fields = { "kind", "abbr", "menu" },
       format = function(entry, vim_item)
         if vim.tbl_contains({ "path" }, entry.source.name) then
           local icon, hl_group = require'nvim-web-devicons'.get_icon(entry:get_completion_item().label)
@@ -11,11 +49,9 @@ function plug.config()
             return vim_item
           end
         end
-        return require'lspkind'.cmp_format({
-          mode = "symbol",
-          maxwidth = 50,
-          ellipsis_char = '...',
-        })(entry, vim_item)
+        vim_item.kind = kind_icons[vim_item.kind] or vim_item.kind:sub(1, 1)
+        vim_item.menu = menu_icons[entry.source.name]
+        return vim_item
       end,
     },
     mapping = cmp.mapping.preset.insert {
