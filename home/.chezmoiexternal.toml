@@ -1,66 +1,79 @@
 {{- if (index . "gitlab") }}
 [".ssh/keys"]
-  type = "archive"
   url = "https://gitlab.com/api/v4/projects/26349363/repository/archive?private_token={{ .gitlab.token }}"
+  type = "archive"
   exact = true
   stripComponents = 1
 {{- end }}
 
-## Windows
-{{- $nvim := "nvim-win64.zip" }}
-{{- $fd := "fd-v[0-9.]+-x86_64-pc-windows-msvc[.]zip" }}
-{{- $rg := "ripgrep-[0-9.]+-x86_64-pc-windows-msvc[.]zip" }}
-{{- $starship := "starship-x86_64-pc-windows-msvc.zip" }}
-## Darwin
-{{- if eq .chezmoi.os "darwin" }}
-{{-   $nvim = "nvim-macos.tar.gz" }}
-{{-   $fd = "fd-v[0-9.]+-x86_64-apple-darwin[.]tar[.]gz" }}
-{{-   $rg = "ripgrep-[0-9.]+-x86_64-apple-darwin[.]tar[.]gz" }}
-{{-   $starship := "starship-x86_64-apple-darwin.tar.gz" }}
+{{ $isWindows := eq .chezmoi.os "windows" }}
+
+{{- define "github.com/releases" }}
+{{- $match := index . 0 }}
+{{- $owner := index . 1 }}
+{{- $query := ".assets[] | select(.name | contains(\"%s\")) | .browser_download_url" }}
+{{- $info := (gitHubLatestRelease $owner) | toJson | fromJsonc }}
+{{- $url := $info | jq (printf $query $match) | first }}
+url = "{{ $url }}"
 {{- end }}
 
-[".dotfiles/deps/catppuccin/.config/alacritty/catppuccin"]
+[".dotfiles/deps/nvim/.local"]
+  {{ template "github.com/releases" ("neovim/neovim"
+    | list ($isWindows | ternary
+      "win64.zip"
+      "macos.tar.gz")) }}
   type = "archive"
-  url = "https://github.com/catppuccin/alacritty/archive/refs/heads/main.zip"
   exact = true
   stripComponents = 1
 
 [".dotfiles/deps/cascadiacode-nf/.local/share/fonts"]
+  {{ template "github.com/releases" ("ryanoasis/nerd-fonts"
+    | list "CascadiaCode.zip") }}
   type = "archive"
-  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
   exact = true
 
-[".dotfiles/deps/nvim/.local"]
+[".dotfiles/deps/catppuccin/.config/alacritty/catppuccin"]
+  url = "https://github.com/catppuccin/alacritty/archive/refs/heads/main.zip"
   type = "archive"
-  url = "https://github.com/neovim/neovim/releases/latest/download/{{ $nvim }}"
-  exact = true
-  stripComponents = 1
-
-[".dotfiles/deps/fd/.local/bin"]
-  type = "archive"
-  url = "https://glare.now.sh/sharkdp/fd/{{ $fd }}"
-  exact = true
-  stripComponents = 1
-
-[".dotfiles/deps/rg/.local/bin"]
-  type = "archive"
-  url = "https://glare.now.sh/BurntSushi/ripgrep/{{ $rg }}"
   exact = true
   stripComponents = 1
 
 [".dotfiles/deps/starship/.local/bin"]
+  {{ template "github.com/releases" ("starship/starship"
+    | list ($isWindows | ternary
+      "x86_64-pc-windows-msvc.zip"
+      "x86_64-apple-darwin.tar.gz")) }}
   type = "archive"
-  url = "https://github.com/starship/starship/releases/latest/download/{{ $starship }}"
   exact = true
 
-{{- if eq .chezmoi.os "windows" }}
-[".dotfiles/deps/jq/.local/bin/jq.exe"]
+[".dotfiles/deps/fd/.local/bin"]
+  {{ template "github.com/releases" ("sharkdp/fd"
+    | list ($isWindows | ternary
+      "x86_64-pc-windows-msvc.zip"
+      "x86_64-apple-darwin.tar.gz")) }}
+  type = "archive"
+  exact = true
+  stripComponents = 1
+
+[".dotfiles/deps/rg/.local/bin"]
+  {{ template "github.com/releases" ("BurntSushi/ripgrep"
+    | list ($isWindows | ternary
+      "x86_64-pc-windows-msvc.zip"
+      "x86_64-apple-darwin.tar.gz")) }}
+  type = "archive"
+  exact = true
+  stripComponents = 1
+
+{{- if $isWindows }}
+[".dotfiles/deps/alacritty/.local/bin/alacritty.exe"]
+  {{ template "github.com/releases" ("alacritty/alacritty"
+    | list "portable.exe") }}
   type = "file"
-  url = "https://github.com/stedolan/jq/releases/latest/download/jq-win64.exe"
   executable = true
 
-[".dotfiles/deps/alacritty/.local/bin/alacritty.exe"]
+[".dotfiles/deps/jq/.local/bin/jq.exe"]
+  {{ template "github.com/releases" ("stedolan/jq"
+    | list "jq-win64.exe") }}
   type = "file"
-  url = "https://glare.now.sh/alacritty/alacritty/Alacritty-v[0-9.]+-portable[.]exe"
   executable = true
 {{- end }}
