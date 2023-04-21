@@ -59,29 +59,16 @@ function plug.config()
     },
     mapping = cmp.mapping.preset.insert {
       ["<C-Space>"] = cmp.mapping.complete(),
-      ["<CR>"] = cmp.mapping {
-        c = function(fallback)
-          if cmp.visible() and cmp.get_selected_entry() ~= nil then
-            cmp.confirm {
-              behavior = cmp.ConfirmBehavior.Replace,
-              select = false,
-            }
-          else
-            fallback()
-          end
-        end,
-        i = function(fallback)
-          if cmp.visible() and cmp.get_selected_entry() ~= nil then
-            cmp.confirm {
-              behavior = cmp.ConfirmBehavior.Replace,
-              select = false,
-            }
-          else
-            fallback()
-          end
-        end,
-        s = cmp.mapping.confirm{ select = true },
-      },
+      ["<CR>"] = cmp.mapping(function(fallback)
+        if cmp.visible() and cmp.get_selected_entry() ~= nil then
+          cmp.confirm {
+            behavior = cmp.ConfirmBehavior.Replace,
+            select = false,
+          }
+        else
+          fallback()
+        end
+      end, { "c", "i", "s" }),
       ["<Tab>"] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_next_item {
