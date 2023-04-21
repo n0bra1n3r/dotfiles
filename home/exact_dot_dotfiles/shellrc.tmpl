@@ -20,6 +20,8 @@ esac
 
 export PATH=$HOME/.local/bin:$HOME/.dotfiles/scripts:$PATH
 
+export GIT_CONFIG_GLOBAL="$HOME/.dotfiles/gitconfig/main"
+
 {{- if (index . "github") }}
 export GITHUB_ACCESS_TOKEN={{ .github.token | quote }}
 {{- end }}
