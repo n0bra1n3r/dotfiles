@@ -16,6 +16,7 @@ plugins {
   { "https://gitlab.com/yorickpeterse/nvim-pqf.git", event = "VeryLazy" },
 
   { "https://git.sr.ht/~whynothugo/lsp_lines.nvim", event = "LspAttach" },
+  { "arkav/lualine-lsp-progress", event = "LspAttach" },
 
   -- Key Mappings --
 

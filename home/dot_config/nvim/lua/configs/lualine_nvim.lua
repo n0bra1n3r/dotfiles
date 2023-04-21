@@ -194,7 +194,7 @@ function plug.config()
     },
   }
   local winbar = {
-    lualine_b = {
+    lualine_a = {
       {
         function()
           if vim.bo.modified then
@@ -236,9 +236,43 @@ function plug.config()
         left_section_separator,
         color = function()
           if vim.bo.modified then
-            return section_separator_highlight('a', 'c', 'insert')()
+            return section_separator_highlight('a', 'b', 'insert')()
           end
-          return section_separator_highlight('a', 'c', 'normal')()
+          return section_separator_highlight('a', 'b', 'normal')()
+        end,
+        padding = 0,
+      },
+    },
+    lualine_b = {
+      {
+        "fileformat",
+        color = function()
+          if vim.bo.modified then
+            return "lualine_b_insert"
+          end
+          return "lualine_b_normal"
+        end,
+        padding = { left = 1, right = 0 },
+        symbols = {
+          unix = '',
+        },
+      },
+      {
+        "encoding",
+        color = function()
+          if vim.bo.modified then
+            return "lualine_b_insert"
+          end
+          return "lualine_b_normal"
+        end,
+      },
+      {
+        left_section_separator,
+        color = function()
+          if vim.bo.modified then
+            return section_separator_highlight('b', 'c', 'insert')()
+          end
+          return section_separator_highlight('b', 'c', 'normal')()
         end,
         padding = 0,
       },
@@ -250,20 +284,31 @@ function plug.config()
         sources = { "nvim_lsp" },
       },
     },
+    lualine_x = {
+      {
+        "lsp_progress",
+        display_components = {
+          "spinner",
+          "lsp_client_name",
+        },
+      },
+    },
+    lualine_y = {},
+    lualine_z = {},
   }
   local inactive_winbar = vim.deepcopy(winbar)
-  for name, section in pairs(inactive_winbar) do
+  for _, section in pairs(inactive_winbar) do
     for _, component in pairs(section) do
       if component.color ~= nil then
-        component.color = name.."_inactive"
-        if component.colored ~= nil then
-          component.colored = false
-        end
+        component.color = "lualine_b_inactive"
         if component[1] == left_section_separator then
           component[1] = left_component_separator
         elseif component[1] == right_section_separator then
           component[1] = right_component_separator
         end
+      end
+      if component.colored ~= nil then
+        component.colored = false
       end
     end
   end
