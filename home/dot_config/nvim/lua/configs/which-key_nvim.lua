@@ -39,7 +39,7 @@ function plug.config()
         k = { fn.prev_quickfix, "previous" },
       },
       w = { fn.choose_window, "window" },
-      x = { require'mini.bufremove'.unshow, "close" },
+      x = { fn.close_buffer, "close" },
       z = { "<cmd>only<CR>", "zoom" },
     },
   }, { mode = "n" })

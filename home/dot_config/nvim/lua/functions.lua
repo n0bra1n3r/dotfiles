@@ -315,7 +315,6 @@ end
 local function pick_window(exclude)
   local tabpage = vim.api.nvim_get_current_tabpage()
   local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
-
   local selectable = vim.tbl_filter(function(id)
     if exclude ~= nil then
       local bufid = vim.api.nvim_win_get_buf(id)
@@ -334,13 +333,11 @@ local function pick_window(exclude)
   if #selectable == 0 then
     return -1
   end
-
   if #selectable == 1 then
     return selectable[1]
   end
 
   local chars = "asdfgtv;lkjhnyqwerpoiu"
-
   local i = 1
   local win_opts = {}
   local win_map = {}
@@ -362,7 +359,6 @@ local function pick_window(exclude)
     vim.api.nvim_win_set_option(id, "winhl", "StatusLine:Identifier,StatusLineNC:Identifier")
 
     i = i + 1
-
     if i > #chars then
       break
     end
@@ -371,7 +367,6 @@ local function pick_window(exclude)
   vim.cmd[[redraw]]
 
   local resp = vim.fn.nr2char(vim.fn.getchar()):lower()
-
   for _, id in ipairs(selectable) do
     for opt, value in pairs(win_opts[id]) do
       vim.api.nvim_win_set_option(id, opt, value)
@@ -379,23 +374,19 @@ local function pick_window(exclude)
   end
 
   vim.o.laststatus = laststatus
-
   return win_map[resp]
 end
 
 function fn.edit_file(mode, path)
   local tabpage = vim.api.nvim_get_current_tabpage()
   local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
-
   local target_winid
-
   for _, id in ipairs(win_ids) do
     if path == vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(id)) then
       target_winid = id
       break
     end
   end
-
   if target_winid == nil then
     local exclude = {
       filetype = {
@@ -418,7 +409,6 @@ end
 
 function fn.choose_window()
   local picked = pick_window()
-
   if picked ~= nil then
     vim.api.nvim_set_current_win(picked)
   end
@@ -431,6 +421,14 @@ function fn.switch_prior_tab()
       vim.api.nvim_set_current_tabpage(tabpage)
       break
     end
+  end
+end
+
+function fn.close_buffer()
+  if #vim.api.nvim_tabpage_list_wins() > 0 then
+    vim.cmd[[close]]
+  else
+    require'mini.bufremove'.unshow()
   end
 end
 --}}}
