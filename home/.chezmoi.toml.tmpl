@@ -1,9 +1,15 @@
-{{- $gitlabToken := promptString "API token" }}
+{{- $gitlabToken := promptString "GitLab API token" }}
+{{- $githubToken := promptString "GitHub API token" }}
 
 {{- if $gitlabToken }}
 [data.gitlab]
   token = {{ $gitlabToken | quote }}
-{{- end}}
+{{- end }}
+
+{{- if $githubToken }}
+[data.github]
+  token = {{ $githubToken | quote }}
+{{- end }}
 
 {{- if eq .chezmoi.os "windows" }}
 [interpreters.sh]
