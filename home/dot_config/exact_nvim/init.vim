@@ -23,12 +23,6 @@ lua require "main"
 
 """ Autocommands
 
-augroup conf_help
-  autocmd!
-  autocmd FileType help wincmd K
-  autocmd FileType help nnoremap <buffer><silent> <Esc> <cmd>close<CR>
-augroup end
-
 augroup conf_lsp
   autocmd!
   "autocmd TextChangedI,TextChangedP * lua fn.trigger_completion()

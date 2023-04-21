@@ -14,7 +14,7 @@
 {{- $query := ".assets[] | select(.name | contains(\"%s\")) | .browser_download_url" }}
 {{- $info := (gitHubLatestRelease $owner) | toJson | fromJsonc }}
 {{- $url := $info | jq (printf $query $match) | first }}
-url = "{{ $url }}"
+url = {{ $url | quote }}
 {{- end }}
 
 [".dotfiles/deps/nvim/.local"]

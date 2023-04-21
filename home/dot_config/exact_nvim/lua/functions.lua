@@ -283,32 +283,28 @@ function fn.peek_definition()
   return vim.lsp.buf_request(0, "textDocument/definition", params, preview_location_callback)
 end
 
-local prev_line
-
+local completion_prev_line
 function fn.trigger_completion()
   local line = vim.api.nvim_get_current_line()
   local cursor = vim.api.nvim_win_get_cursor(0)[2]
-
-  local before_line = string.sub(line, 1, cursor + 1)
-  local after_line = string.sub(line, cursor + 1, -1)
-
-  if prev_line == nil or #prev_line < #before_line then
-    if string.len(after_line) == 0 and (
-      string.match(before_line, "[%w%.]%w$") or
-      string.match(before_line, "[%.]$")) then
-      require"cmp".complete()
+  local before_line = line:sub(1, cursor + 1)
+  local after_line = line:sub(cursor + 1, -1)
+  if completion_prev_line == nil or #completion_prev_line < #before_line then
+    if #after_line == 0 and (
+      before_line:match("[%w%.]%w$") or
+      before_line:match("[%.]$")) then
+      require'cmp'.complete()
     else
-      require"cmp".close()
+      require'cmp'.close()
     end
   else
-    require"cmp".close()
+    require'cmp'.close()
   end
-
-  prev_line = before_line
+  completion_prev_line = before_line
 end
 
 function fn.end_completion()
-  require"cmp".close()
+  require'cmp'.close()
 end
 --}}}
 --{{{ Navigation
@@ -425,10 +421,43 @@ function fn.switch_prior_tab()
 end
 
 function fn.close_buffer()
-  if #vim.api.nvim_tabpage_list_wins() > 0 then
+  if #vim.api.nvim_tabpage_list_wins(0) > 0 then
     vim.cmd[[close]]
   else
     require'mini.bufremove'.unshow()
+  end
+end
+
+local help_job
+function fn.open_help()
+  local word = vim.fn.expand[[<cword>]]
+  if vim.env.EMU == nil then
+    help_job = require'plenary.job':new {
+      command = vim.fn.expand(vim.env.EMU),
+      args = {
+        vim.env.EMU_CMD,
+        ([["%s" -mMR +"set ls=0" +"h %s" +on]]):format(vim.v.progpath, word),
+      },
+      on_exit = function(j, return_val)
+        print(return_val)
+        print(j:result())
+      end,
+    }
+    help_job:start()
+  else
+    vim.cmd("help "..word)
+    local width = math.floor(vim.o.cols * 0.9)
+    local height = math.floor(vim.o.rows * 0.9)
+    vim.api.nvim_open_win(0, true, {
+      relative = "editor",
+      width = width,
+      height = height,
+      row = vim.o.lines / 2 - height / 2,
+      col = vim.o.cols / 2 - width / 2,
+      style = "minimal",
+      border = "single",
+      title = "help",
+    })
   end
 end
 --}}}

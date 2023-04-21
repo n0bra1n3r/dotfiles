@@ -318,7 +318,7 @@ function plug.config()
       always_divide_middle = false,
       component_separators = "",
       disabled_filetypes = {
-        winbar = { "qf", "toggleterm" },
+        winbar = { "help", "qf", "toggleterm" },
       },
       globalstatus = true,
       refresh = {

@@ -20,6 +20,10 @@ esac
 
 export PATH=$HOME/.local/bin:$HOME/.dotfiles/scripts:$PATH
 
+{{- if (index . "github") }}
+export GITHUB_ACCESS_TOKEN={{ .github.token | quote }}
+{{- end }}
+
 if [ ! "$(command -v git)" ]; then
   sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- --bin-dir "$HOME/.local/bin" --yes
 fi

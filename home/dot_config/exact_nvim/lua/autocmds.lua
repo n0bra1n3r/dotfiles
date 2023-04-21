@@ -70,6 +70,11 @@ autocmds {
         vim.bo.textwidth = 72
       end,
     }, --}}}
+    { pattern = "help", --{{{
+      callback = function()
+        vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[quit]])
+      end,
+    }, --}}}
     { pattern = "lazy", --{{{
       callback = function()
         vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[<cmd>close<CR>]],
