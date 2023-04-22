@@ -18,17 +18,17 @@ url = {{ $url | quote }}
 {{- end }}
 
 [".dotfiles/deps/nvim/.local"]
-  {{ template "github.com/releases" ("neovim/neovim"
+  {{ template "github.com/releases" "neovim/neovim"
     | list ($isWindows | ternary
       "win64.zip"
-      "macos.tar.gz")) }}
+      "macos.tar.gz") }}
   type = "archive"
   exact = true
   stripComponents = 1
 
 [".dotfiles/deps/cascadiacode-nf/.local/share/fonts"]
-  {{ template "github.com/releases" ("ryanoasis/nerd-fonts"
-    | list "CascadiaCode.zip") }}
+  {{ template "github.com/releases" "ryanoasis/nerd-fonts"
+    | list "CascadiaCode.zip" }}
   type = "archive"
   exact = true
 
@@ -39,41 +39,41 @@ url = {{ $url | quote }}
   stripComponents = 1
 
 [".dotfiles/deps/starship/.local/bin"]
-  {{ template "github.com/releases" ("starship/starship"
+  {{ template "github.com/releases" "starship/starship"
     | list ($isWindows | ternary
       "x86_64-pc-windows-msvc.zip"
-      "x86_64-apple-darwin.tar.gz")) }}
+      "x86_64-apple-darwin.tar.gz") }}
   type = "archive"
   exact = true
 
 [".dotfiles/deps/fd/.local/bin"]
-  {{ template "github.com/releases" ("sharkdp/fd"
+  {{ template "github.com/releases" "sharkdp/fd"
     | list ($isWindows | ternary
       "x86_64-pc-windows-msvc.zip"
-      "x86_64-apple-darwin.tar.gz")) }}
+      "x86_64-apple-darwin.tar.gz") }}
   type = "archive"
   exact = true
   stripComponents = 1
 
 [".dotfiles/deps/rg/.local/bin"]
-  {{ template "github.com/releases" ("BurntSushi/ripgrep"
+  {{ template "github.com/releases" "BurntSushi/ripgrep"
     | list ($isWindows | ternary
       "x86_64-pc-windows-msvc.zip"
-      "x86_64-apple-darwin.tar.gz")) }}
+      "x86_64-apple-darwin.tar.gz") }}
   type = "archive"
   exact = true
   stripComponents = 1
 
 {{- if $isWindows }}
 [".dotfiles/deps/alacritty/.local/bin/alacritty.exe"]
-  {{ template "github.com/releases" ("alacritty/alacritty"
-    | list "portable.exe") }}
+  {{ template "github.com/releases" "alacritty/alacritty"
+    | list "portable.exe" }}
   type = "file"
   executable = true
 
 [".dotfiles/deps/jq/.local/bin/jq.exe"]
-  {{ template "github.com/releases" ("stedolan/jq"
-    | list "jq-win64.exe") }}
+  {{ template "github.com/releases" "stedolan/jq"
+    | list "jq-win64.exe" }}
   type = "file"
   executable = true
 {{- end }}
