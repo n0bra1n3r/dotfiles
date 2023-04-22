@@ -30,6 +30,10 @@ export GITLAB_ACCESS_TOKEN={{ .gitlab.token | quote }}
 export GITHUB_ACCESS_TOKEN={{ .github.token | quote }}
 {{- end }}
 
+if [ -z "$EMU" ]; then
+  export STARSHIP_CONFIG="$HOME/.config/starship.default.toml"
+fi
+
 if [ ! "$(command -v git)" ]; then
   sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- --bin-dir "$HOME/.local/bin" --yes
 fi
