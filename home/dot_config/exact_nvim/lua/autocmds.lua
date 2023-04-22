@@ -123,6 +123,9 @@ autocmds {
   }, --}}}
   VimEnter = { --{{{
     callback = fn.vim_defer(function()
+      if vim.env.PARENT_NVIM ~= nil then
+        fn.on_child_nvim(vim.env.PARENT_NVIM)
+      end
       fn.refresh_git_info()
     end),
   }, --}}}

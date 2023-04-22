@@ -12,6 +12,37 @@ local function create_parent_dirs(path)
   end
 end
 --}}}
+--{{{ IPC
+local child_nvim_job
+function fn.on_child_nvim(parent)
+  child_nvim_job = require'plenary.job':new {
+    command = vim.v.progpath,
+    args = {
+      "--clean",
+      "--headless",
+      "--server",
+      parent,
+      "--remote-expr",
+      ([[v:lua.fn.did_spawn_child_nvim('%s')]]):format(vim.v.servername),
+    },
+  }
+  child_nvim_job:start()
+end
+
+local child_spawn_callbacks = {}
+
+function fn.did_spawn_child_nvim(child)
+  local callbacks = vim.deepcopy(child_spawn_callbacks)
+  child_spawn_callbacks = {}
+  for _, callback in ipairs(callbacks) do
+    callback(child)
+  end
+end
+
+function fn.add_child_spawn_callback(callback)
+  table.insert(child_spawn_callbacks, callback)
+end
+--}}}
 --{{{ Diagnostics
   function fn.get_qf_diagnostics()
     local error_count = 0
@@ -444,17 +475,38 @@ function fn.close_buffer()
 end
 
 local help_job
+local help_server
+local help_client
 function fn.open_help()
   local word = vim.fn.expand[[<cword>]]
   if vim.env.EMU ~= nil then
-    help_job = require'plenary.job':new {
-      command = vim.fn.expand(vim.env.EMU),
-      args = {
-        vim.env.EMU_CMD,
-        ([["%s" -mMR +"set ls=0" +"h %s" +on]]):format(vim.v.progpath, word),
-      },
-    }
-    help_job:start()
+    if help_server == nil then
+      fn.add_child_spawn_callback(function(child)
+        help_server = child
+      end)
+      help_job = require'plenary.job':new {
+        command = vim.fn.expand(vim.env.EMU),
+        env = { ["PARENT_NVIM"] = vim.v.servername },
+        args = {
+          vim.env.EMU_CMD,
+          ([["%s" -mMR +"set ls=0" +"h %s" +on]]):format(vim.v.progpath, word),
+        },
+      }
+      help_job:start()
+    else
+      help_client = require'plenary.job':new {
+        command = vim.v.progpath,
+        args = {
+          "--clean",
+          "--headless",
+          "--server",
+          help_server,
+          "--remote-send",
+          ([[<cmd>h %s<CR>]]):format(word),
+        },
+      }
+      help_client:start()
+    end
   else
     vim.cmd("help "..word)
     local width = math.floor(vim.o.columns * 0.9)
@@ -695,7 +747,9 @@ function fn.show_workspace(tabnr, value)
 end
 
 function fn.save_workspace(tabnr, force)
-  if not fn.is_workspace_frozen(tabnr) or (force or false) then
+  if (vim.env.PARENT_NVIM == nil and
+      not fn.is_workspace_frozen(tabnr))
+      or (force or false) then
     fn.freeze_workspace(tabnr, false)
     local save_path = get_workspace_file_path(tabnr)
     create_parent_dirs(save_path)
