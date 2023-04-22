@@ -16,8 +16,8 @@ end
 local ipc_info = {
   child = {},
   parent = {
+    child_info = {},
     jobs = {},
-    callbacks = {},
   },
 }
 
@@ -51,24 +51,33 @@ function fn.on_child_nvim_exit(id, parent)
 end
 
 function fn.on_parent_nvim_enter(child, id)
-  local callbacks = ipc_info.parent.callbacks[id]
-  if callbacks ~= nil and callbacks.on_enter ~= nil then
-    callbacks.on_enter(child)
+  local info = ipc_info.parent.child_info[id]
+  if info ~= nil then
+    if info.on_enter ~= nil then
+      info.on_enter(child)
+    end
+  else
+    info = {}
+    ipc_info.parent.child_info[id] = info
   end
+  info[id].pipe = child
 end
 
 function fn.on_parent_nvim_exit(id)
-  local callbacks = ipc_info.parent.callbacks[id]
-  if callbacks ~= nil and callbacks.on_exit ~= nil then
-    callbacks.on_exit()
+  local info = ipc_info.parent.child_info[id]
+  if info ~= nil and info.on_exit ~= nil then
+    info.on_exit()
   end
-  ipc_info.parent.callbacks[id] = nil
+  ipc_info.parent.child_info[id] = nil
 end
 
-function fn.spawn_child(opts, callbacks)
-  local sec, usec = vim.loop.gettimeofday()
-  local child_id = tostring(sec * 1000000 + usec)
-  ipc_info.parent.callbacks[child_id] = callbacks
+function fn.spawn_child(id, opts, callbacks)
+  local child_id = id
+  if child_id == nil then
+    local sec, usec = vim.loop.gettimeofday()
+    child_id = tostring(sec * 1000000 + usec)
+  end
+  ipc_info.parent.child_info[child_id] = callbacks or {}
   local job_id = require'plenary.job':new {
     command = vim.fn.expand(vim.env.EMU),
     env = {
@@ -86,8 +95,15 @@ end
 
 function fn.send_child(child, cmd_type, cmd)
   local job_id = remote_nvim(child, cmd_type, cmd)
-  ipc_info.parent.jobs = job_id
+  table.insert(ipc_info.parent.jobs, job_id)
   job_id:start()
+end
+
+function fn.get_child(id)
+  if ipc_info.parent ~= nil and ipc_info.child_info[id] ~= nil then
+    return ipc_info.parent.child_info[id].pipe
+  end
+  return nil
 end
 --}}}
 --{{{ Diagnostics
@@ -523,20 +539,13 @@ function fn.close_buffer()
   end
 end
 
-local help_server
 function fn.open_help(word)
   word = word or vim.fn.expand[[<cword>]]
   if vim.env.EMU ~= nil then
+    local help_server = fn.get_child("help")
     if help_server == nil then
       local opts = ([[-mMR +"set ls=0" +"h %s" +"tabo"]]):format(word)
-      fn.spawn_child(opts, {
-        on_enter = function(child)
-          help_server = child
-        end,
-        on_exit = function()
-          help_server = nil
-        end,
-      })
+      fn.spawn_child("help", opts)
     else
       local cmd = ([[<cmd>h %s<CR>]]):format(word)
       fn.send_child(help_server, "send", cmd)
