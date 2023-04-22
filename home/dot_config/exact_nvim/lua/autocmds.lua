@@ -56,6 +56,11 @@ autocmds {
       fn.refresh_git_info()
     end,
   }, --}}}
+  FileChangedShellPost = { --{{{
+    callback = function()
+      fn.project_check()
+    end,
+  }, --}}}
   FileType = {
     { pattern = "diff", --{{{
       callback = function()
