@@ -5,6 +5,8 @@ autocmds {
     callback = function()
       if fn.is_empty_buffer() then
         vim.bo.bufhidden = "delete"
+      elseif vim.bo.filetype == "help" then
+        vim.cmd[[wincmd T]]
       elseif fn.has_workspace_file() then
         fn.save_workspace()
       end

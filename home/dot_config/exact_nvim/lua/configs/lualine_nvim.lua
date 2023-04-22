@@ -64,7 +64,11 @@ end
 local function tab_name(name, context)
   local types = {}
   for _, buf in ipairs(vim.fn.tabpagebuflist(context.tabnr)) do
-    if vim.startswith(vim.bo[buf].filetype, "git") then
+    local filetype = vim.bo[buf].filetype
+    if vim.startswith(filetype, "git") or
+        vim.tbl_contains({
+          "diff",
+        }, filetype) then
       return ' '..name
     end
     types[vim.bo[buf].buftype] = true
@@ -83,6 +87,9 @@ local function tab_name(name, context)
     end
   end
   if vim.tbl_count(types) == 1 then
+    if types.help ~= nil then
+      return '󰋖 '..label
+    end
     if types.terminal ~= nil then
       return ' '..label
     end
