@@ -16,7 +16,7 @@ end
 
 local function project_state(values)
   if fn.get_is_job_in_progress() then
-    return values.job
+    return fn.job_indicator()
   else
     return values[fn.project_status()] or values.default
   end
@@ -99,7 +99,6 @@ function plug.config()
       {
         function()
           return project_state {
-            job = '',
             default = require'lualine.utils.mode'.get_mode():sub(1, 1),
           }
         end,
@@ -291,6 +290,9 @@ function plug.config()
           "spinner",
           "lsp_client_name",
         },
+        spinner_symbols = {
+          '⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷',
+        },
       },
     },
     lualine_y = {},
@@ -322,8 +324,8 @@ function plug.config()
       },
       globalstatus = true,
       refresh = {
-        statusline = 500,
-        winbar = 500,
+        statusline = vim.o.updatetime,
+        winbar = vim.o.updatetime,
       },
       section_separators = '',
       theme = "catppuccin",

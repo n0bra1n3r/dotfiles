@@ -206,6 +206,9 @@ end
 --}}}
 --{{{ Jobs
 local job_count = 0
+local job_indicator_icons = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' }
+local job_indicator_index = 0
+local job_indicator_icon = job_indicator_icons[1]
 
 function fn.get_is_job_in_progress()
   return job_count > 0
@@ -217,6 +220,18 @@ function fn.set_is_job_in_progress(value)
   else
     job_count = math.max(job_count - 1, 0)
   end
+end
+
+function fn.job_indicator()
+  if job_indicator_index == 0 then
+    local timer = vim.loop.new_timer()
+    timer:start(0, vim.o.updatetime,
+    function()
+      job_indicator_index = (job_indicator_index % #job_indicator_icons) + 1
+      job_indicator_icon = job_indicator_icons[job_indicator_index]
+    end)
+  end
+  return job_indicator_icon
 end
 
 function fn.project_status()
