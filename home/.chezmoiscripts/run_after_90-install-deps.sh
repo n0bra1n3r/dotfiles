@@ -11,7 +11,7 @@ for zip in ~/.dotfiles/deps/*/*.zip; do
   fi
 done
 
-for dir in ~/.dotfiles/deps/*/.[^.]*/; do
+for dir in ~/.dotfiles/deps/*/.[^.]*; do
   cp -rf "$dir" ~ && echo "> cp $dir ~"
 done
 
