@@ -236,52 +236,53 @@ function fn.save_file()
 end
 --}}}
 --{{{ Jobs
-local job_count = 0
-local job_indicator_icons = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' }
-local job_indicator_index = 0
-local job_indicator_icon = job_indicator_icons[1]
+local job_info = {
+  count = 0,
+  queue = {},
+  progress_icons = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
+  progress_index = 0,
+}
 
 function fn.get_is_job_in_progress()
-  return job_count > 0
+  return job_info.count > 0
 end
 
 function fn.set_is_job_in_progress(value)
   if value then
-    job_count = job_count + 1
+    job_info.count = job_info.count + 1
   else
-    job_count = math.max(job_count - 1, 0)
+    job_info.count = math.max(job_info.count - 1, 0)
   end
 end
 
 function fn.job_indicator()
-  if job_indicator_index == 0 then
+  if job_info.progress_index == 0 then
+    job_info.progress_index = 1
     local timer = vim.loop.new_timer()
-    timer:start(0, vim.o.updatetime,
-    function()
-      job_indicator_index = (job_indicator_index % #job_indicator_icons) + 1
-      job_indicator_icon = job_indicator_icons[job_indicator_index]
+    timer:start(0, vim.o.updatetime, function()
+      job_info.progress_index =
+        job_info.progress_index %
+        #job_info.progress_icons + 1
     end)
   end
-  return job_indicator_icon
+  return job_info.progress_icons[job_info.progress_index]
 end
 
 function fn.project_status()
   return vim.g.asynctasks_profile
 end
 
-local queued_jobs = {}
-
 vim.api.nvim_create_autocmd("User", {
   group = vim.api.nvim_create_augroup("queued_job_runner", { clear = true }),
   pattern = "AsyncRunStop",
   callback = function()
     local job
-    for j, _ in pairs(queued_jobs) do
+    for j, _ in pairs(job_info.queue) do
       job = j
       break
     end
     if job ~= nil then
-      queued_jobs[job] = nil
+      job_info.queue[job] = nil
       if job.task ~= nil then
         vim.cmd("AsyncTask "..job.task)
       elseif job.cmd ~= nil then
@@ -295,7 +296,7 @@ function fn.run_task(name)
   if not fn.get_is_job_in_progress() then
     vim.cmd("AsyncTask "..name)
   else
-    queued_jobs[{ task = name }] = true
+    job_info.queue[{ task = name }] = true
   end
 end
 
@@ -303,7 +304,7 @@ function fn.run_command(command)
   if not fn.get_is_job_in_progress() then
     vim.cmd("AsyncRun "..command)
   else
-    queued_jobs[{ cmd = command }] = true
+    job_info.queue[{ cmd = command }] = true
   end
 end
 
