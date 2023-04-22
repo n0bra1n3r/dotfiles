@@ -1,6 +1,6 @@
 {{- if (index . "gitlab") }}
 [".ssh/keys"]
-  url = "https://gitlab.com/api/v4/projects/26349363/repository/archive?private_token={{ .gitlab.token }}"
+  url = "https://gitlab.com/n0brain3r/dotfiles-ssh-keys/-/archive/master/dotfiles-ssh-keys-master.zip?private_token={{ .gitlab.token }}"
   type = "archive"
   exact = true
   stripComponents = 1
