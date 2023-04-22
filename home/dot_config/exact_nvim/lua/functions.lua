@@ -523,8 +523,8 @@ function fn.close_buffer()
 end
 
 local help_server
-function fn.open_help()
-  local word = vim.fn.expand[[<cword>]]
+function fn.open_help(word)
+  word = word or vim.fn.expand[[<cword>]]
   if vim.env.EMU ~= nil then
     if help_server == nil then
       local opts = ([[-mMR +"set ls=0" +"h %s" +on]]):format(word)

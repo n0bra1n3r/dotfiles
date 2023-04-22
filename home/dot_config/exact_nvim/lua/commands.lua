@@ -19,6 +19,17 @@ commands {
     desc = "Git command",
     nargs = "+",
   }, --}}}
+  H = "Help",
+  Help = { --{{{
+    function(opts)
+      fn.open_help(opts.args or [[]])
+    end,
+    complete = function(lead)
+      return vim.fn.getcompletion(lead, "help")
+    end,
+    desc = "Open help",
+    nargs = "?",
+  }, --}}}
   W = "WorkspaceOpen",
   TerminalModeStart = { --{{{
     function()
