@@ -124,13 +124,20 @@ autocmds {
   VimEnter = { --{{{
     callback = fn.vim_defer(function()
       if vim.env.PARENT_NVIM ~= nil then
-        fn.on_child_nvim(vim.env.PARENT_NVIM)
+        fn.on_child_nvim_enter(
+          vim.env.NVIM_CHILD_ID,
+          vim.env.PARENT_NVIM)
       end
       fn.refresh_git_info()
     end),
   }, --}}}
   VimLeavePre = { --{{{
     callback = function()
+      if vim.env.PARENT_NVIM ~= nil then
+        fn.on_child_nvim_exit(
+          vim.env.NVIM_CHILD_ID,
+          vim.env.PARENT_NVIM)
+      end
       vim.cmd[[cclose]]
     end,
   }, --}}}

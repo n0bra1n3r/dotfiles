@@ -13,34 +13,81 @@ local function create_parent_dirs(path)
 end
 --}}}
 --{{{ IPC
-local child_nvim_job
-function fn.on_child_nvim(parent)
-  child_nvim_job = require'plenary.job':new {
-    command = vim.v.progpath,
+local ipc_info = {
+  child = {},
+  parent = {
+    jobs = {},
+    callbacks = {},
+  },
+}
+
+local function remote_nvim(pipe, cmd_type, cmd)
+  local job_id = require'plenary.job':new {
     args = {
       "--clean",
       "--headless",
       "--server",
-      parent,
-      "--remote-expr",
-      ([[v:lua.fn.did_spawn_child_nvim('%s')]]):format(vim.v.servername),
+      pipe,
+      "--remote-"..cmd_type,
+      cmd,
     },
+    command = vim.v.progpath,
+    detached = true,
   }
-  child_nvim_job:start()
+  job_id:start()
+  return job_id
 end
 
-local child_spawn_callbacks = {}
+function fn.on_child_nvim_enter(id, parent)
+  local expr = ([[v:lua.fn.on_parent_nvim_enter('%s', '%s')]])
+                  :format(vim.v.servername, id)
+  ipc_info.child.job_id = remote_nvim(parent, "expr", expr)
+end
 
-function fn.did_spawn_child_nvim(child)
-  local callbacks = vim.deepcopy(child_spawn_callbacks)
-  child_spawn_callbacks = {}
-  for _, callback in ipairs(callbacks) do
-    callback(child)
+function fn.on_child_nvim_exit(id, parent)
+  local expr = ([[v:lua.fn.on_parent_nvim_exit('%s')]])
+                  :format(id)
+  ipc_info.child.job_id = remote_nvim(parent, "expr", expr)
+end
+
+function fn.on_parent_nvim_enter(child, id)
+  local callbacks = ipc_info.parent.callbacks[id]
+  if callbacks ~= nil and callbacks.on_enter ~= nil then
+    callbacks.on_enter(child)
   end
 end
 
-function fn.add_child_spawn_callback(callback)
-  table.insert(child_spawn_callbacks, callback)
+function fn.on_parent_nvim_exit(id)
+  local callbacks = ipc_info.parent.callbacks[id]
+  if callbacks ~= nil and callbacks.on_exit ~= nil then
+    callbacks.on_exit()
+  end
+  ipc_info.parent.callbacks[id] = nil
+end
+
+function fn.spawn_child(opts, callbacks)
+  local sec, usec = vim.loop.gettimeofday()
+  local child_id = tostring(sec * 1000000 + usec)
+  ipc_info.parent.callbacks[child_id] = callbacks
+  local job_id = require'plenary.job':new {
+    command = vim.fn.expand(vim.env.EMU),
+    env = {
+      ["PARENT_NVIM"] = vim.v.servername,
+      ["NVIM_CHILD_ID"] = child_id,
+    },
+    args = {
+      vim.env.EMU_CMD,
+      ([["%s" %s]]):format(vim.v.progpath, opts),
+    },
+  }
+  table.insert(ipc_info.parent.jobs, job_id)
+  job_id:start()
+end
+
+function fn.send_child(child, cmd_type, cmd)
+  local job_id = remote_nvim(child, cmd_type, cmd)
+  ipc_info.parent.jobs = job_id
+  job_id:start()
 end
 --}}}
 --{{{ Diagnostics
@@ -475,53 +522,26 @@ function fn.close_buffer()
   end
 end
 
-local help_job
 local help_server
-local help_client
 function fn.open_help()
   local word = vim.fn.expand[[<cword>]]
   if vim.env.EMU ~= nil then
     if help_server == nil then
-      fn.add_child_spawn_callback(function(child)
-        help_server = child
-      end)
-      help_job = require'plenary.job':new {
-        command = vim.fn.expand(vim.env.EMU),
-        env = { ["PARENT_NVIM"] = vim.v.servername },
-        args = {
-          vim.env.EMU_CMD,
-          ([["%s" -mMR +"set ls=0" +"h %s" +on]]):format(vim.v.progpath, word),
-        },
-      }
-      help_job:start()
+      local opts = ([[-mMR +"set ls=0" +"h %s" +on]]):format(word)
+      fn.spawn_child(opts, {
+        on_enter = function(child)
+          help_server = child
+        end,
+        on_exit = function()
+          help_server = nil
+        end,
+      })
     else
-      help_client = require'plenary.job':new {
-        command = vim.v.progpath,
-        args = {
-          "--clean",
-          "--headless",
-          "--server",
-          help_server,
-          "--remote-send",
-          ([[<cmd>h %s<CR>]]):format(word),
-        },
-      }
-      help_client:start()
+      local cmd = ([[<cmd>h %s<CR>]]):format(word)
+      fn.send_child(help_server, "send", cmd)
     end
   else
     vim.cmd("help "..word)
-    local width = math.floor(vim.o.columns * 0.9)
-    local height = math.floor(vim.o.lines * 0.9)
-    vim.api.nvim_open_win(0, true, {
-      relative = "editor",
-      width = width,
-      height = height,
-      row = vim.o.lines / 2 - height / 2,
-      col = vim.o.columns / 2 - width / 2,
-      style = "minimal",
-      border = "single",
-      title = "help",
-    })
   end
 end
 --}}}
