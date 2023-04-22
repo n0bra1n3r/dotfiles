@@ -198,21 +198,22 @@ plugins = function(plugins)
   })
 end
 
+local config_base = "~/.local/share/chezmoi/home/dot_config/exact_nvim/lua/"
+local config_dir = config_base.."configs/"
 local function set_plugins_keymap(key, method)
-  local config_folder = "~/.local/share/chezmoi/home/dot_config/nvim/lua/configs/"
   vim.api.nvim_buf_set_keymap(0, "n", key, [[]], {
     noremap = true,
     callback = function()
       local plugin = vim.fn.expand("<cfile>")
       local config = get_plugin_config_name(plugin)
-      fn.edit_file(method, config_folder..config..".lua")
+      fn.edit_file(method, config_dir..config..".lua")
     end,
   })
 end
 
 vim.api.nvim_create_autocmd("BufEnter", {
   group = vim.api.nvim_create_augroup("plugins", { clear = true }),
-  pattern = "*/nvim/lua/plugins.lua",
+  pattern = vim.fn.expand(config_base.."plugins.lua"),
   callback = function()
     set_plugins_keymap("gf", "edit")
     set_plugins_keymap("<C-w><C-f>", "vsplit")
