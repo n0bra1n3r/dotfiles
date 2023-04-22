@@ -1,0 +1,16 @@
+# GitLab
+Host gitlab.com
+  HostName altssh.gitlab.com
+  User redblack3
+  Port 443
+  StrictHostKeyChecking no
+  Preferredauthentications publickey
+  IdentityFile ~/.ssh/keys/gitlab_com_ed25519
+
+{{- range ((joinPath .chezmoi.homeDir ".ssh/keys/*_com") | glob) }}
+Host {{ . | osBase | replace "_" "." }}
+  HostName {{ (regexSplit "_" . -1) | rest | join "." }}
+  StrictHostKeyChecking no
+  Preferredauthentications publickey
+  IdentityFile ~/.ssh/keys/{{ . | osBase }}
+{{- end }}

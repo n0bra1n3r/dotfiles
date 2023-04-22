@@ -1,5 +1,14 @@
 {{- $gitlabToken := promptString "GitLab API token" }}
-{{- $githubToken := promptString "GitHub API token" }}
+{{- $githubToken := promptString "GitHub Access token" }}
+{{- $orgName := promptString "Organization name" }}
+
+{{- if $orgName }}
+{{- $orgEmail := promptString "Organization email" }}
+
+[data.org]
+  name = {{ $orgName | quote }}
+  email = {{ $orgEmail | quote }}
+{{- end }}
 
 {{- if $gitlabToken }}
 [data.gitlab]

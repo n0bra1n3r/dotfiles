@@ -1,0 +1,8 @@
+{{- if index . "org"}}
+[user]
+  name = Ryan Blonna
+  email = {{ .org.email }}
+
+[url "git@{{ .org.name }}.github.com"]
+  insteadOf = git@github.com
+{{- end }}
