@@ -72,7 +72,8 @@ autocmds {
     }, --}}}
     { pattern = "help", --{{{
       callback = function()
-        vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[quit]])
+        vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[<cmd>quit<CR>]],
+          { noremap = true, silent = true })
       end,
     }, --}}}
     { pattern = "lazy", --{{{

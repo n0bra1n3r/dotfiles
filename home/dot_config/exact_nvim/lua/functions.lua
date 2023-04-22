@@ -446,29 +446,25 @@ end
 local help_job
 function fn.open_help()
   local word = vim.fn.expand[[<cword>]]
-  if vim.env.EMU == nil then
+  if vim.env.EMU ~= nil then
     help_job = require'plenary.job':new {
       command = vim.fn.expand(vim.env.EMU),
       args = {
         vim.env.EMU_CMD,
         ([["%s" -mMR +"set ls=0" +"h %s" +on]]):format(vim.v.progpath, word),
       },
-      on_exit = function(j, return_val)
-        print(return_val)
-        print(j:result())
-      end,
     }
     help_job:start()
   else
     vim.cmd("help "..word)
-    local width = math.floor(vim.o.cols * 0.9)
-    local height = math.floor(vim.o.rows * 0.9)
+    local width = math.floor(vim.o.columns * 0.9)
+    local height = math.floor(vim.o.lines * 0.9)
     vim.api.nvim_open_win(0, true, {
       relative = "editor",
       width = width,
       height = height,
       row = vim.o.lines / 2 - height / 2,
-      col = vim.o.cols / 2 - width / 2,
+      col = vim.o.columns / 2 - width / 2,
       style = "minimal",
       border = "single",
       title = "help",
