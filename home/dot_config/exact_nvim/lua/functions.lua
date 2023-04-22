@@ -324,26 +324,26 @@ vim.api.nvim_create_autocmd("User", {
   pattern = "AsyncRunStop",
   callback = function()
     local job
-    for j, _ in pairs(job_info.queue) do
-      job = j
+    for e, k in pairs(job_info.queue) do
+      job = { kind = k, exec = e }
       break
     end
     if job ~= nil then
-      job_info.queue[job] = nil
-      if job.task ~= nil then
-        vim.cmd("AsyncTask "..job.task)
-      elseif job.cmd ~= nil then
-        vim.cmd("AsyncRun "..job.cmd)
+      job_info.queue[job.exec] = nil
+      if job.kind == "task" then
+        vim.cmd("AsyncTask "..job.exec)
+      elseif job.kind == "command" then
+        vim.cmd("AsyncRun "..job.exec)
       end
     end
   end,
 })
 
-function fn.run_task(name)
+function fn.run_task(task)
   if not fn.get_is_job_in_progress() then
-    vim.cmd("AsyncTask "..name)
+    vim.cmd("AsyncTask "..task)
   else
-    job_info.queue[{ task = name }] = true
+    job_info.queue[task] = "task"
   end
 end
 
@@ -351,12 +351,13 @@ function fn.run_command(command)
   if not fn.get_is_job_in_progress() then
     vim.cmd("AsyncRun "..command)
   else
-    job_info.queue[{ cmd = command }] = true
+    job_info.queue[command] = "command"
   end
 end
 
 function fn.project_check()
-  fn.run_task("project-check")
+  local filename = vim.api.nvim_buf_get_name(0)
+  fn.run_task(("project-check +file='%s'"):format(filename))
 end
 --}}}
 --{{{ LSP
