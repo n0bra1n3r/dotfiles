@@ -40,12 +40,6 @@ if [ ! "$(command -v git)" ]; then
   sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- --bin-dir "$HOME/.local/bin" --yes
 fi
 
-function save-function() {
-  local ORIG_FUNC=$(declare -f $1)
-  local NEWNAME_FUNC="$2${ORIG_FUNC#$1}"
-  eval "$NEWNAME_FUNC"
-}
-
 function silent-background() {
   ("$@" &>/dev/null &)
 }
@@ -104,11 +98,25 @@ else
   alias git='_git_ext'
 fi
 
-alias c='chezmoi'
-alias ce='chezmoi edit'
-alias cg='chezmoi git --'
-alias bfg='java -jar "$HOME/.local/bin/bfg.jar"'
+# General aliases
+
+alias c='cd'
 alias e='nvim'
 alias g='git'
+alias l='ls'
 alias vim='nvim'
-alias ws='workspace'
+alias w='workspace'
+
+# Config aliases
+
+alias ce='cd ~/.local/share/chezmoi && nvim'
+
+# Git aliases
+
+function gc() {
+  git commit -m "$@"
+}
+
+alias gl='git log'
+alias gp='git push'
+alias gs='git status'
