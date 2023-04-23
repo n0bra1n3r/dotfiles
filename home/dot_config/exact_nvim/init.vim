@@ -1,5 +1,4 @@
 if has("win32")
-  let $PATH = 'C:\PROGRA~1\Git\usr\bin;' . $PATH
   let $TMP = "/tmp"
   let &shell = "sh.exe"
   let &shellcmdflag = "-c"

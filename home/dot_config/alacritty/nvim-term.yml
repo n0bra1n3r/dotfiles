@@ -9,12 +9,7 @@
 # All imports must either be absolute paths starting with `/`, or paths relative
 # to the user's home directory starting with `~/`.
 import:
-#  - /path/to/alacritty.yml
-  # uncomment the flavour you want below:
-#  - ~/.config/alacritty/catppuccin/catppuccin-mocha.yml
-#  - ~/.config/alacritty/catppuccin/catppuccin-macchiato.yml
-   - ~/.config/alacritty/catppuccin/catppuccin-frappe.yml
-#  - ~/.config/alacritty/catppuccin/catppuccin-latte.yml
+  - ~/.config/alacritty/alacritty.yml
 
 # Any items in the `env` entry below will be added as
 # environment variables. Some entries may override variables
@@ -27,11 +22,11 @@ env:
   # check the local terminfo database and use `alacritty` if it is
   # available, otherwise `xterm-256color` is used.
   #TERM: alacritty
-{{- if (index . "github") }}
-  GITHUB_ACCESS_TOKEN: {{ .github.token }}
-{{- end }}
+  BASH_ENV: ~/.bash_profile
+  EMU: ~/.local/bin/alacritty
+  EMU_CMD: -e
 
-window:
+#window:
   # Window dimensions (changes require restart)
   #
   # Number of lines/columns (not pixels) in the terminal. The number of columns
@@ -75,7 +70,7 @@ window:
   #
   # Window opacity as a floating point number from `0.0` to `1.0`.
   # The value `0.0` is completely transparent and `1.0` is opaque.
-  opacity: 1
+  #opacity: 1.0
 
   # Startup Mode (changes require restart)
   #
@@ -116,16 +111,16 @@ window:
   #multiplier: 3
 
 # Font configuration
-font:
+#font:
   # Normal (roman) font face
-  normal:
+  #normal:
     # Font family
     #
     # Default:
     #   - (macOS) Menlo
     #   - (Linux/BSD) monospace
     #   - (Windows) Consolas
-    family: CaskaydiaCove Nerd Font
+    #family: monospace
 
     # The `style` can be specified to pick a specific face.
     #style: Regular
@@ -187,7 +182,7 @@ font:
   #use_thin_strokes: true
 
 # If `true`, bold text is drawn using the bright color variants.
-draw_bold_text_with_bright_colors: true
+#draw_bold_text_with_bright_colors: false
 
 # Colors (Tomorrow Night)
 #colors:
@@ -437,7 +432,7 @@ draw_bold_text_with_bright_colors: true
 shell:
   program: C:\\PROGRA~1\\Git\\bin\\bash.exe
   args:
-    - --login -i
+    - -c 'nvim +"TerminalModeStart"'
 
 # Startup directory
 #
@@ -451,7 +446,7 @@ shell:
 # Offer IPC using `alacritty msg` (unix only)
 #ipc_socket: true
 
-#mouse:
+mouse:
   # Click settings
   #
   # The `double_click` and `triple_click` settings control the time
@@ -461,7 +456,7 @@ shell:
   #triple_click: { threshold: 300 }
 
   # If this is `true`, the cursor is temporarily hidden when typing.
-  #hide_when_typing: false
+  hide_when_typing: true
 
 # Regex hints
 #
@@ -746,11 +741,7 @@ shell:
 #
 # If the same trigger is assigned to multiple actions, all of them are executed
 # in the order they were defined in.
-key_bindings:
-  - { key: Tab,     mods: Control,        chars: "\x1b[9;5u"  }
-  - { key: Tab,     mods: Control|Shift,  chars: "\x1b[9;6u"  }
-  - { key: Return,  mods: Control,        chars: "\x1b[13;5u" }
-  - { key: Return,  mods: Shift,          chars: "\x1b[13;2u" }
+#key_bindings:
   #- { key: Paste,                                       action: Paste          }
   #- { key: Copy,                                        action: Copy           }
   #- { key: L,         mods: Control,                    action: ClearLogNotice }
