@@ -34,7 +34,7 @@ local function remote_nvim(pipe, cmd_type, cmd)
     command = vim.v.progpath,
     detached = true,
   }
-  job_id:start()
+  job_id:sync()
   return job_id
 end
 
@@ -60,7 +60,7 @@ function fn.on_parent_nvim_enter(child, id)
     info = {}
     ipc_info.parent.child_info[id] = info
   end
-  info[id].pipe = child
+  info.pipe = child
 end
 
 function fn.on_parent_nvim_exit(id)
@@ -96,14 +96,30 @@ end
 function fn.send_child(child, cmd_type, cmd)
   local job_id = remote_nvim(child, cmd_type, cmd)
   table.insert(ipc_info.parent.jobs, job_id)
-  job_id:start()
 end
 
 function fn.get_child(id)
-  if ipc_info.parent ~= nil and ipc_info.child_info[id] ~= nil then
-    return ipc_info.parent.child_info[id].pipe
+  return ipc_info.parent.child_info[id] and
+          ipc_info.parent.child_info[id].pipe
+end
+
+function fn.is_child_alive(id)
+  local child = fn.get_child(id)
+  if child ~= nil then
+    local result = vim.fn.system {
+      vim.v.progpath,
+      "--clean",
+      "--headless",
+      "--server",
+      child,
+      "--remote-expr",
+      "v:version",
+    }
+    if vim.v.shell_error == 0 and #vim.trim(result) ~= 0 then
+      return true
+    end
   end
-  return nil
+  return false
 end
 --}}}
 --{{{ Diagnostics
@@ -542,13 +558,12 @@ end
 function fn.open_help(word)
   word = word or vim.fn.expand[[<cword>]]
   if vim.env.EMU ~= nil then
-    local help_server = fn.get_child("help")
-    if help_server == nil then
+    if not fn.is_child_alive("help") then
       local opts = ([[-mMR +"set ls=0" +"h %s" +"tabo"]]):format(word)
       fn.spawn_child("help", opts)
     else
       local cmd = ([[<cmd>h %s<CR>]]):format(word)
-      fn.send_child(help_server, "send", cmd)
+      fn.send_child(fn.get_child("help"), "send", cmd)
     end
   else
     vim.cmd("help "..word)
