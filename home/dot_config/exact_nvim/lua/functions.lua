@@ -373,7 +373,7 @@ end
 
 function fn.project_check()
   local filename = vim.api.nvim_buf_get_name(0)
-  fn.run_task(("project-check +file='%s'"):format(filename))
+  fn.run_task(("project-check +file=\"%s\""):format(filename))
 end
 --}}}
 --{{{ LSP
