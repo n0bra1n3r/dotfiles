@@ -12,15 +12,13 @@ MSYS_NT*)
   alias npm="cmd //c npm.cmd"
   ;;
 MINGW64_NT*)
-  export PATH="/c/PROGRA~1/Git/usr/bin":$PATH
-
   alias npm="cmd //c npm.cmd"
   ;;
 *)
   ;;
 esac
 
-export PATH=$HOME/.local/bin:$HOME/.dotfiles/scripts:$PATH
+export PATH="$HOME/.nimble/bin":"$HOME/.local/bin":"$HOME/.dotfiles/scripts":$PATH
 
 export GIT_CONFIG_GLOBAL="$HOME/.dotfiles/gitconfig/main"
 
