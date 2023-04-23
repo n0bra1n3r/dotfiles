@@ -3,32 +3,45 @@
 autocmds {
   BufEnter = { --{{{
     callback = function()
-      if fn.is_empty_buffer() then
-        vim.bo.bufhidden = "delete"
-      elseif vim.bo.filetype == "help" then
+      if vim.bo.filetype == "help" then
         vim.cmd[[wincmd T]]
-      elseif fn.has_workspace_file() then
-        fn.save_workspace()
       end
       vim.cmd[[checktime]]
       fn.set_qf_diagnostics()
     end,
   }, --}}}
-  BufFilePre = { --{{{
-    callback = function()
-      if fn.is_empty_buffer() then
-        vim.bo.bufhidden = nil
+  BufHidden = {
+    callback = function(args)
+      if fn.is_empty_buffer(args.buf) then
+        vim.bo[args.buf].buflisted = false
+      end
+    end,
+  },
+  BufWinEnter = { --{{{
+    callback = function(args)
+      for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do
+        local buf = vim.api.nvim_win_get_buf(win)
+        if #vim.bo[buf].buftype == 0 then
+          vim.wo[win].colorcolumn = "81,120"
+          vim.wo[win].number = true
+        else
+          vim.wo[win].colorcolumn = nil
+          vim.wo[win].number = false
+        end
+      end
+      if not fn.is_empty_buffer(args.buf) then
+        if fn.has_workspace_file() then
+          fn.save_workspace()
+        end
       end
     end,
   }, --}}}
-  BufWinEnter = { --{{{
-    callback = function()
-      if #vim.bo.buftype == 0 then
-        vim.wo.colorcolumn = "81,120"
-        vim.wo.number = true
-      else
-        vim.wo.colorcolumn = nil
-        vim.wo.number = false
+  BufWinLeave = { --{{{
+    callback = function(args)
+      if not fn.is_empty_buffer(args.buf) then
+        if fn.has_workspace_file() then
+          fn.save_workspace()
+        end
       end
     end,
   }, --}}}
@@ -67,7 +80,6 @@ autocmds {
     { pattern = "diff", --{{{
       callback = function()
         vim.bo.bufhidden = "wipe"
-        vim.bo.textwidth = 72
       end,
     }, --}}}
     { pattern = "git*", --{{{
