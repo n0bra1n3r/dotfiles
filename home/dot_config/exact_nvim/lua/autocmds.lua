@@ -4,7 +4,9 @@ autocmds {
   BufEnter = { --{{{
     callback = function()
       if vim.bo.filetype == "help" then
-        vim.cmd[[wincmd T]]
+        if #vim.api.nvim_tabpage_list_wins(0) > 1 then
+          vim.cmd[[wincmd T]]
+        end
       end
       vim.cmd[[checktime]]
       fn.set_qf_diagnostics()
