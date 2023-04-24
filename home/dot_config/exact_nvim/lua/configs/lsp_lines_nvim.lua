@@ -30,9 +30,10 @@ function plug.config()
     virtual_text = false,
   })
 
+  local group = vim.api.nvim_create_augroup("lsp_lines_conf", { clear = true })
   local prev_line
   vim.api.nvim_create_autocmd("CursorMoved", {
-    group = vim.api.nvim_create_augroup("lsp_lines_conf", { clear = true }),
+    group = group,
     callback = function()
       local line = vim.api.nvim_get_current_line()
       if prev_line ~= nil and prev_line ~= line then
@@ -41,5 +42,13 @@ function plug.config()
       end
       prev_line = line
     end,
+  })
+  vim.api.nvim_create_autocmd("InsertEnter", {
+    group = group,
+    callback = disable_diagnostic_display,
+  })
+  vim.api.nvim_create_autocmd("InsertLeave", {
+    group = group,
+    callback = display_diagnostics_soon,
   })
 end
