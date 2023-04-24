@@ -46,6 +46,7 @@ commands {
     nargs = "?",
   }, --}}}
   W = "WorkspaceOpen",
+  Ws = "WorkspaceSave",
   TerminalModeStart = { --{{{
     function()
       fn.open_terminal()
