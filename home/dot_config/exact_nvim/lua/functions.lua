@@ -701,6 +701,10 @@ function fn.is_empty_buffer(buf)
     or (#lines == 1 and lines[1] == "")
 end
 
+function fn.is_file_buffer(buf)
+  return #vim.bo[buf].buftype == 0 and not fn.is_empty_buffer(buf)
+end
+
 function fn.did_cwd_change()
   return vim.fn.getcwd(-1) ~= vim.fn.getcwd(-1, vim.fn.tabpagenr[[#]])
 end

@@ -31,7 +31,7 @@ autocmds {
           vim.wo[win].number = false
         end
       end
-      if not fn.is_empty_buffer(args.buf) then
+      if fn.is_file_buffer(args.buf) then
         if fn.has_workspace_file() then
           fn.save_workspace()
         end
@@ -40,7 +40,7 @@ autocmds {
   }, --}}}
   BufWinLeave = { --{{{
     callback = function(args)
-      if not fn.is_empty_buffer(args.buf) then
+      if fn.is_file_buffer(args.buf) then
         if fn.has_workspace_file() then
           fn.save_workspace()
         end
