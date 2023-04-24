@@ -12,13 +12,13 @@ autocmds {
       fn.set_qf_diagnostics()
     end,
   }, --}}}
-  BufHidden = {
+  BufHidden = { --{{{
     callback = function(args)
       if fn.is_empty_buffer(args.buf) then
         vim.bo[args.buf].buflisted = false
       end
     end,
-  },
+  }, --}}}
   BufWinEnter = { --{{{
     callback = function(args)
       for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do

@@ -572,7 +572,7 @@ function fn.open_help(word)
   word = word or vim.fn.expand[[<cword>]]
   if vim.env.EMU ~= nil then
     if not fn.is_child_alive"help" then
-      fn.spawn_child("help", ([[-mMR +"set ls=0" +"h %s"]]):format(word))
+      fn.spawn_child("help", ([[-mMR +"HelpModeStart %s"]]):format(word))
     else
       fn.send_child(fn.get_child"help", "send", ([[<cmd>h %s<CR>]]):format(word))
     end
