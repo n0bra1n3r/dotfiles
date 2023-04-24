@@ -6,6 +6,10 @@ source ~/.dotfiles/shellrc
 bind 'set show-all-if-ambiguous on'
 bind 'set completion-ignore-case off'
 
+bind 'TAB:menu-complete'
+bind '"\e[Z":menu-complete-backward'
+bind "set menu-complete-display-prefix on"
+
 bind '"\e[A":history-search-backward'
 bind '"\e[B":history-search-forward'
 
