@@ -27,14 +27,14 @@ commands {
     nargs = "?",
   }, --}}}
   H = "Help",
-  HelpModeStart = {
+  HelpModeStart = { --{{{
     function(opts)
       vim.cmd("help "..opts.args)
-      vim.cmd[[set laststatus=0|tabonly]]
+      vim.cmd[[set laststatus=0 | tabonly]]
     end,
     desc = "Start help mode",
     nargs = "?",
-  },
+  }, --}}}
   Help = { --{{{
     function(opts)
       fn.open_help(opts.args or [[]])
