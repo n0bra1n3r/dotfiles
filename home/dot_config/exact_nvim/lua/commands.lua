@@ -3,11 +3,7 @@
 commands {
   G = { --{{{
     function(opts)
-      local args = {}
-      for _, arg in ipairs(opts.fargs) do
-        table.insert(args, vim.fn.expand(arg))
-      end
-      fn.send_terminal("git "..vim.fn.join(args))
+      fn.send_terminal("git "..fn.expand_each(opts.fargs))
       fn.open_terminal()
     end,
     complete = function(lead)
@@ -18,6 +14,17 @@ commands {
     end,
     desc = "Git command",
     nargs = "+",
+  }, --}}}
+  Ga = { --{{{
+    function(opts)
+      fn.send_terminal("git add -p "..fn.expand_each(opts.fargs))
+      fn.open_terminal()
+    end,
+    complete = function(lead)
+      return config.commands.G.complete("add -p "..lead)
+    end,
+    desc = "Git add files",
+    nargs = "?",
   }, --}}}
   H = "Help",
   Help = { --{{{

@@ -687,6 +687,14 @@ function fn.sync_terminal()
 end
 --}}}
 --{{{ Utilities
+function fn.expand_each(list)
+  local result = {}
+  for _, item in ipairs(list) do
+    table.insert(result, vim.fn.expand(item))
+  end
+  return vim.fn.join(result)
+end
+
 function fn.is_empty_buffer(buf)
   local name = vim.api.nvim_buf_get_name(buf or 0)
   local lines = vim.api.nvim_buf_get_lines(buf or 0, 0, -1, false)

@@ -112,9 +112,10 @@ alias ce='cd ~/.local/share/chezmoi && nvim'
 # Git aliases
 
 function gc() {
-  git commit -m "$@"
+  git commit -m "$*"
 }
 
+alias ga='git add -p'
 alias gl='git log'
 alias gp='git push'
 alias gs='git status'
