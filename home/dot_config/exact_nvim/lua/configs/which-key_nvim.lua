@@ -27,8 +27,9 @@ function plug.config()
       f = {
         name = "file",
         d = { fn.delete_file, "delete" },
+        e = { fn.edit_file, "edit" },
         m = { fn.move_file, "move" },
-        o = { fn.open_file, "open" },
+        o = { fn.open_file_folder, "open folder" },
       },
       l = { name = "LSP" },
       s = { fn.search.prompt, "search string" },

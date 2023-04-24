@@ -22,7 +22,7 @@ local ipc_info = {
 }
 
 local function remote_nvim(pipe, cmd_type, cmd)
-  local job_id = require'plenary.job':new {
+  local job = require'plenary.job':new {
     args = {
       "--clean",
       "--headless",
@@ -34,20 +34,20 @@ local function remote_nvim(pipe, cmd_type, cmd)
     command = vim.v.progpath,
     detached = true,
   }
-  job_id:sync()
-  return job_id
+  job:start()
+  return job
 end
 
 function fn.on_child_nvim_enter(id, parent)
   local expr = ([[v:lua.fn.on_parent_nvim_enter('%s', '%s')]])
                   :format(vim.v.servername, id)
-  ipc_info.child.job_id = remote_nvim(parent, "expr", expr)
+  ipc_info.child.job = remote_nvim(parent, "expr", expr)
 end
 
 function fn.on_child_nvim_exit(id, parent)
   local expr = ([[v:lua.fn.on_parent_nvim_exit('%s')]])
                   :format(id)
-  ipc_info.child.job_id = remote_nvim(parent, "expr", expr)
+  ipc_info.child.job = remote_nvim(parent, "expr", expr)
 end
 
 function fn.on_parent_nvim_enter(child, id)
@@ -78,7 +78,7 @@ function fn.spawn_child(id, opts, callbacks)
     child_id = tostring(sec * 1000000 + usec)
   end
   ipc_info.parent.child_info[child_id] = callbacks or {}
-  local job_id = require'plenary.job':new {
+  local job = require'plenary.job':new {
     command = vim.fn.expand(vim.env.EMU),
     env = {
       ["PARENT_NVIM"] = vim.v.servername,
@@ -89,13 +89,13 @@ function fn.spawn_child(id, opts, callbacks)
       ([["%s" %s]]):format(vim.v.progpath, opts),
     },
   }
-  table.insert(ipc_info.parent.jobs, job_id)
-  job_id:start()
+  table.insert(ipc_info.parent.jobs, job)
+  job:start()
 end
 
 function fn.send_child(child, cmd_type, cmd)
-  local job_id = remote_nvim(child, cmd_type, cmd)
-  table.insert(ipc_info.parent.jobs, job_id)
+  local job = remote_nvim(child, cmd_type, cmd)
+  table.insert(ipc_info.parent.jobs, job)
 end
 
 function fn.get_child(id)
@@ -280,9 +280,9 @@ function fn.delete_file()
   require'mini.bufremove'.wipeout()
 end
 
-function fn.open_file()
+function fn.edit_file()
   local rel_dir = vim.fn.expand("%:~:.:h")
-  local path = vim.fn.input("  Open at: ", rel_dir.."/", "dir")
+  local path = vim.fn.input("  Edit at: ", rel_dir.."/", "dir")
   if #path == 0 or path == rel_dir or path.."/" == rel_dir then
     return
   end
@@ -312,6 +312,19 @@ function fn.save_file()
   end
   create_parent_dirs(rel_dir)
   vim.cmd("saveas "..vim.fn.fnameescape(path))
+end
+
+function fn.open_file_folder()
+  local shellslash = vim.o.shellslash
+  vim.o.shellslash = false
+  local folder = vim.fn.expand"%:p:h"
+  vim.o.shellslash = shellslash
+  local job = require'plenary.job':new {
+    args = { folder },
+    command = vim.fn.has"win32" and "explorer" or "open",
+    detached = true,
+  }
+  job:start()
 end
 --}}}
 --{{{ Jobs
