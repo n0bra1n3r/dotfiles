@@ -50,6 +50,16 @@ fn.search = require "search"
 
 require "functions"
 --}}}
+--{{{ Load Highlights
+highlights = function(highlights)
+  config.highlights = vim.deepcopy(highlights)
+  for name, value in pairs(highlights) do
+    vim.api.nvim_set_hl(0, name, value)
+  end
+end
+
+require "highlights"
+--}}}
 --{{{ Load Autocmds
 autocmds = function(autocmds)
   config.autocmds = vim.deepcopy(autocmds)
