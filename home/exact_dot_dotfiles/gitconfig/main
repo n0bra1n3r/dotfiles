@@ -43,5 +43,14 @@
   st = status
   sw = switch
 
+[tig "bind"]
+  log = I !git rebase --interactive %(commit)
+  main = I !git rebase --interactive %(commit)
+  pager = I !git rebase --interactive %(commit)
+  refs = I !git rebase --interactive %(branch)
+  log = S !?git reset --soft %(commit)
+  main = S !?git reset --soft %(commit)
+  pager = S !?git reset --soft %(commit)
+
 [advice]
   useCoreFSMonitorConfig = false
