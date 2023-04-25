@@ -1,25 +1,24 @@
 local diagnostic_timer
 
-local function disable_diagnostic_display()
-  vim.diagnostic.config{ virtual_lines = false }
-
+local function close_diagnostic_timer()
   if diagnostic_timer ~= nil then
     diagnostic_timer:close()
     diagnostic_timer = nil
   end
 end
 
+local function disable_diagnostic_display()
+  vim.diagnostic.config{ virtual_lines = false }
+  close_diagnostic_timer()
+end
+
 local function display_diagnostics_soon()
-  if diagnostic_timer ~= nil then
-    diagnostic_timer:close()
-    diagnostic_timer = nil
-  end
+  close_diagnostic_timer()
 
   diagnostic_timer = vim.loop.new_timer()
   diagnostic_timer:start(1000, 0, vim.schedule_wrap(function()
     vim.diagnostic.config{ virtual_lines = { only_current_line = true } }
-    diagnostic_timer:close()
-    diagnostic_timer = nil
+    close_diagnostic_timer()
   end))
 end
 
