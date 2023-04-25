@@ -16,6 +16,12 @@
 url = {{ $url | quote }}
 {{- end }}
 
+[".dotfiles/tree-sitter-nim"]
+  url = "https://github.com/aMOPel/tree-sitter-nim/archive/refs/heads/main.zip"
+  type = "archive"
+  exact = true
+  stripComponents = 1
+
 [".dotfiles/deps/nvim/.local"]
   {{ template "github.com/releases" "neovim/neovim"
     | list ($isWindows | ternary

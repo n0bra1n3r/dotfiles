@@ -140,22 +140,22 @@ plugins = function(plugins)
           spec.init = module.init
         else
           local spec_init = spec.init
-          spec.init = function()
-            spec_init()
-            module.init()
+          spec.init = function(plugin)
+            spec_init(plugin)
+            module.init(plugin)
           end
         end
       end
       if module.config ~= nil then
         if spec.config == nil then
-          spec.config = function()
-            module.config()
+          spec.config = function(plugin)
+            module.config(plugin)
           end
         else
           local spec_config = spec.config
-          spec.config = function()
-            spec_config()
-            module.config()
+          spec.config = function(plugin)
+            spec_config(plugin)
+            module.config(plugin)
           end
         end
       end

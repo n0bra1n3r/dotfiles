@@ -36,7 +36,6 @@ plugins {
 
   -- Frameworks --
 
-  { "alaviss/nim.nvim", ft = "nim" },
   { "akinsho/flutter-tools.nvim", ft = "dart" },
 
   -- Motions --
@@ -70,18 +69,21 @@ plugins {
 
   -- Package Management --
 
-  {
-    "williamboman/mason.nvim",
-    build = function()
-      pcall(vim.cmd, "MasonUpdate")
-    end,
-  },
+  { "williamboman/mason.nvim", build = ":MasonUpdate" },
 
   -- Completion --
 
   { "williamboman/mason-lspconfig.nvim" },
 
-  { "nvim-treesitter/nvim-treesitter" },
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    ft = {
+      "nim",
+      "nimble",
+      "nims",
+    },
+  },
 
   { "L3MON4D3/LuaSnip" },
 
