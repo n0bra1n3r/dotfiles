@@ -52,7 +52,9 @@ mappings {
     h                   = { ";" },
     l                   = { "col('.')==1&&col([line('.')-1,'$'])>1?'k$l':'h'", expr = true },
     x                   = { "col('$')==col('.')?'gJ':'\"_x'", expr = true },
-    zq                  = { "foldclosed('.')!=-1?'zMzO[z':'zM'", expr = true, desc = "Open fold under cursor and close all others" },
+    zM                  = { require'ufo'.closeAllFolds },
+    zR                  = { require'ufo'.openAllFolds },
+    zq                  = { "foldclosed('.')!=-1?'zMzO[z':'zM'", expr = true, noremap = false, desc = "Open fold under cursor and close all others" },
   }, --}}}
   t = { --{{{
     ["<C-;>"]           = { "<End>" },

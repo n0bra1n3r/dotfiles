@@ -20,7 +20,10 @@ options {
     foldclose = "",
     stl = " ",
   }, --}}}
-  foldenable = false,
+  foldcolumn = '1',
+  foldenable = true,
+  foldlevel = 99,
+  foldlevelstart = 99,
   grepprg = "rg --vimgrep --no-heading --smart-case",
   grepformat = "%f:%l:%c:%m",
   guicursor = { --{{{

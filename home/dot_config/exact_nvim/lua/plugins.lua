@@ -2,6 +2,7 @@ plugins {
   -- Misc --
 
   { "nvim-lua/plenary.nvim" },
+  { "kevinhwang91/promise-async" },
 
   { "nathom/filetype.nvim", lazy = false },
 
@@ -17,6 +18,8 @@ plugins {
 
   { "https://git.sr.ht/~whynothugo/lsp_lines.nvim", event = "LspAttach" },
   { "arkav/lualine-lsp-progress", event = "LspAttach" },
+
+  { "kevinhwang91/nvim-ufo", dependencies = { "kevinhwang91/promise-async" } },
 
   -- Key Mappings --
 
