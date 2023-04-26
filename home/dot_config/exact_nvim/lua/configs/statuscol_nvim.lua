@@ -2,12 +2,13 @@ function plug.config()
   require'statuscol'.setup {
     relculright = true,
     segments = {
+      { text = { " " } },
       {
         sign = { name = { ".*" }, auto = true },
         click = "v:lua.ScSa",
       },
       {
-        text = { " ", require'statuscol.builtin'.lnumfunc, " " },
+        text = { require'statuscol.builtin'.lnumfunc, " " },
         click = "v:lua.ScLa",
       },
       {
