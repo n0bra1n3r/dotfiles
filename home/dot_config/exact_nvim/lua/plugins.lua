@@ -19,7 +19,13 @@ plugins {
   { "https://git.sr.ht/~whynothugo/lsp_lines.nvim", event = "LspAttach" },
   { "arkav/lualine-lsp-progress", event = "LspAttach" },
 
-  { "kevinhwang91/nvim-ufo", dependencies = { "kevinhwang91/promise-async" } },
+  {
+    "kevinhwang91/nvim-ufo",
+    event = "BufRead",
+    dependencies = { "kevinhwang91/promise-async" },
+  },
+
+  { "luukvbaal/statuscol.nvim", event = "BufRead" },
 
   -- Key Mappings --
 
