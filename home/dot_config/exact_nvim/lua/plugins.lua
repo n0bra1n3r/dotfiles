@@ -25,8 +25,6 @@ plugins {
     dependencies = { "kevinhwang91/promise-async" },
   },
 
-  { "luukvbaal/statuscol.nvim", event = "BufRead" },
-
   -- Key Mappings --
 
   { "folke/which-key.nvim", event = "VeryLazy" },
