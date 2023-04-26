@@ -30,10 +30,6 @@ end
 function plug.config()
   require'lsp_lines'.setup()
 
-  vim.diagnostic.config(require'lsp-zero'.defaults.diagnostics {
-    virtual_text = false,
-  })
-
   local group = vim.api.nvim_create_augroup("lsp_lines_conf", { clear = true })
   local prev_line
   vim.api.nvim_create_autocmd("CursorMoved", {

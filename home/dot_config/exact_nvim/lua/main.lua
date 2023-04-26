@@ -29,15 +29,8 @@ require "options"
 --{{{ Load Signs
 signs = function(signs)
   config.signs = vim.deepcopy(signs)
-  for name, value in pairs(signs) do
-    for type, icon in pairs(value.icons) do
-      local highlight = name..type
-      vim.fn.sign_define(hl, {
-        text = icon,
-        texthl = highlight,
-        numhl = highlight,
-      })
-    end
+  for name, opts in pairs(signs) do
+    vim.fn.sign_define(name, opts)
   end
 end
 
