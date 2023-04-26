@@ -216,7 +216,7 @@ local function set_plugins_keymap(key, method)
     callback = function()
       local plugin = vim.fn.expand("<cfile>")
       local config = get_plugin_config_name(plugin)
-      fn.edit_file(method, config_dir..config..".lua")
+      fn.edit_buffer(method, config_dir..config..".lua")
     end,
   })
 end

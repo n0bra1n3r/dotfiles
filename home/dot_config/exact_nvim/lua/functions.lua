@@ -513,7 +513,7 @@ local function pick_window(exclude)
   return win_map[resp]
 end
 
-function fn.edit_file(mode, path)
+function fn.edit_buffer(mode, path)
   local tabpage = vim.api.nvim_get_current_tabpage()
   local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
   local target_winid
