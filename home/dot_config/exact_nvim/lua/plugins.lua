@@ -164,5 +164,11 @@ plugins {
 
   -- Debuggers --
 
-  { "mfussenegger/nvim-dap" },
+  { "theHamsta/nvim-dap-virtual-text" },
+  {
+    "mfussenegger/nvim-dap",
+    dependencies = {
+      "theHamsta/nvim-dap-virtual-text",
+    },
+  },
 }
