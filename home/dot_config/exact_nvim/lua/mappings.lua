@@ -1,5 +1,33 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
+local function show_buffer_list()
+  require'telescope.builtin'.buffers()
+end
+
+local function show_file_list()
+  require'telescope.builtin'.find_files()
+end
+
+local function close_all_folds()
+  require'ufo'.closeAllFolds()
+end
+
+local function open_all_folds()
+  require'ufo'.openAllFolds()
+end
+
+local function edit_in_vert_split()
+  fn.edit_buffer("vsplit", vim.fn.expand("<cfile>"))
+end
+
+local function edit_in_split()
+  fn.edit_buffer("split", vim.fn.expand("<cfile>"))
+end
+
+local function edit()
+  fn.edit_buffer("edit", vim.fn.expand("<cfile>"))
+end
+
 mappings {
   [""] = { --{{{ normal mode, visual mode, operator pending mode
     ["<Down>"]          = { fn.get_map_expr("<Down>"), expr = true },
@@ -30,14 +58,14 @@ mappings {
     ["<M-k>"]           = { "<C-w>k" },
     ["<M-l>"]           = { "<C-w>h" },
     ["<C-c>"]           = { "<cmd>tabclose<CR>" },
-    ["<C-w><C-f>"]      = { function() fn.edit_buffer("vsplit", vim.fn.expand("<cfile>")) end, desc = "Edit file in vertical split" },
-    ["<C-w>f"]          = { function() fn.edit_buffer("split", vim.fn.expand("<cfile>")) end, desc = "Edit file in split" },
+    ["<C-w><C-f>"]      = { edit_in_vert_split, desc = "Edit file in vertical split" },
+    ["<C-w>f"]          = { edit_in_split, desc = "Edit file in split" },
     ["<C-w>gf"]         = { "<cmd>tabe <cfile><CR>", desc = "Edit file in tab" },
     ["<C-Down>"]        = { "<C-w>j" },
     ["<C-Left>"]        = { "<C-w>h" },
     ["<C-Right>"]       = { "<C-w>l" },
     ["<C-Up>"]          = { "<C-w>k" },
-    ["<C-Tab>"]         = { require'telescope.builtin'.buffers },
+    ["<C-Tab>"]         = { show_buffer_list },
     ["<Esc>"]           = { ":nohlsearch<CR>" },
     ["<End>"]           = { "$", noremap = false },
     ["<Home>"]          = { "^", noremap = false },
@@ -46,14 +74,14 @@ mappings {
     ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up><End><Right>':'<Left>'", expr = true },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
     ["<PageDown>"]      = { "L<Down>", noremap = false },
-    ["<Space><Space>"]  = { require'telescope.builtin'.find_files, desc = "File tree" },
+    ["<Space><Space>"]  = { show_file_list, desc = "Files" },
     [";"]               = { "l" },
-    gf                  = { function() fn.edit_buffer("edit", vim.fn.expand("<cfile>")) end, desc = "Edit file" },
+    gf                  = { edit, desc = "Edit file" },
     h                   = { ";" },
     l                   = { "col('.')==1&&col([line('.')-1,'$'])>1?'k$l':'h'", expr = true },
     x                   = { "col('$')==col('.')?'gJ':'\"_x'", expr = true },
-    zM                  = { require'ufo'.closeAllFolds },
-    zR                  = { require'ufo'.openAllFolds },
+    zM                  = { close_all_folds },
+    zR                  = { open_all_folds },
     zq                  = { "foldclosed('.')!=-1?'zMzO[z':'zM'", expr = true, noremap = false, desc = "Open fold under cursor and close all others" },
   }, --}}}
   t = { --{{{
