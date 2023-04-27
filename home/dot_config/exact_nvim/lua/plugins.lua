@@ -12,12 +12,10 @@ plugins {
 
   { "catppuccin/nvim", name = "catppuccin.nvim", lazy = false },
   { "nvim-lualine/lualine.nvim", lazy = false },
+  { "arkav/lualine-lsp-progress", event = "LspAttach" },
 
   { "kevinhwang91/nvim-bqf", ft = "qf" },
   { "https://gitlab.com/yorickpeterse/nvim-pqf.git", event = "VeryLazy" },
-
-  { "https://git.sr.ht/~whynothugo/lsp_lines.nvim", event = "LspAttach" },
-  { "arkav/lualine-lsp-progress", event = "LspAttach" },
 
   {
     "kevinhwang91/nvim-ufo",
@@ -28,6 +26,8 @@ plugins {
   -- Key Mappings --
 
   { "folke/which-key.nvim", event = "VeryLazy" },
+
+  { "anuvyklack/hydra.nvim", event = "VeryLazy" },
 
   -- Terminal --
 
@@ -146,6 +146,8 @@ plugins {
   },
   { "echasnovski/mini.indentscope", event = { "BufRead", "BufModifiedSet" } },
   { "xiyaowong/virtcolumn.nvim", event = "BufEnter" },
+
+  { "https://git.sr.ht/~whynothugo/lsp_lines.nvim", event = "LspAttach" },
 
   -- Command Runners --
 
