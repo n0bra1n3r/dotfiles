@@ -7,8 +7,8 @@ end
 
 local function create_parent_dirs(path)
   local dir = vim.fn.fnamemodify(path, ":h")
-  if #vim.fn.glob(dir) == 0 then
-    vim.cmd(string.format("silent !bash -c 'mkdir -p \"%s\"'", dir))
+  if vim.fn.isdirectory(dir) == 0 then
+    vim.cmd(("silent !bash -c 'mkdir -p \"%s\"'"):format(dir))
   end
 end
 --}}}
@@ -286,7 +286,7 @@ function fn.edit_file()
   if #path == 0 or path == rel_dir or path.."/" == rel_dir then
     return
   end
-  create_parent_dirs(rel_dir)
+  create_parent_dirs(path)
   vim.cmd("edit "..vim.fn.fnameescape(path))
 end
 
@@ -296,8 +296,8 @@ function fn.move_file()
   if #path == 0 or path == rel_file then
     return
   end
-  create_parent_dirs(rel_dir)
-  vim.cmd(string.format("saveas %s | call delete(expand('#')) | bwipeout #", vim.fn.fnameescape(path)))
+  create_parent_dirs(path)
+  vim.cmd(("saveas %s | call delete(expand('#')) | bwipeout #"):format(vim.fn.fnameescape(path)))
 end
 
 function fn.save_file()
@@ -310,7 +310,7 @@ function fn.save_file()
   if #path == 0 or path == rel_dir or path.."/" == rel_dir then
     return
   end
-  create_parent_dirs(rel_dir)
+  create_parent_dirs(path)
   vim.cmd("saveas "..vim.fn.fnameescape(path))
 end
 
