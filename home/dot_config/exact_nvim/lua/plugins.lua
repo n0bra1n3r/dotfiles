@@ -1,4 +1,4 @@
-plugins {
+my_plugins {
   -- Misc --
 
   { "nvim-lua/plenary.nvim" },

@@ -1,10 +1,10 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
-config = {}
+my_config = {}
 
 --{{{ Load Globals
-globals = function(globals)
-  config.globals = vim.deepcopy(globals)
+my_globals = function(globals)
+  my_config.globals = vim.deepcopy(globals)
   for key, value in pairs(globals) do
     vim.g[key] = value
   end
@@ -13,8 +13,8 @@ end
 require "globals"
 --}}}
 --{{{ Load Options
-options = function(options)
-  config.options = vim.deepcopy(options)
+my_options = function(options)
+  my_config.options = vim.deepcopy(options)
   for option, value in pairs(options) do
     if type(option) == "string" then
       vim.opt[option] = value
@@ -27,8 +27,8 @@ end
 require "options"
 --}}}
 --{{{ Load Highlights
-highlights = function(highlights)
-  config.highlights = vim.deepcopy(highlights)
+my_highlights = function(highlights)
+  my_config.highlights = vim.deepcopy(highlights)
   for name, value in pairs(highlights) do
     vim.api.nvim_set_hl(0, name, value)
   end
@@ -37,8 +37,8 @@ end
 require "highlights"
 --}}}
 --{{{ Load Signs
-signs = function(signs)
-  config.signs = vim.deepcopy(signs)
+my_signs = function(signs)
+  my_config.signs = vim.deepcopy(signs)
   for name, opts in pairs(signs) do
     vim.fn.sign_define(name, opts)
   end
@@ -47,15 +47,15 @@ end
 require "signs"
 --}}}
 --{{{ Load Functions
-config.functions = {}
-fn = config.functions
+my_config.functions = {}
+fn = my_config.functions
 fn.search = require "search"
 
 require "functions"
 --}}}
 --{{{ Load Autocmds
-autocmds = function(autocmds)
-  config.autocmds = vim.deepcopy(autocmds)
+my_autocmds = function(autocmds)
+  my_config.autocmds = vim.deepcopy(autocmds)
   local group = vim.api.nvim_create_augroup("main", { clear = true })
   for autocmd, def in pairs(autocmds) do
     if def[1] == nil then
@@ -73,12 +73,12 @@ end
 require "autocmds"
 --}}}
 --{{{ Load Commands
-commands = function(commands)
-  config.commands = vim.deepcopy(commands)
+my_commands = function(commands)
+  my_config.commands = vim.deepcopy(commands)
   for command, def in pairs(commands) do
     local info = def
     if type(info) == "string" then
-      info = config.commands[def]
+      info = my_config.commands[def]
     end
     local targetCmd = info[1]
     info[1] = nil
@@ -119,8 +119,8 @@ local function get_plugin_config_name(plugin)
   return string.gsub(vim.fn.fnamemodify(plugin, ":t"), "%.", "_")
 end
 
-plugins = function(plugins)
-  config.plugins = vim.deepcopy(plugins)
+my_plugins = function(plugins)
+  my_config.plugins = vim.deepcopy(plugins)
   for _, spec in ipairs(plugins) do
     local plugin = spec.name or spec[1]
     local config = get_plugin_config_name(plugin)
@@ -228,8 +228,8 @@ vim.api.nvim_create_autocmd("BufEnter", {
 require "plugins"
 --}}}
 --{{{ Load Mappings
-mappings = function(mappings)
-  config.mappings = vim.deepcopy(mappings)
+my_mappings = function(mappings)
+  my_config.mappings = vim.deepcopy(mappings)
   for mode, mapping in pairs(mappings) do
     for key, map in pairs(mapping) do
       local targetKey = map[1]

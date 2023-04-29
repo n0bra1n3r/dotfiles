@@ -9,9 +9,9 @@ function plug.config()
   })
 
   lsp.set_sign_icons {
-    error = config.signs.DiagnosticSignError.text,
-    hint = config.signs.DiagnosticSignHint.text,
-    info = config.signs.DiagnosticSignInfo.text,
-    warn = config.signs.DiagnosticSignWarn.text,
+    error = my_config.signs.DiagnosticSignError.text,
+    hint = my_config.signs.DiagnosticSignHint.text,
+    info = my_config.signs.DiagnosticSignInfo.text,
+    warn = my_config.signs.DiagnosticSignWarn.text,
   }
 end

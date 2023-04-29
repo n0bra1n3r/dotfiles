@@ -1,6 +1,6 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
-signs {
+my_signs {
   DapBreakpoint = { --{{{
     text = '',
     texthl = "DiagnosticSignError",

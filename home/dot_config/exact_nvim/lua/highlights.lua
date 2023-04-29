@@ -1,6 +1,6 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
-highlights {
+my_highlights {
   TermCursorNC = { --{{{
     link = "Comment",
   }, --}}}

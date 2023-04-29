@@ -1,5 +1,6 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
+--{{{ Helpers
 local function show_buffer_list()
   require'telescope.builtin'.buffers()
 end
@@ -27,8 +28,9 @@ end
 local function edit()
   fn.edit_buffer("edit", vim.fn.expand("<cfile>"))
 end
+--}}}
 
-mappings {
+my_mappings {
   [""] = { --{{{ normal mode, visual mode, operator pending mode
     ["<Down>"]          = { fn.get_map_expr("<Down>"), expr = true },
     ["<Up>"]            = { fn.get_map_expr("<Up>"), expr = true },

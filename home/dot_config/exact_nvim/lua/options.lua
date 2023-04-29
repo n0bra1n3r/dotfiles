@@ -2,7 +2,7 @@
 
 local opt = vim.opt
 
-options {
+my_options {
   background = "dark",
   opt.clipboard + "unnamed,unnamedplus",
   cmdheight = 0,

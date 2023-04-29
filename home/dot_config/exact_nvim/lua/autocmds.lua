@@ -1,6 +1,6 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
-autocmds {
+my_autocmds {
   BufEnter = { --{{{
     callback = function()
       if vim.bo.filetype == "help" then

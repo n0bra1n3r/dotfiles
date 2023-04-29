@@ -1,6 +1,6 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
-commands {
+my_commands {
   G = { --{{{
     function(opts)
       fn.send_terminal("git "..fn.expand_each(opts.fargs))
@@ -21,7 +21,7 @@ commands {
       fn.open_terminal()
     end,
     complete = function(lead)
-      return config.commands.G.complete("add -p "..lead)
+      return my_config.commands.G.complete("add -p "..lead)
     end,
     desc = "Git add files",
     nargs = "?",
