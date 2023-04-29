@@ -92,23 +92,38 @@ my_plugins {
     },
   },
 
-  { "L3MON4D3/LuaSnip" },
+  {
+    "L3MON4D3/LuaSnip",
+    dependencies = {
+      "rafamadriz/friendly-snippets",
+    },
+  },
 
   { "VonHeikemen/lsp-zero.nvim" },
+
+  { "rafamadriz/friendly-snippets" },
 
   { "hrsh7th/cmp-nvim-lsp-signature-help" },
   { "hrsh7th/cmp-buffer" },
   { "hrsh7th/cmp-cmdline" },
   { "hrsh7th/cmp-path" },
   {
+    "saadparwaiz1/cmp_luasnip",
+    dependencies = {
+      "L3MON4D3/LuaSnip",
+    },
+  },
+  { "hrsh7th/cmp-nvim-lua" },
+  {
     "hrsh7th/nvim-cmp",
     event = "InsertEnter",
     dependencies = {
-      "L3MON4D3/LuaSnip",
       "hrsh7th/cmp-nvim-lsp-signature-help",
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-cmdline",
       "hrsh7th/cmp-path",
+      "saadparwaiz1/cmp_luasnip",
+      "hrsh7th/cmp-nvim-lua",
     },
   },
 

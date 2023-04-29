@@ -34,11 +34,15 @@ local menu_icons = {
 }
 
 function plug.config()
-  require'lsp-zero.cmp'.extend {
-    set_sources = false,
+  require'lsp-zero'.extend_cmp {
     set_format = false,
+    set_sources = false,
+    use_luasnip = true,
   }
+
   local cmp = require'cmp'
+  local cmp_action = require'lsp-zero'.cmp_action()
+
   cmp.setup {
     formatting = {
       expandable_indicator = false,
@@ -69,35 +73,14 @@ function plug.config()
           fallback()
         end
       end, { "c", "i", "s" }),
-      ["<Tab>"] = cmp.mapping(function(fallback)
-        if cmp.visible() then
-          cmp.select_next_item {
-            behavior = cmp.SelectBehavior.Select,
-          }
-          if #cmp.get_entries() == 1 then
-            cmp.confirm {
-              behavior = cmp.ConfirmBehavior.Replace,
-              select = false,
-            }
-          end
-        else
-          fallback()
-        end
-      end, { "c", "i", "s" }),
-      ["<S-Tab>"] = cmp.mapping(function(fallback)
-        if cmp.visible() then
-          cmp.select_prev_item {
-            behavior = cmp.SelectBehavior.Select,
-          }
-        else
-          fallback()
-        end
-      end, { "c", "i", "s" }),
+      ["<Tab>"] = cmp_action.luasnip_supertab(),
+      ["<S-Tab>"] = cmp_action.luasnip_shift_supertab(),
     },
     sources = cmp.config.sources(
       {
         { name = "nvim_lsp" },
         { name = "nvim_lsp_signature_help" },
+        { name = "luasnip" },
       },
       {
         {
@@ -123,7 +106,7 @@ function plug.config()
   cmp.setup.cmdline({ "/", "?" }, {
     mapping = cmp.mapping.preset.cmdline(),
     sources = {
-      { name = "buffer" }
+      { name = "buffer" },
     }
   })
   cmp.setup.cmdline(":", {
