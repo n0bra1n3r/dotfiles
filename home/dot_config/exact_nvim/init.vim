@@ -10,8 +10,6 @@ if has("win32")
   set shellxquote=
 endif
 
-set runtimepath+=~/.config/nvim
-
 """ Init settings
 
 set modeline
