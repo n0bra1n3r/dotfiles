@@ -1,3 +1,6 @@
+-- vim: foldmethod=marker foldlevel=0 foldenable
+
+--{{{ Helpers
 local function left_component_separator()
   return ''
 end
@@ -100,6 +103,11 @@ local function tab_name(name, context)
   return ' '..label
 end
 
+local function diagnostics_at_line()
+  return vim.diagnostic.get(0, { lnum = vim.fn.line"." - 1 })
+end
+--}}}
+
 function plug.config()
   local sections = {
     lualine_a = {
@@ -171,18 +179,52 @@ function plug.config()
         sources = { fn.get_qf_diagnostics },
       },
     },
-    lualine_x = {},
-    lualine_y = {},
-    lualine_z = {
+    lualine_x = {
       {
-        "location",
+        function()
+          local severities = { "Error", "Warn", "Info", "Hint" }
+          local diagnostics = diagnostics_at_line()
+          local max_severity = 1
+          local max_severity_idx = 1
+          for i, diagnostic in ipairs(diagnostics) do
+            if diagnostic.severity >= max_severity then
+              max_severity = diagnostic.severity
+              max_severity_idx = i
+            end
+          end
+          local diagnostic = diagnostics[max_severity_idx]
+          local severity_text = severities[max_severity]
+          return ("%s %s(%d, %d): %s"):format(
+            my_config.signs["DiagnosticSign"..severity_text].text,
+            diagnostic.code,
+            vim.fn.line"." - 1,
+            diagnostic.col + 1,
+            diagnostic.message)
+        end,
         color = function()
-          return {
-            bg = 'none',
-            fg = section_color'a',
-          }
+          local severities = { "Error", "Warn", "Info", "Hint" }
+          local diagnostics = diagnostics_at_line()
+          local max_severity = 1
+          for _, diagnostic in ipairs(diagnostics) do
+            max_severity = math.max(max_severity, diagnostic.severity)
+          end
+          local severity_text = severities[max_severity]
+          return "Diagnostic"..severity_text
+        end,
+        cond = function()
+          return #diagnostics_at_line() > 0
         end,
       },
+    },
+    lualine_y = {
+      {
+        right_section_separator,
+        color = section_separator_highlight('b', 'c'),
+        padding = 0,
+      },
+      { "location" },
+    },
+    lualine_z = {
       {
         "tabs",
         fmt = tab_name,
@@ -258,7 +300,6 @@ function plug.config()
           end
           return "lualine_b_normal"
         end,
-        padding = { left = 1, right = 0 },
         symbols = {
           unix = '',
         },
@@ -287,7 +328,7 @@ function plug.config()
       {
         "diagnostics",
         colored = true,
-        sources = { "nvim_lsp" },
+        sources = { "nvim_lsp", "nvim_diagnostic" },
       },
     },
     lualine_x = {

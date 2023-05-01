@@ -85,10 +85,14 @@ my_plugins {
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
-    ft = {
-      "nim",
-      "nimble",
-      "nims",
+    event = "BufRead",
+  },
+
+  {
+    "jose-elias-alvarez/null-ls.nvim",
+    event = "BufRead",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
     },
   },
 
@@ -132,7 +136,7 @@ my_plugins {
   {
     "neovim/nvim-lspconfig",
     cmd = "LspInfo",
-    event = { "BufReadPre", "BufNewFile" },
+    event = { "BufRead", "BufNewFile" },
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
       "williamboman/mason-lspconfig.nvim",
@@ -161,8 +165,6 @@ my_plugins {
   },
   { "echasnovski/mini.indentscope", event = { "BufRead", "BufModifiedSet" } },
   { "xiyaowong/virtcolumn.nvim", event = "BufEnter" },
-
-  { "https://git.sr.ht/~whynothugo/lsp_lines.nvim", event = "LspAttach" },
 
   -- Command Runners --
 

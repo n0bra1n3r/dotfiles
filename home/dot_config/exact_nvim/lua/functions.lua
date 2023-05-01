@@ -777,6 +777,27 @@ function fn.float_window(title)
     vim.api.nvim_win_close(winid, { force = true })
   end
 end
+
+function fn.expand_path(path)
+  local shellslash = vim.o.shellslash
+  vim.o.shellslash = false
+  local expanded_path = vim.fn.expand(path)
+  vim.o.shellslash = shellslash
+  return expanded_path
+end
+
+function fn.url_encode(str)
+  if not str then
+    return str
+  end
+
+  str = string.gsub(str, "\n", "\r\n")
+  str = string.gsub(str, "[^%w.%-_~]", function(c)
+    return ("%%%02X"):format(string.byte(c))
+  end)
+
+  return str
+end
 --}}}
 --{{{ Workspace
 function get_workspace_file_path(tabnr)
