@@ -187,18 +187,18 @@ function plug.config()
           local max_severity = 1
           local max_severity_idx = 1
           for i, diagnostic in ipairs(diagnostics) do
-            if diagnostic.severity >= max_severity then
+            if diagnostic.severity > max_severity then
               max_severity = diagnostic.severity
               max_severity_idx = i
             end
           end
           local diagnostic = diagnostics[max_severity_idx]
           local severity_text = severities[max_severity]
-          return ("%s %s(%d, %d): %s"):format(
+          return ("%s (%d, %d) %s: %s"):format(
             my_config.signs["DiagnosticSign"..severity_text].text,
-            diagnostic.code,
             vim.fn.line"." - 1,
             diagnostic.col + 1,
+            diagnostic.code,
             diagnostic.message)
         end,
         color = function()
@@ -222,7 +222,10 @@ function plug.config()
         color = section_separator_highlight('b', 'c'),
         padding = 0,
       },
-      { "location" },
+      {
+        "location",
+        color = section_highlight'b',
+      },
     },
     lualine_z = {
       {
@@ -230,13 +233,8 @@ function plug.config()
         fmt = tab_name,
         mode = 1,
         tabs_color = {
-          active = function()
-            return {
-              bg = 'none',
-              fg = section_color'a',
-            }
-          end,
-          inactive = section_highlight'a',
+          active = section_highlight'a',
+          inactive = section_highlight'b',
         },
       },
     },
