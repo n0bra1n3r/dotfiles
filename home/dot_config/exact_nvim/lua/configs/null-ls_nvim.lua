@@ -7,17 +7,15 @@ local function nim_diagnostics()
     generator = ls.generator {
       args = function(params)
         local file_name = vim.api.nvim_buf_get_name(params.bufnr)
-        local cache_dir = vim.fn.fnameescape(fn.expand_path"~/nimcache/null-ls/")
-          ..fn.url_encode(file_name)
+        local cache_dir = "/null-ls/"..fn.url_encode(file_name)
         return {
           "compile",
           "--assertions:off",
           "--checks:off",
-          "--debugInfo:off",
+          "--compileOnly:on",
           "--define:test",
           "--errorMax:100",
-          "--nimcache:"..cache_dir,
-          "--noLinking:on",
+          "--nimcache:$nimcache/"..cache_dir,
           "--noMain:on",
           "--opt:none",
           "--stackTrace:off",
@@ -25,14 +23,11 @@ local function nim_diagnostics()
           "--eval:$TEXT",
         }
       end,
-      command = "nim",
-      format = "line",
       check_exit_code = function(code, stderr)
-        if code > 1 then
-          print(stderr)
-        end
         return code <= 1
       end,
+      command = "nim",
+      format = "line",
       on_output = function(line)
         local row, column, type, code, message =
           line:match[[%w+%.nims?%((%d+), ?(%d+)%):? (%w+) ?(%w*): (.+)$]]
