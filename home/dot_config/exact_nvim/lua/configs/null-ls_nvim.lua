@@ -12,7 +12,7 @@ local function nim_diagnostics()
           "compile",
           "--assertions:off",
           "--checks:off",
-          "--define:test",
+          "--define:diagnose",
           "--errorMax:100",
           "--nimcache:$nimcache/"..cache_dir,
           "--noMain:on",
