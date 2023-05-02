@@ -184,10 +184,10 @@ function plug.config()
         function()
           local severities = { "Error", "Warn", "Info", "Hint" }
           local diagnostics = diagnostics_at_line()
-          local max_severity = 1
+          local max_severity = 4
           local max_severity_idx = 1
           for i, diagnostic in ipairs(diagnostics) do
-            if diagnostic.severity > max_severity then
+            if diagnostic.severity < max_severity then
               max_severity = diagnostic.severity
               max_severity_idx = i
             end
@@ -204,9 +204,9 @@ function plug.config()
         color = function()
           local severities = { "Error", "Warn", "Info", "Hint" }
           local diagnostics = diagnostics_at_line()
-          local max_severity = 1
+          local max_severity = 4
           for _, diagnostic in ipairs(diagnostics) do
-            max_severity = math.max(max_severity, diagnostic.severity)
+            max_severity = math.min(max_severity, diagnostic.severity)
           end
           local severity_text = severities[max_severity]
           return "Diagnostic"..severity_text
