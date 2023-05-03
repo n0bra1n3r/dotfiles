@@ -310,6 +310,7 @@ function plug.config()
           end
           return "lualine_b_normal"
         end,
+        padding = { left = 0, right = 1 },
       },
       {
         left_section_separator,
