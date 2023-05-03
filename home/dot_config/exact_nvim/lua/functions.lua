@@ -779,11 +779,14 @@ function fn.float_window(title)
 end
 
 function fn.expand_path(path)
-  local shellslash = vim.o.shellslash
-  vim.o.shellslash = false
-  local expanded_path = vim.fn.expand(path)
-  vim.o.shellslash = shellslash
-  return expanded_path
+  if vim.fn.has("win32") then
+    local shellslash = vim.o.shellslash
+    vim.o.shellslash = false
+    local expanded_path = vim.fn.expand(path)
+    vim.o.shellslash = shellslash
+    return expanded_path
+  end
+  return vim.fn.expand(path)
 end
 
 function fn.url_encode(str)
