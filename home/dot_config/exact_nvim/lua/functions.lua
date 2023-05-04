@@ -779,7 +779,7 @@ function fn.float_window(title)
 end
 
 function fn.expand_path(path)
-  if vim.fn.has("win32") then
+  if vim.fn.has("win32") == 1 then
     local shellslash = vim.o.shellslash
     vim.o.shellslash = false
     local expanded_path = vim.fn.expand(path)
