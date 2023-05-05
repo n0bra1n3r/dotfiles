@@ -373,7 +373,7 @@ function plug.config()
       always_divide_middle = false,
       component_separators = "",
       disabled_filetypes = {
-        winbar = { "help", "qf", "toggleterm" },
+        winbar = { "help", "qf", "toggleterm", "Trouble" },
       },
       globalstatus = true,
       refresh = {

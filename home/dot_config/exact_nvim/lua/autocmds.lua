@@ -110,6 +110,11 @@ my_autocmds {
           { noremap = true, silent = true })
       end,
     }, --}}}
+    { pattern = "Trouble", --{{{
+      callback = function()
+        vim.wo.colorcolumn = nil
+      end,
+    }, --}}}
   },
   TabClosed = { --{{{
     callback = function()
