@@ -11,6 +11,7 @@ my_plugins {
   { "kyazdani42/nvim-web-devicons" },
 
   { "catppuccin/nvim", name = "catppuccin.nvim", lazy = false },
+  { "luukvbaal/statuscol.nvim", lazy = false },
   { "nvim-lualine/lualine.nvim", lazy = false },
   { "arkav/lualine-lsp-progress", event = "LspAttach" },
 
