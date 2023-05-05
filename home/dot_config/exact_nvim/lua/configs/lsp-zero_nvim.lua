@@ -1,7 +1,9 @@
 function plug.config()
   local lsp = require'lsp-zero'
 
-  require'lsp-zero.settings'.preset{}
+  require'lsp-zero.settings'.preset {
+    float_border = "single",
+  }
 
   vim.diagnostic.config(require'lsp-zero'.defaults.diagnostics {
     underline = false,
