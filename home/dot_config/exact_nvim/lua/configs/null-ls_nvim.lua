@@ -2,6 +2,7 @@ local function nim_diagnostics()
   local ls = require'null-ls'
   local severities = require'null-ls.helpers'.diagnostics.severities
   return {
+    name = "nim",
     method = ls.methods.DIAGNOSTICS,
     filetypes = { "nim" },
     generator = ls.generator {
