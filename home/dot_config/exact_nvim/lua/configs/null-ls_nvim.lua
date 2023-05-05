@@ -61,11 +61,11 @@ local function nim_diagnostics()
         end
 
         return {
-          row = row,
           col = column,
           code = code or type,
-          severity = severity,
           message = message or "???",
+          row = row,
+          severity = severity,
         }
       end,
     },

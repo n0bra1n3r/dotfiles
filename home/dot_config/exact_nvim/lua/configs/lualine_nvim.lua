@@ -327,37 +327,43 @@ function plug.config()
       {
         "diagnostics",
         colored = true,
+        padding = { left = 1, right = 0 },
         sources = { "nvim_lsp", "nvim_diagnostic" },
       },
-    },
-    lualine_x = {
       {
         "lsp_progress",
-        display_components = {
-          "spinner",
-          "lsp_client_name",
+        color = "DiagnosticSignInfo",
+        display_components = { "spinner" },
+        separators = {
+          lsp_client_name = { pre = '', post = '' },
         },
         spinner_symbols = {
           '⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷',
         },
+        show_inactive = false,
       },
     },
+    lualine_x = {},
     lualine_y = {},
     lualine_z = {},
   }
   local inactive_winbar = vim.deepcopy(winbar)
   for _, section in pairs(inactive_winbar) do
-    for _, component in pairs(section) do
-      if component.color ~= nil then
-        component.color = "lualine_b_inactive"
-        if component[1] == left_section_separator then
-          component[1] = left_component_separator
-        elseif component[1] == right_section_separator then
-          component[1] = right_component_separator
+    for i, component in pairs(section) do
+      if component.show_inactive ~= false then
+        if component.color ~= nil then
+          component.color = "lualine_b_inactive"
+          if component[1] == left_section_separator then
+            component[1] = left_component_separator
+          elseif component[1] == right_section_separator then
+            component[1] = right_component_separator
+          end
         end
-      end
-      if component.colored ~= nil then
-        component.colored = false
+        if component.colored ~= nil then
+          component.colored = false
+        end
+      else
+        section[i] = {}
       end
     end
   end
