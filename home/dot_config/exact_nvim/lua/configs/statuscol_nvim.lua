@@ -12,7 +12,7 @@ function plug.config()
         click = "v:lua.ScLa",
       },
       {
-        sign = { name = { "GitSigns" }, auto = true },
+        sign = { name = { "GitSigns" }, colwidth = 1 },
         click = "v:lua.ScSa",
       },
       {
@@ -21,7 +21,7 @@ function plug.config()
       },
       { text = { " " } },
       {
-        sign = { name = { "Diagnostic" } },
+        sign = { name = { "Diagnostic" }, auto = true },
         click = "v:lua.ScSa"
       },
     },
