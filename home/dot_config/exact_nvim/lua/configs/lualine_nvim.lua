@@ -179,43 +179,7 @@ function plug.config()
         sources = { fn.get_qf_diagnostics },
       },
     },
-    lualine_x = {
-      {
-        function()
-          local severities = { "Error", "Warn", "Info", "Hint" }
-          local diagnostics = diagnostics_at_line()
-          local max_severity = 4
-          local max_severity_idx = 1
-          for i, diagnostic in ipairs(diagnostics) do
-            if diagnostic.severity < max_severity then
-              max_severity = diagnostic.severity
-              max_severity_idx = i
-            end
-          end
-          local diagnostic = diagnostics[max_severity_idx]
-          local severity_text = severities[max_severity]
-          return ("%s (%d, %d) %s: %s"):format(
-            my_config.signs["DiagnosticSign"..severity_text].text,
-            vim.fn.line"." - 1,
-            diagnostic.col + 1,
-            diagnostic.code,
-            diagnostic.message)
-        end,
-        color = function()
-          local severities = { "Error", "Warn", "Info", "Hint" }
-          local diagnostics = diagnostics_at_line()
-          local max_severity = 4
-          for _, diagnostic in ipairs(diagnostics) do
-            max_severity = math.min(max_severity, diagnostic.severity)
-          end
-          local severity_text = severities[max_severity]
-          return "Diagnostic"..severity_text
-        end,
-        cond = function()
-          return #diagnostics_at_line() > 0
-        end,
-      },
-    },
+    lualine_x = {},
     lualine_y = {
       {
         right_section_separator,

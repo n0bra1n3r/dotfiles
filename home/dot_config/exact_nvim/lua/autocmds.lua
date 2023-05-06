@@ -67,6 +67,11 @@ my_autocmds {
         { noremap = true })
     end,
   }, --}}}
+  CursorHold = { --{{{
+    callback = function()
+      vim.diagnostic.open_float(nil, { focus = false })
+    end,
+  }, --}}}
   DirChanged = { --{{{
     callback = function()
       fn.refresh_git_info()

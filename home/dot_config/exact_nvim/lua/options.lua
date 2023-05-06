@@ -65,7 +65,7 @@ my_options {
   timeoutlen = 400,
   title = true,
   undofile = true,
-  updatetime = 250,
+  updatetime = 500,
   virtualedit = "onemore",
   opt.whichwrap + "<>[]hl",
   wrap = true,
