@@ -9,7 +9,6 @@ my_autocmds {
         end
       end
       vim.cmd[[checktime]]
-      fn.set_qf_diagnostics()
     end,
   }, --}}}
   BufHidden = { --{{{
@@ -105,7 +104,7 @@ my_autocmds {
     }, --}}}
     { pattern = "qf", --{{{
       callback = function()
-        vim.bo.nobuflisted = true
+        vim.b.nobuflisted = true
         vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[<cmd>close<CR>]],
           { noremap = true, silent = true })
       end,
