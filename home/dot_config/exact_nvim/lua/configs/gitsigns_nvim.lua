@@ -16,4 +16,6 @@ function plug.config()
       untracked = { text = '┃' },
     },
   }
+
+  vim.api.nvim_set_hl(0, "GitSignsChangedelete", { link = "GitsignsDelete" })
 end
