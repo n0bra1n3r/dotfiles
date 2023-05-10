@@ -8,6 +8,7 @@ local function nim_diagnostics()
     generator = ls.generator {
       args = function(params)
         local file_name = vim.api.nvim_buf_get_name(params.bufnr)
+        local file_dir = vim.fn.fnamemodify(file_name, ":h")
         local cache_dir = "/null-ls/"..fn.url_encode(file_name)
         return {
           "compile",
@@ -19,6 +20,7 @@ local function nim_diagnostics()
           "--noMain:on",
           "--noLinking:on",
           "--opt:none",
+          "--path:"..vim.fn.escape(file_dir, " "),
           "--stackTrace:off",
           "--stdout:on",
           "--eval:$TEXT",
