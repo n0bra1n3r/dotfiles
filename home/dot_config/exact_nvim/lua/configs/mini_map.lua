@@ -11,7 +11,9 @@ function plug.config()
   vim.api.nvim_create_autocmd({ "BufRead", "InsertLeave" }, {
     group = group,
     callback = function()
-      require'mini.map'.open()
+      if #vim.bo.buftype == 0 then
+        require'mini.map'.open()
+      end
     end,
   })
 
