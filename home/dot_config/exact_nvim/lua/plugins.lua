@@ -79,7 +79,16 @@ my_plugins {
 
   -- Package Management --
 
-  { "williamboman/mason.nvim", build = ":MasonUpdate" },
+  {
+    "williamboman/mason.nvim",
+    build = {
+      ":MasonUpdate",
+      ":MasonInstall lua-language-server",
+      ":MasonInstall bash-language-server",
+      ":MasonInstall shellcheck",
+      ":MasonInstall actionlint",
+    },
+  },
 
   -- Completion --
 
@@ -87,7 +96,15 @@ my_plugins {
 
   {
     "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
+    build = {
+      ":TSUpdate",
+      ":TSInstall git_config",
+      ":TSInstall git_rebase",
+      ":TSInstall gitattributes",
+      ":TSInstall gitcommit",
+      ":TSInstall gitignore",
+      ":TSInstall nim",
+    },
     event = "BufRead",
   },
 

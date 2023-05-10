@@ -1,3 +1,5 @@
+# vim: filetype=bash
+
 case "$(uname -s)" in
 Darwin*)
   export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin":$PATH
@@ -6,12 +8,16 @@ Darwin*)
   ;;
 MSYS_NT*)
   export PATH=$(echo "$PATH" | xargs -d ';' cygpath -u | grep . | paste -sd : -)
+  export PATH="/c/PROGRA~2/Microsoft Visual Studio/Shared/Python39_64":$PATH
+  export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/MSBuild/Microsoft/VisualStudio/NodeJs":$PATH
   export MSYS=winsymlinks:nativestrict
   export MSYS2_PATH_TYPE=inherit
 
   alias npm="cmd //c npm.cmd"
   ;;
 MINGW64_NT*)
+  export PATH="/c/PROGRA~2/Microsoft Visual Studio/Shared/Python39_64":$PATH
+  export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/MSBuild/Microsoft/VisualStudio/NodeJs":$PATH
   alias npm="cmd //c npm.cmd"
   ;;
 *)

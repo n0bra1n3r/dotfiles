@@ -1,1 +1,3 @@
+# vim: filetype=zsh
+
 eval "$(~/.local/bin/starship init zsh)"
