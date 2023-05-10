@@ -41,6 +41,7 @@ my_mappings {
     k                   = { fn.get_map_expr("k"), expr = true },
   }, --}}}
   i = { --{{{
+    ["<Down>"]          = { fn.get_map_expr_i("<Down>"), expr = true },
     ["<End>"]           = { "<C-o>$", noremap = false },
     ["<Home>"]          = { "<C-o>^", noremap = false },
     ["<Insert>"]        = { "<Esc>" },
@@ -51,6 +52,7 @@ my_mappings {
     ["<PageUp>"]        = { "<Esc>H<Up>", noremap = false },
     ["<PageDown>"]      = { "<Esc>L<Down>", noremap = false },
     ["<S-Tab>"]         = { "<C-d>" },
+    ["<Up>"]            = { fn.get_map_expr_i("<Up>"), expr = true },
   }, --}}}
   n = { --{{{
     ["<M-`>"]           = { fn.toggle_terminal },
@@ -78,10 +80,12 @@ my_mappings {
     ["<PageDown>"]      = { "L<Down>", noremap = false },
     ["<Space><Space>"]  = { show_file_list, desc = "Files" },
     [";"]               = { "l" },
+    d                   = { '"_d' },
     gf                  = { edit, desc = "Edit file" },
     h                   = { ";" },
     l                   = { "col('.')==1&&col([line('.')-1,'$'])>1?'k$l':'h'", expr = true },
     x                   = { "col('$')==col('.')?'gJ':'\"_x'", expr = true },
+    yd                  = { "dd" },
     zM                  = { close_all_folds },
     zR                  = { open_all_folds },
     zq                  = { "foldclosed('.')!=-1?'zMzO[z':'zM'", expr = true, noremap = false, desc = "Open fold under cursor and close all others" },
@@ -105,6 +109,8 @@ my_mappings {
     ["<S-Tab>"]         = { "<gv" },
     ["<Tab>"]           = { ">gv" },
     [";"]               = { "l" },
+    d                   = { '"_d' },
+    D                   = { "d" },
     h                   = { ";" },
     l                   = { "h" },
   }, --}}}

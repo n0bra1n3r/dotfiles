@@ -725,6 +725,9 @@ end
 function fn.get_map_expr(key)
   return string.format("(v:count!=0||mode(1)[0:1]=='no'?'%s':'g%s')", key, key)
 end
+function fn.get_map_expr_i(key)
+  return string.format("(v:count!=0||mode(1)[0:1]=='no'?'%s':'<C-o>g%s')", key, key)
+end
 
 function fn.get_wins_for_buf_type(buf_type)
   return vim.fn.filter(
