@@ -24,6 +24,8 @@ my_plugins {
     dependencies = { "kevinhwang91/promise-async" },
   },
 
+  { "echasnovski/mini.map", event = "BufRead" },
+
   -- Key Mappings --
 
   { "folke/which-key.nvim", event = "VeryLazy" },
