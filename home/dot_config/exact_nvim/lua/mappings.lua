@@ -86,6 +86,8 @@ my_mappings {
     h                   = { ";" },
     l                   = { "col('.')==1&&col([line('.')-1,'$'])>1?'k$l':'h'", expr = true },
     x                   = { "col('$')==col('.')?'gJ':'\"_x'", expr = true },
+    yd                  = { "dd" },
+    yx                  = { "col('$')==col('.')?'gJ':'x'", expr = true },
     zM                  = { close_all_folds },
     zR                  = { open_all_folds },
     zq                  = { "foldclosed('.')!=-1?'zMzO[z':'zM'", expr = true, noremap = false, desc = "Open fold under cursor and close all others" },
@@ -109,6 +111,8 @@ my_mappings {
     ["<S-Tab>"]         = { "<gv" },
     ["<Tab>"]           = { ">gv" },
     [";"]               = { "l" },
+    c                   = { '"_c' },
+    d                   = { '"_d' },
     h                   = { ";" },
     l                   = { "h" },
   }, --}}}
