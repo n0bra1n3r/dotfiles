@@ -1,4 +1,7 @@
 function plug.config(plugin)
+  require 'nvim-treesitter.install'.prefer_git = true
+  require 'nvim-treesitter.install'.compilers = { "clang", "gcc" }
+
   local configs = require'nvim-treesitter.parsers'.get_parser_configs()
 
   configs.nim = {
@@ -22,4 +25,15 @@ function plug.config(plugin)
       enable = { "nim" },
     },
   }
+
+  configs.norg = {
+    install_info = {
+      url = "~/.dotfiles/tree-sitter-norg",
+      files = {
+        "src/parser.c",
+        "src/scanner.cc",
+      },
+    },
+  }
+
 end

@@ -3,19 +3,15 @@
 case "$(uname -s)" in
 Darwin*)
   export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin":$PATH
-
   alias studio="open -a /Applications/Android\ Studio.app"
   ;;
 MSYS_NT*)
   export PATH=$(echo "$PATH" | xargs -d ';' cygpath -u | grep . | paste -sd : -)
-  export PATH="/c/PROGRA~2/Microsoft Visual Studio/Shared/Python39_64":$PATH
-  export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/MSBuild/Microsoft/VisualStudio/NodeJs":$PATH
   export MSYS=winsymlinks:nativestrict
   export MSYS2_PATH_TYPE=inherit
-
-  alias npm="cmd //c npm.cmd"
-  ;;
-MINGW64_NT*)
+  ;;&
+*_NT*)
+  export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin":$PATH
   export PATH="/c/PROGRA~2/Microsoft Visual Studio/Shared/Python39_64":$PATH
   export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/MSBuild/Microsoft/VisualStudio/NodeJs":$PATH
   alias npm="cmd //c npm.cmd"

@@ -22,6 +22,12 @@ url = {{ $url | quote }}
   exact = true
   stripComponents = 1
 
+[".dotfiles/tree-sitter-norg"]
+  url = "https://github.com/nvim-neorg/tree-sitter-norg/archive/refs/heads/main.zip"
+  type = "archive"
+  exact = true
+  stripComponents = 1
+
 [".dotfiles/deps/nvim/.local"]
   {{ template "github.com/releases" "neovim/neovim"
     | list ($isWindows | ternary

@@ -48,6 +48,17 @@ my_plugins {
 
   { "akinsho/flutter-tools.nvim", ft = "dart" },
 
+  {
+    "nvim-neorg/neorg",
+    build = ":Neorg sync-parsers",
+    ft = "norg",
+    cmd = "Neorg",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-telescope/telescope.nvim",
+    },
+  },
+
   -- Motions --
 
   { "tpope/vim-repeat", event = "BufModifiedSet" },
@@ -105,6 +116,7 @@ my_plugins {
       ":TSInstall gitignore",
       ":TSInstall nim",
     },
+    cmd = { "TSInstall", "TSInstallSync", "TSUninstall" },
     event = "BufRead",
   },
 
