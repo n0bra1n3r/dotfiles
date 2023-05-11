@@ -67,8 +67,8 @@ my_mappings {
     ["<Up>"]            = { fn.get_map_expr_i("<Up>"), expr = true },
   }, --}}}
   n = { --{{{
-    ["<M-\\>"]          = { "vsplit" },
-    ["<M-->"]           = { "split" },
+    ["<M-\\>"]          = { "<cmd>vsplit<CR>" },
+    ["<M-->"]           = { "<cmd>split<CR>" },
     ["<M-=>"]           = { open_float },
     ["<M-`>"]           = { fn.toggle_terminal },
     ["<M-1>"]           = { fn.execute_last_terminal_command },
