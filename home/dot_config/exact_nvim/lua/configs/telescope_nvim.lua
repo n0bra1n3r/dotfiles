@@ -72,6 +72,16 @@ function plug.config()
       },
       find_files = {
         hidden = true,
+        mappings = {
+          i = {
+            ["<S-Tab>"] = function(bufnr)
+              require'telescope.actions'.move_selection_previous(bufnr)
+            end,
+            ["<Tab>"] = function(bufnr)
+              require'telescope.actions'.move_selection_next(bufnr)
+            end,
+          },
+        },
       },
     },
     extensions = {
