@@ -6,11 +6,6 @@ function plug.config()
       padding = { 0, 0, 0, 0 },
       position = "top",
     },
-    triggers_blacklist = {
-      i = { "j", "k" },
-      n = { "d", "y" },
-      v = { "j", "k" },
-    },
   }
   require'which-key'.register({
     ["<leader>"] = {
@@ -31,7 +26,11 @@ function plug.config()
         m = { fn.move_file, "move" },
         o = { fn.open_file_folder, "open folder" },
       },
-      l = { name = "LSP" },
+      p = {
+        name = "packages",
+        a = { "<cmd>Mason<CR>", "packages" },
+        l = { "<cmd>Lazy<CR>", "plugins" },
+      },
       s = { fn.search.prompt, "search string" },
       q = {
         name = "quickfix",

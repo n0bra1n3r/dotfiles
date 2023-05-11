@@ -762,25 +762,6 @@ function fn.set_tab_cwd(path)
   end
 end
 
-function fn.float_window(title)
-  if #vim.api.nvim_tabpage_list_wins(0) > 1 then
-    local winid = vim.api.nvim_get_current_win()
-    local width = vim.o.columns * 0.9
-    local height = vim.o.lines * 0.9
-    vim.api.nvim_open_win(0, true, {
-      relative = "editor",
-      width = vim.fn.ceil(width),
-      height = vim.fn.ceil(height),
-      row = vim.o.lines / 2 - height / 2,
-      col = vim.o.columns / 2 - width / 2,
-      style = "minimal",
-      border = "single",
-      title = title,
-    })
-    vim.api.nvim_win_close(winid, { force = true })
-  end
-end
-
 function fn.expand_path(path)
   if vim.fn.has("win32") == 1 then
     local shellslash = vim.o.shellslash

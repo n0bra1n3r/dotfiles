@@ -3,6 +3,7 @@ my_plugins {
 
   { "nvim-lua/plenary.nvim" },
   { "kevinhwang91/promise-async" },
+  { "echasnovski/mini.misc" },
 
   { "nathom/filetype.nvim", lazy = false },
 

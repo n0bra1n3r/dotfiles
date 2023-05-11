@@ -17,6 +17,18 @@ local function open_all_folds()
   require'ufo'.openAllFolds()
 end
 
+local function open_float()
+  local width = math.min(vim.o.columns * 0.9, vim.o.columns - 16)
+  local height = vim.o.lines * 0.9
+  require'mini.misc'.zoom(0, {
+    border = "single",
+    width = vim.fn.ceil(width),
+    height = vim.fn.ceil(height),
+    row = vim.o.lines / 2 - height / 2 - 1,
+    col = vim.o.columns / 2 - width / 2,
+  })
+end
+
 local function edit_in_vert_split()
   fn.edit_buffer("vsplit", vim.fn.expand("<cfile>"))
 end
@@ -55,6 +67,9 @@ my_mappings {
     ["<Up>"]            = { fn.get_map_expr_i("<Up>"), expr = true },
   }, --}}}
   n = { --{{{
+    ["<M-\\>"]          = { "vsplit" },
+    ["<M-->"]           = { "split" },
+    ["<M-=>"]           = { open_float },
     ["<M-`>"]           = { fn.toggle_terminal },
     ["<M-1>"]           = { fn.execute_last_terminal_command },
     ["<M-;>"]           = { "<C-w>l" },
