@@ -1,3 +1,5 @@
+# vim: filetype=gitconfig
+
 # This is Git's per-user configuration file.
 
 [user]
@@ -36,6 +38,7 @@
   rbi = rebase --rebase-merges --interactive
   rs = restore
   rss = restore --staged
+  rsd = !git stash --staged && git stash drop
   sa = stash
   sap = stash pop
   sas = stash --staged
