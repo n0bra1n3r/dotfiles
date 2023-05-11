@@ -16,6 +16,11 @@ my_autocmds {
   BufDelete = {
     callback = function(args)
       fn.del_buf_from_loclist(args.buf)
+      if fn.is_file_buffer(args.buf) then
+        if fn.has_workspace_file() then
+          fn.save_workspace()
+        end
+      end
     end,
   },
   BufHidden = { --{{{
@@ -29,7 +34,11 @@ my_autocmds {
     callback = function(args)
       for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do
         if #vim.bo[args.buf].buftype == 0 then
-          vim.wo[win].colorcolumn = "81,120"
+          if #vim.bo[args.buf].filetype == "gitcommit" then
+            vim.wo[win].colorcolumn = "51,73"
+          else
+            vim.wo[win].colorcolumn = "81,120"
+          end
           vim.wo[win].number = true
         else
           vim.wo[win].colorcolumn = nil
@@ -54,7 +63,8 @@ my_autocmds {
     end,
   }, --}}}
   BufWritePost = { --{{{
-    callback = function()
+    callback = function(args)
+      print(vim.inspect(args))
       fn.project_check()
     end,
   }, --}}}
@@ -84,22 +94,10 @@ my_autocmds {
       fn.refresh_git_info()
     end,
   }, --}}}
-  FileChangedShellPost = { --{{{
-    callback = function()
-      fn.project_check()
-    end,
-  }, --}}}
   FileType = {
-    { pattern = "diff", --{{{
+    { pattern = { "diff", "gitcommit", "gitrebase" }, --{{{
       callback = function()
         vim.bo.bufhidden = "wipe"
-      end,
-    }, --}}}
-    { pattern = "git*", --{{{
-      callback = function()
-        vim.bo.bufhidden = "wipe"
-        vim.wo.colorcolumn = "51,73"
-        vim.bo.textwidth = 72
       end,
     }, --}}}
     { pattern = "help", --{{{
