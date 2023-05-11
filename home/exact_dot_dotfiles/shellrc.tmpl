@@ -58,7 +58,7 @@ if [ ! -z "$NVIM" ]; then
   }
 
   function git() {
-    git "$@"
+    command git "$@"
     silent-background _nvim_remote --remote-expr "v:lua.fn.refresh_git_info()"
   }
 

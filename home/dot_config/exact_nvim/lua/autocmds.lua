@@ -64,7 +64,6 @@ my_autocmds {
   }, --}}}
   BufWritePost = { --{{{
     callback = function(args)
-      print(vim.inspect(args))
       fn.project_check()
     end,
   }, --}}}
