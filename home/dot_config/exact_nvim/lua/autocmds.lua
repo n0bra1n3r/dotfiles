@@ -7,10 +7,17 @@ my_autocmds {
         if #vim.api.nvim_tabpage_list_wins(0) > 1 then
           vim.cmd[[wincmd T]]
         end
+      elseif vim.bo.filetype == "qf" then
+        vim.bo.buflisted = false
       end
       vim.cmd[[checktime]]
     end,
   }, --}}}
+  BufDelete = {
+    callback = function(args)
+      fn.del_buf_from_loclist(args.buf)
+    end,
+  },
   BufHidden = { --{{{
     callback = function(args)
       if fn.is_empty_buffer(args.buf) then
@@ -21,8 +28,7 @@ my_autocmds {
   BufWinEnter = { --{{{
     callback = function(args)
       for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do
-        local buf = vim.api.nvim_win_get_buf(win)
-        if #vim.bo[buf].buftype == 0 then
+        if #vim.bo[args.buf].buftype == 0 then
           vim.wo[win].colorcolumn = "81,120"
           vim.wo[win].number = true
         else
@@ -39,6 +45,7 @@ my_autocmds {
   }, --}}}
   BufWinLeave = { --{{{
     callback = function(args)
+      fn.add_buf_to_loclist(args.buf)
       if fn.is_file_buffer(args.buf) then
         if fn.has_workspace_file() then
           fn.save_workspace()
@@ -109,7 +116,6 @@ my_autocmds {
     }, --}}}
     { pattern = "qf", --{{{
       callback = function()
-        vim.b.nobuflisted = true
         vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[<cmd>close<CR>]],
           { noremap = true, silent = true })
       end,

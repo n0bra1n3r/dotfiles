@@ -628,6 +628,53 @@ function fn.prev_quickfix()
   open_quickfix()
   vim.cmd[[cprev]]
 end
+
+function fn.find_buf_in_loclist(bufnr)
+  bufnr = bufnr or vim.api.nvim_get_current_buf()
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    for index, entry in ipairs(vim.fn.getloclist(win)) do
+      if entry.bufnr == bufnr then
+        return {
+          win = win,
+          index = index,
+        }
+      end
+    end
+  end
+end
+
+function fn.add_buf_to_loclist(bufnr)
+  bufnr = bufnr or vim.api.nvim_get_current_buf()
+  local infos = vim.fn.getbufinfo(bufnr)
+  if #infos > 0 and fn.is_file_buffer(bufnr) then
+    local info = infos[1]
+    if info.listed == 1 then
+      for _, win in ipairs(info.windows) do
+        local list = vim.fn.getloclist(win)
+        for i, entry in ipairs(list) do
+          if entry.bufnr == bufnr then
+            table.remove(list, i)
+            break
+          end
+        end
+        table.insert(list, 1, {
+          bufnr = bufnr,
+          lnum = info.lnum,
+        })
+        vim.fn.setloclist(win, list, "r")
+      end
+    end
+  end
+end
+
+function fn.del_buf_from_loclist(bufnr)
+  local loc = fn.find_buf_in_loclist(bufnr)
+  if loc ~= nil then
+    local list = vim.fn.getloclist(loc.win)
+    table.remove(list, loc.index)
+    vim.fn.setloclist(loc.win, list, "r")
+  end
+end
 --}}}
 --{{{ Terminal
 local function get_terminal()

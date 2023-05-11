@@ -2,7 +2,7 @@
 
 --{{{ Helpers
 local function show_buffer_list()
-  require'telescope.builtin'.buffers()
+  require'telescope.builtin'.loclist()
 end
 
 local function show_file_list()

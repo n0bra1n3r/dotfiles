@@ -48,8 +48,8 @@ function plug.config()
       },
     },
     pickers = {
-      buffers = {
-        ignore_current_buffer = true,
+      loclist = {
+        fname_width = 9999,
         mappings = {
           i = {
             ["<Tab>"] = function(bufnr)
@@ -66,8 +66,9 @@ function plug.config()
             end,
           },
         },
-        path_display = { "smart" },
-        sort_mru = true,
+        path_display = function(opts, path)
+          return vim.fn.fnamemodify(path, ":~:.")
+        end,
         theme = "dropdown",
       },
       find_files = {
