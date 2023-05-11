@@ -184,11 +184,17 @@ function plug.config()
       {
         right_section_separator,
         color = section_separator_highlight('b', 'c'),
+        cond = function()
+          return vim.bo.buftype ~= "terminal"
+        end,
         padding = 0,
       },
       {
         "location",
         color = section_highlight'b',
+        cond = function()
+          return vim.bo.buftype ~= "terminal"
+        end,
       },
     },
     lualine_z = {
