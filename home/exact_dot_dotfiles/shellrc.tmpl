@@ -44,15 +44,6 @@ function silent-background() {
   ("$@" &>/dev/null &)
 }
 
-function _git_ext() {
-  if [[ "$1" == "log" && "$@" != *"--help"* ]]; then
-    shift 1
-    command git log "$@" | tig
-  else
-    command git "$@"
-  fi
-}
-
 if [ ! -z "$NVIM" ]; then
   export EDITOR="$HOME/.dotfiles/scripts/nvim-nested"
 
@@ -67,7 +58,7 @@ if [ ! -z "$NVIM" ]; then
   }
 
   function git() {
-    _git_ext "$@"
+    git "$@"
     silent-background _nvim_remote --remote-expr "v:lua.fn.refresh_git_info()"
   }
 
@@ -94,8 +85,6 @@ else
   function workspace() {
     source "$HOME/.dotfiles/scripts/workspace"
   }
-
-  alias git='_git_ext'
 fi
 
 # General aliases
@@ -118,7 +107,7 @@ function gc() {
 }
 
 alias ga='git add -p'
-alias gl='git log'
-alias gp='git push'
-alias gs='git status'
+alias gp='git pu'
+alias gs='git st'
 alias gu='git pull'
+alias tl='tig log'

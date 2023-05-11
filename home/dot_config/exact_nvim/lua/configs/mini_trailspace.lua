@@ -3,8 +3,10 @@ function plug.config()
 
   vim.api.nvim_create_autocmd({ "BufWritePre", "FileWritePre" }, {
     group = vim.api.nvim_create_augroup("conf_mini_trailspace", { clear = true }),
-    callback = function()
-      MiniTrailspace.trim()
+    callback = function(args)
+      if vim.bo[args.buf].filetype ~= "diff" then
+        MiniTrailspace.trim()
+      end
     end
   })
 end
