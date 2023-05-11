@@ -74,6 +74,12 @@ function plug.config()
         hidden = true,
         mappings = {
           i = {
+            ["<C-\\>"] = function(bufnr)
+              require'telescope.actions.set'.edit(bufnr, "vsplit")
+            end,
+            ["<C-->"] = function(bufnr)
+              require'telescope.actions.set'.edit(bufnr, "split")
+            end,
             ["<S-Tab>"] = function(bufnr)
               require'telescope.actions'.move_selection_previous(bufnr)
             end,
