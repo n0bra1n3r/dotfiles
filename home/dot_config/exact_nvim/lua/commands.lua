@@ -29,8 +29,9 @@ my_commands {
   H = "Help",
   HelpModeStart = { --{{{
     function(opts)
-      vim.cmd("help "..opts.args)
-      vim.cmd[[set laststatus=0 | tabonly]]
+      vim.cmd.help(opts.args)
+      vim.cmd.set[[laststatus=0]]
+      vim.cmd[[tabonly]]
     end,
     desc = "Start help mode",
     nargs = "?",

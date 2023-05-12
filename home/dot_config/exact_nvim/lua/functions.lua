@@ -287,7 +287,7 @@ function fn.edit_file()
     return
   end
   create_parent_dirs(path)
-  vim.cmd("edit "..vim.fn.fnameescape(path))
+  vim.cmd.edit(vim.fn.fnameescape(path))
 end
 
 function fn.move_file()
@@ -297,7 +297,9 @@ function fn.move_file()
     return
   end
   create_parent_dirs(path)
-  vim.cmd(("saveas %s | call delete(expand('#')) | bwipeout #"):format(vim.fn.fnameescape(path)))
+  vim.cmd.saveas(vim.fn.fnameescape(path))
+  vim.fn.delete(vim.fn.expand("#"))
+  vim.cmd.bwipeout("#")
 end
 
 function fn.save_file()
@@ -311,7 +313,7 @@ function fn.save_file()
     return
   end
   create_parent_dirs(path)
-  vim.cmd("saveas "..vim.fn.fnameescape(path))
+  vim.cmd.saveas(vim.fn.fnameescape(path))
 end
 
 function fn.open_file_folder()
@@ -376,9 +378,9 @@ vim.api.nvim_create_autocmd("User", {
     if job ~= nil then
       job_info.queue[job.exec] = nil
       if job.kind == "task" then
-        vim.cmd("AsyncTask "..job.exec)
+        vim.cmd.AsyncTask(job.exec)
       elseif job.kind == "command" then
-        vim.cmd("AsyncRun "..job.exec)
+        vim.cmd.AsyncRun(job.exec)
       end
     end
   end,
@@ -386,7 +388,7 @@ vim.api.nvim_create_autocmd("User", {
 
 function fn.run_task(task)
   if not fn.get_is_job_in_progress() then
-    vim.cmd("AsyncTask "..task)
+    vim.cmd.AsyncTask(task)
   else
     job_info.queue[task] = "task"
   end
@@ -394,7 +396,7 @@ end
 
 function fn.run_command(command)
   if not fn.get_is_job_in_progress() then
-    vim.cmd("AsyncRun "..command)
+    vim.cmd.AsyncRun(command)
   else
     job_info.queue[command] = "command"
   end
@@ -537,7 +539,7 @@ function fn.edit_buffer(mode, path)
     if target_winid ~= -1 then
       vim.api.nvim_set_current_win(target_winid)
     end
-    vim.cmd(string.format("%s %s", mode, path))
+    vim.cmd[mode](path)
   else
     vim.api.nvim_set_current_win(target_winid)
   end
@@ -560,6 +562,24 @@ function fn.switch_prior_tab()
   end
 end
 
+local tab_stack = {}
+
+function fn.pop_to_previous_tab()
+  if #tab_stack > 0 then
+    vim.api.nvim_set_current_tabpage(tab_stack[1])
+    table.remove(tab_stack, 1)
+  end
+end
+
+function fn.push_current_tab()
+  table.insert(tab_stack, 1, vim.api.nvim_get_current_tabpage())
+end
+
+function fn.open_tab(filename)
+  fn.push_current_tab()
+  vim.cmd.tabe(vim.fn.fnameescape(filename))
+end
+
 function fn.close_buffer()
   if #vim.api.nvim_tabpage_list_wins(0) > 0 then
     vim.cmd[[close]]
@@ -577,15 +597,14 @@ function fn.open_help(word)
       fn.send_child(fn.get_child"help", "send", ([[<cmd>h %s<CR>]]):format(word))
     end
   else
-    vim.cmd("help "..word)
+    vim.cmd.help(word)
   end
 end
 --}}}
 --{{{ Quickfix
 local function open_quickfix()
-  vim.cmd(string.format("%dcopen "
-    .."| setlocal nonumber "
-    .."| wincmd J", math.min(#vim.fn.getqflist(), vim.o.lines / 6)))
+  vim.cmd(("%dcopen"):format(math.min(#vim.fn.getqflist(), vim.o.lines / 6)))
+  vim.cmd.wincmd[[J]]
 end
 
 local function close_quickfix()
@@ -693,6 +712,7 @@ function fn.open_terminal()
   else
     local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
     if vim.api.nvim_get_current_tabpage() ~= tabpage then
+      fn.push_current_tab()
       vim.api.nvim_set_current_tabpage(tabpage)
     end
   end
@@ -921,6 +941,7 @@ function fn.open_workspace(path)
     local cwd = get_tab_cwd(tabnr)
     if cwd == workspace_path then
       if not fn.is_workspace_frozen(tabnr) then
+        fn.push_current_tab()
         vim.api.nvim_set_current_tabpage(tabpage)
         return
       end

@@ -67,7 +67,7 @@ if [ ! -z "$NVIM" ]; then
       local dir="$(cygpath -m "$PWD")"
       silent-background _nvim_remote --remote-expr "v:lua.fn.open_workspace(\"$dir\")"
     else
-      _nvim_remote --remote-tab "$@"
+      silent-background _nvim_remote --remote-expr "v:lua.fn.open_tab(\"$@\")"
     fi
   }
 

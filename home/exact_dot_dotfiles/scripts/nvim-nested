@@ -7,7 +7,7 @@ if [ -z "$NVIM" ]; then
   exit 1
 fi
 
-command nvim --clean --headless --server "$NVIM" --remote-tab "$1"
+command nvim --clean --headless --server "$NVIM" --remote-expr "v:lua.fn.open_tab(\"$1\")"
 
 while command nvim \
   --clean \

@@ -5,7 +5,7 @@ my_autocmds {
     callback = function()
       if vim.bo.filetype == "help" then
         if #vim.api.nvim_tabpage_list_wins(0) > 1 then
-          vim.cmd[[wincmd T]]
+          vim.cmd.wincmd[[T]]
         end
       elseif vim.bo.filetype == "qf" then
         vim.bo.buflisted = false
@@ -121,7 +121,7 @@ my_autocmds {
   TabClosed = { --{{{
     callback = function()
       vim.o.cmdheight = 0
-      fn.switch_prior_tab()
+      fn.pop_to_previous_tab()
     end,
   }, --}}}
   TabEnter = { --{{{
