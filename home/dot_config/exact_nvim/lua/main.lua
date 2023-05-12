@@ -199,6 +199,15 @@ my_plugins = function(plugins)
       },
     },
   })
+
+  vim.api.nvim_create_autocmd("FileType", {
+    group = vim.api.nvim_create_augroup("conf_lazy", { clear = true }),
+    pattern = "lazy",
+    callback = function()
+      vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[<cmd>close<CR>]],
+        { noremap = true, silent = true })
+    end,
+  })
 end
 
 local config_base = "~/.local/share/chezmoi/home/dot_config/exact_nvim/lua/"

@@ -565,9 +565,13 @@ end
 local tab_stack = {}
 
 function fn.pop_to_previous_tab()
-  if #tab_stack > 0 then
-    vim.api.nvim_set_current_tabpage(tab_stack[1])
-    table.remove(tab_stack, 1)
+  local top_tab = table.remove(tab_stack, 1)
+  while top_tab ~= nil and (not vim.api.nvim_tabpage_is_valid(top_tab) or
+      top_tab == vim.api.nvim_get_current_tabpage()) do
+    top_tab = table.remove(tab_stack, 1)
+  end
+  if top_tab ~= nil then
+    vim.api.nvim_set_current_tabpage(top_tab)
   end
 end
 

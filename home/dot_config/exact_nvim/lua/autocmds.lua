@@ -105,12 +105,6 @@ my_autocmds {
           { noremap = true, silent = true })
       end,
     }, --}}}
-    { pattern = "lazy", --{{{
-      callback = function()
-        vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[<cmd>close<CR>]],
-          { noremap = true, silent = true })
-      end,
-    }, --}}}
     { pattern = "qf", --{{{
       callback = function()
         vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[<cmd>close<CR>]],
