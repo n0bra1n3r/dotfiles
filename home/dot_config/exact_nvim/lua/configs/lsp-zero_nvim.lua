@@ -6,7 +6,6 @@ function plug.config()
   }
 
   vim.diagnostic.config(require'lsp-zero'.defaults.diagnostics {
-    underline = false,
     virtual_text = false,
   })
 
