@@ -27,6 +27,8 @@ my_plugins {
 
   { "echasnovski/mini.map", event = "BufRead" },
 
+  { "s1n7ax/nvim-window-picker", event = "WinEnter" },
+
   -- Key Mappings --
 
   { "folke/which-key.nvim", event = "VeryLazy" },
