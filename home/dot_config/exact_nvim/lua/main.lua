@@ -49,7 +49,6 @@ require "signs"
 --{{{ Load Functions
 my_config.functions = {}
 fn = my_config.functions
-fn.search = require "search"
 
 require "functions"
 --}}}

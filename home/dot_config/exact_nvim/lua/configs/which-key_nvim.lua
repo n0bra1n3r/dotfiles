@@ -1,3 +1,19 @@
+-- vim: foldmethod=marker foldlevel=0 foldenable
+
+--{{{ Helpers
+local function show_commits()
+  require'telescope.builtin'.git_commits()
+end
+
+local function search_and_replace()
+  require'search'.prompt()
+end
+
+local function search_and_replace_selection()
+  require'search'.prompt([[]], vim.fn.expand[[<cword>]])
+end
+--}}}
+
 function plug.config()
   require'which-key'.setup {
     window = {
@@ -12,7 +28,7 @@ function plug.config()
       g = {
         name = "git",
         b = { "<cmd>Gitsigns blame_line<CR>", "blame" },
-        c = { require'telescope.builtin'.git_commits, "commits" },
+        c = { show_commits, "commits" },
         n = { "<cmd>Gitsigns next_hunk<CR>", "next hunk" },
         N = { "<cmd>Gitsigns prev_hunk<CR>", "prev hunk" },
         p = { "<cmd>Gitsigns preview_hunk<CR>", "preview hunk" },
@@ -31,7 +47,7 @@ function plug.config()
         a = { "<cmd>Mason<CR>", "packages" },
         l = { "<cmd>Lazy<CR>", "plugins" },
       },
-      s = { fn.search.prompt, "search string" },
+      s = { search_and_replace, "search & replace" },
       q = {
         name = "quickfix",
         q = { fn.toggle_quickfix, "toggle" },
@@ -45,7 +61,7 @@ function plug.config()
   }, { mode = "n" })
   require'which-key'.register({
     ["<leader>"] = {
-      s = { function() fn.search.prompt([[]], vim.fn.expand[[<cword>]]) end, "search string" },
+      s = { search_and_replace_selection, "search & replace" },
     },
   }, { mode = "x" })
 end
