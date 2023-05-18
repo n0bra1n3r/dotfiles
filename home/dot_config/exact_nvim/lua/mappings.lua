@@ -2,7 +2,7 @@
 
 --{{{ Helpers
 local function show_buffer_list()
-  require'telescope.builtin'.loclist()
+  require'telescope.builtin'.loclist { prompt_title = "Window Buffers" }
 end
 
 local function show_file_list()
