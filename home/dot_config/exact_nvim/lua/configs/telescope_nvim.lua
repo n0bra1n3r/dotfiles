@@ -41,10 +41,10 @@ function plug.config()
       find_files = {
         mappings = {
           i = {
-            ["<C-\\>"] = function(bufnr)
+            ["<M-\\>"] = function(bufnr)
               require'telescope.actions.set'.edit(bufnr, "vsplit")
             end,
-            ["<C-->"] = function(bufnr)
+            ["<M-->"] = function(bufnr)
               require'telescope.actions.set'.edit(bufnr, "split")
             end,
             ["<S-Tab>"] = function(bufnr)
