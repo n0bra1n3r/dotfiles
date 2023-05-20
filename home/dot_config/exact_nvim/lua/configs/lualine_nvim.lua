@@ -219,9 +219,7 @@ function plug.config()
           if vim.bo.readonly then
             return ''
           end
-          local name = vim.fn.expand[[%:t]]
-          local ext = vim.fn.expand[[%:e]]
-          return require'nvim-web-devicons'.get_icon(name, ext, { default = true })
+          return require'nvim-web-devicons'.get_icon(vim.bo.filetype)
         end,
         color = function()
           if vim.bo.modified then
@@ -230,9 +228,10 @@ function plug.config()
               fg = mode_color'insert',
             }
           end
+          local _, color = require'nvim-web-devicons'.get_icon_color(vim.bo.filetype)
           return {
             bg = 'none',
-            fg = mode_color'normal',
+            fg = color,
           }
         end,
         padding = 2,
@@ -343,7 +342,7 @@ function plug.config()
       always_divide_middle = false,
       component_separators = "",
       disabled_filetypes = {
-        winbar = { "help", "qf", "toggleterm" },
+        winbar = { "help", "search", "qf", "toggleterm" },
       },
       globalstatus = true,
       refresh = {

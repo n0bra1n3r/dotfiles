@@ -1,5 +1,6 @@
 function plug.config()
   require'nvim-web-devicons'.setup {
+    default = true,
     override = {
       nim = {
         icon = '',

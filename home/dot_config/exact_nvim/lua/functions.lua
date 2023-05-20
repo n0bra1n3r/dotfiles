@@ -799,11 +799,11 @@ function fn.url_encode(str)
 end
 --}}}
 --{{{ Workspace
-function get_workspace_file_path(tabnr)
+local function get_workspace_file_path(tabnr)
   return fn.get_workspace_dir(tabnr).."/"..vim.g.workspace_file_name
 end
 
-function get_workspace_file(tabnr)
+local function get_workspace_file(tabnr)
   return io.open(get_workspace_file_path(tabnr), "r")
 end
 
@@ -825,26 +825,24 @@ function fn.get_workspace_dir(tabnr)
 end
 
 function fn.is_workspace_frozen(tabnr)
-  if tabnr == nil then
-    return vim.t.is_workspace_frozen or false
-  end
-  return vim.fn.gettabvar(tabnr, "is_workspace_frozen", false)
+  return vim.fn.gettabvar(
+    tabnr or vim.fn.tabpagenr(),
+    "is_workspace_frozen",
+    false)
 end
 
 function fn.freeze_workspace(tabnr, value)
-  local new_value = value == nil or value
-  if tabnr == nil then
-    vim.t.is_workspace_frozen = new_value
-  else
-    vim.fn.settabvar(tabnr, "is_workspace_frozen", new_value)
-  end
+  vim.fn.settabvar(
+    tabnr or vim.fn.tabpagenr(),
+    "is_workspace_frozen",
+    value == nil or value)
 end
 
 function fn.show_workspace(tabnr, value)
   if not fn.is_workspace_frozen(tabnr) then
     local root = fn.get_workspace_dir(tabnr)
     for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-      if vim.api.nvim_buf_is_valid(buf) then
+      if #vim.bo[buf].buftype == 0 and vim.api.nvim_buf_is_valid(buf) then
         local name = vim.api.nvim_buf_get_name(buf)
         if fn.is_subpath(name, root) then
           vim.bo[buf].buflisted = value == nil or value
