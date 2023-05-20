@@ -306,7 +306,7 @@ local function render_statistics()
         { padding },
         { " " },
         {
-          (" %s  Matched %d lines in %d files."):format(
+          ("%s  Matched %d lines in %d files."):format(
             get_progress_icon() or search_icon,
             #info.line_array,
             vim.tbl_count(info.file_table)),
@@ -340,7 +340,7 @@ local function render_statistics()
       id = 1,
       virt_lines = {{
         {
-          (" %s  No matches found."):format(get_progress_icon() or search_icon),
+          ("%s  No matches found."):format(get_progress_icon() or search_icon),
           "Constant",
         },
       }},
