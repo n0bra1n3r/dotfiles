@@ -261,6 +261,33 @@ local function render_file_name(line, file_name)
   end
 end
 
+local function enable_progress_timer()
+  if not M.progress then
+    M.progress = {
+      icons = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
+      index = 1,
+    }
+  end
+
+  if not M.progress.timer then
+    M.progress.timer = vim.loop.new_timer()
+    M.progress.timer:start(0, vim.o.updatetime, function()
+      M.progress.index = M.progress.index % #M.progress.icons + 1
+    end)
+  end
+end
+
+local function get_progress_icon()
+  return M.progress.timer and M.progress.icons[M.progress.index]
+end
+
+local function clear_progress_timer()
+  if M.progress and M.progress.timer then
+    M.progress.timer:close()
+    M.progress.timer = nil
+  end
+end
+
 local function render_statistics()
   local info = get_search_info()
   if #info.line_array > 0 then
@@ -280,7 +307,7 @@ local function render_statistics()
         { " " },
         {
           (" %s  Matched %d lines in %d files."):format(
-            search_icon,
+            get_progress_icon() or search_icon,
             #info.line_array,
             vim.tbl_count(info.file_table)),
           "Constant",
@@ -313,7 +340,7 @@ local function render_statistics()
       id = 1,
       virt_lines = {{
         {
-          (" %s  No matches found."):format(search_icon),
+          (" %s  No matches found."):format(get_progress_icon() or search_icon),
           "Constant",
         },
       }},
@@ -539,6 +566,7 @@ function M.run(search_args, search_term)
 
   info.is_searching = true
 
+  enable_progress_timer()
   render_statistics()
 
   local line = -1
@@ -580,6 +608,10 @@ function M.run(search_args, search_term)
         if info.is_editing then
           finalize_search()
         end
+
+        clear_progress_timer()
+        render_statistics()
+
         vim.cmd[[redraw]]
       end
     end),
