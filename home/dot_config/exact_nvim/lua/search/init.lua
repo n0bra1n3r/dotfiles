@@ -628,6 +628,7 @@ local function enable_live_search()
 end
 
 local function disable_live_search()
+  clear_input_timer()
   vim.fn.inputrestore()
   vim.api.nvim_del_augroup_by_name(augroup_live_search)
 end
@@ -639,7 +640,44 @@ local function get_last_search(search_term, search_args)
   return search_term, search_args
 end
 
+local function dismiss_if_needed()
+  if #vim.fn.getcmdline() == 0 then
+    vim.api.nvim_input[[<Esc>]]
+  end
+  return vim.api.nvim_replace_termcodes("<Backspace>", true, true, true)
+end
+
+local function set_search_prompt_mapping(lhs, callback, expr)
+  local mapping = vim.fn.maparg(lhs, "c", 0, 1)
+  mapping.lhs = lhs
+
+  if mapping.rhs ~= nil then
+    vim.api.nvim_del_keymap("c", lhs)
+  end
+
+  vim.api.nvim_set_keymap("c", lhs, [[]],
+    { callback = callback, noremap = true, expr = expr })
+
+  return mapping
+end
+
+local function unset_search_prompt_mapping(mapping)
+  vim.api.nvim_del_keymap("c", mapping.lhs)
+
+  if mapping.rhs ~= nil then
+    vim.api.nvim_set_keymap("c", mapping.lhs, mapping.rhs, {
+      expr = mapping.expr,
+      noremap = mapping.noremap,
+      nowait = mapping.nowait,
+      silent = mapping.silent,
+      script = mapping.script,
+    })
+  end
+end
+
 function M.prompt(search_args, search_term)
+  local bs_mapping = set_search_prompt_mapping("<BS>", dismiss_if_needed, true)
+
   enable_live_search()
 
   if get_is_search_buffer_open() then
@@ -653,6 +691,8 @@ function M.prompt(search_args, search_term)
 
   disable_live_search()
 
+  unset_search_prompt_mapping(bs_mapping)
+
   if get_is_in_search_buffer() then
     if #search_term == 0 then
       vim.api.nvim_buf_delete(0, { force = true })
@@ -661,7 +701,6 @@ function M.prompt(search_args, search_term)
       local info = get_search_info()
       if not info.is_searching then
         finalize_search()
-        clear_input_timer()
         process_search_input()
       end
     end
