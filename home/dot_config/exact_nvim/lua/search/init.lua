@@ -271,7 +271,7 @@ local function enable_progress_timer()
 
   if not M.progress.timer then
     M.progress.timer = vim.loop.new_timer()
-    M.progress.timer:start(0, vim.o.updatetime, function()
+    M.progress.timer:start(0, 100, function()
       M.progress.index = M.progress.index % #M.progress.icons + 1
     end)
   end
@@ -750,10 +750,18 @@ function _G.search_statuscol_expr()
         local lmax = info.max_line_number
         if vim.v.virtnum == 0 then
           local padding = (" "):rep(#tostring(lmax) - #tostring(lnum))
-          return (" │%s%d "):format(padding, line_info.line_number)
+          local hasLhl = vim.wo.cursorlineopt == "number"
+            or vim.wo.cursorlineopt == "both"
+          local lhl = hasLhl and vim.fn.line'.' == line
+            and "CursorLineNr"
+            or "LineNr"
+          return (" %%#LineNr#│%s%%#%s#%d "):format(
+            padding,
+            lhl,
+            line_info.line_number)
         else
           local padding = (" "):rep(#tostring(lmax))
-          return (" │%s "):format(padding)
+          return (" %%#LineNr#│%s "):format(padding)
         end
       end
     end
