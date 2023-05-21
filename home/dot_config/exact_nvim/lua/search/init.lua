@@ -216,7 +216,12 @@ local function initialize_search(search_term, search_args)
 end
 
 local function render_line_text(line, line_text)
-  vim.api.nvim_buf_set_lines(0, line, line, true, { line_text })
+  vim.api.nvim_buf_set_lines(
+    0,
+    line,
+    line > 0 and line or line + 1,
+    true,
+    { line_text })
 end
 
 local function render_file_name(line, file_name)
