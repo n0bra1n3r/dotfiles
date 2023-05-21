@@ -377,6 +377,135 @@ local function render_result(line, result)
   end
 end
 
+local function save_modification(line)
+  local info = get_search_info()
+  local text = vim.api.nvim_buf_get_lines(0, line, line + 1, {})[1]
+  local result = get_search_results_at(line)[1]
+
+  if text == result.line_text then
+    info.change_table[line + 1] = nil
+  else
+    info.change_table[line + 1] = {
+      file_name = result.file_name,
+      line_number = result.line_number,
+      line_text = text,
+    }
+  end
+end
+
+local function watch_modifications()
+  local info = get_search_info()
+  vim.api.nvim_buf_attach(0, false, {
+	  on_bytes = vim.schedule_wrap(function(
+        _, _, _,
+        first_line, first_line_col, _,
+        line_offset, last_line_col, _,
+        new_line_offset, _, _)
+      if not get_is_current_search(info.search_id) then
+        return true
+      end
+
+      if line_offset > new_line_offset then
+        -- lines were removed
+
+        local last_line = first_line + line_offset - 1
+
+        if first_line_col ~= 0 or last_line_col ~= 0 then
+          save_modification(first_line)
+        end
+
+        for _ = first_line + 1, last_line + 1 do
+          local line_info = info.line_array[first_line + 1]
+
+          table.remove(info.line_array, first_line + 1)
+
+          if line_info.file_name ~= nil then
+            local line_table = info.file_table[line_info.file_name]
+            line_table[line_info.line_number] = nil
+            if vim.tbl_count(line_table) == 0 then
+              render_file_name(-1, line_info.file_name)
+              render_statistics()
+            end
+          end
+        end
+      elseif line_offset < new_line_offset then
+        -- lines were added
+
+        local next_line = first_line + line_offset + 1
+        local last_line = first_line + new_line_offset - 1
+
+        local prev_info = info.line_array[first_line]
+        local next_info = info.line_array[next_line]
+
+        if (prev_info == nil or prev_info.line_number ~= nil) and
+            (next_info == nil or next_info.line_number ~= nil) then
+          local first_index = prev_info
+            and math.min(info.file_table[prev_info.file_name][prev_info.line_number] + 1, #info.result_array)
+            or 1
+
+          local last_index = next_info
+            and math.max(info.file_table[next_info.file_name][next_info.line_number] - 1, 1)
+            or #info.result_array
+
+          if first_index <= last_index then
+            local index = first_index
+
+            for line = first_line, last_line + 1 do
+              local result = info.result_array[index][1]
+              local line_table = info.file_table[result.file_name]
+
+              line_table[result.line_number] = index
+
+              local min_index = index
+              for _, i in pairs(line_table) do
+                min_index = math.min(min_index, i)
+              end
+
+              if index == min_index then
+                render_file_name(line, result.file_name)
+                render_statistics()
+              end
+
+              if index <= last_index then
+                table.insert(info.line_array, line + 1, {
+                  file_name = result.file_name,
+                  line_number = result.line_number,
+                })
+
+                local line_text = vim.api.nvim_buf_get_lines(
+                  0,
+                  line,
+                  line + 1,
+                  true)[1]
+                if line_text ~= result.line_text then
+                  save_modification(line)
+                end
+              end
+
+              index = index + 1
+              if index > #info.result_array then
+                break
+              end
+            end
+          else
+            for line = first_line, last_line do
+              table.insert(info.line_array, line + 1, {})
+            end
+          end
+        else
+          for line = first_line, last_line do
+            table.insert(info.line_array, line + 1, {})
+          end
+        end
+      else
+        -- lines were changed
+
+        save_modification(first_line)
+      end
+    end),
+  })
+end
+
 local function finalize_search()
   local info = get_search_info()
   local start_line = vim.api.nvim_buf_line_count(0)
@@ -399,6 +528,8 @@ local function finalize_search()
   local namespace = get_search_match_namespace()
   vim.api.nvim_buf_clear_namespace(0, namespace, 0, -1)
   vim.fn.setreg("/", info.search_term, vim.fn.getregtype"/")
+
+  watch_modifications()
 end
 
 local function on_buf_delete(_)
@@ -427,6 +558,53 @@ local function on_cursor_moved(_)
     end
     info.cursor_line = line
   end
+end
+
+local function on_buf_write_cmd(_)
+  local info = get_search_info()
+
+  local change_keys = {}
+  for key in pairs(info.change_table) do
+    table.insert(change_keys, key)
+  end
+
+  local file_name, file_open
+  for _, key in ipairs(change_keys) do
+    local change_info = info.change_table[key]
+    local change_line = tonumber(change_info.line_number) - 1
+
+    if change_info.file_name ~= file_name then
+      if file_name ~= nil then
+        vim.cmd.write(file_name)
+        if not file_open then
+          vim.cmd[[bwipe]]
+        end
+      end
+
+      file_name = change_info.file_name
+      file_open = vim.fn.bufnr(file_name) ~= -1
+
+      vim.cmd("keepjumps edit "..file_name)
+    end
+
+    vim.api.nvim_buf_set_lines(
+      vim.fn.bufnr(file_name),
+      change_line,
+      change_line + 1,
+      true,
+      { change_info.line_text })
+  end
+
+  if file_name ~= nil then
+    vim.cmd.write(file_name)
+    if not file_open then
+      vim.cmd[[bwipe]]
+    end
+
+    vim.cmd("keepjumps buffer "..info.bufnr)
+  end
+
+  vim.bo.modified = false
 end
 
 local function on_exit(_)
@@ -475,6 +653,11 @@ local function open_search_buffer()
       group = group,
       buffer = bufnr,
       callback = on_buf_leave,
+    })
+    vim.api.nvim_create_autocmd("BufWriteCmd", {
+      group = group,
+      buffer = bufnr,
+      callback = on_buf_write_cmd,
     })
     vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
       group = group,
