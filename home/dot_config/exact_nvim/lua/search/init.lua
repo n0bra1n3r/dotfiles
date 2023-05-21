@@ -364,6 +364,8 @@ local function render_result(line, result)
     render_line_text(line, result.line_text)
   end
 
+  vim.o.hlsearch = false
+
   local info = get_search_info()
   local namespace = get_search_match_namespace()
   local col_start = tonumber(result.col_number) - 1
@@ -532,7 +534,9 @@ local function finalize_search()
 
   local namespace = get_search_match_namespace()
   vim.api.nvim_buf_clear_namespace(0, namespace, 0, -1)
+
   vim.fn.setreg("/", info.search_term, vim.fn.getregtype"/")
+  vim.o.hlsearch = true
 
   watch_modifications()
 end
@@ -868,7 +872,7 @@ local function dismiss_if_needed()
   if #vim.fn.getcmdline() == 0 then
     vim.api.nvim_input[[<Esc>]]
   end
-  return vim.api.nvim_replace_termcodes("<Backspace>", true, true, true)
+  return vim.api.nvim_replace_termcodes("<BS>", true, true, true)
 end
 
 local function set_search_prompt_mapping(lhs, callback, expr)
