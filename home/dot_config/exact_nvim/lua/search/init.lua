@@ -304,13 +304,12 @@ local function render_statistics()
       local stats = {
         { " " },
         { padding },
-        { " " },
         {
-          ("%s  Matched %d lines in %d files."):format(
+          (" %s  Matched %d lines in %d files. "):format(
             get_progress_icon() or search_icon,
             #info.line_array,
             vim.tbl_count(info.file_table)),
-          "Constant",
+          "MatchParen",
         },
       }
 
@@ -340,8 +339,8 @@ local function render_statistics()
       id = 1,
       virt_lines = {{
         {
-          ("%s  No matches found."):format(get_progress_icon() or search_icon),
-          "Constant",
+          (" %s  No matches found. "):format(get_progress_icon() or search_icon),
+          "MatchParen",
         },
       }},
       virt_lines_above = true,
