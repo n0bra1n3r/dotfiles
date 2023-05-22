@@ -288,6 +288,7 @@ end
 
 local function clear_progress_timer()
   if M.progress and M.progress.timer then
+    M.progress.index = 1
     M.progress.timer:close()
     M.progress.timer = nil
   end
