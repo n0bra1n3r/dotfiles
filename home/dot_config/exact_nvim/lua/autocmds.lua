@@ -13,7 +13,14 @@ my_autocmds {
       vim.cmd[[checktime]]
     end,
   }, --}}}
-  BufDelete = {
+  BufHidden = { --{{{
+    callback = function(args)
+      if fn.is_empty_buffer(args.buf) then
+        vim.bo[args.buf].buflisted = false
+      end
+    end,
+  }, --}}}
+  BufUnload = {
     callback = function(args)
       fn.del_buf_from_loclist(args.buf)
       if fn.is_file_buffer(args.buf) then
@@ -23,13 +30,6 @@ my_autocmds {
       end
     end,
   },
-  BufHidden = { --{{{
-    callback = function(args)
-      if fn.is_empty_buffer(args.buf) then
-        vim.bo[args.buf].buflisted = false
-      end
-    end,
-  }, --}}}
   BufWinEnter = { --{{{
     callback = function(args)
       for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do
