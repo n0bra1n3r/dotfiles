@@ -9,15 +9,6 @@ local search_statuscol = "%!v:lua.search_statuscol_expr()"
 local augroup_live_search = "search_live_search"
 local augroup_open_search_buffer = "search_open_search_buffer"
 
-local function get_search_match_namespace()
-  return vim.api.nvim_create_namespace(search_namespace.."-match")
-end
-
-local function get_search_file_namespace(name)
-  local postfix = name and ("-file-"..name) or ""
-  return vim.api.nvim_create_namespace(search_namespace..postfix)
-end
-
 local function get_search_icon_color()
   local _, color = require'nvim-web-devicons'.get_icon_color_by_filetype("help")
   return color
@@ -28,15 +19,27 @@ local function get_search_icon_cterm_color()
   return color
 end
 
-local function apply_filetype_settings()
-  require'nvim-web-devicons'.set_icon {
-    [search_filetype] = {
-      icon = search_icon,
-      color = get_search_icon_color(),
-      cterm_color = get_search_icon_cterm_color(),
-      name = search_namespace,
-    },
-  }
+require'nvim-web-devicons'.set_icon {
+  [search_filetype] = {
+    icon = search_icon,
+    color = get_search_icon_color(),
+    cterm_color = get_search_icon_cterm_color(),
+    name = search_namespace,
+  },
+}
+
+local function get_search_icon()
+  local icon, _ = require'nvim-web-devicons'.get_icon("search")
+  return icon
+end
+
+local function get_search_match_namespace()
+  return vim.api.nvim_create_namespace(search_namespace.."-match")
+end
+
+local function get_search_file_namespace(name)
+  local postfix = name and ("-file-"..name) or ""
+  return vim.api.nvim_create_namespace(search_namespace..postfix)
 end
 
 local function construct_search_command(search_term, search_args)
@@ -314,7 +317,7 @@ local function render_statistics()
         { padding },
         {
           (" %s  Matched %d lines in %d files%s "):format(
-            progress_icon or search_icon,
+            progress_icon or get_search_icon(),
             #info.line_array,
             vim.tbl_count(info.file_table),
             progress_icon and "..." or "."),
@@ -350,7 +353,7 @@ local function render_statistics()
       virt_lines = {{
         {
           (" %s  No matches found%s "):format(
-            progress_icon or search_icon,
+            progress_icon or get_search_icon(),
             progress_icon and "..." or "."),
           "MatchParen",
         },
@@ -628,8 +631,6 @@ end
 local function open_search_buffer()
   local bufnr = maybe_create_search_buffer()
   if bufnr then
-    apply_filetype_settings()
-
     -- options
     vim.api.nvim_buf_set_name(bufnr, search_namespace)
     vim.bo.buftype = "nowrite"
@@ -915,7 +916,7 @@ function M.prompt(search_args, search_term)
 
   search_term = vim.fn.input {
     default = search_term,
-    prompt = (" %s  "):format(search_icon),
+    prompt = (" %s  "):format(get_search_icon()),
   }
 
   disable_live_search()
