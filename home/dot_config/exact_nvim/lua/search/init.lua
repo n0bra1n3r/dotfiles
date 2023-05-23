@@ -160,12 +160,13 @@ local function maybe_create_search_buffer()
         local tabpage = vim.api.nvim_win_get_tabpage(winid)
         vim.api.nvim_set_current_tabpage(tabpage)
         vim.api.nvim_set_current_win(winid)
-        return
+        break
       end
       vim.cmd.tabedit("#"..bufnr)
-      return bufnr
+      set_search_window_options()
     else
       vim.cmd[[tabnew]]
+      set_search_window_options()
       return vim.api.nvim_get_current_buf()
     end
   end
@@ -628,7 +629,6 @@ local function open_search_buffer()
   local bufnr = maybe_create_search_buffer()
   if bufnr then
     apply_filetype_settings()
-    set_search_window_options()
 
     -- options
     vim.api.nvim_buf_set_name(bufnr, search_namespace)
