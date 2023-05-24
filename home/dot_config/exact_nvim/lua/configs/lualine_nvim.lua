@@ -45,9 +45,7 @@ local function section_separator_highlight(left, right, mode)
     local highlight = require'lualine.highlight'.get_transitional_highlights(
       left_highlight,
       right_highlight)
-    if highlight ~= nil then
-      return highlight:sub(3, -2)
-    end
+    return highlight and highlight:sub(3, -2)
   end
 end
 
@@ -64,6 +62,15 @@ local function mode_color(mode)
   return highlight_color("lualine_a_"..mode)
 end
 
+local function file_type_icon(file_type)
+  return require'nvim-web-devicons'.get_icon(file_type)
+end
+
+local function file_type_color(file_type)
+  local _, color = require'nvim-web-devicons'.get_icon_color(file_type)
+  return color
+end
+
 local function tab_name(name, context)
   local types = {}
   for _, buf in ipairs(vim.fn.tabpagebuflist(context.tabnr)) do
@@ -71,8 +78,9 @@ local function tab_name(name, context)
     if vim.startswith(filetype, "git") or
         vim.tbl_contains({
           "diff",
+          "search",
         }, filetype) then
-      return ' '..name
+      return file_type_icon(filetype)..' '..name
     end
     types[vim.bo[buf].buftype] = true
   end
@@ -90,10 +98,10 @@ local function tab_name(name, context)
     end
   end
   if vim.tbl_count(types) == 1 then
-    if types.help ~= nil then
+    if types.help then
       return '󰋖 '..label
     end
-    if types.terminal ~= nil then
+    if types.terminal then
       return ' '..label
     end
   end
@@ -219,7 +227,7 @@ function plug.config()
           if vim.bo.readonly then
             return ''
           end
-          return require'nvim-web-devicons'.get_icon(vim.bo.filetype)
+          return file_type_icon(vim.bo.filetype)
         end,
         color = function()
           if vim.bo.modified then
@@ -228,10 +236,9 @@ function plug.config()
               fg = mode_color'insert',
             }
           end
-          local _, color = require'nvim-web-devicons'.get_icon_color(vim.bo.filetype)
           return {
             bg = 'none',
-            fg = color,
+            fg = file_type_color(vim.bo.filetype),
           }
         end,
         padding = 2,
@@ -328,7 +335,7 @@ function plug.config()
             component[1] = right_component_separator
           end
         end
-        if component.colored ~= nil then
+        if component.colored then
           component.colored = false
         end
       else
