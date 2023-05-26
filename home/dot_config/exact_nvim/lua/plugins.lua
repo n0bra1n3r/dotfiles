@@ -225,4 +225,8 @@ my_plugins {
       "theHamsta/nvim-dap-virtual-text",
     },
   },
+
+  -- Configuration --
+
+  { "klen/nvim-config-local", lazy = false },
 }
