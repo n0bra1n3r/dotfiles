@@ -53,6 +53,7 @@ if [ ! -z "$NVIM" ]; then
 
   function cd() {
     command cd "$@"
+    [ -e .nvim/env.sh ] && source .nvim/env.sh
     local dir="$(cygpath -m "$PWD")"
     silent-background _nvim_remote --remote-expr "v:lua.fn.set_terminal_dir(\"$dir\")"
   }

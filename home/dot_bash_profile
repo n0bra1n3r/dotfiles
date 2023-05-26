@@ -35,8 +35,6 @@ function _workspace() {
 complete -o nosort -F _workspace workspace
 complete -o nosort -F _workspace ws
 
-if [ -e ~/.bashrc ]; then
-  source ~/.bashrc
-fi
+[ -e ~/.bashrc ] && source ~/.bashrc
 
 eval "$(~/.local/bin/starship init bash)"
