@@ -97,6 +97,7 @@ my_plugins {
     "williamboman/mason.nvim",
     build = {
       ":MasonUpdate",
+      ":MasonInstall codelldb",
       ":MasonInstall lua-language-server",
       ":MasonInstall bash-language-server",
       ":MasonInstall shellcheck",

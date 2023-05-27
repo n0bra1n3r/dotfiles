@@ -1,11 +1,12 @@
 function plug.config()
   local dap = require'dap'
 
-  dap.adapters.cppdbg = {
-    id = "cppdbg",
-    type = "executable",
-    command = "OpenDebugAD7.cmd",
-    options = {
+  dap.adapters.codelldb = {
+    type = "server",
+    port = "${port}",
+    executable = {
+      args = { "--port", "${port}" },
+      command = "codelldb.cmd",
       detached = false,
     },
   }
@@ -13,7 +14,7 @@ function plug.config()
   dap.configurations.cpp = {
     {
       name = "Launch file",
-      type = "cppdbg",
+      type = "codelldb",
       request = "launch",
       program = function()
         return vim.fn.input("Path to executable: ", vim.fn.getcwd().."/", "file")
@@ -21,6 +22,7 @@ function plug.config()
       cwd = "${workspaceFolder}",
     }
   }
+  dap.configurations.c = dap.configurations.cpp
   dap.configurations.nim = dap.configurations.cpp
 
   vim.api.nvim_create_autocmd("FileType", {
