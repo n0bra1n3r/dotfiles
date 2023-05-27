@@ -762,10 +762,10 @@ function fn.vim_defer(fn, timer)
 end
 
 function fn.is_subpath(path, other)
-    local path_parts = vim.split(path, "/")
-    local other_parts = vim.split(other, "/")
-    local common_parts = vim.list_slice(path_parts, 1, #other_parts)
-    return vim.deep_equal(common_parts, other_parts)
+  local path_parts = vim.split(path, "/")
+  local other_parts = vim.split(other, "/")
+  local common_parts = vim.list_slice(path_parts, 1, #other_parts)
+  return vim.deep_equal(common_parts, other_parts)
 end
 
 function fn.set_tab_cwd(path)
