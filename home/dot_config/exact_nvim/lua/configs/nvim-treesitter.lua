@@ -14,17 +14,12 @@ function plug.config(plugin)
     },
   }
 
-  local ts_nim_queries = plugin.dir.."/queries/nim"
-  if vim.fn.isdirectory(ts_nim_queries) == 0 then
-    local nvim_queries = vim.fn.expand"~/.dotfiles/tree-sitter-nim/queries/nvim"
-    vim.fn.system(([[cp -rf '%s' '%s']]):format(nvim_queries, ts_nim_queries))
+  -- install nim treesitter queries
+  local nim_queries = plugin.dir.."/queries/nim"
+  if vim.fn.isdirectory(nim_queries) == 0 then
+    local queries = vim.fn.expand"~/.dotfiles/tree-sitter-nim/queries/nvim"
+    vim.fn.system(([[cp -rf '%s' '%s']]):format(queries, nim_queries))
   end
-
-  require'nvim-treesitter.configs'.setup {
-    highlight = {
-      enable = { "nim" },
-    },
-  }
 
   configs.norg = {
     install_info = {
@@ -36,4 +31,9 @@ function plug.config(plugin)
     },
   }
 
+  require'nvim-treesitter.configs'.setup {
+    highlight = {
+      enable = true,
+    },
+  }
 end
