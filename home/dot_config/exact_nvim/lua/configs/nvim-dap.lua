@@ -9,6 +9,8 @@ function plug.config()
     }
   end
 
+  dap.defaults.auto_continue_if_many_stopped = false
+
   dap.adapters.codelldb = {
     type = "server",
     port = "${port}",
