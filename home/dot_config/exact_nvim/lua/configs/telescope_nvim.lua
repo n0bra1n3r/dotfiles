@@ -39,6 +39,7 @@ function plug.config()
         theme = "dropdown",
       },
       find_files = {
+        hidden = true,
         mappings = {
           i = {
             ["<M-\\>"] = function(bufnr)
