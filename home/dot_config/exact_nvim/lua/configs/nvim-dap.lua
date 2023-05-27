@@ -19,7 +19,6 @@ function plug.config()
       program = function()
         return vim.fn.input("Path to executable: ", vim.fn.getcwd().."/", "file")
       end,
-      cwd = "${workspaceFolder}",
     }
   }
   dap.configurations.c = dap.configurations.cpp
