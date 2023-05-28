@@ -25,6 +25,7 @@ function plug.config()
         config.util.root_pattern[[*.nim]](filename)
     end,
     settings = {
+      -- We are using null-ls for checking.
       checkOnSave = false,
       autoCheckFile = false,
       autoCheckProject = false,

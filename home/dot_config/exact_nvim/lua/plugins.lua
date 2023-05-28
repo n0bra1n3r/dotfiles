@@ -154,6 +154,7 @@ my_plugins {
     },
   },
   { "hrsh7th/cmp-nvim-lua" },
+  { "folke/neodev.nvim" },
   {
     "hrsh7th/nvim-cmp",
     event = "InsertEnter",
@@ -164,6 +165,7 @@ my_plugins {
       "hrsh7th/cmp-path",
       "saadparwaiz1/cmp_luasnip",
       "hrsh7th/cmp-nvim-lua",
+      "folke/neodev.nvim",
     },
   },
 
