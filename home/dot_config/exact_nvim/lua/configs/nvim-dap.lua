@@ -1,14 +1,6 @@
 function plug.config()
   local dap = require'dap'
 
-  if vim.env.EMU ~= nil then
-    dap.defaults.fallback.force_external_terminal = true
-    dap.defaults.fallback.external_terminal = {
-      command = vim.fn.expand(vim.env.EMU),
-      args = { vim.env.EMU_CMD },
-    }
-  end
-
   dap.defaults.auto_continue_if_many_stopped = false
 
   dap.adapters.codelldb = {

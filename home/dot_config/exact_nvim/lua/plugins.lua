@@ -221,13 +221,8 @@ my_plugins {
 
   -- Debuggers --
 
-  { "theHamsta/nvim-dap-virtual-text" },
-  {
-    "mfussenegger/nvim-dap",
-    dependencies = {
-      "theHamsta/nvim-dap-virtual-text",
-    },
-  },
+  { "mfussenegger/nvim-dap" },
+  { "rcarriga/nvim-dap-ui", dependencies = {"mfussenegger/nvim-dap"} },
 
   -- Configuration --
 
