@@ -1,12 +1,16 @@
 # vim: filetype=bash
 
+function unix-path() {
+  echo "$@" | xargs -d ';' cygpath -u | grep . | paste -sd : -
+}
+
 case "$(uname -s)" in
 Darwin*)
   export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin":$PATH
   alias studio="open -a /Applications/Android\ Studio.app"
   ;;
 MSYS_NT*)
-  export PATH=$(echo "$PATH" | xargs -d ';' cygpath -u | grep . | paste -sd : -)
+  export PATH=$(unix-path "$PATH")
   export MSYS=winsymlinks:nativestrict
   export MSYS2_PATH_TYPE=inherit
   ;;&
@@ -51,9 +55,19 @@ if [ ! -z "$NVIM" ]; then
     command nvim --clean --headless --server "$NVIM" "$@"
   }
 
+  function load-nvim-env() {
+    for var in "$@"; do
+      local val=$(_nvim_remote --remote-expr "\$$var" 2>&1)
+      if [ "$var" == "PATH" ]; then
+        val=$(unix-path "$val")
+      fi
+      eval $var="\$val"
+      export $var
+    done
+  }
+
   function cd() {
     command cd "$@"
-    [ -e .nvim/env.sh ] && source .nvim/env.sh
     local dir="$(cygpath -m "$PWD")"
     silent-background _nvim_remote --remote-expr "v:lua.fn.set_terminal_dir(\"$dir\")"
   }

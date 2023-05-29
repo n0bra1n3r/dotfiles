@@ -6,8 +6,8 @@ local function debug_hydra()
   }
   local state_index = 1
 
-  local function dap_repl_open()
-    require'dap'.repl.open()
+  local function dap_repl_toggle()
+    require'dap'.repl.toggle()
   end
 
   local function dap_cmd(cmd)
@@ -49,6 +49,8 @@ local function debug_hydra()
           hydra.hint.need_to_update = true
           hydra.hint:update()
         end
+        require'dap'.listeners.after.event_exited.debug_hydra =
+          require'dap'.listeners.after.event_stopped.debug_hydra
         require'dap'.listeners.after.event_terminated.debug_hydra = function()
           state_index = 1
           hydra.layer:exit()
@@ -56,6 +58,7 @@ local function debug_hydra()
           require'dap'.listeners.after.continue.debug_hydra = nil
           require'dap'.listeners.after.launch.debug_hydra = nil
           require'dap'.listeners.after.event_stopped.debug_hydra = nil
+          require'dap'.listeners.after.event_exited.debug_hydra = nil
           require'dap'.listeners.after.event_terminated.debug_hydra = nil
           require'dap'.listeners.after.disconnect.debug_hydra = nil
           require'dap'.listeners.after.terminate.debug_hydra = nil
@@ -69,13 +72,13 @@ local function debug_hydra()
     mode = { "n" },
     body = "<leader>d",
     heads = {
-      { [[~]], dap_repl_open, { desc = false } },
+      { [[~]], dap_repl_toggle, { desc = false } },
       { [[<Insert>]], dap_cmd[[toggle_breakpoint]], { desc = false } },
       {
         [[<Home>]],
         function()
           if state_index == 3 then
-            dap_cmd[[pause]](1)
+            dap_cmd[[pause]]()
           else
             dap_cmd[[continue]]()
           end

@@ -1,10 +1,13 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
-my_config = {}
+_G.my_config = {}
 
 --{{{ Load Globals
-my_globals = function(globals)
-  my_config.globals = vim.deepcopy(globals)
+_G.my_globals = function(globals)
+  my_config.globals = vim.tbl_extend(
+    "force",
+    my_config.globals or {},
+    vim.deepcopy(globals))
   for key, value in pairs(globals) do
     vim.g[key] = value
   end
@@ -13,8 +16,11 @@ end
 require "globals"
 --}}}
 --{{{ Load Options
-my_options = function(options)
-  my_config.options = vim.deepcopy(options)
+_G.my_options = function(options)
+  my_config.options = vim.tbl_extend(
+    "force",
+    my_config.options or {},
+    vim.deepcopy(options))
   for option, value in pairs(options) do
     if type(option) == "string" then
       vim.opt[option] = value
@@ -27,8 +33,11 @@ end
 require "options"
 --}}}
 --{{{ Load Highlights
-my_highlights = function(highlights)
-  my_config.highlights = vim.deepcopy(highlights)
+_G.my_highlights = function(highlights)
+  my_config.highlights = vim.tbl_extend(
+    "force",
+    my_config.highlights or {},
+    vim.deepcopy(highlights))
   for name, value in pairs(highlights) do
     vim.api.nvim_set_hl(0, name, value)
   end
@@ -37,8 +46,11 @@ end
 require "highlights"
 --}}}
 --{{{ Load Signs
-my_signs = function(signs)
-  my_config.signs = vim.deepcopy(signs)
+_G.my_signs = function(signs)
+  my_config.signs = vim.tbl_extend(
+    "force",
+    my_config.signs or {},
+    vim.deepcopy(signs))
   for name, opts in pairs(signs) do
     vim.fn.sign_define(name, opts)
   end
@@ -48,22 +60,25 @@ require "signs"
 --}}}
 --{{{ Load Functions
 my_config.functions = {}
-fn = my_config.functions
+_G.fn = my_config.functions
 
 require "functions"
 --}}}
 --{{{ Load Autocmds
-my_autocmds = function(autocmds)
-  my_config.autocmds = vim.deepcopy(autocmds)
+_G.my_autocmds = function(autocmds)
+  my_config.autocmds = vim.tbl_extend(
+    "force",
+    my_config.autocmds or {},
+    vim.deepcopy(autocmds))
   local group = vim.api.nvim_create_augroup("main", { clear = true })
   for autocmd, def in pairs(autocmds) do
     if def[1] == nil then
       def.group = group
       vim.api.nvim_create_autocmd(autocmd, def)
     else
-      for _, def in ipairs(def) do
-        def.group = group
-        vim.api.nvim_create_autocmd(autocmd, def)
+      for _, nested_def in ipairs(def) do
+        nested_def.group = group
+        vim.api.nvim_create_autocmd(autocmd, nested_def)
       end
     end
   end
@@ -72,7 +87,7 @@ end
 require "autocmds"
 --}}}
 --{{{ Load Commands
-my_commands = function(commands)
+_G.my_commands = function(commands)
   my_config.commands = vim.deepcopy(commands)
   for command, def in pairs(commands) do
     local info = def
@@ -118,13 +133,16 @@ local function get_plugin_config_name(plugin)
   return string.gsub(vim.fn.fnamemodify(plugin, ":t"), "%.", "_")
 end
 
-my_plugins = function(plugins)
-  my_config.plugins = vim.deepcopy(plugins)
+_G.my_plugins = function(plugins)
+  my_config.plugins = vim.tbl_extend(
+    "force",
+    my_config.plugins or {},
+    vim.deepcopy(plugins))
   for _, spec in ipairs(plugins) do
     local plugin = spec.name or spec[1]
     local config = get_plugin_config_name(plugin)
     local module = {}
-    plug = module
+    _G.plug = module
     local hasConfig, _ = pcall(require, "configs."..config)
     if hasConfig then
       if module.init ~= nil then
@@ -132,27 +150,27 @@ my_plugins = function(plugins)
           spec.init = module.init
         else
           local spec_init = spec.init
-          spec.init = function(plugin)
-            spec_init(plugin)
-            module.init(plugin)
+          spec.init = function(def)
+            spec_init(def)
+            module.init(def)
           end
         end
       end
       if module.config ~= nil then
         if spec.config == nil then
-          spec.config = function(plugin)
-            module.config(plugin)
+          spec.config = function(def)
+            module.config(def)
           end
         else
           local spec_config = spec.config
-          spec.config = function(plugin)
-            spec_config(plugin)
-            module.config(plugin)
+          spec.config = function(def)
+            spec_config(def)
+            module.config(def)
           end
         end
       end
     end
-    plug = nil
+    _G.plug = nil
   end
 
   require'lazy'.setup(plugins, {
@@ -236,8 +254,11 @@ vim.api.nvim_create_autocmd("BufEnter", {
 require "plugins"
 --}}}
 --{{{ Load Mappings
-my_mappings = function(mappings)
-  my_config.mappings = vim.deepcopy(mappings)
+_G.my_mappings = function(mappings)
+  my_config.mappings = vim.tbl_extend(
+    "force",
+    my_config.mappings or {},
+    vim.deepcopy(mappings))
   for mode, mapping in pairs(mappings) do
     for key, map in pairs(mapping) do
       local targetKey = map[1]
@@ -259,4 +280,24 @@ my_mappings = function(mappings)
 end
 
 require "mappings"
+--}}}
+--{{{ Load Launch Configs
+_G.my_launch = function(configs)
+  my_config.launch = vim.tbl_extend(
+    "force",
+    my_config.launch or {},
+    vim.deepcopy(configs))
+end
+--}}}
+--{{{ Load Env
+_G.my_env = function(env)
+  my_config.env = vim.tbl_extend(
+    "force",
+    my_config.env or {},
+    vim.deepcopy(env))
+  for key, value in pairs(env) do
+    vim.env[key] = value
+  end
+  fn.send_terminal(([[load-nvim-env %s]]):format(vim.fn.join(vim.fn.keys(env))))
+end
 --}}}

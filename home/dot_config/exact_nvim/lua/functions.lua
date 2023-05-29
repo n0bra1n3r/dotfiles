@@ -797,6 +797,21 @@ function fn.url_encode(str)
 
   return str
 end
+
+function fn.shell_str(string)
+  return vim.trim(vim.fn.system(("echo \"%s\""):format(string)))
+end
+
+function fn.path_str(string)
+  if vim.fn.has("win32") == 1 then
+    return vim.trim(vim.fn.system((
+      "echo \"%s\" "
+      .."| xargs -d ':' cygpath -w "
+      .."| grep . "
+      .."| paste -sd ';' -"):format(string)))
+  end
+  return string
+end
 --}}}
 --{{{ Workspace
 local function get_workspace_file_path(tabnr)
