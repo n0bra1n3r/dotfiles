@@ -36,4 +36,12 @@ function plug.config(plugin)
       enable = true,
     },
   }
+
+  vim.api.nvim_create_autocmd("User", {
+    group = vim.api.nvim_create_augroup("conf_treesitter", { clear = true }),
+    pattern = "TelescopePreviewerLoaded",
+    callback = function(args)
+      print(vim.inspect(args))
+    end,
+  })
 end
