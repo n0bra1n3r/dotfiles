@@ -1,7 +1,0 @@
-{
-  "construct": {
-    "prefix": "ini",
-    "description": "Construct object.",
-    "body": "${1:type}.init(${2:params})$0"
-  }
-}

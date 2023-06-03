@@ -304,3 +304,51 @@ _G.my_env = function(env)
   end
 end
 --}}}
+--{{{ Load Snippets
+_G.my_snippets = function(new_snippets)
+  my_config.snippets = vim.tbl_extend(
+    "force",
+    my_config.snippets or {},
+    vim.deepcopy(new_snippets))
+
+  local nodePattern = [[%${(.-)}]]
+  local nodeDelims = [[<>]]
+
+  for language, snippets in pairs(my_config.snippets) do
+    for name, snippet in pairs(snippets) do
+      local nodes = {}
+      for pattern in snippet.body:gmatch(nodePattern) do
+        local parts = vim.split(pattern, ":")
+        local index = tonumber(parts[1])
+        local label = parts[2]
+        if index ~= nil then
+          table.insert(nodes, require'luasnip.nodes.insertNode'.I(index, label))
+        end
+      end
+      local body = snippet.body:gsub(nodePattern, nodeDelims)
+      local is_ok, snippet_entry = pcall(require'luasnip'.snippet,
+        {
+          dscr = snippet.description,
+          name = name,
+          trig = snippet.prefix,
+        },
+        require'luasnip.extras.fmt'.fmt(
+          body,
+          nodes,
+          { delimiters = nodeDelims }
+        )
+      )
+
+      if is_ok then
+        require'luasnip'.add_snippets(
+          language,
+          { snippet_entry },
+          { key = ("%s.%s"):format(language, name) }
+        )
+      else
+        print(("Could not load snippet '%s' (%s)"):format(name, language))
+      end
+    end
+  end
+end
+--}}}
