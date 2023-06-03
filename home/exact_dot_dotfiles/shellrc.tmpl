@@ -1,7 +1,11 @@
 # vim: filetype=bash
 
 function unix-path() {
-  echo "$@" | xargs -d ';' cygpath -u | grep . | paste -sd : -
+  if command -v cygpath &>/dev/null; then
+    echo "$@" | xargs -d ';' cygpath -u | grep . | paste -sd : -
+  else
+    echo "$@"
+  fi
 }
 
 case "$(uname -s)" in
@@ -55,15 +59,15 @@ if [ ! -z "$NVIM" ]; then
     command nvim --clean --headless --server "$NVIM" "$@"
   }
 
-  function load-nvim-env() {
-    for var in "$@"; do
-      local val=$(_nvim_remote --remote-expr "\$$var" 2>&1)
-      if [ "$var" == "PATH" ]; then
-        val=$(unix-path "$val")
-      fi
-      eval $var="\$val"
-      export $var
-    done
+  function _load_nvim_env() {
+    local env="$(_nvim_remote \
+      --remote_expr "v:lua.get_my_config_json('env')" 2>&1 \
+      | jq -r "to_entries[] | \"\\(.key)='\\(.value)'\"")"
+    local old_path="$PATH"
+    eval export $env
+    local new_path="$PATH"
+    export PATH="$old_path"
+    export PATH=$(unix-path "$new_path")
   }
 
   function cd() {
@@ -80,9 +84,27 @@ if [ ! -z "$NVIM" ]; then
   function nvim() {
     if [ $# -eq 0 ]; then
       local dir="$(cygpath -m "$PWD")"
-      silent-background _nvim_remote --remote-expr "v:lua.fn.open_workspace(\"$dir\")"
+      _nvim_remote --remote-expr "v:lua.fn.open_workspace(\"$dir\")" &>/dev/null
+      _load_nvim_env
     else
-      silent-background _nvim_remote --remote-expr "v:lua.fn.open_tab(\"$@\")"
+      local opts="$@"
+      while [ $# -gt 0 ]; do
+        case "$1" in
+        -h|--help)
+          printf "Usage:\n  nvim [file]\tEdit file\n"
+          return
+          ;;
+        -v|--version)
+          command nvim --version
+          return
+          ;;
+        *)
+          shift
+          ;;
+        esac
+      done
+      _nvim_remote --remote-expr "v:lua.fn.open_tab(\"$opts\")" &>/dev/null
+      _load_nvim_env
     fi
   }
 

@@ -2,6 +2,10 @@
 
 _G.my_config = {}
 
+function _G.get_my_config_json(key)
+  return vim.fn.json_encode(my_config[key])
+end
+
 --{{{ Load Globals
 _G.my_globals = function(globals)
   my_config.globals = vim.tbl_extend(
@@ -298,6 +302,5 @@ _G.my_env = function(env)
   for key, value in pairs(env) do
     vim.env[key] = value
   end
-  fn.send_terminal(([[load-nvim-env %s]]):format(vim.fn.join(vim.fn.keys(env))))
 end
 --}}}
