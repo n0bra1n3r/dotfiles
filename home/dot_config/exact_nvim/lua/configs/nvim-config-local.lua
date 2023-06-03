@@ -1,5 +1,5 @@
 function plug.config()
   require'config-local'.setup {
-    config_files = { ".nvim/config.lua" },
+    config_files = { ".nvim/init.lua" },
   }
 end
