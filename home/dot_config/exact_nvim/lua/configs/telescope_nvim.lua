@@ -49,10 +49,10 @@ function plug.config()
               require'telescope.actions.set'.edit(bufnr, "split")
             end,
             ["<S-Tab>"] = function(bufnr)
-              require'telescope.actions'.move_selection_previous(bufnr)
+              require'telescope.actions'.move_selection_next(bufnr)
             end,
             ["<Tab>"] = function(bufnr)
-              require'telescope.actions'.move_selection_next(bufnr)
+              require'telescope.actions'.move_selection_previous(bufnr)
             end,
           },
         },
