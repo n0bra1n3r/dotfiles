@@ -28,6 +28,7 @@ my_plugins {
   { "echasnovski/mini.map", event = "BufRead" },
 
   { "s1n7ax/nvim-window-picker", event = "WinEnter" },
+  { "beauwilliams/focus.nvim", event = "WinEnter" },
 
   -- Key Mappings --
 
