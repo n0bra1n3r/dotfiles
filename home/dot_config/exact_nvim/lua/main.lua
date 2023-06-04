@@ -351,4 +351,6 @@ _G.my_snippets = function(new_snippets)
     end
   end
 end
+
+require "snippets"
 --}}}
