@@ -203,6 +203,7 @@ my_plugins {
     },
   },
   { "echasnovski/mini.indentscope", event = { "BufRead", "BufModifiedSet" } },
+  { "echasnovski/mini.splitjoin", event = { "BufRead" } },
   { "xiyaowong/virtcolumn.nvim", event = "BufEnter" },
 
   -- Command Runners --
