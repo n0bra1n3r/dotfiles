@@ -24,9 +24,9 @@ function plug.config()
       require'mini.map'.gen_integration.diagnostic(),
     },
     symbols = {
-      encode = require'mini.map'.gen_encode_symbols.dot("4x2"),
-      scroll_line = '▶ ',
-      scroll_view = '┃ ',
+      encode = require'mini.map'.gen_encode_symbols.dot("3x2"),
+      scroll_line = '▶',
+      scroll_view = '┃',
     },
     width = 8,
     window = {
