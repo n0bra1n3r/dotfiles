@@ -61,13 +61,15 @@ if [ ! -z "$NVIM" ]; then
 
   function _load_nvim_env() {
     local env="$(_nvim_remote \
-      --remote_expr "v:lua.get_my_config_json('env')" 2>&1 \
-      | jq -r "to_entries[] | \"\\(.key)='\\(.value)'\"")"
-    local old_path="$PATH"
-    eval export $env
-    local new_path="$PATH"
-    export PATH="$old_path"
-    export PATH=$(unix-path "$new_path")
+      --remote_expr "v:lua.get_my_config_json('env')" 2>&1)"
+    if [[ "$env" != "null" ]]; then
+      env="$(echo "$env" | jq -r "to_entries[] | \"\\(.key)='\\(.value)'\"")"
+      local old_path="$PATH"
+      eval export $env
+      local new_path="$PATH"
+      export PATH="$old_path"
+      export PATH=$(unix-path "$new_path")
+    fi
   }
 
   function cd() {
