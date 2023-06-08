@@ -25,10 +25,7 @@ my_plugins {
     dependencies = { "kevinhwang91/promise-async" },
   },
 
-  { "petertriho/nvim-scrollbar", event = "BufRead" },
-
   { "s1n7ax/nvim-window-picker", event = "WinEnter" },
-  { "beauwilliams/focus.nvim", event = "WinEnter" },
 
   -- Key Mappings --
 
