@@ -55,6 +55,12 @@ function plug.config()
             ["<Tab>"] = function(bufnr)
               require'telescope.actions'.move_selection_previous(bufnr)
             end,
+            ["<M-j>"] = function(bufnr)
+              require'telescope.actions'.move_selection_next(bufnr)
+            end,
+            ["<M-k>"] = function(bufnr)
+              require'telescope.actions'.move_selection_previous(bufnr)
+            end,
           },
         },
       },
