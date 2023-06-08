@@ -2,8 +2,9 @@ function plug.config()
   require'telescope'.setup {
     defaults = {
       file_ignore_patterns = {
-        ".git",
+        "^%.git[\\/]",
       },
+      history = false,
       mappings = {
         i = {
           ["<Esc>"] = require'telescope.actions'.close,
