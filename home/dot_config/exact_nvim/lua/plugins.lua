@@ -14,7 +14,7 @@ my_plugins {
   { "catppuccin/nvim", name = "catppuccin.nvim", lazy = false },
   { "luukvbaal/statuscol.nvim", lazy = false },
   { "nvim-lualine/lualine.nvim", lazy = false },
-  { "arkav/lualine-lsp-progress", event = "LspAttach" },
+  { "j-hui/fidget.nvim", event = "LspAttach" },
 
   { "kevinhwang91/nvim-bqf", ft = "qf" },
   { "https://gitlab.com/yorickpeterse/nvim-pqf.git", event = "VeryLazy" },

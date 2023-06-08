@@ -306,18 +306,6 @@ function plug.config()
         padding = { left = 1, right = 0 },
         sources = { "nvim_lsp", "nvim_diagnostic" },
       },
-      {
-        "lsp_progress",
-        color = "DiagnosticSignInfo",
-        display_components = { "spinner" },
-        separators = {
-          lsp_client_name = { pre = '', post = '' },
-        },
-        spinner_symbols = {
-          '⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷',
-        },
-        show_inactive = false,
-      },
     },
     lualine_x = {},
     lualine_y = {},
