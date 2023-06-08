@@ -139,12 +139,15 @@ alias ce='cd ~/.local/share/chezmoi && nvim'
 
 # Git aliases
 
+function ga() {
+  git add -N . && git add -p *"$*"*
+}
+
 function gc() {
   git commit -m "$*"
 }
 
-alias ga='git add -p'
 alias gp='git pu'
 alias gs='git st'
 alias gu='git pull'
-alias tl='tig log'
+alias gl='tig log'

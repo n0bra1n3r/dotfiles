@@ -23,6 +23,7 @@
 
 [alias]
   ae = add --edit
+  ap = add --patch
   au = add --update
   bd = !git branch -r | awk '{print $1}' | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk '{print $1}'
   bl = !git for-each-ref --sort=-committerdate refs/heads/ --format='%(committerdate:short) %(refname:short)' | less
