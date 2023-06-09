@@ -85,6 +85,7 @@ my_mappings {
     ["<C-Right>"]       = { "<C-w>l" },
     ["<C-Up>"]          = { "<C-w>k" },
     ["<C-Tab>"]         = { show_buffer_list },
+    ["<C-z>"]           = { fn.open_terminal },
     ["<Esc>"]           = { ":nohlsearch<CR>" },
     ["<End>"]           = { "$", noremap = false },
     ["<Home>"]          = { "^", noremap = false },
