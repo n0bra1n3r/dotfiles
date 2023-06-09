@@ -93,7 +93,7 @@ url = {{ $url | quote }}
   type = "file"
   executable = true
 
-[".dotfiles/deps/zsh/.local/zsh.pkg.tar.zst"]
+[".dotfiles/deps/zsh/zsh.pkg.tar.zst"]
   {{ template "packages.msys2.org" "zsh" }}
 
 [".dotfiles/deps/zstd/.local/bin"]

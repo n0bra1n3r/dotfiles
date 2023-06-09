@@ -644,7 +644,7 @@ end
 local function get_terminal()
   return require'toggleterm.terminal'.Terminal:new{
     id = 0,
-    cmd = "bash --login",
+    cmd = "zsh --login",
     direction = "tab",
   }
 end

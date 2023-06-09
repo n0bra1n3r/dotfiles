@@ -4,6 +4,8 @@ set -e
 
 shopt -u nullglob
 
+os="$(uname -s)"
+
 for zip in ~/.dotfiles/deps/*/*.zip; do
   dir="$(dirname "$zip")"
   if [[ -d "$dir" ]]; then
@@ -15,19 +17,26 @@ for zip in ~/.dotfiles/deps/*/*.zip; do
   fi
 done
 
-for pkg in ~/.dotfiles/deps/*/.local/*.zst; do
-  dir="$(dirname "$pkg")"
-  if [[ -d "$dir" ]]; then
-    pushd "$dir" >/dev/null && \
-      rm -rf !"$pkg" && \
-      zstd --decompress "$pkg" &>/dev/null && \
-      tar -xvf ./*.pkg.tar >/dev/null && \
-      rm ./*.pkg.* && \
-      rm ./.* && \
-      echo "> zstd $pkg"
-    popd >/dev/null
-  fi
-done
+if [[ "$os" == "MSYS_NT"* ]] || [[ "$os" == "MINGW64_NT"* ]]; then
+  for pkg in ~/.dotfiles/deps/*/*.zst; do
+    dir="$(dirname "$pkg")"
+    if [[ -d "$dir" ]]; then
+      pushd "$dir" >/dev/null && \
+        rm -rf !"$pkg" && \
+        zstd --decompress "$pkg" &>/dev/null && \
+        tar -xvf ./*.pkg.tar >/dev/null && \
+        rm ./*.pkg.* && \
+        rm ./.* && \
+        echo "> zstd $pkg"
+      popd >/dev/null
+      powershell \
+        -command "Start-Process \
+          'bash' '-c \"PATH=\\\"$PATH\\\" cp -rf \\\"$dir\\\"/* /\"' \
+          -Verb runAs" && \
+        echo "> cp $dir/* /"
+    fi
+  done
+fi
 
 for dir in ~/.dotfiles/deps/*/.[^.]*; do
   cp -rf "$dir" ~ && echo "> cp $dir ~"
@@ -35,7 +44,6 @@ done
 
 chmod 600 ~/.ssh/keys/* && echo "> chmod 600 ~/.ssh/keys/*"
 
-os="$(uname -s)"
 if [[ "$os" == "MSYS_NT"* ]] || [[ "$os" == "MINGW64_NT"* ]]; then
   font_dir="$HOME/.local/share/fonts"
   if [[ -d "$font_dir" ]]; then

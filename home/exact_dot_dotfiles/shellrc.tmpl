@@ -17,7 +17,7 @@ MSYS_NT*)
   export PATH=$(unix-path "$PATH")
   export MSYS=winsymlinks:nativestrict
   export MSYS2_PATH_TYPE=inherit
-  ;;&
+  ;&
 *_NT*)
   export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin":$PATH
   export PATH="/c/PROGRA~2/Microsoft Visual Studio/Shared/Python39_64":$PATH
@@ -44,7 +44,7 @@ if [ -z "$EMU" ]; then
   export STARSHIP_CONFIG="$HOME/.config/starship.default.toml"
 fi
 
-if [ ! "$(command -v git)" ]; then
+if ! command -v git &>/dev/null; then
   sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- --bin-dir "$HOME/.local/bin" --yes
 fi
 
@@ -73,7 +73,7 @@ if [ ! -z "$NVIM" ]; then
   }
 
   function cd() {
-    command cd "$@"
+    builtin cd "$@"
     local dir="$(cygpath -m "$PWD")"
     silent-background _nvim_remote --remote-expr "v:lua.fn.set_terminal_dir(\"$dir\")"
   }
