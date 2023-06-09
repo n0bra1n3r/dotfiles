@@ -14,6 +14,8 @@ function plug.config()
     callback = function()
       vim.api.nvim_buf_set_keymap(0, "n", [[gf]], [[<cmd>tabe <cfile><CR>]],
         { noremap = true, silent = true })
+      vim.api.nvim_buf_set_keymap(0, "n", [[<C-c>]], [[<Nop>]],
+        { noremap = true, silent = true })
     end,
   })
 end
