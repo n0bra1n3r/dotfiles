@@ -13,19 +13,30 @@
 {{- $query := ".assets[] | select(.name | contains(\"%s\")) | .browser_download_url" }}
 {{- $info := (gitHubLatestRelease $owner) | toJson | fromJsonc }}
 {{- $url := $info | jq (printf $query $match) | first }}
+exact = true
+exclude = [ "**/CHANGELOG*", "**/COPYING*", "**/dll", "**/doc", "**/example", "**/include", "**/*LICENSE*", "**/licenses", "**/README*", "**/static" ]
+url = {{ $url | quote }}
+{{- end }}
+
+{{- define "packages.msys2.org" }}
+{{- $match := . }}
+{{- $mirror := "https://mirror.msys2.org/msys/x86_64/%s-%s-x86_64.pkg.tar.zst" }}
+{{- $package := "https://packages.msys2.org/api/search?query=%s&qtype=pkg" }}
+{{- $result := (output "curl" "-X" "GET" (printf $package $match) "-H" "accept: application/json") | fromJsonc }}
+{{- $version := $result | jq ".results.exact.version" | first }}
+{{- $url := printf $mirror $match $version }}
+type = "file"
 url = {{ $url | quote }}
 {{- end }}
 
 [".dotfiles/tree-sitter-nim"]
   url = "https://github.com/aMOPel/tree-sitter-nim/archive/refs/heads/main.zip"
   type = "archive"
-  exact = true
   stripComponents = 1
 
 [".dotfiles/tree-sitter-norg"]
   url = "https://github.com/nvim-neorg/tree-sitter-norg/archive/refs/heads/main.zip"
   type = "archive"
-  exact = true
   stripComponents = 1
 
 [".dotfiles/deps/nvim/.local"]
@@ -34,19 +45,16 @@ url = {{ $url | quote }}
       "win64.zip"
       "macos.tar.gz") }}
   type = "archive"
-  exact = true
   stripComponents = 1
 
 [".dotfiles/deps/cascadiacode-nf/.local/share/fonts"]
   {{ template "github.com/releases" "ryanoasis/nerd-fonts"
     | list "CascadiaCode.zip" }}
   type = "archive"
-  exact = true
 
 [".dotfiles/deps/catppuccin/.config/alacritty/catppuccin"]
   url = "https://github.com/catppuccin/alacritty/archive/refs/heads/main.zip"
   type = "archive"
-  exact = true
   stripComponents = 1
 
 [".dotfiles/deps/starship/.local/bin"]
@@ -55,7 +63,6 @@ url = {{ $url | quote }}
       "x86_64-pc-windows-msvc.zip"
       "x86_64-apple-darwin.tar.gz") }}
   type = "archive"
-  exact = true
 
 [".dotfiles/deps/fd/.local/bin"]
   {{ template "github.com/releases" "sharkdp/fd"
@@ -63,7 +70,6 @@ url = {{ $url | quote }}
       "x86_64-pc-windows-msvc.zip"
       "x86_64-apple-darwin.tar.gz") }}
   type = "archive"
-  exact = true
   stripComponents = 1
 
 [".dotfiles/deps/rg/.local/bin"]
@@ -72,7 +78,6 @@ url = {{ $url | quote }}
       "x86_64-pc-windows-msvc.zip"
       "x86_64-apple-darwin.tar.gz") }}
   type = "archive"
-  exact = true
   stripComponents = 1
 
 {{- if $isWindows }}
@@ -87,4 +92,13 @@ url = {{ $url | quote }}
     | list "jq-win64.exe" }}
   type = "file"
   executable = true
+
+[".dotfiles/deps/zsh/.local/zsh.pkg.tar.zst"]
+  {{ template "packages.msys2.org" "zsh" }}
+
+[".dotfiles/deps/zstd/.local/bin"]
+  {{ template "github.com/releases" "facebook/zstd"
+    | list "win64.zip" }}
+  type = "archive"
+  stripComponents = 1
 {{- end }}
