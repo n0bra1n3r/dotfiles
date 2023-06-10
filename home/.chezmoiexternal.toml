@@ -39,7 +39,7 @@ url = {{ $url | quote }}
   type = "archive"
   stripComponents = 1
 
-[".dotfiles/deps/nvim/.local"]
+[".dotfiles/deps/neovim/.local"]
   {{ template "github.com/releases" "neovim/neovim"
     | list ($isWindows | ternary
       "win64.zip"
@@ -47,15 +47,10 @@ url = {{ $url | quote }}
   type = "archive"
   stripComponents = 1
 
-[".dotfiles/deps/cascadiacode-nf/.local/share/fonts"]
+[".dotfiles/deps/nerd-fonts/.local/share/fonts"]
   {{ template "github.com/releases" "ryanoasis/nerd-fonts"
     | list "CascadiaCode.zip" }}
   type = "archive"
-
-[".dotfiles/deps/catppuccin/.config/alacritty/catppuccin"]
-  url = "https://github.com/catppuccin/alacritty/archive/refs/heads/main.zip"
-  type = "archive"
-  stripComponents = 1
 
 [".dotfiles/deps/starship/.local/bin"]
   {{ template "github.com/releases" "starship/starship"
@@ -72,7 +67,7 @@ url = {{ $url | quote }}
   type = "archive"
   stripComponents = 1
 
-[".dotfiles/deps/rg/.local/bin"]
+[".dotfiles/deps/ripgrep/.local/bin"]
   {{ template "github.com/releases" "BurntSushi/ripgrep"
     | list ($isWindows | ternary
       "x86_64-pc-windows-msvc.zip"
@@ -86,6 +81,11 @@ url = {{ $url | quote }}
     | list "portable.exe" }}
   type = "file"
   executable = true
+
+[".dotfiles/deps/alacritty/.config/alacritty/catppuccin"]
+  url = "https://github.com/catppuccin/alacritty/archive/refs/heads/main.zip"
+  type = "archive"
+  stripComponents = 1
 
 [".dotfiles/deps/jq/.local/bin/jq.exe"]
   {{ template "github.com/releases" "stedolan/jq"
