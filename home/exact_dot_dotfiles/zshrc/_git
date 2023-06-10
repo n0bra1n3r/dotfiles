@@ -1,0 +1,10 @@
+# vim: filetype=zsh
+
+_GIT_EXEC_PATH="$(git --exec-path 2>/dev/null)"
+_GIT_COMPLETION_PATH="${_GIT_EXEC_PATH%/libexec/git-core}"
+_GIT_COMPLETION_PATH="${_GIT_COMPLETION_PATH%/lib/git-core}"
+_GIT_COMPLETION_PATH="$_GIT_COMPLETION_PATH/share/git/completion"
+
+if [ -f "$_GIT_COMPLETION_PATH/git-completion.zsh" ]; then
+  source "$_GIT_COMPLETION_PATH/git-completion.zsh"
+fi

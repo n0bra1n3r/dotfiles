@@ -1,54 +1,17 @@
 # vim: filetype=bash
 
-function unix-path() {
-  if command -v cygpath &>/dev/null; then
-    echo "$@" | xargs -d ';' cygpath -u | grep . | paste -sd : -
-  else
-    echo "$@"
-  fi
-}
+export HISTSIZE=10000
 
-case "$(uname -s)" in
-Darwin*)
-  export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin":$PATH
-  alias studio="open -a /Applications/Android\ Studio.app"
-  ;;
-MSYS_NT*)
-  export PATH=$(unix-path "$PATH")
-  export MSYS=winsymlinks:nativestrict
-  export MSYS2_PATH_TYPE=inherit
-  ;&
-*_NT*)
-  export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin":$PATH
-  export PATH="/c/PROGRA~2/Microsoft Visual Studio/Shared/Python39_64":$PATH
-  export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/MSBuild/Microsoft/VisualStudio/NodeJs":$PATH
-  alias npm="cmd //c npm.cmd"
-  ;;
-*)
-  ;;
-esac
-
-export PATH="$HOME/.nimble/bin":"$HOME/.local/bin":"$HOME/.dotfiles/scripts":$PATH
-
-export GIT_CONFIG_GLOBAL="$HOME/.dotfiles/gitconfig/main"
-
-{{- if (index . "gitlab") }}
-export GITLAB_ACCESS_TOKEN={{ .gitlab.token | quote }}
-{{- end }}
-
-{{- if (index . "github") }}
-export GITHUB_ACCESS_TOKEN={{ .github.token | quote }}
-{{- end }}
-
-if [ -z "$EMU" ]; then
-  export STARSHIP_CONFIG="$HOME/.config/starship.default.toml"
+if [ ! -z "$STARSHIP_CONFIG" ]; then
+  export STARSHIP_CONFIG="$(eval echo "$STARSHIP_CONFIG")"
 fi
 
-if ! command -v git &>/dev/null; then
-  sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- --bin-dir "$HOME/.local/bin" --yes
+if ! command -v starship &>/dev/null; then
+  sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- \
+    --bin-dir "$HOME/.local/bin" --yes
 fi
 
-function silent-background() {
+function _silent_background() {
   ("$@" &>/dev/null &)
 }
 
@@ -63,24 +26,25 @@ if [ ! -z "$NVIM" ]; then
     local env="$(_nvim_remote \
       --remote_expr "v:lua.get_my_config_json('env')" 2>&1)"
     if [[ "$env" != "null" ]]; then
-      env="$(echo "$env" | jq -r "to_entries[] | \"\\(.key)='\\(.value)'\"")"
+      env="$(printf "%s" "$env" \
+        | jq -r "to_entries[] | \"\\(.key)='\\(.value)'\"")"
       local old_path="$PATH"
       eval export $env
       local new_path="$PATH"
       export PATH="$old_path"
-      export PATH=$(unix-path "$new_path")
+      export PATH=$(cygpath -pu "$new_path")
     fi
   }
 
   function cd() {
     builtin cd "$@"
     local dir="$(cygpath -m "$PWD")"
-    silent-background _nvim_remote --remote-expr "v:lua.fn.set_terminal_dir(\"$dir\")"
+    _silent_background _nvim_remote --remote-expr "v:lua.fn.set_terminal_dir(\"$dir\")"
   }
 
   function git() {
     command git "$@"
-    silent-background _nvim_remote --remote-expr "v:lua.fn.refresh_git_info()"
+    _silent_background _nvim_remote --remote-expr "v:lua.fn.refresh_git_info()"
   }
 
   function nvim() {
@@ -142,7 +106,7 @@ alias ce='cd ~/.local/share/chezmoi && nvim'
 # Git aliases
 
 function ga() {
-  git add -N . && git add -p *"$*"*
+  git add -N \*"$*"\* && git add -p \*"$*"\*
 }
 
 function gc() {

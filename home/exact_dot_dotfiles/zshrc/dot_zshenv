@@ -1,0 +1,3 @@
+# vim: filetype=zsh
+
+[ -f ~/.dotfiles/envrc ] && source ~/.dotfiles/envrc

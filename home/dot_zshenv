@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+
+export ZDOTDIR=~/.dotfiles/zshrc
+
+[ -f "$ZDOTDIR/zshrc/.zshenv" ] && source "$ZDOTDIR/zshrc/.zshenv"

@@ -22,7 +22,9 @@ env:
   # check the local terminfo database and use `alacritty` if it is
   # available, otherwise `xterm-256color` is used.
   #TERM: alacritty
-  BASH_ENV: ~/.bash_profile
+  BASH_ENV: ~/.dotfiles/envrc
+  ENV: ~/.dotfiles/envrc
+  STARSHIP_CONFIG: ~/.dotfiles/starship.minimal.toml
   EMU: ~/.local/bin/alacritty
   EMU_CMD: -e
 

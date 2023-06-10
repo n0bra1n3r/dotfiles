@@ -1,9 +1,16 @@
-# vim: filetype=bash
+#!/usr/bin/env bash
 
+source ~/.dotfiles/envrc
 source ~/.dotfiles/shellrc
 
-[[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && \
-  source /usr/share/bash-completion/bash_completion
+_GIT_EXEC_PATH="$(git --exec-path 2>/dev/null)"
+_GIT_COMPLETION_PATH="${_GIT_EXEC_PATH%/libexec/git-core}"
+_GIT_COMPLETION_PATH="${_GIT_COMPLETION_PATH%/lib/git-core}"
+_GIT_COMPLETION_PATH="$_GIT_COMPLETION_PATH/share/git/completion"
+
+if [ -f "$_GIT_COMPLETION_PATH/git-completion.bash" ]; then
+  source "$_GIT_COMPLETION_PATH/git-completion.bash"
+fi
 
 bind 'set show-all-if-ambiguous on'
 bind 'set completion-ignore-case off'
@@ -16,6 +23,7 @@ bind '"\e[A":history-search-backward'
 bind '"\e[B":history-search-forward'
 
 export HISTCONTROL=ignoreboth:erasedups
+export HISTFILESIZE=$HISTSIZE
 
 PROMPT_COMMAND="history -a $HISTFILE;$PROMPT_COMMAND"
 
@@ -24,9 +32,12 @@ __git_complete cg __git_main
 
 function _workspace() {
   COMPREPLY=()
-  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    local locals="$(git for-each-ref --sort=-committerdate --format='%(refname:lstrip=2)' refs/heads/)"
-    local current="$(git branch --show-current)"
+  if command git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    local locals="$(command git for-each-ref \
+      --sort=-committerdate \
+      --format='%(refname:lstrip=2)' \
+      refs/heads/)"
+    local current="$(command git branch --show-current)"
     local workspaces="$(echo -e "$locals" | grep -v HEAD | grep -v "$current")"
     COMPREPLY=($(compgen -W "$workspaces" -- "${COMP_WORDS[1]}"))
   fi
@@ -35,6 +46,6 @@ function _workspace() {
 complete -o nosort -F _workspace workspace
 complete -o nosort -F _workspace ws
 
-[ -e ~/.bashrc ] && source ~/.bashrc
+[ -f ~/.bashrc ] && source ~/.bashrc
 
 eval "$(~/.local/bin/starship init bash)"
