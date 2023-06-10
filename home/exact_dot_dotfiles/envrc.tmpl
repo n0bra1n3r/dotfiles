@@ -1,13 +1,5 @@
 # vim: filetype=bash
 
-function cygpath() {
-  if [[ "$OS" == *_NT* ]]; then
-    cygpath $@
-  else
-    echo "${!#}"
-  fi
-}
-
 case "$(uname -s)" in
 Darwin*)
   export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin":$PATH

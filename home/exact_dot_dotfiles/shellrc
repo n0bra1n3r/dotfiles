@@ -11,6 +11,22 @@ if ! command -v starship &>/dev/null; then
     --bin-dir "$HOME/.local/bin" --yes
 fi
 
+function cygpath() {
+  if [[ "$OS" == *_NT* ]]; then
+    command cygpath $@
+  else
+    echo "${!#}"
+  fi
+}
+
+function sudo() {
+  if [[ "$OS" == *_NT* ]]; then
+    sudo.ps1 -path "'$PATH'" "$@"
+  else
+    command sudo "$@"
+  fi
+}
+
 function _silent_background() {
   ("$@" &>/dev/null &)
 }
