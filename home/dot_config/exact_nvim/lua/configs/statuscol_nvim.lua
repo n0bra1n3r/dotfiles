@@ -1,5 +1,11 @@
 function plug.config()
   require'statuscol'.setup {
+    bt_ignore = {
+      "help",
+      "quickfix",
+      "terminal",
+    },
+    ft_ignore = { "toggleterm" },
     relculright = true,
     segments = {
       { text = { " " } },
