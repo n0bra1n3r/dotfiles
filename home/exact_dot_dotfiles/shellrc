@@ -19,14 +19,6 @@ function cygpath() {
   fi
 }
 
-function sudo() {
-  if [[ "$OS" == *_NT* ]]; then
-    sudo.ps1 -path "'$PATH'" "$@"
-  else
-    command sudo "$@"
-  fi
-}
-
 function _silent_background() {
   ("$@" &>/dev/null &)
 }

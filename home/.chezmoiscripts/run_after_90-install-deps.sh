@@ -4,8 +4,6 @@ set -e
 
 shopt -u nullglob
 
-os="$(uname -s)"
-
 for zip in ~/.dotfiles/deps/*/*.zip; do
   dir="$(dirname "$zip")"
   if [[ -d "$dir" ]]; then
@@ -17,7 +15,7 @@ for zip in ~/.dotfiles/deps/*/*.zip; do
   fi
 done
 
-if [[ "$os" == "MSYS_NT"* ]] || [[ "$os" == "MINGW64_NT"* ]]; then
+if [[ "$OS" == *_NT* ]]; then
   for pkg in ~/.dotfiles/deps/*/*.zst; do
     dir="$(dirname "$pkg")"
     if [[ -d "$dir" ]]; then
@@ -29,11 +27,8 @@ if [[ "$os" == "MSYS_NT"* ]] || [[ "$os" == "MINGW64_NT"* ]]; then
         rm ./.* && \
         echo "> zstd $pkg"
       popd >/dev/null
-      powershell \
-        -command "Start-Process \
-          'bash' '-c \"PATH=\\\"$PATH\\\" cp -rf \\\"$dir\\\"/* /\"' \
-          -Verb runAs" && \
-        echo "> cp $dir/* /"
+
+      sudo cp -rf "\"$dir\"/*" "/" && echo "> cp $dir/* /"
     fi
   done
 fi
@@ -44,7 +39,7 @@ done
 
 chmod 600 ~/.ssh/keys/* && echo "> chmod 600 ~/.ssh/keys/*"
 
-if [[ "$os" == "MSYS_NT"* ]] || [[ "$os" == "MINGW64_NT"* ]]; then
+if [[ "$OS" == *_NT* ]]; then
   font_dir="$HOME/.local/share/fonts"
   if [[ -d "$font_dir" ]]; then
     echo "> register-fonts $font_dir/*"
