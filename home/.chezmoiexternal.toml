@@ -1,32 +1,17 @@
+{{ $isWindows := eq .chezmoi.os "windows" }}
+
+{{- define "dep" }}
+{{- $path := . }}
+[{{ printf ".dotfiles/deps/%s" $path | quote }}]
+  exact = true
+  exclude = ["**/CHANGELOG*", "**/COPYING*", "**/dll", "**/doc", "**/example", "**/include", "**/*LICENSE*", "**/licenses", "**/README*", "**/static"]
+{{- end }}
+
 {{- if index . "gitlab" }}
 [".ssh/keys"]
   url = "https://gitlab.com/n0brain3r/dotfiles-ssh-keys/-/archive/master/dotfiles-ssh-keys-master.zip?private_token={{ .gitlab.token }}"
   type = "archive"
   stripComponents = 1
-{{- end }}
-
-{{ $isWindows := eq .chezmoi.os "windows" }}
-
-{{- define "github.com/releases" }}
-{{- $match := index . 0 }}
-{{- $owner := index . 1 }}
-{{- $query := ".assets[] | select(.name | contains(\"%s\")) | .browser_download_url" }}
-{{- $info := (gitHubLatestRelease $owner) | toJson | fromJsonc }}
-{{- $url := $info | jq (printf $query $match) | first }}
-exact = true
-exclude = [ "**/CHANGELOG*", "**/COPYING*", "**/dll", "**/doc", "**/example", "**/include", "**/*LICENSE*", "**/licenses", "**/README*", "**/static" ]
-url = {{ $url | quote }}
-{{- end }}
-
-{{- define "packages.msys2.org" }}
-{{- $match := . }}
-{{- $mirror := "https://mirror.msys2.org/msys/x86_64/%s-%s-x86_64.pkg.tar.zst" }}
-{{- $package := "https://packages.msys2.org/api/search?query=%s&qtype=pkg" }}
-{{- $result := (output "curl" "-X" "GET" (printf $package $match) "-H" "accept: application/json") | fromJsonc }}
-{{- $version := $result | jq ".results.exact.version" | first }}
-{{- $url := printf $mirror $match $version }}
-type = "file"
-url = {{ $url | quote }}
 {{- end }}
 
 [".dotfiles/tree-sitter-nim"]
@@ -39,66 +24,67 @@ url = {{ $url | quote }}
   type = "archive"
   stripComponents = 1
 
-[".dotfiles/deps/neovim/.local"]
-  {{ template "github.com/releases" "neovim/neovim"
-    | list ($isWindows | ternary
-      "win64.zip"
-      "macos.tar.gz") }}
+{{ template "dep" "neovim/.local" }}
+  {{- if $isWindows }}
+  url = "https://github.com/neovim/neovim/releases/download/stable/nvim-win64.zip"
+  {{- else }}
+  url = "https://github.com/neovim/neovim/releases/download/stable/nvim-macos.tar.gz"
+  {{- end}}
   type = "archive"
   stripComponents = 1
 
-[".dotfiles/deps/nerd-fonts/.local/share/fonts"]
-  {{ template "github.com/releases" "ryanoasis/nerd-fonts"
-    | list "CascadiaCode.zip" }}
+{{ template "dep" "nerd-fonts/.local/share/fonts" }}
+  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
   type = "archive"
 
-[".dotfiles/deps/starship/.local/bin"]
-  {{ template "github.com/releases" "starship/starship"
-    | list ($isWindows | ternary
-      "x86_64-pc-windows-msvc.zip"
-      "x86_64-apple-darwin.tar.gz") }}
+{{ template "dep" "starship/.local/bin" }}
+  {{- if $isWindows }}
+  url = "https://github.com/starship/starship/releases/latest/download/starship-x86_64-pc-windows-msvc.zip"
+  {{- else }}
+  url = "https://github.com/starship/starship/releases/latest/download/starship-aarch64-apple-darwin.tar.gz"
+  {{- end }}
   type = "archive"
 
-[".dotfiles/deps/fd/.local/bin"]
-  {{ template "github.com/releases" "sharkdp/fd"
-    | list ($isWindows | ternary
-      "x86_64-pc-windows-msvc.zip"
-      "x86_64-apple-darwin.tar.gz") }}
+{{ template "dep" "fd/.local/bin" }}
+  {{- if $isWindows }}
+  url = "https://github.com/sharkdp/fd/releases/download/v8.7.0/fd-v8.7.0-x86_64-pc-windows-msvc.zip"
+  {{- else}}
+  url = "https://github.com/sharkdp/fd/releases/download/v8.7.0/fd-v8.7.0-x86_64-apple-darwin.tar.gz"
+  {{- end }}
   type = "archive"
   stripComponents = 1
 
-[".dotfiles/deps/ripgrep/.local/bin"]
-  {{ template "github.com/releases" "BurntSushi/ripgrep"
-    | list ($isWindows | ternary
-      "x86_64-pc-windows-msvc.zip"
-      "x86_64-apple-darwin.tar.gz") }}
+{{ template "dep" "ripgrep/.local/bin" }}
+  {{- if $isWindows }}
+  url = "https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-pc-windows-msvc.zip"
+  {{- else }}
+  url = "https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-apple-darwin.tar.gz"
+  {{- end }}
   type = "archive"
   stripComponents = 1
 
 {{- if $isWindows }}
-[".dotfiles/deps/alacritty/.local/bin/alacritty.exe"]
-  {{ template "github.com/releases" "alacritty/alacritty"
-    | list "portable.exe" }}
+{{ template "dep" "alacritty/.local/bin/alacritty.exe" }}
+  url = "https://github.com/alacritty/alacritty/releases/download/v0.12.1/Alacritty-v0.12.1-portable.exe"
   type = "file"
   executable = true
 
-[".dotfiles/deps/alacritty/.config/alacritty/catppuccin"]
+{{ template "dep" "alacritty/.config/alacritty/catppuccin" }}
   url = "https://github.com/catppuccin/alacritty/archive/refs/heads/main.zip"
   type = "archive"
   stripComponents = 1
 
-[".dotfiles/deps/jq/.local/bin/jq.exe"]
-  {{ template "github.com/releases" "stedolan/jq"
-    | list "jq-win64.exe" }}
+{{ template "dep" "jq/.local/bin/jq.exe" }}
+  url = "https://github.com/jqlang/jq/releases/latest/download/jq-win64.exe"
   type = "file"
   executable = true
 
-[".dotfiles/deps/zsh/zsh.pkg.tar.zst"]
-  {{ template "packages.msys2.org" "zsh" }}
+{{ template "dep" "zsh/zsh.pkg.tar.zst" }}
+  url = "https://mirror.msys2.org/msys/x86_64/zsh-5.9-2-x86_64.pkg.tar.zst"
+  type = "file"
 
-[".dotfiles/deps/zstd/.local/bin"]
-  {{ template "github.com/releases" "facebook/zstd"
-    | list "win64.zip" }}
+{{ template "dep" "zstd/.local/bin" }}
+  url = "https://github.com/facebook/zstd/releases/download/v1.5.5/zstd-v1.5.5-win64.zip"
   type = "archive"
   stripComponents = 1
 {{- end }}
