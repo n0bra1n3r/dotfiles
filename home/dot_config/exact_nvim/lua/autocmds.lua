@@ -120,7 +120,9 @@ my_autocmds {
   },
   FocusLost = {
     callback = function()
-      vim.o.cursorlineopt = "both"
+      if #vim.bo.buftype == 0 then
+        vim.o.cursorlineopt = "both"
+      end
       vim.o.mouse = ""
     end
   },
