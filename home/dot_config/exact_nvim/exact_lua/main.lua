@@ -218,8 +218,8 @@ _G.my_plugins = function(plugins)
   })
 end
 
-local config_base = "~/.local/share/chezmoi/home/dot_config/exact_nvim/lua/"
-local config_dir = config_base.."configs/"
+local config_base = "~/.local/share/chezmoi/home/dot_config/exact_nvim/exact_lua/"
+local config_dir = config_base.."exact_configs/"
 local function set_plugins_keymap(key, method)
   vim.api.nvim_buf_set_keymap(0, "n", key, [[]], {
     noremap = true,
