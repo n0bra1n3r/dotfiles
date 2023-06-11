@@ -43,7 +43,7 @@ my_options {
     multispace = "· ",
     tab = "▸ ",
   }, --}}}
-  mouse = "a",
+  mouse = "nv",
   numberwidth = 2,
   ruler = false,
   scrollback = 9001,
