@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+if [[ "$OS" == *_NT* ]]; then
+  powershell -command \
+    "Start-Process 'bash' '-c \"PATH=\\\"$PATH\\\" $*\"' -Verb runAs"
+else
+  command sudo "$@"
+fi
