@@ -46,7 +46,6 @@ my_mappings {
   [""] = { --{{{ normal mode, visual mode, operator pending mode
     ["<Down>"]          = { fn.get_map_expr("<Down>"), expr = true },
     ["<Up>"]            = { fn.get_map_expr("<Up>"), expr = true },
-    ["<LeftMouse>"]     = { "ma<LeftMouse>`a" },
     ["^"]               = { fn.get_map_expr("^"), expr = true },
     ["$"]               = { fn.get_map_expr("$"), expr = true },
     ["0"]               = { fn.get_map_expr("0"), expr = true },

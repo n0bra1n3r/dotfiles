@@ -115,11 +115,13 @@ my_autocmds {
   FocusGained = {
     callback = function()
       vim.o.cursorlineopt = "number"
+      vim.o.mouse = "nv"
     end
   },
   FocusLost = {
     callback = function()
       vim.o.cursorlineopt = "both"
+      vim.o.mouse = ""
     end
   },
   TabClosed = { --{{{

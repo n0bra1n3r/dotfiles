@@ -19,12 +19,6 @@ my_plugins {
   { "kevinhwang91/nvim-bqf", ft = "qf" },
   { "https://gitlab.com/yorickpeterse/nvim-pqf.git", event = "VeryLazy" },
 
-  {
-    "kevinhwang91/nvim-ufo",
-    event = "BufRead",
-    dependencies = { "kevinhwang91/promise-async" },
-  },
-
   { "s1n7ax/nvim-window-picker", event = "WinEnter" },
 
   -- Key Mappings --
