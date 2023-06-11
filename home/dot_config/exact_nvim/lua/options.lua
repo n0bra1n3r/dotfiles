@@ -48,6 +48,7 @@ my_options {
   ruler = false,
   scrollback = 9001,
   sessionoptions = "buffers,folds,winsize,winpos",
+  selection = "exclusive",
   shiftwidth = 2,
   opt.shortmess + "sFISW",
   showbreak = "↪",
