@@ -6,7 +6,9 @@ function plug.config()
   }
 
   vim.diagnostic.config(require'lsp-zero'.defaults.diagnostics {
-    virtual_text = false,
+    severity_sort = true,
+    signs = false,
+    virtual_text = { format = function(_) return "" end },
   })
 
   lsp.set_sign_icons {

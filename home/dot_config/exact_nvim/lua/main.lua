@@ -36,19 +36,6 @@ end
 
 require "options"
 --}}}
---{{{ Load Highlights
-_G.my_highlights = function(highlights)
-  my_config.highlights = vim.tbl_extend(
-    "force",
-    my_config.highlights or {},
-    vim.deepcopy(highlights))
-  for name, value in pairs(highlights) do
-    vim.api.nvim_set_hl(0, name, value)
-  end
-end
-
-require "highlights"
---}}}
 --{{{ Load Signs
 _G.my_signs = function(signs)
   my_config.signs = vim.tbl_extend(
@@ -256,6 +243,19 @@ vim.api.nvim_create_autocmd("BufEnter", {
 })
 
 require "plugins"
+--}}}
+--{{{ Load Highlights
+_G.my_highlights = function(highlights)
+  my_config.highlights = vim.tbl_extend(
+    "force",
+    my_config.highlights or {},
+    vim.deepcopy(highlights))
+  for name, value in pairs(highlights) do
+    vim.api.nvim_set_hl(0, name, value)
+  end
+end
+
+require "highlights"
 --}}}
 --{{{ Load Mappings
 _G.my_mappings = function(mappings)

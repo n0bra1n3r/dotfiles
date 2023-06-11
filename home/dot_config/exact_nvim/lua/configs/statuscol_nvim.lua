@@ -26,10 +26,6 @@ function plug.config()
         click = "v:lua.ScFa"
       },
       { text = { " " } },
-      {
-        sign = { name = { "Diagnostic" }, auto = true },
-        click = "v:lua.ScSa"
-      },
     },
   }
 end

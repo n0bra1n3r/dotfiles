@@ -812,6 +812,17 @@ function fn.path_str(string)
   end
   return string
 end
+
+function fn.get_highlight_color_bg(name)
+  local hl = vim.api.nvim_get_hl(0, { name = name })
+  return hl.bg and ('#%06X'):format(hl.bg) or "#000000"
+end
+
+function fn.get_highlight_color_fg(name)
+  local hl = vim.api.nvim_get_hl(0, { name = name })
+  return hl.fg and ('#%06X'):format(hl.fg) or "#000000"
+end
+
 --}}}
 --{{{ Workspace
 local function get_workspace_file_path(tabnr)

@@ -9,14 +9,6 @@ local function show_file_list()
   require'telescope.builtin'.find_files()
 end
 
-local function close_all_folds()
-  require'ufo'.closeAllFolds()
-end
-
-local function open_all_folds()
-  require'ufo'.openAllFolds()
-end
-
 local function open_float()
   local width = math.min(vim.o.columns * 0.9, vim.o.columns - 16)
   local height = vim.o.lines * 0.9
@@ -107,8 +99,6 @@ my_mappings {
     yD                  = { "D" },
     yd                  = { "dd" },
     yx                  = { "col('$')==col('.')?'gJ':'x'", expr = true },
-    zM                  = { close_all_folds },
-    zR                  = { open_all_folds },
     zq                  = { "foldclosed('.')!=-1?'zMzO[z':'zM'", expr = true, noremap = false, desc = "Open fold under cursor and close all others" },
   }, --}}}
   t = { --{{{

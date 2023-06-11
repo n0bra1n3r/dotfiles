@@ -49,17 +49,12 @@ local function section_separator_highlight(left, right, mode)
   end
 end
 
-local function highlight_color(name)
-  local hl = vim.api.nvim_get_hl(0, { name = name })
-  return ('%06X'):format(hl.bg)
-end
-
 local function section_color(section)
-  return highlight_color(section_highlight(section)())
+  return fn.get_highlight_color_bg(section_highlight(section)())
 end
 
 local function mode_color(mode)
-  return highlight_color("lualine_a_"..mode)
+  return fn.get_highlight_color_bg("lualine_a_"..mode)
 end
 
 local function file_type_icon(file_type)
