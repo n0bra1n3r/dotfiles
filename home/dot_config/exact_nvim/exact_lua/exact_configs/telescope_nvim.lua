@@ -63,6 +63,8 @@ function plug.config()
             end,
           },
         },
+        no_ignore = true,
+        no_ignore_parent = true,
       },
     },
   }
