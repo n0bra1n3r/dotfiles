@@ -25,6 +25,7 @@ function plug.config()
   }
   require'which-key'.register({
     ["<leader>"] = {
+      d = { fn.resume_debugging, "debug" },
       g = {
         name = "git",
         b = { "<cmd>Gitsigns blame_line<CR>", "blame" },
