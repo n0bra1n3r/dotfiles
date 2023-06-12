@@ -264,6 +264,9 @@ function plug.config()
     lualine_b = {
       {
         "fileformat",
+        cond = function()
+          return #vim.bo.buftype == 0
+        end,
         color = function()
           if vim.bo.modified then
             return "lualine_b_insert"
@@ -276,6 +279,9 @@ function plug.config()
       },
       {
         "encoding",
+        cond = function()
+          return #vim.bo.buftype == 0
+        end,
         color = function()
           if vim.bo.modified then
             return "lualine_b_insert"
@@ -286,6 +292,9 @@ function plug.config()
       },
       {
         left_section_separator,
+        cond = function()
+          return #vim.bo.buftype == 0
+        end,
         color = function()
           if vim.bo.modified then
             return section_separator_highlight('b', 'c', 'insert')()

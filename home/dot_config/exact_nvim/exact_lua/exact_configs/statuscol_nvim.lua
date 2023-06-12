@@ -18,7 +18,12 @@ function plug.config()
         end
       end,
     },
-    ft_ignore = { "toggleterm" },
+    ft_ignore = {
+      "dapui_scopes",
+      "dapui_stacks",
+      "dapui_breakpoints",
+      "toggleterm"
+    },
     relculright = true,
     segments = {
       { text = { " " } },
