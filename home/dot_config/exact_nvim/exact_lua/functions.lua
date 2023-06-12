@@ -521,28 +521,15 @@ local function get_debug_button_callback(button)
   return button.action
 end
 
-local function apply_debugging_keymap(keymap)
-  if keymap.rhs or keymap.callback then
-    vim.api.nvim_set_keymap("n", keymap.lhs, keymap.rhs or [[]], {
-      callback = keymap.callback,
-      expr = keymap.expr,
-      noremap = keymap.noremap,
-      nowait = keymap.nowait,
-      silent = keymap.silent,
-      script = keymap.script,
-    })
-  else
-    vim.api.nvim_del_keymap("n", keymap.lhs)
-  end
-end
-
 local function set_debugging_keymap(lhs, callback)
-  local keymap = vim.fn.maparg(lhs, "n", 0, 1)
-  keymap.lhs = lhs
-
-  if debug_info.keymaps[lhs] == nil then
+  local keymap = debug_info.keymaps[lhs]
+  if keymap == nil then
+    keymap = vim.fn.maparg(lhs, "n", 0, 1)
+    keymap.lhs = lhs
     debug_info.keymaps[lhs] = keymap
   end
+
+  keymap.is_overridden = true
 
   vim.api.nvim_set_keymap("n", lhs, [[]], {
     callback = function()
@@ -554,21 +541,57 @@ end
 
 local function unset_debugging_keymap(lhs)
   local keymap = debug_info.keymaps[lhs]
-  if keymap then
-    apply_debugging_keymap(keymap)
+  if keymap and keymap.is_overridden then
+    if keymap.rhs or keymap.callback then
+      vim.api.nvim_set_keymap("n", keymap.lhs, keymap.rhs or [[]], {
+        callback = keymap.callback,
+        expr = keymap.expr,
+        noremap = keymap.noremap,
+        nowait = keymap.nowait,
+        silent = keymap.silent,
+        script = keymap.script,
+      })
+    else
+      vim.api.nvim_del_keymap("n", keymap.lhs)
+    end
+    keymap.is_overridden = false
   end
 end
 
-local function update_debugging_state(state)
-  debug_info.state = state
-
+local function unset_debugging_keymaps()
   for lhs, _ in pairs(debug_info.keymaps) do
     unset_debugging_keymap(lhs)
   end
+end
 
-  if state == 0 then
+function fn.stop_debugging()
+  if debug_info.state ~= 0 then
+    unset_debugging_keymaps()
+
+    debug_info.state = 0
     debug_info.keymaps = {}
-  else
+  end
+
+  require'dap'.clear_breakpoints()
+
+  require'dap'.listeners.after.event_continued.debug_hydra = nil
+  require'dap'.listeners.after.continue.debug_hydra = nil
+  require'dap'.listeners.after.launch.debug_hydra = nil
+  require'dap'.listeners.after.event_stopped.debug_hydra = nil
+  require'dap'.listeners.after.event_exited.debug_hydra = nil
+  require'dap'.listeners.after.event_terminated.debug_hydra = nil
+  require'dap'.listeners.after.disconnect.debug_hydra = nil
+  require'dap'.listeners.after.terminate.debug_hydra = nil
+
+  require'dapui'.close()
+end
+
+local function update_debugging_state(state)
+  if state > 0 then
+    debug_info.state = state
+
+    unset_debugging_keymaps()
+
     for _, button in ipairs(debug_info.toolbar) do
       if vim.tbl_contains(button.states, state) then
         local callback = get_debug_button_callback(button)
@@ -579,23 +602,6 @@ local function update_debugging_state(state)
   end
 
   require'lualine'.refresh{ place = { "tabline" } }
-end
-
-function fn.stop_debugging()
-    update_debugging_state(0)
-
-    require'dap'.clear_breakpoints()
-
-    require'dap'.listeners.after.event_continued.debug_hydra = nil
-    require'dap'.listeners.after.continue.debug_hydra = nil
-    require'dap'.listeners.after.launch.debug_hydra = nil
-    require'dap'.listeners.after.event_stopped.debug_hydra = nil
-    require'dap'.listeners.after.event_exited.debug_hydra = nil
-    require'dap'.listeners.after.event_terminated.debug_hydra = nil
-    require'dap'.listeners.after.disconnect.debug_hydra = nil
-    require'dap'.listeners.after.terminate.debug_hydra = nil
-
-    require'dapui'.close()
 end
 
 function fn.resume_debugging()
