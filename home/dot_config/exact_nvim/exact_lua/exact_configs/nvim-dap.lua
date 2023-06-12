@@ -2,6 +2,7 @@ function plug.config()
   local dap = require'dap'
 
   dap.defaults.auto_continue_if_many_stopped = false
+  dap.defaults.fallback.exception_breakpoints = { "uncaught" }
 
   dap.adapters.codelldb = {
     type = "server",
