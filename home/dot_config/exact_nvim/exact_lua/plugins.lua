@@ -25,8 +25,6 @@ my_plugins {
 
   { "folke/which-key.nvim", event = "VeryLazy" },
 
-  { "anuvyklack/hydra.nvim", event = "VeryLazy" },
-
   -- Terminal --
 
   {

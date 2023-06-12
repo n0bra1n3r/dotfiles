@@ -212,6 +212,7 @@ function plug.config()
       },
     },
   }
+
   local winbar = {
     lualine_a = {
       {
@@ -306,6 +307,7 @@ function plug.config()
     lualine_y = {},
     lualine_z = {},
   }
+
   local inactive_winbar = vim.deepcopy(winbar)
   for _, section in pairs(inactive_winbar) do
     for i, component in pairs(section) do
@@ -326,6 +328,17 @@ function plug.config()
       end
     end
   end
+
+  local tabline = {
+    lualine_c = fn.get_debug_toolbar(),
+  }
+  table.insert(tabline.lualine_c, 1, "%=")
+  table.insert(tabline.lualine_c, "%=")
+  table.insert(tabline.lualine_c, function()
+    vim.o.showtabline = fn.get_is_debugging() and 2 or 0
+    return [[]]
+  end)
+
   require'lualine'.setup {
     extensions = {},
     options = {
@@ -343,8 +356,10 @@ function plug.config()
       theme = "catppuccin",
     },
     sections = sections,
-    tabline = {},
+    tabline = tabline,
     winbar = winbar,
     inactive_winbar = inactive_winbar,
   }
+
+  vim.o.showtabline = 0
 end

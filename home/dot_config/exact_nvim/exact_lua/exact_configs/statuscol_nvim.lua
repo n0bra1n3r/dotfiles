@@ -1,16 +1,30 @@
 function plug.config()
+  local function dap_handler(args)
+    if fn.get_is_debugging() then
+      require'statuscol.builtin'.toggle_breakpoint(args)
+    end
+  end
+
   require'statuscol'.setup {
     bt_ignore = {
       "help",
       "quickfix",
       "terminal",
     },
+    clickhandlers = {
+      Lnum = function(args)
+        if args.button ~= "l" or fn.get_is_debugging() then
+          require'statuscol.builtin'.lnum_click(args)
+        end
+      end,
+    },
     ft_ignore = { "toggleterm" },
     relculright = true,
     segments = {
       { text = { " " } },
       {
-        sign = { name = { "Dap" }, auto = true },
+        sign = { name = { "Dap" } },
+        condition = { fn.get_is_debugging },
         click = "v:lua.ScLa",
       },
       {

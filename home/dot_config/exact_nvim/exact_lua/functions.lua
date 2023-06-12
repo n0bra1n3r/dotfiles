@@ -407,6 +407,248 @@ function fn.project_check()
   fn.run_task(("project-check +file=\"%s\""):format(filename))
 end
 --}}}
+--{{{ Debugging
+local debug_info = {
+  keymaps = {},
+  state = 0,
+  toolbar_states = {
+    [[  [~]  [<Ins>]  [<F10>] 󰗼 [<F11>] ]],
+    [[  [~]  [<Ins>]  [<F10>]  [<F6>]  [<F7>]  [<F8>]  [<F9>]  [<F11>] ]],
+    [[  [~]  [<Ins>]  [<F10>]  [<F11>] ]],
+  },
+  toolbar = {
+    {
+      [[<Ins>]],
+      action = [[toggle_breakpoint]],
+      icon = {
+        '',
+        color = "Function",
+      },
+      states = { 1, 2, 3 },
+    },
+    {
+      [[<F10>]],
+      action = [[continue]],
+      icon = {
+        '',
+        color = "Operator",
+      },
+      states = { 1 },
+    },
+    {
+      [[<F10>]],
+      action = [[continue]],
+      icon = {
+        '',
+        color = "Function",
+      },
+      states = { 2 },
+    },
+    {
+      [[<F10>]],
+      action = [[pause]],
+      icon = {
+        '',
+        color = "Function",
+      },
+      states = { 3 },
+    },
+    {
+      [[<F6>]],
+      action = [[step_over]],
+      icon = {
+        '',
+        color = "Function",
+      },
+      states = { 2 },
+    },
+    {
+      [[<F7>]],
+      action = [[step_into]],
+      icon = {
+        '',
+        color = "Function",
+      },
+      states = { 2 },
+    },
+    {
+      [[<F8>]],
+      action = [[step_out]],
+      icon = {
+        '',
+        color = "Function",
+      },
+      states = { 2 },
+    },
+    {
+      [[<F9>]],
+      action = [[run_to_cursor]],
+      icon = {
+        '',
+        color = "Operator",
+      },
+      states = { 2 },
+    },
+    {
+      [[<F11>]],
+      action = nil,
+      icon = {
+        '󰗼',
+        color = "Special",
+      },
+      states = { 1 },
+    },
+    {
+      [[<F11>]],
+      action = [[terminate]],
+      icon = {
+        '',
+        color = "Error",
+      },
+      states = { 2, 3 },
+    },
+  },
+}
+
+function fn.get_is_debugging()
+  return debug_info.state ~= 0
+end
+
+local function get_debug_button_callback(button)
+  if type(button.action) == "string" then
+    return require'dap'[button.action]
+  end
+  return button.action
+end
+
+local function apply_debugging_keymap(keymap)
+  if keymap.rhs or keymap.callback then
+    vim.api.nvim_set_keymap("n", keymap.lhs, keymap.rhs or [[]], {
+      callback = keymap.callback,
+      expr = keymap.expr,
+      noremap = keymap.noremap,
+      nowait = keymap.nowait,
+      silent = keymap.silent,
+      script = keymap.script,
+    })
+  else
+    vim.api.nvim_del_keymap("n", keymap.lhs)
+  end
+end
+
+local function set_debugging_keymap(lhs, callback)
+  local keymap = vim.fn.maparg(lhs, "n", 0, 1)
+  keymap.lhs = lhs
+
+  if debug_info.keymaps[lhs] == nil then
+    debug_info.keymaps[lhs] = keymap
+  end
+
+  vim.api.nvim_set_keymap("n", lhs, [[]], {
+    callback = function()
+      callback()
+    end,
+    noremap = true,
+  })
+end
+
+local function unset_debugging_keymap(lhs)
+  local keymap = debug_info.keymaps[lhs]
+  if keymap then
+    apply_debugging_keymap(keymap)
+  end
+end
+
+local function update_debugging_state(state)
+  debug_info.state = state
+
+  for lhs, _ in pairs(debug_info.keymaps) do
+    unset_debugging_keymap(lhs)
+  end
+
+  if state == 0 then
+    debug_info.keymaps = {}
+  else
+    for _, button in ipairs(debug_info.toolbar) do
+      if vim.tbl_contains(button.states, state) then
+        local callback = get_debug_button_callback(button)
+          or fn.stop_debugging
+        set_debugging_keymap(button[1], callback)
+      end
+    end
+  end
+
+  require'lualine'.refresh{ place = { "tabline" } }
+end
+
+function fn.stop_debugging()
+    update_debugging_state(0)
+
+    require'dap'.clear_breakpoints()
+
+    require'dap'.listeners.after.event_continued.debug_hydra = nil
+    require'dap'.listeners.after.continue.debug_hydra = nil
+    require'dap'.listeners.after.launch.debug_hydra = nil
+    require'dap'.listeners.after.event_stopped.debug_hydra = nil
+    require'dap'.listeners.after.event_exited.debug_hydra = nil
+    require'dap'.listeners.after.event_terminated.debug_hydra = nil
+    require'dap'.listeners.after.disconnect.debug_hydra = nil
+    require'dap'.listeners.after.terminate.debug_hydra = nil
+
+    require'dapui'.close()
+end
+
+function fn.resume_debugging()
+  if debug_info.state == 0 then
+    require'dapui'.open()
+
+    update_debugging_state(1)
+  end
+
+  require'dap'.listeners.after.event_continued.debug_hydra = function()
+    update_debugging_state(3)
+  end
+  require'dap'.listeners.after.continue.debug_hydra =
+    require'dap'.listeners.after.event_continued.debug_hydra
+  require'dap'.listeners.after.launch.debug_hydra =
+    require'dap'.listeners.after.event_continued.debug_hydra
+  require'dap'.listeners.after.event_stopped.debug_hydra = function()
+    update_debugging_state(2)
+  end
+  require'dap'.listeners.after.event_exited.debug_hydra =
+    require'dap'.listeners.after.event_stopped.debug_hydra
+  require'dap'.listeners.after.event_terminated.debug_hydra = function()
+    fn.stop_debugging()
+  end
+  require'dap'.listeners.after.disconnect.debug_hydra =
+    require'dap'.listeners.after.event_terminated.debug_hydra
+  require'dap'.listeners.after.terminate.debug_hydra =
+    require'dap'.listeners.after.event_terminated.debug_hydra
+end
+
+function fn.get_debug_toolbar()
+  local components = {}
+  for _, button in ipairs(debug_info.toolbar) do
+    local callback = get_debug_button_callback(button)
+      or fn.stop_debugging
+    local component = {
+      function()
+        return ("[%s]"):format(button[1])
+      end,
+      color = "Comment",
+      cond = function()
+        return vim.tbl_contains(button.states, debug_info.state)
+      end,
+      icon = button.icon,
+      on_click = function()
+        callback()
+      end,
+    }
+    table.insert(components, component)
+  end
+  return components
+end
+--}}}
 --{{{ LSP
 local function preview_location_callback(_, result, ctx)
   if result == nil or vim.tbl_isempty(result) then
