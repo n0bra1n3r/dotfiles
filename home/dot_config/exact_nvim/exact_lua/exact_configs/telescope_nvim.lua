@@ -2,7 +2,22 @@ function plug.config()
   require'telescope'.setup {
     defaults = {
       file_ignore_patterns = {
-        "^%.git[\\/]",
+        "%.DS_Store",
+        "%.git[\\/].*",
+        ".*%.bin",
+        ".*%.db.*",
+        ".*%.dll",
+        ".*%.exe",
+        ".*%.exp",
+        ".*%.ilk",
+        ".*%.lib",
+        ".*%.opendb",
+        ".*%.pdb",
+        ".*%.sln",
+        ".*%.suo",
+        ".*%.vcxproj.*",
+        "^build[\\/].*",
+        "^nimcache[\\/].*",
       },
       history = false,
       mappings = {
