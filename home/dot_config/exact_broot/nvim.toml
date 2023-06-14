@@ -39,6 +39,21 @@ syntax_theme = "OceanDark"
 
 [special-paths]
   "**/.git" = "no-enter"
+  "**/.vs" = "no-enter"
+  ".DS_Store" = "hide"
+  "*.bin" = "hide"
+  "*.db*" = "hide"
+  "*.dll" = "hide"
+  "*.exe" = "hide"
+  "*.exp" = "hide"
+  "*.ilk" = "hide"
+  "*.lib" = "hide"
+  "*.obj" = "hide"
+  "*.opendb" = "hide"
+  "*.pdb" = "hide"
+  "*.sln" = "hide"
+  "*.suo" = "hide"
+  "*.vcxproj*" = "hide"
 
 [skin]
   default = "gray(22) None / gray(20) None"
