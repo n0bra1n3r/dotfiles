@@ -285,8 +285,8 @@ end
 
 require "mappings"
 --}}}
---{{{ Load Launch Configs
-_G.my_launch = function(configs)
+--{{{ Load Launchers
+_G.my_launchers = function(configs)
   my_config.launch = vim.tbl_extend(
     "force",
     my_config.launch or {},
