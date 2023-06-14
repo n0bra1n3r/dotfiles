@@ -54,33 +54,6 @@ function plug.config()
         end,
         theme = "dropdown",
       },
-      find_files = {
-        hidden = true,
-        mappings = {
-          i = {
-            ["<M-\\>"] = function(bufnr)
-              require'telescope.actions.set'.edit(bufnr, "vsplit")
-            end,
-            ["<M-->"] = function(bufnr)
-              require'telescope.actions.set'.edit(bufnr, "split")
-            end,
-            ["<S-Tab>"] = function(bufnr)
-              require'telescope.actions'.move_selection_next(bufnr)
-            end,
-            ["<Tab>"] = function(bufnr)
-              require'telescope.actions'.move_selection_previous(bufnr)
-            end,
-            ["<M-j>"] = function(bufnr)
-              require'telescope.actions'.move_selection_next(bufnr)
-            end,
-            ["<M-k>"] = function(bufnr)
-              require'telescope.actions'.move_selection_previous(bufnr)
-            end,
-          },
-        },
-        no_ignore = true,
-        no_ignore_parent = true,
-      },
     },
   }
 end

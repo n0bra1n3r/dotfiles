@@ -5,10 +5,6 @@ local function show_buffer_list()
   require'telescope.builtin'.loclist { prompt_title = "Window Buffers" }
 end
 
-local function show_file_list()
-  require'telescope.builtin'.find_files()
-end
-
 local function open_float()
   local width = math.min(vim.o.columns * 0.9, vim.o.columns - 16)
   local height = vim.o.lines * 0.9
@@ -86,7 +82,7 @@ my_mappings {
     ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up><End><Right>':'<Left>'", expr = true },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
     ["<PageDown>"]      = { "L<Down>", noremap = false },
-    ["<Space><Space>"]  = { show_file_list, desc = "Files" },
+    ["<Space><Space>"]  = { fn.open_file_list, desc = "Files" },
     [";"]               = { "l" },
     C                   = { '"_C' },
     c                   = { '"_c' },

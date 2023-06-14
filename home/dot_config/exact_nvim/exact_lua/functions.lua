@@ -316,6 +316,34 @@ function fn.save_file()
   vim.cmd.saveas(vim.fn.fnameescape(path))
 end
 
+function fn.open_file_list()
+  local terminal = require'toggleterm.terminal'.get(1, true)
+  if terminal == nil then
+    terminal = require'toggleterm.terminal'.Terminal:new{
+      id = 1,
+      cmd = "broot --conf ~/.config/broot/nvim.toml -c :open_preview",
+      direction = "float",
+      float_opts = {
+        border = "single",
+        height = function()
+          return math.floor(vim.o.lines * 0.9)
+        end,
+        width = function()
+          return math.floor(vim.o.columns * 0.9)
+        end,
+      },
+    }
+    vim.api.nvim_create_autocmd("TermLeave", {
+      group = vim.api.nvim_create_augroup("file_list_dismisser", { clear = true }),
+      buffer = terminal.bufnr,
+      callback = function()
+        terminal:close()
+      end,
+    })
+  end
+  terminal:open()
+end
+
 function fn.open_file_folder()
   local shellslash = vim.o.shellslash
   vim.o.shellslash = false
@@ -892,7 +920,7 @@ end
 local function get_terminal()
   return require'toggleterm.terminal'.Terminal:new{
     id = 0,
-    cmd = "exec zsh --login",
+    cmd = "zsh --login",
     direction = "tab",
   }
 end
