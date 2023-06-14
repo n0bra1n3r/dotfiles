@@ -2,7 +2,8 @@
 
 source ~/.dotfiles/shellrc
 
-export fpath=(~/.dotfiles/zshrc $fpath)
+export fpath=(~/.dotfiles/zshrc ~/.dotfiles/deps/zsh/.local/usr/share/zsh/functions/* $fpath)
+export module_path=(~/.dotfiles/deps/zsh/.local/usr/lib/zsh/* $module_path)
 
 autoload -Uz compinit && compinit
 autoload -U up-line-or-beginning-search
@@ -36,4 +37,4 @@ compctl -K _workspace -V workspaces workspace
 
 [ -f ~/.zshrc ] && source ~/.zshrc
 
-eval "$(~/.local/bin/starship init zsh)"
+eval "$(starship init zsh)"

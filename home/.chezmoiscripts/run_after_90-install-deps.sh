@@ -16,7 +16,7 @@ for zip in ~/.dotfiles/deps/*/*.zip; do
 done
 
 if [[ "$OS" == *_NT* ]]; then
-  for pkg in ~/.dotfiles/deps/*/*.zst; do
+  for pkg in ~/.dotfiles/deps/*/.local/*.zst; do
     dir="$(dirname "$pkg")"
     if [[ -d "$dir" ]]; then
       pushd "$dir" >/dev/null && \
@@ -27,15 +27,9 @@ if [[ "$OS" == *_NT* ]]; then
         rm ./.* && \
         echo "> zstd $pkg"
       popd >/dev/null
-
-      sudo cp -rf "\"$dir\"/*" "/" && echo "> cp $dir/* /"
     fi
   done
 fi
-
-for dir in ~/.dotfiles/deps/*/.[^.]*; do
-  cp -rf "$dir" ~ && echo "> cp $dir ~"
-done
 
 chmod 600 ~/.ssh/keys/* && echo "> chmod 600 ~/.ssh/keys/*"
 
@@ -50,3 +44,21 @@ if [[ "$OS" == *_NT* ]]; then
     done
   fi
 fi
+
+# Install nim tree-sitter queries
+NIM_QUERIES_PATH=~/.dotfiles/deps/tree-sitter-nim/_/queries
+
+mkdir -p $NIM_QUERIES_PATH/nim
+echo "> mkdir $NIM_QUERIES_PATH/nim"
+
+cp $NIM_QUERIES_PATH/nvim/highlights.scm \
+  $NIM_QUERIES_PATH/nim/highlights.scm && \
+echo "> cp ../nvim/highlights.scm nim/highlights.scm"
+
+cp $NIM_QUERIES_PATH/nvim/indents.scm \
+  $NIM_QUERIES_PATH/nim/indents.scm && \
+echo "> cp ../nvim/indents.scm nim/indents.scm"
+
+cp $NIM_QUERIES_PATH/nvim/untested_locals.scm \
+  $NIM_QUERIES_PATH/nim/locals.scm && \
+echo "> cp ../nvim/locals.scm nim/locals.scm"

@@ -48,4 +48,4 @@ complete -o nosort -F _workspace ws
 
 [ -f ~/.bashrc ] && source ~/.bashrc
 
-eval "$(~/.local/bin/starship init bash)"
+eval "$(starship init bash)"

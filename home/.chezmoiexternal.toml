@@ -4,7 +4,6 @@
 {{- $path := . }}
 [{{ printf ".dotfiles/deps/%s" $path | quote }}]
   exact = true
-  exclude = ["**/CHANGELOG*", "**/COPYING*", "**/dll", "**/doc", "**/example", "**/include", "**/*LICENSE*", "**/licenses", "**/README*", "**/static"]
 {{- end }}
 
 {{- if index . "gitlab" }}
@@ -14,12 +13,16 @@
   stripComponents = 1
 {{- end }}
 
-[".dotfiles/tree-sitter-nim"]
+[".local/share/fonts"]
+  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
+  type = "archive"
+
+{{ template "dep" "tree-sitter-nim/_" }}
   url = "https://github.com/aMOPel/tree-sitter-nim/archive/refs/heads/main.zip"
   type = "archive"
   stripComponents = 1
 
-[".dotfiles/tree-sitter-norg"]
+{{ template "dep" "tree-sitter-norg/_" }}
   url = "https://github.com/nvim-neorg/tree-sitter-norg/archive/refs/heads/main.zip"
   type = "archive"
   stripComponents = 1
@@ -32,10 +35,6 @@
   {{- end}}
   type = "archive"
   stripComponents = 1
-
-{{ template "dep" "nerd-fonts/.local/share/fonts" }}
-  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
-  type = "archive"
 
 {{ template "dep" "starship/.local/bin" }}
   {{- if $isWindows }}
@@ -64,22 +63,23 @@
   stripComponents = 1
 
 {{- if $isWindows }}
+[".config/alacritty/catppuccin"]
+  url = "https://github.com/catppuccin/alacritty/archive/refs/heads/main.zip"
+  type = "archive"
+  stripComponents = 1
+  exact = true
+
 {{ template "dep" "alacritty/.local/bin/alacritty.exe" }}
   url = "https://github.com/alacritty/alacritty/releases/download/v0.12.1/Alacritty-v0.12.1-portable.exe"
   type = "file"
   executable = true
-
-{{ template "dep" "alacritty/.config/alacritty/catppuccin" }}
-  url = "https://github.com/catppuccin/alacritty/archive/refs/heads/main.zip"
-  type = "archive"
-  stripComponents = 1
 
 {{ template "dep" "jq/.local/bin/jq.exe" }}
   url = "https://github.com/jqlang/jq/releases/latest/download/jq-win64.exe"
   type = "file"
   executable = true
 
-{{ template "dep" "zsh/zsh.pkg.tar.zst" }}
+{{ template "dep" "zsh/.local/zsh.pkg.tar.zst" }}
   url = "https://mirror.msys2.org/msys/x86_64/zsh-5.9-2-x86_64.pkg.tar.zst"
   type = "file"
 
