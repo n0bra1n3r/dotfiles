@@ -1,5 +1,5 @@
 capture_mouse = false
-default_flags = "ht"
+default_flags = "hit"
 max_panels_count = 1
 show_selection_mark = true
 syntax_theme = "OceanDark"
@@ -9,6 +9,11 @@ syntax_theme = "OceanDark"
   key = "enter"
   external = 'nvim --server $NVIM --remote-send "<C-\><C-N>:e {file}<CR>"'
   apply_to = "file"
+
+[[verbs]]
+  key = "enter"
+  internal = "select {file}"
+  apply_to = "directory"
 
 [[verbs]]
   invocation = "vsplit"
@@ -24,7 +29,7 @@ syntax_theme = "OceanDark"
 
 [[verbs]]
   key = "alt-6"
-  execution = ":back"
+  internal = "back"
   leave_broot = false
 
 [[verbs]]
