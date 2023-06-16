@@ -293,11 +293,11 @@ _G.my_env = function(env)
     my_config.env or {},
     vim.deepcopy(env))
   for key, value in pairs(env) do
-    if key == "PATH" then
-      vim.env[key] = fn.path_str(value)
-    else
-      vim.env[key] = fn.env_str(value)
-    end
+    local expanded_value = key == "PATH"
+      and fn.path_str(value)
+      or fn.env_str(value)
+    vim.env[key] = expanded_value
+    my_config.env[key] = expanded_value
   end
 end
 --}}}
