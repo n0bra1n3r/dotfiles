@@ -285,14 +285,6 @@ end
 
 require "mappings"
 --}}}
---{{{ Load Launchers
-_G.my_launchers = function(configs)
-  my_config.launch = vim.tbl_extend(
-    "force",
-    my_config.launch or {},
-    vim.deepcopy(configs))
-end
---}}}
 --{{{ Load Env
 _G.my_env = function(env)
   my_config.env = vim.tbl_extend(
@@ -300,8 +292,28 @@ _G.my_env = function(env)
     my_config.env or {},
     vim.deepcopy(env))
   for key, value in pairs(env) do
-    vim.env[key] = value
+    if key == "PATH" then
+      vim.env[key] = fn.path_str(value)
+    else
+      vim.env[key] = fn.env_str(value)
+    end
   end
+end
+--}}}
+--{{{ Load Debuggers
+_G.my_debuggers = function(debuggers)
+  my_config.debuggers = vim.tbl_extend(
+    "force",
+    my_config.debuggers or {},
+    vim.deepcopy(debuggers))
+end
+--}}}
+--{{{ Load Launchers
+_G.my_launchers = function(launchers)
+  my_config.launchers = vim.tbl_extend(
+    "force",
+    my_config.launchers or {},
+    vim.deepcopy(launchers))
 end
 --}}}
 --{{{ Load Snippets

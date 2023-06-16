@@ -4,7 +4,7 @@ function plug.config()
   dap.defaults.auto_continue_if_many_stopped = false
   dap.defaults.fallback.exception_breakpoints = { "uncaught" }
 
-  dap.adapters.codelldb = {
+  local codelldb = {
     type = "server",
     port = "${port}",
     executable = {
@@ -17,9 +17,15 @@ function plug.config()
     },
   }
 
+  dap.adapters = setmetatable({ codelldb = codelldb }, {
+    __index = function(_, adapter)
+      return my_config.debuggers[adapter]
+    end,
+  })
+
   dap.configurations = setmetatable({}, {
     __index = function(_, filetype)
-      local config = my_config.launch[filetype]
+      local config = my_config.launchers[filetype]
       if config == nil then
         config = {
           {

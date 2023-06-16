@@ -1078,11 +1078,18 @@ function fn.shell_str(string)
   return vim.trim(vim.fn.system(("echo \"%s\""):format(string)))
 end
 
+function fn.env_str(string)
+  if vim.fn.has("win32") == 1 then
+    return vim.trim(vim.fn.system(("cygpath -w \"%s\""):format(string)))
+  end
+  return vim.trim(vim.fn.system(("echo \"%s\""):format(string)))
+end
+
 function fn.path_str(string)
   if vim.fn.has("win32") == 1 then
     return vim.trim(vim.fn.system(("cygpath -pw \"%s\""):format(string)))
   end
-  return string
+  return vim.trim(vim.fn.system(("echo \"%s\""):format(string)))
 end
 
 function fn.get_highlight_color_bg(name)
