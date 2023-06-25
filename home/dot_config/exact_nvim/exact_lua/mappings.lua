@@ -78,7 +78,7 @@ my_mappings {
     ["<End>"]           = { "$", noremap = false },
     ["<Home>"]          = { "^", noremap = false },
     ["<Enter>"]         = { fn.save_file, silent = false },
-    ["<F1>"]            = { fn.open_help },
+    ["<F1>"]            = { "':help ' . expand('<cword>') . '<CR>'", expr = true },
     ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up><End><Right>':'<Left>'", expr = true },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
     ["<PageDown>"]      = { "L<Down>", noremap = false },

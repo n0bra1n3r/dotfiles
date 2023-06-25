@@ -26,26 +26,6 @@ my_commands {
     desc = "Git add files",
     nargs = "?",
   }, --}}}
-  H = "Help",
-  HelpModeStart = { --{{{
-    function(opts)
-      vim.cmd.help(opts.args)
-      vim.cmd.set[[laststatus=0]]
-      vim.cmd[[tabonly]]
-    end,
-    desc = "Start help mode",
-    nargs = "?",
-  }, --}}}
-  Help = { --{{{
-    function(opts)
-      fn.open_help(opts.args or [[]])
-    end,
-    complete = function(lead)
-      return vim.fn.getcompletion(lead, "help")
-    end,
-    desc = "Open help",
-    nargs = "?",
-  }, --}}}
   W = "WorkspaceOpen",
   Ws = "WorkspaceSave",
   TerminalModeStart = { --{{{
