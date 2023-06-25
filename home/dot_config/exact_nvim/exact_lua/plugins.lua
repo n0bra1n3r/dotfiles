@@ -5,8 +5,6 @@ my_plugins {
   { "kevinhwang91/promise-async" },
   { "echasnovski/mini.misc" },
 
-  { "nathom/filetype.nvim", lazy = false },
-
   -- UI --
 
   { "kyazdani42/nvim-web-devicons" },
