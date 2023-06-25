@@ -28,11 +28,6 @@ syntax_theme = "OceanDark"
   apply_to = "file"
 
 [[verbs]]
-  key = "alt-6"
-  internal = "back"
-  leave_broot = false
-
-[[verbs]]
   key = "alt-backspace"
   internal = "input_clear"
   leave_broot = false

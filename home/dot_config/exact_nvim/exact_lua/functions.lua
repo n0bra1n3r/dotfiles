@@ -318,6 +318,7 @@ end
 
 function fn.open_file_list()
   local terminal = require'toggleterm.terminal'.get(1, true)
+  local did_open_new = false
   if terminal == nil then
     terminal = require'toggleterm.terminal'.Terminal:new{
       id = 1,
@@ -333,15 +334,26 @@ function fn.open_file_list()
         end,
       },
     }
+    did_open_new = true
+  end
+  terminal:open()
+  if did_open_new then
+    vim.api.nvim_buf_set_keymap(0, "t", [[<M-;>]], [[<Nop>]],
+      { noremap = true, silent = true })
+    vim.api.nvim_buf_set_keymap(0, "t", [[<M-j>]], [[<Down>]],
+      { noremap = true, silent = true })
+    vim.api.nvim_buf_set_keymap(0, "t", [[<M-k>]], [[<Up>]],
+      { noremap = true, silent = true })
+    vim.api.nvim_buf_set_keymap(0, "t", [[<M-l>]], [[<Nop>]],
+      { noremap = true, silent = true })
     vim.api.nvim_create_autocmd("TermLeave", {
       group = vim.api.nvim_create_augroup("file_list_dismisser", { clear = true }),
-      buffer = terminal.bufnr,
+      buffer = 0,
       callback = function()
         terminal:close()
       end,
     })
   end
-  terminal:open()
 end
 
 function fn.open_file_folder()
