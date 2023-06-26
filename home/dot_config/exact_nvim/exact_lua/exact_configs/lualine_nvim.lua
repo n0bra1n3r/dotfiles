@@ -196,8 +196,8 @@ function plug.config()
         "location",
         color = section_highlight'b',
         cond = function()
-          local mode = vim.api.nvim_get_mode().mode
-          return vim.bo.buftype ~= "terminal" and mode:lower():sub(1, 1) ~= "v"
+          local mode = require'lualine.utils.mode'.get_mode()
+          return vim.bo.buftype ~= "terminal" and mode:sub(1, 1) ~= "V"
         end,
       },
       {
@@ -208,7 +208,7 @@ function plug.config()
         end,
         color = section_highlight'b',
         cond = function()
-          return vim.api.nvim_get_mode().mode:lower():sub(1, 1) == "v"
+          return require'lualine.utils.mode'.get_mode():sub(1, 1) == "V"
         end,
       },
     },
