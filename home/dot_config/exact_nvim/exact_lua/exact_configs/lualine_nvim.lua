@@ -196,7 +196,19 @@ function plug.config()
         "location",
         color = section_highlight'b',
         cond = function()
-          return vim.bo.buftype ~= "terminal"
+          local mode = vim.api.nvim_get_mode().mode
+          return vim.bo.buftype ~= "terminal" and mode:lower():sub(1, 1) ~= "v"
+        end,
+      },
+      {
+        function()
+          local line_count = vim.fn.line("'>") - vim.fn.line("'<") + 1
+          local char_count = vim.fn.wordcount().visual_chars
+          return tostring(line_count) .. ":" .. tostring(char_count)
+        end,
+        color = section_highlight'b',
+        cond = function()
+          return vim.api.nvim_get_mode().mode:lower():sub(1, 1) == "v"
         end,
       },
     },
