@@ -921,6 +921,9 @@ local function get_terminal()
     id = 0,
     cmd = "zsh --login",
     direction = "tab",
+    env = {
+      STARSHIP_CONFIG = "~/.dotfiles/starship.minimal.toml",
+    },
   }
 end
 

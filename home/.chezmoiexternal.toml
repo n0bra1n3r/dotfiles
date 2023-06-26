@@ -91,4 +91,9 @@
   url = "https://github.com/facebook/zstd/releases/download/v1.5.5/zstd-v1.5.5-win64.zip"
   type = "archive"
   stripComponents = 1
+{{- else }}
+{{ template "dep" "homebrew/.local" }}
+  url = "https://github.com/Homebrew/brew/archive/refs/heads/master.zip"
+  type = "archive"
+  stripComponents = 1
 {{- end }}

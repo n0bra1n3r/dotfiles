@@ -24,7 +24,6 @@ env:
   #TERM: alacritty
   BASH_ENV: ~/.dotfiles/envrc
   ENV: ~/.dotfiles/envrc
-  STARSHIP_CONFIG: ~/.dotfiles/starship.minimal.toml
   EMU: ~/.local/bin/alacritty
   EMU_CMD: -e
 

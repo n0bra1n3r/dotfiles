@@ -1,28 +1,10 @@
 # vim: filetype=bash
 
-shopt -u nullglob
-
-case "$(uname -s)" in
-Darwin*)
-  export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
-
-  alias studio="open -a /Applications/Android\ Studio.app"
-  ;;
-MSYS_NT*)
-  export PATH=$(cygpath -pu "$PATH")
-  export MSYS=winsymlinks:nativestrict
-  export MSYS2_PATH_TYPE=inherit
-  ;&
-*_NT*)
-  export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin:$PATH"
-  export PATH="/c/PROGRA~2/Microsoft Visual Studio/Shared/Python39_64:$PATH"
-  export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/MSBuild/Microsoft/VisualStudio/NodeJs:$PATH"
-
-  alias npm="cmd -c npm.cmd"
-  ;;
-*)
-  ;;
-esac
+if [ -n "$ZSH_VERSION" ]; then
+  setopt +o nomatch
+else
+  shopt -u nullglob
+fi
 
 export PATH="$HOME/.nimble/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
@@ -45,3 +27,20 @@ export GITLAB_ACCESS_TOKEN={{ .gitlab.token | quote }}
 {{- if (index . "github") }}
 export GITHUB_ACCESS_TOKEN={{ .github.token | quote }}
 {{- end }}
+
+case "$(uname -s)" in
+*_NT*)
+  export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin:$PATH"
+  export PATH="/c/PROGRA~2/Microsoft Visual Studio/Shared/Python39_64:$PATH"
+  export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/MSBuild/Microsoft/VisualStudio/NodeJs:$PATH"
+
+  alias npm="cmd -c npm.cmd"
+  ;;
+*)
+  export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
+
+  eval "$(brew shellenv)"
+
+  alias studio="open -a /Applications/Android\ Studio.app"
+  ;;
+esac

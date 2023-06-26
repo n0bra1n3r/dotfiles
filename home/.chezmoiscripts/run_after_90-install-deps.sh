@@ -2,7 +2,11 @@
 
 set -e
 
-shopt -u nullglob
+if [ -n "$ZSH_VERSION" ]; then
+  setopt +o nomatch
+else
+  shopt -u nullglob
+fi
 
 for zip in ~/.dotfiles/deps/*/*.zip; do
   dir="$(dirname "$zip")"
@@ -33,8 +37,9 @@ fi
 
 chmod 600 ~/.ssh/keys/* && echo "> chmod 600 ~/.ssh/keys/*"
 
+font_dir="$HOME/.local/share/fonts"
+
 if [[ "$OS" == *_NT* ]]; then
-  font_dir="$HOME/.local/share/fonts"
   if [[ -d "$font_dir" ]]; then
     echo "> register-fonts $font_dir/*"
     for font_file in "$font_dir"/*.?tf; do
@@ -42,6 +47,19 @@ if [[ "$OS" == *_NT* ]]; then
       powershell -ExecutionPolicy Bypass \
         -command "~/.dotfiles/scripts/register-fonts.ps1 '$font_path'"
     done
+  fi
+else
+  # Install homebrew apps
+  if ! command -v brew &>/dev/null; then
+    source ~/.dotfiles/envrc
+
+    brew install broot
+    brew install alacritty
+  fi
+
+  if [[ -d "$font_dir" ]]; then
+    echo "> cp $font_dir/* ~/Library/Fonts"
+    cp "$font_dir"/* ~/Library/Fonts/
   fi
 fi
 

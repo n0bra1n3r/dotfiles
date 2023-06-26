@@ -426,10 +426,11 @@ import:
 #   - (macOS) /bin/bash --login
 #   - (Linux/BSD) user login shell
 #   - (Windows) powershell
-#shell:
-#  program: /bin/bash
-#  args:
-#    - --login
+shell:
+  program: C:\\PROGRA~1\\Git\\bin\\bash.exe
+  args:
+    - --rcfile '~/.dotfiles/bashrc'
+    - -i
 
 # Startup directory
 #

@@ -104,6 +104,13 @@ window:
   # and `light`. Set this to `None` to use the default theme variant.
   #gtk_theme_variant: None
 
+  # Make `Option` key behave as `Alt` (macOS only):
+  #   - OnlyLeft
+  #   - OnlyRight
+  #   - Both
+  #   - None (default)
+  option_as_alt: Both
+
 #scrolling:
   # Maximum number of lines in the scrollback buffer.
   # Specifying '0' will disable scrolling.
@@ -431,11 +438,10 @@ draw_bold_text_with_bright_colors: true
 #   - (macOS) /bin/bash --login
 #   - (Linux/BSD) user login shell
 #   - (Windows) powershell
-shell:
-  program: C:\\PROGRA~1\\Git\\bin\\bash.exe
-  args:
-    - --rcfile '~/.dotfiles/bashrc'
-    - -i
+#shell:
+#  program: /bin/bash
+#  args:
+#    - --login
 
 # Startup directory
 #

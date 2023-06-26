@@ -2,8 +2,12 @@
 
 source ~/.dotfiles/shellrc
 
-export fpath=(~/.dotfiles/zshrc/functions ~/.dotfiles/deps/zsh/.local/usr/share/zsh/functions/* $fpath)
-export module_path=(~/.dotfiles/deps/zsh/.local/usr/lib/zsh/* $module_path)
+if [ -d ~/.dotfiles/deps/zsh ]; then
+  export fpath=(~/.dotfiles/deps/zsh/.local/usr/share/zsh/functions/* $fpath)
+  export module_path=(~/.dotfiles/deps/zsh/.local/usr/lib/zsh/* $module_path)
+fi
+
+export fpath=(~/.dotfiles/zshrc/functions $fpath)
 
 autoload -Uz compinit && compinit
 autoload -U up-line-or-beginning-search

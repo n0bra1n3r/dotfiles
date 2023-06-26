@@ -6,11 +6,6 @@ if [ ! -z "$STARSHIP_CONFIG" ]; then
   export STARSHIP_CONFIG="$(eval echo "$STARSHIP_CONFIG")"
 fi
 
-if ! command -v starship &>/dev/null; then
-  sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- \
-    --bin-dir "$HOME/.local/bin" --yes
-fi
-
 function cygpath() {
   if [[ "$OS" == *_NT* ]]; then
     command cygpath $@

@@ -2,4 +2,4 @@
 
 export ZDOTDIR=~/.dotfiles/zshrc
 
-[ -f "$ZDOTDIR/zshrc/.zshenv" ] && source "$ZDOTDIR/zshrc/.zshenv"
+[ -f "$ZDOTDIR/.zshenv" ] && source "$ZDOTDIR/.zshenv"
