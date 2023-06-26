@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+REMOTE=git@github.com:n0bra1n3r/dotfiles.git
+
+cd {{ .chezmoi.sourceDir | quote }}
+
+git remote set-url origin $REMOTE
+echo "Set remote to $REMOTE."
