@@ -35,7 +35,8 @@ if [[ "$OS" == *_NT* ]]; then
   done
 fi
 
-chmod 600 ~/.ssh/keys/* && echo "> chmod 600 ~/.ssh/keys/*"
+chown -R $(whoami) ~/.ssh && echo "> chown -R ~/.ssh"
+chmod -R 600 ~/.ssh/keys && echo "> chmod -R 600 ~/.ssh/keys"
 
 font_dir="$HOME/.local/share/fonts"
 
