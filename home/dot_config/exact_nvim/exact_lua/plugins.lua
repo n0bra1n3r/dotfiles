@@ -90,6 +90,7 @@ my_plugins {
       ":MasonInstall bash-language-server",
       ":MasonInstall shellcheck",
       ":MasonInstall actionlint",
+      ":MasonInstall dart-debug-adapter",
     },
   },
 
