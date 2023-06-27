@@ -116,6 +116,7 @@ function gc() {
   git commit -m "$*"
 }
 
+alias go='git config --file ~/.gitconfig'
 alias gp='git pu'
 alias gs='git st'
 alias gu='git pull'
