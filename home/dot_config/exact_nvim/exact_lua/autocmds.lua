@@ -1,22 +1,32 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
 my_autocmds {
-  BufEnter = { --{{{
-    callback = function()
-      if vim.bo.filetype == "help" then
-        if #vim.api.nvim_tabpage_list_wins(0) > 1 then
-          vim.cmd.wincmd[[T]]
-        end
-      elseif vim.bo.filetype == "qf" then
-        vim.bo.buflisted = false
-      elseif vim.bo.filetype == "dart" then
+  BufEnter = {
+    { pattern = "*", --{{{
+      callback = function()
+        vim.cmd[[checktime]]
+      end,
+    }, --}}}
+    { pattern = "dart", --{{{
+      callback = function()
         vim.b.debug_restart_cmd = "FlutterRestart"
         vim.b.debug_start_cmd = "FlutterRun"
         vim.b.debug_stop_cmd = "FlutterQuit"
-      end
-      vim.cmd[[checktime]]
-    end,
-  }, --}}}
+      end,
+    }, --}}}
+    { pattern = "help", --{{{
+      callback = function()
+        if #vim.api.nvim_tabpage_list_wins(0) > 1 then
+          vim.cmd.wincmd[[T]]
+        end
+      end,
+    }, --}}}
+    { pattern = "qf", --{{{
+      callback = function()
+        vim.bo.buflisted = false
+      end,
+    }, --}}}
+  },
   BufHidden = { --{{{
     callback = function(args)
       if fn.is_empty_buffer(args.buf) then
