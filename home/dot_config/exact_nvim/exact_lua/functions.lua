@@ -825,25 +825,7 @@ function fn.switch_prior_tab()
   end
 end
 
-local tab_stack = {}
-
-function fn.pop_to_previous_tab()
-  local top_tab = table.remove(tab_stack, 1)
-  while top_tab ~= nil and (not vim.api.nvim_tabpage_is_valid(top_tab) or
-      top_tab == vim.api.nvim_get_current_tabpage()) do
-    top_tab = table.remove(tab_stack, 1)
-  end
-  if top_tab ~= nil then
-    vim.api.nvim_set_current_tabpage(top_tab)
-  end
-end
-
-function fn.push_current_tab()
-  table.insert(tab_stack, 1, vim.api.nvim_get_current_tabpage())
-end
-
 function fn.open_tab(filename)
-  fn.push_current_tab()
   vim.cmd.tabe(vim.fn.fnameescape(filename))
 end
 
@@ -969,7 +951,6 @@ function fn.open_terminal()
   else
     local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
     if vim.api.nvim_get_current_tabpage() ~= tabpage then
-      fn.push_current_tab()
       vim.api.nvim_set_current_tabpage(tabpage)
     end
   end
@@ -1225,7 +1206,6 @@ function fn.open_workspace(path)
     local cwd = get_tab_cwd(tabnr)
     if cwd == workspace_path then
       if not fn.is_workspace_frozen(tabnr) then
-        fn.push_current_tab()
         vim.api.nvim_set_current_tabpage(tabpage)
         return
       end

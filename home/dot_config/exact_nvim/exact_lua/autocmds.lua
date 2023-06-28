@@ -143,7 +143,6 @@ my_autocmds {
   TabClosed = { --{{{
     callback = function()
       vim.o.cmdheight = 0
-      fn.pop_to_previous_tab()
     end,
   }, --}}}
   TabEnter = { --{{{
