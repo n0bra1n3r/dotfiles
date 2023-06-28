@@ -5,6 +5,12 @@ local function get_tab_cwd(tabnr)
   return tabnr and vim.fn.getcwd(-1, tabnr) or vim.fn.getcwd(-1)
 end
 
+local function resolve_path(tabnrOrPath)
+  return type(tabnrOrPath) == "string"
+    and vim.fn.expand(tabnrOrPath)
+    or get_tab_cwd(tabnrOrPath)
+end
+
 local function create_parent_dirs(path)
   local dir = vim.fn.fnamemodify(path, ":h")
   if vim.fn.isdirectory(dir) == 0 then
@@ -163,91 +169,91 @@ end
 --{{{ Git
 local dir_git_info = {}
 
-local function get_git_info(tabnr)
-  return dir_git_info[get_tab_cwd(tabnr)]
+local function get_git_info(tabnrOrPath)
+  return dir_git_info[resolve_path(tabnrOrPath)]
 end
 
-local function set_git_info(tabnr, info)
-  local key = get_tab_cwd(tabnr)
+local function set_git_info(tabnrOrPath, info)
+  local key = resolve_path(tabnrOrPath)
   local val = dir_git_info[key]
   dir_git_info[key] = info and vim.tbl_extend("force", val or {}, info)
 end
 
-local function run_git_command(tabnr, command)
-  local git = string.format("git -C '%s' ", get_tab_cwd(tabnr))
+local function run_git_command(tabnrOrPath, command)
+  local git = string.format("git -C '%s' ", resolve_path(tabnrOrPath))
   return vim.trim(vim.fn.system(git..command))
 end
 
-function fn.is_git_dir(tabnr)
-  local info = get_git_info(tabnr)
+function fn.is_git_dir(tabnrOrPath)
+  local info = get_git_info(tabnrOrPath)
   return info and (info.is_git_dir or false) or false
 end
 
-function fn.get_git_branch(tabnr)
-  local info = get_git_info(tabnr)
+function fn.get_git_branch(tabnrOrPath)
+  local info = get_git_info(tabnrOrPath)
   return info and info.branch
 end
 
-function fn.refresh_git_diff_info(tabnr)
-  if fn.is_git_dir(tabnr) then
-    local branch = fn.get_git_branch(tabnr)
+function fn.refresh_git_diff_info(tabnrOrPath)
+  if fn.is_git_dir(tabnrOrPath) then
+    local branch = fn.get_git_branch(tabnrOrPath)
     local command = string.format("rev-list --left-right --count %s@{upstream}...%s", branch, branch)
-    local results = vim.split(run_git_command(tabnr, command), "\t", { trimempty = true })
+    local results = vim.split(run_git_command(tabnrOrPath, command), "\t", { trimempty = true })
     local has_remote = vim.v.shell_error == 0
-    set_git_info(tabnr, { has_remote = has_remote })
+    set_git_info(tabnrOrPath, { has_remote = has_remote })
     if has_remote then
-      set_git_info(tabnr, {
+      set_git_info(tabnrOrPath, {
         local_change_count = tonumber(results[2]),
         remote_change_count = tonumber(results[1]),
       })
     else
       command = string.format("rev-list --count %s", branch)
-      results = run_git_command(tabnr, command)
-      set_git_info(tabnr, { local_change_count = tonumber(results) })
+      local output = run_git_command(tabnrOrPath, command)
+      set_git_info(tabnrOrPath, { local_change_count = tonumber(output) })
     end
   end
 end
 
-function fn.refresh_git_info(tabnr)
-  local branch = run_git_command(tabnr, "branch --show-current")
+function fn.refresh_git_info(tabnrOrPath)
+  local branch = run_git_command(tabnrOrPath, "branch --show-current")
   local is_git_dir = vim.v.shell_error == 0
-  set_git_info(tabnr, { is_git_dir = is_git_dir })
+  set_git_info(tabnrOrPath, { is_git_dir = is_git_dir })
   if is_git_dir then
-    set_git_info(tabnr, { branch = branch })
-    local dir = run_git_command(tabnr, "rev-parse --show-toplevel")
-    set_git_info(tabnr, { dir = dir })
-    fn.refresh_git_diff_info(tabnr)
+    set_git_info(tabnrOrPath, { branch = branch })
+    local dir = run_git_command(tabnrOrPath, "rev-parse --show-toplevel")
+    set_git_info(tabnrOrPath, { dir = dir })
+    fn.refresh_git_diff_info(tabnrOrPath)
   else
-    set_git_info(tabnr, nil)
+    set_git_info(tabnrOrPath, nil)
   end
 end
 
-function fn.get_git_dir(tabnr)
-  local info = get_git_info(tabnr)
+function fn.get_git_dir(tabnrOrPath)
+  local info = get_git_info(tabnrOrPath)
   return info and info.dir
 end
 
-function fn.has_git_remote(tabnr)
-  local info = get_git_info(tabnr)
+function fn.has_git_remote(tabnrOrPath)
+  local info = get_git_info(tabnrOrPath)
   return info and (info.has_remote or false) or false
 end
 
-function fn.git_local_change_count(tabnr)
-  local info = get_git_info(tabnr)
+function fn.git_local_change_count(tabnrOrPath)
+  local info = get_git_info(tabnrOrPath)
   return info and (info.local_change_count or 0) or 0
 end
 
-function fn.git_remote_change_count(tabnr)
-  local info = get_git_info(tabnr)
+function fn.git_remote_change_count(tabnrOrPath)
+  local info = get_git_info(tabnrOrPath)
   return info and (info.remote_change_count or 0) or 0
 end
 
-function fn.get_git_worktree_root(tabnr)
-  local folder = get_tab_cwd(tabnr)
-  if not fn.is_git_dir(tabnr) then
+function fn.get_git_worktree_root(tabnrOrPath)
+  local folder = resolve_path(tabnrOrPath)
+  if not fn.is_git_dir(tabnrOrPath) then
     return folder
   end
-  local branch = fn.get_git_branch(tabnr)
+  local branch = fn.get_git_branch(tabnrOrPath)
   local branch_path = branch
   local folder_path = folder
   while true do
@@ -1151,11 +1157,11 @@ function fn.has_workspace_file(tabnr)
   return has_workspace_file
 end
 
-function fn.get_workspace_dir(tabnr)
-  if fn.is_git_dir(tabnr) then
-    return fn.get_git_dir(tabnr)
+function fn.get_workspace_dir(tabnrOrPath)
+  if fn.is_git_dir(tabnrOrPath) then
+    return fn.get_git_dir(tabnrOrPath)
   else
-    return get_tab_cwd(tabnr)
+    return resolve_path(tabnrOrPath)
   end
 end
 
@@ -1213,7 +1219,7 @@ function fn.load_workspace(tabnr)
 end
 
 function fn.open_workspace(path)
-  local workspace_path = vim.fn.expand(path)
+  local workspace_path = fn.get_git_worktree_root(path)
   for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
     local tabnr = vim.api.nvim_tabpage_get_number(tabpage)
     local cwd = get_tab_cwd(tabnr)

@@ -8,9 +8,10 @@ fi
 
 function cygpath() {
   if [[ "$OS" == *_NT* ]]; then
-    command cygpath $@
+    command cygpath "$@"
   else
-    echo "${!#}"
+    for last in "$@"; do :; done
+    echo "$last"
   fi
 }
 
@@ -88,6 +89,15 @@ if [ ! -z "$NVIM" ]; then
 else
   export EDITOR="nvim"
 
+  function nvim() {
+    if [ $# -eq 0 ]; then
+      local dir="$(cygpath -m "$PWD")"
+      command nvim +"TerminalModeStart" +"WorkspaceOpen $dir" +"stopinsert"
+    else
+      command nvim "$@"
+    fi
+  }
+
   function workspace() {
     source "$HOME/.dotfiles/scripts/workspace"
   }
@@ -101,6 +111,7 @@ alias g='git'
 alias l='ls'
 alias vim='nvim'
 alias w='workspace'
+alias ws='workspace'
 
 # Config aliases
 
