@@ -4,26 +4,21 @@ my_autocmds {
   BufEnter = {
     { pattern = "*", --{{{
       callback = function()
+        if vim.bo.filetype == "help" then
+          if #vim.api.nvim_tabpage_list_wins(0) > 1 then
+            vim.cmd.wincmd[[T]]
+          end
+        elseif vim.bo.filetype == "qf" then
+          vim.bo.buflisted = false
+        end
         vim.cmd[[checktime]]
       end,
     }, --}}}
-    { pattern = "dart", --{{{
+    { pattern = "*.dart", --{{{
       callback = function()
         vim.b.debug_restart_cmd = "FlutterRestart"
         vim.b.debug_start_cmd = "FlutterRun"
         vim.b.debug_stop_cmd = "FlutterQuit"
-      end,
-    }, --}}}
-    { pattern = "help", --{{{
-      callback = function()
-        if #vim.api.nvim_tabpage_list_wins(0) > 1 then
-          vim.cmd.wincmd[[T]]
-        end
-      end,
-    }, --}}}
-    { pattern = "qf", --{{{
-      callback = function()
-        vim.bo.buflisted = false
       end,
     }, --}}}
   },

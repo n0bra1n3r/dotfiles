@@ -29,12 +29,16 @@ my_commands {
   W = "WorkspaceOpen",
   Ws = "WorkspaceSave",
   TerminalModeStart = { --{{{
-    function()
+    function(opts)
       fn.refresh_git_info()
       fn.open_terminal()
       vim.cmd[[tabonly]]
+      if opts.args and #opts.args > 0 then
+        fn.send_terminal(opts.args)
+      end
     end,
     desc = "Start terminal mode",
+    nargs = "?",
   }, --}}}
   WorkspaceFreeze = { --{{{
     function()
