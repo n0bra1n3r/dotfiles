@@ -1,7 +1,40 @@
 function plug.config()
   local lsp = require'lsp-zero'
   lsp.on_attach(function(_, bufnr)
-    lsp.default_keymaps { buffer = bufnr }
+    local function fmt(cmd)
+      return function(str)
+        return cmd:format(str)
+      end
+    end
+
+    local lspfn = fmt('<cmd>lua vim.lsp.%s<cr>')
+    local diagfn = fmt('<cmd>lua vim.diagnostic.%s<cr>')
+
+    local function map(m, lhs, rhs)
+      vim.api.nvim_buf_set_keymap(bufnr, m, lhs, rhs, { noremap = true })
+    end
+
+    map('n', 'K', lspfn'buf.hover()')
+    map('n', 'gd', lspfn'buf.definition()')
+    map('n', 'gD', lspfn'buf.declaration()')
+    map('n', 'gi', lspfn'buf.implementation()')
+    map('n', 'go', lspfn'buf.type_definition()')
+    map('n', 'gr', lspfn'buf.references()')
+    map('n', 'gs', lspfn'buf.signature_help()')
+    map('n', '<F2>', lspfn'buf.rename()')
+    map('n', '<F3>', lspfn'buf.format{ async = true }')
+    map('x', '<F3>', lspfn'buf.format{ async = true }')
+    map('n', '<F4>', lspfn'buf.code_action()')
+
+    if vim.lsp.buf.range_code_action then
+      map('x', '<F4>', lspfn'buf.range_code_action()')
+    else
+      map('x', '<F4>', lspfn'buf.code_action()')
+    end
+
+    map('n', 'gl', diagfn'open_float()')
+    map('n', '[d', diagfn'goto_prev()')
+    map('n', ']d', diagfn'goto_next()')
   end)
 
   local config = require'lspconfig'
