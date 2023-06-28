@@ -60,7 +60,6 @@ my_options {
   smartindent = true,
   spell = false,
   splitbelow = true,
-  splitkeep = "screen",
   splitright = true,
   tabstop = 2,
   termguicolors = true,

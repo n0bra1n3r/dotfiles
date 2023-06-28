@@ -7,6 +7,9 @@ function plug.config()
         "uncaught",
       },
     },
+    dev_log = {
+      enabled = false,
+    },
     ui = {
       border = "single",
     },

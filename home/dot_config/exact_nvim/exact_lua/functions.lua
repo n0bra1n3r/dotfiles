@@ -468,7 +468,13 @@ local debug_info = {
     },
     {
       [[<F10>]],
-      action = [[continue]],
+      action = function()
+        if vim.b.debug_start_cmd ~= nil then
+          vim.cmd(vim.b.debug_start_cmd)
+        else
+          require'dap'.continue()
+        end
+      end,
       icon = {
         '',
         color = "Operator",
@@ -540,7 +546,13 @@ local debug_info = {
     },
     {
       [[<F11>]],
-      action = [[terminate]],
+      action = function()
+        if vim.b.debug_stop_cmd ~= nil then
+          vim.cmd(vim.b.debug_stop_cmd)
+        else
+          require'dap'.terminate()
+        end
+      end,
       icon = {
         '',
         color = "Error",
@@ -614,14 +626,13 @@ function fn.stop_debugging()
 
   require'dap'.clear_breakpoints()
 
-  require'dap'.listeners.after.event_continued.debug_hydra = nil
-  require'dap'.listeners.after.continue.debug_hydra = nil
-  require'dap'.listeners.after.launch.debug_hydra = nil
-  require'dap'.listeners.after.event_stopped.debug_hydra = nil
-  require'dap'.listeners.after.event_exited.debug_hydra = nil
-  require'dap'.listeners.after.event_terminated.debug_hydra = nil
-  require'dap'.listeners.after.disconnect.debug_hydra = nil
-  require'dap'.listeners.after.terminate.debug_hydra = nil
+  require'dap'.listeners.after.event_continued.my_debug_event = nil
+  require'dap'.listeners.after.continue.my_debug_event = nil
+  require'dap'.listeners.after.event_stopped.my_debug_event = nil
+  require'dap'.listeners.after.event_exited.my_debug_event = nil
+  require'dap'.listeners.after.event_terminated.my_debug_event = nil
+  require'dap'.listeners.after.disconnect.my_debug_event = nil
+  require'dap'.listeners.after.terminate.my_debug_event = nil
 
   require'dapui'.close()
 end
@@ -651,25 +662,27 @@ function fn.resume_debugging()
     update_debugging_state(1)
   end
 
-  require'dap'.listeners.after.event_continued.debug_hydra = function()
+  require'dap'.listeners.after.event_continued.my_debug_event = function()
     update_debugging_state(3)
   end
-  require'dap'.listeners.after.continue.debug_hydra =
-    require'dap'.listeners.after.event_continued.debug_hydra
-  require'dap'.listeners.after.launch.debug_hydra =
-    require'dap'.listeners.after.event_continued.debug_hydra
-  require'dap'.listeners.after.event_stopped.debug_hydra = function()
+  require'dap'.listeners.after.continue.my_debug_event =
+    require'dap'.listeners.after.event_continued.my_debug_event
+  require'dap'.listeners.after.attach.my_debug_event =
+    require'dap'.listeners.after.event_continued.my_debug_event
+  require'dap'.listeners.after.launch.my_debug_event =
+    require'dap'.listeners.after.event_continued.my_debug_event
+  require'dap'.listeners.after.event_stopped.my_debug_event = function()
     update_debugging_state(2)
   end
-  require'dap'.listeners.after.event_exited.debug_hydra =
-    require'dap'.listeners.after.event_stopped.debug_hydra
-  require'dap'.listeners.after.event_terminated.debug_hydra = function()
+  require'dap'.listeners.after.event_exited.my_debug_event =
+    require'dap'.listeners.after.event_stopped.my_debug_event
+  require'dap'.listeners.after.event_terminated.my_debug_event = function()
     fn.stop_debugging()
   end
-  require'dap'.listeners.after.disconnect.debug_hydra =
-    require'dap'.listeners.after.event_terminated.debug_hydra
-  require'dap'.listeners.after.terminate.debug_hydra =
-    require'dap'.listeners.after.event_terminated.debug_hydra
+  require'dap'.listeners.after.disconnect.my_debug_event =
+    require'dap'.listeners.after.event_terminated.my_debug_event
+  require'dap'.listeners.after.terminate.my_debug_event =
+    require'dap'.listeners.after.event_terminated.my_debug_event
 end
 
 function fn.get_debug_toolbar()
