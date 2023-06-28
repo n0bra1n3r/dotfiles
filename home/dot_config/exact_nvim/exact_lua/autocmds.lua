@@ -10,6 +10,7 @@ my_autocmds {
       elseif vim.bo.filetype == "qf" then
         vim.bo.buflisted = false
       elseif vim.bo.filetype == "dart" then
+        vim.b.debug_restart_cmd = "FlutterRestart"
         vim.b.debug_start_cmd = "FlutterRun"
         vim.b.debug_stop_cmd = "FlutterQuit"
       end

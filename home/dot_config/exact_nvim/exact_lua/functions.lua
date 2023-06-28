@@ -452,9 +452,9 @@ local debug_info = {
   keymaps = {},
   state = 0,
   toolbar_states = {
-    [[  [~]  [<Ins>]  [<F10>] 󰗼 [<F11>] ]],
-    [[  [~]  [<Ins>]  [<F10>]  [<F6>]  [<F7>]  [<F8>]  [<F9>]  [<F11>] ]],
-    [[  [~]  [<Ins>]  [<F10>]  [<F11>] ]],
+    [[  [~]  [<Ins>]  [<F10>] 󰗼 [<F12>] ]],
+    [[  [~]  [<Ins>]  [<F10>]  [<F6>]  [<F7>]  [<F8>]  [<F9>]  [<F11>]  [<F12>] ]],
+    [[  [~]  [<Ins>]  [<F10>]  [<F11>]  [<F12>] ]],
   },
   toolbar = {
     {
@@ -537,6 +537,21 @@ local debug_info = {
     },
     {
       [[<F11>]],
+      action = function()
+        if vim.b.debug_restart_cmd ~= nil then
+          vim.cmd(vim.b.debug_restart_cmd)
+        else
+          require'dap'.restart()
+        end
+      end,
+      icon = {
+        '',
+        color = "Function",
+      },
+      states = { 2, 3 },
+    },
+    {
+      [[<F12>]],
       action = nil,
       icon = {
         '󰗼',
@@ -545,7 +560,7 @@ local debug_info = {
       states = { 1 },
     },
     {
-      [[<F11>]],
+      [[<F12>]],
       action = function()
         if vim.b.debug_stop_cmd ~= nil then
           vim.cmd(vim.b.debug_stop_cmd)
