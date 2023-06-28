@@ -177,7 +177,6 @@ my_autocmds {
           vim.env.NVIM_CHILD_ID,
           vim.env.PARENT_NVIM)
       end
-      fn.refresh_git_info()
     end),
   }, --}}}
   VimLeavePre = { --{{{

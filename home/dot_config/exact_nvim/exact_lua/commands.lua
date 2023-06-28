@@ -30,6 +30,7 @@ my_commands {
   Ws = "WorkspaceSave",
   TerminalModeStart = { --{{{
     function()
+      fn.refresh_git_info()
       fn.open_terminal()
       vim.cmd[[tabonly]]
     end,

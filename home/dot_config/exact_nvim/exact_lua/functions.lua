@@ -170,7 +170,16 @@ end
 local dir_git_info = {}
 
 local function get_git_info(tabnrOrPath)
-  return dir_git_info[resolve_path(tabnrOrPath)]
+  local key = resolve_path(tabnrOrPath)
+  local info = dir_git_info[key]
+  while not info do
+    key = vim.fn.fnamemodify(key, ":h")
+    if key == "/" or key == "." then
+      break
+    end
+    info = dir_git_info[key]
+  end
+  return info
 end
 
 local function set_git_info(tabnrOrPath, info)
@@ -1141,9 +1150,8 @@ end
 function fn.get_workspace_dir(tabnrOrPath)
   if fn.is_git_dir(tabnrOrPath) then
     return fn.get_git_dir(tabnrOrPath)
-  else
-    return resolve_path(tabnrOrPath)
   end
+  return resolve_path(tabnrOrPath)
 end
 
 function fn.is_workspace_frozen(tabnr)
@@ -1218,4 +1226,3 @@ function fn.open_workspace(path)
   end
 end
 --}}}
-
