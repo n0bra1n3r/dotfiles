@@ -58,3 +58,6 @@
 
 [advice]
   useCoreFSMonitorConfig = false
+
+[core]
+  excludesfile = ~/.dotfiles/gitignore
