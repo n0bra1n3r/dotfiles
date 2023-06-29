@@ -37,7 +37,7 @@ else
   local THIS_BRANCH="$(git branch --show-current)"
 
   for branch in $WORKSPACE_BRANCH staging main master; do
-    if git show-ref --quiet refs/heads/$branch; then
+    if [[ ! -z "$(git show-ref refs/heads/$branch)" ]]; then
       WORKSPACE_BRANCH="$branch"
       break
     fi
