@@ -14,13 +14,6 @@ my_autocmds {
         vim.cmd[[checktime]]
       end,
     }, --}}}
-    { pattern = "*.dart", --{{{
-      callback = function()
-        vim.b.debug_restart_cmd = "FlutterRestart"
-        vim.b.debug_start_cmd = "FlutterDevices"
-        vim.b.debug_stop_cmd = "FlutterQuit"
-      end,
-    }, --}}}
   },
   BufHidden = { --{{{
     callback = function(args)

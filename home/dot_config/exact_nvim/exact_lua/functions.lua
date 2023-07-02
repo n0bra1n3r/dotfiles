@@ -484,8 +484,8 @@ local debug_info = {
     {
       [[<F10>]],
       action = function()
-        if vim.b.debug_start_cmd ~= nil then
-          vim.cmd(vim.b.debug_start_cmd)
+        if vim.bo.filetype == "dart" then
+          vim.cmd[[FlutterDevices]]
         else
           require'dap'.continue()
         end
@@ -553,8 +553,8 @@ local debug_info = {
     {
       [[<F11>]],
       action = function()
-        if vim.b.debug_restart_cmd ~= nil then
-          vim.cmd(vim.b.debug_restart_cmd)
+        if vim.bo.filetype == "dart" then
+          vim.cmd[[FlutterRestart]]
         else
           require'dap'.restart()
         end
@@ -577,8 +577,8 @@ local debug_info = {
     {
       [[<F12>]],
       action = function()
-        if vim.b.debug_stop_cmd ~= nil then
-          vim.cmd(vim.b.debug_stop_cmd)
+        if vim.bo.filetype == "dart" then
+          vim.cmd[[FlutterQuit]]
         else
           require'dap'.terminate()
         end
