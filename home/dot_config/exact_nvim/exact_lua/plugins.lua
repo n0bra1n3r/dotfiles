@@ -192,7 +192,7 @@ my_plugins {
   },
   { "echasnovski/mini.indentscope", event = { "BufRead", "BufModifiedSet" } },
   { "echasnovski/mini.splitjoin", event = { "BufRead" } },
-  { "xiyaowong/virtcolumn.nvim", event = "BufEnter" },
+  { "xiyaowong/virtcolumn.nvim", event = "VeryLazy" },
 
   -- Command Runners --
 
