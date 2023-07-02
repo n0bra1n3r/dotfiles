@@ -57,22 +57,18 @@ _G.fn = my_config.functions
 require "functions"
 --}}}
 --{{{ Load Autocmds
+local main_autocmd_group = vim.api.nvim_create_augroup("main", { clear = true })
+
 _G.my_autocmds = function(autocmds)
   my_config.autocmds = vim.tbl_extend(
     "force",
     my_config.autocmds or {},
     vim.deepcopy(autocmds))
-  local group = vim.api.nvim_create_augroup("main", { clear = true })
-  for autocmd, def in pairs(autocmds) do
-    if def[1] == nil then
-      def.group = group
-      vim.api.nvim_create_autocmd(autocmd, def)
-    else
-      for _, nested_def in ipairs(def) do
-        nested_def.group = group
-        vim.api.nvim_create_autocmd(autocmd, nested_def)
-      end
-    end
+  for _, def in pairs(autocmds) do
+    local autocmd = def[1]
+    def[1] = nil
+    def.group = main_autocmd_group
+    vim.api.nvim_create_autocmd(autocmd, def)
   end
 end
 

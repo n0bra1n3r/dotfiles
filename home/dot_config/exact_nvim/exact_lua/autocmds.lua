@@ -1,7 +1,7 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
 my_autocmds {
-  BufEnter = { --{{{
+  { "BufEnter", --{{{
     callback = function()
       if vim.bo.filetype == "help" then
         if #vim.api.nvim_tabpage_list_wins(0) > 1 then
@@ -25,14 +25,14 @@ my_autocmds {
       vim.cmd[[checktime]]
     end,
   }, --}}}
-  BufHidden = { --{{{
-    callback = function(args)
+  { "BufHidden", --{{{
+    callback = function()
       if fn.is_empty_buffer() then
         vim.bo.buflisted = false
       end
     end,
   }, --}}}
-  BufUnload = {
+  { "BufUnload", --{{{
     callback = function(args)
       fn.del_buf_from_loclist(args.buf)
       if fn.is_file_buffer(args.buf) then
@@ -41,9 +41,9 @@ my_autocmds {
         end
       end
     end,
-  },
-  BufWinEnter = { --{{{
-    callback = function(args)
+  }, --}}}
+  { "BufWinEnter", --{{{
+    callback = function()
       if fn.is_file_buffer() then
         if fn.has_workspace_file() then
           fn.save_workspace()
@@ -51,7 +51,7 @@ my_autocmds {
       end
     end,
   }, --}}}
-  BufWinLeave = { --{{{
+  { "BufWinLeave", --{{{
     callback = function(args)
       fn.add_buf_to_loclist(args.buf)
       if fn.is_file_buffer(args.buf) then
@@ -61,93 +61,91 @@ my_autocmds {
       end
     end,
   }, --}}}
-  BufWritePost = { --{{{
+  { "BufWritePost", --{{{
     callback = function(args)
       fn.project_check()
     end,
   }, --}}}
-  CmdlineEnter = { --{{{
+  { "CmdlineEnter", --{{{
     callback = function()
       vim.o.cmdheight = 1
     end,
   }, --}}}
-  CmdlineLeave = { --{{{
+  { "CmdlineLeave", --{{{
     callback = function()
       vim.o.cmdheight = 0
     end,
   }, --}}}
-  CmdWinEnter = { --{{{
+  { "CmdlineLeave", --{{{
     callback = function()
       vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[$l<C-c>]],
         { noremap = true })
     end,
   }, --}}}
-  CursorHold = { --{{{
+  { "CursorHold", --{{{
     callback = function()
       vim.diagnostic.open_float(nil, { focus = false })
     end,
   }, --}}}
-  DirChanged = { --{{{
+  { "DirChanged", --{{{
     callback = function()
       fn.refresh_git_info()
     end,
   }, --}}}
-  FileType = {
-    { pattern = { "diff", "gitcommit", "gitrebase" }, --{{{
-      callback = function()
-        vim.bo.bufhidden = "wipe"
-      end,
-    }, --}}}
-    { pattern = "help", --{{{
-      callback = function()
-        vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[<cmd>quit<CR>]],
-          { noremap = true, silent = true })
-      end,
-    }, --}}}
-    { pattern = "qf", --{{{
-      callback = function()
-        vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[<cmd>close<CR>]],
-          { noremap = true, silent = true })
-      end,
-    }, --}}}
-  },
-  FocusGained = {
+  { "FileType", pattern = { "diff", "gitcommit", "gitrebase" }, --{{{
+    callback = function()
+      vim.bo.bufhidden = "wipe"
+    end,
+  }, --}}}
+  { "FileType", pattern = "help", --{{{
+    callback = function()
+      vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[<cmd>quit<CR>]],
+        { noremap = true, silent = true })
+    end,
+  }, --}}}
+  { "FileType", pattern = "qf", --{{{
+    callback = function()
+      vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[<cmd>close<CR>]],
+        { noremap = true, silent = true })
+    end,
+  }, --}}}
+  { "FocusGained", --{{{
     callback = function()
       vim.o.cursorlineopt = "number"
       vim.o.mouse = "nv"
     end
-  },
-  FocusLost = {
+  }, --}}}
+  { "FocusLost", --{{{
     callback = function()
       if #vim.bo.buftype == 0 then
         vim.o.cursorlineopt = "both"
       end
       vim.o.mouse = ""
     end
-  },
-  TabClosed = { --{{{
+  }, --}}}
+  { "TabClosed", --{{{
     callback = function()
       vim.o.cmdheight = 0
     end,
   }, --}}}
-  TabEnter = { --{{{
+  { "TabEnter", --{{{
     callback = function()
       fn.sync_terminal()
       fn.show_workspace()
     end,
   }, --}}}
-  TabLeave = { --{{{
+  { "TabLeave", --{{{
     callback = function()
       fn.show_workspace(nil, false)
     end,
   }, --}}}
-  TermEnter = { --{{{
+  { "TermEnter", --{{{
     callback = fn.vim_defer(function()
       vim.wo.colorcolumn = nil
       vim.wo.number = false
     end),
   }, --}}}
-  TextYankPost = { --{{{
+  { "TextYankPost", --{{{
     callback = function()
       vim.highlight.on_yank {
         higroup = "IncSearch",
@@ -155,7 +153,7 @@ my_autocmds {
       }
     end,
   }, --}}}
-  VimEnter = { --{{{
+  { "VimEnter", --{{{
     callback = fn.vim_defer(function()
       if vim.env.PARENT_NVIM ~= nil then
         fn.on_child_nvim_enter(
@@ -164,7 +162,7 @@ my_autocmds {
       end
     end),
   }, --}}}
-  VimLeavePre = { --{{{
+  { "VimLeavePre", --{{{
     callback = function()
       if vim.env.PARENT_NVIM ~= nil then
         fn.on_child_nvim_exit(
