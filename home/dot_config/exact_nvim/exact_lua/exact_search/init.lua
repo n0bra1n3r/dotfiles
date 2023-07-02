@@ -145,14 +145,14 @@ local function unset_search_window_options()
   load_opt(vim.wo, "statuscolumn")
 end
 
-local function show_current_search_result()
+local function show_current_search_result(cmd)
   local pos = vim.api.nvim_win_get_cursor(0)
   local result = get_search_results_at(pos[1] - 1)[1]
   local row = tonumber(result.line_number)
   local col = pos[2]
 
   vim.cmd[[tabclose]]
-  vim.cmd.edit(result.file_name)
+  vim.cmd(("%s %s"):format(cmd, result.file_name))
   vim.api.nvim_win_set_cursor(0, { row, col })
 end
 
@@ -640,7 +640,21 @@ local function open_search_buffer()
 
     -- keybindings
     vim.api.nvim_buf_set_keymap(bufnr, "n", "<Enter>", [[]], {
-      callback = show_current_search_result,
+      callback = function()
+        show_current_search_result("edit")
+      end,
+      noremap = true,
+    })
+    vim.api.nvim_buf_set_keymap(bufnr, "n", "<M-\\>", [[]], {
+      callback = function()
+        show_current_search_result("vsplit")
+      end,
+      noremap = true,
+    })
+    vim.api.nvim_buf_set_keymap(bufnr, "n", "<M-->", [[]], {
+      callback = function()
+        show_current_search_result("split")
+      end,
       noremap = true,
     })
 
