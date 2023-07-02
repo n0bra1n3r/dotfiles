@@ -658,6 +658,8 @@ function fn.stop_debugging()
 
   require'dap'.listeners.after.event_continued.my_debug_event = nil
   require'dap'.listeners.after.continue.my_debug_event = nil
+  require'dap'.listeners.after.attach.my_debug_event = nil
+  require'dap'.listeners.after.launch.my_debug_event = nil
   require'dap'.listeners.after.event_stopped.my_debug_event = nil
   require'dap'.listeners.after.event_exited.my_debug_event = nil
   require'dap'.listeners.after.event_terminated.my_debug_event = nil

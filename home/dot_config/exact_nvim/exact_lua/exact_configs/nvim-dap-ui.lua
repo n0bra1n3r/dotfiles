@@ -34,7 +34,7 @@ function plug.config()
           },
         },
         position = "bottom",
-        size = 10,
+        size = 0.2,
       },
     },
   }

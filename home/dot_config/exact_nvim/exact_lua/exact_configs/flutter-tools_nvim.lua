@@ -13,6 +13,9 @@ function plug.config()
     dev_log = {
       enabled = false,
     },
+    dev_tools = {
+      autostart = true,
+    },
     ui = {
       border = "single",
     },

@@ -17,7 +17,7 @@ my_autocmds {
     { pattern = "*.dart", --{{{
       callback = function()
         vim.b.debug_restart_cmd = "FlutterRestart"
-        vim.b.debug_start_cmd = "FlutterRun"
+        vim.b.debug_start_cmd = "FlutterDevices"
         vim.b.debug_stop_cmd = "FlutterQuit"
       end,
     }, --}}}
