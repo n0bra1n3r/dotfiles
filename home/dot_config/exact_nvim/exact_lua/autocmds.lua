@@ -9,6 +9,18 @@ my_autocmds {
         end
       elseif vim.bo.filetype == "qf" then
         vim.bo.buflisted = false
+      else
+        if #vim.bo.buftype == 0 and vim.bo.filetype ~= "toggleterm" then
+          if vim.bo.filetype == "gitcommit" then
+            vim.wo.colorcolumn = "51,73"
+          else
+            vim.wo.colorcolumn = "81,120"
+          end
+          vim.wo.number = true
+        else
+          vim.wo.colorcolumn = nil
+          vim.wo.number = false
+        end
       end
       vim.cmd[[checktime]]
     end,
@@ -32,19 +44,6 @@ my_autocmds {
   },
   BufWinEnter = { --{{{
     callback = function(args)
-      for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do
-        if #vim.bo.buftype == 0 and vim.bo.filetype ~= "toggleterm" then
-          if vim.bo.filetype == "gitcommit" then
-            vim.wo[win].colorcolumn = "51,73"
-          else
-            vim.wo[win].colorcolumn = "81,120"
-          end
-          vim.wo[win].number = true
-        else
-          vim.wo[win].colorcolumn = nil
-          vim.wo[win].number = false
-        end
-      end
       if fn.is_file_buffer() then
         if fn.has_workspace_file() then
           fn.save_workspace()
