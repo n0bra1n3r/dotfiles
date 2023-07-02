@@ -151,6 +151,7 @@ local function show_current_search_result()
   local row = tonumber(result.line_number)
   local col = pos[2]
 
+  vim.cmd[[tabclose]]
   vim.cmd.edit(result.file_name)
   vim.api.nvim_win_set_cursor(0, { row, col })
 end
