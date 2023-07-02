@@ -32,7 +32,7 @@ my_autocmds {
   },
   BufWinEnter = { --{{{
     callback = function(args)
-      for _, win in ipairs(vim.fn.win_findbuf(0)) do
+      for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do
         if #vim.bo.buftype == 0 and vim.bo.filetype ~= "toggleterm" then
           if vim.bo.filetype == "gitcommit" then
             vim.wo[win].colorcolumn = "51,73"
