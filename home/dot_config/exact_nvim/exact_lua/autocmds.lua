@@ -76,7 +76,7 @@ my_autocmds {
       vim.o.cmdheight = 0
     end,
   }, --}}}
-  { "CmdlineLeave", --{{{
+  { "CmdWinEnter", --{{{
     callback = function()
       vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[$l<C-c>]],
         { noremap = true })
