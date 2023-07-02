@@ -1,24 +1,22 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
 my_autocmds {
-  BufEnter = {
-    { pattern = "*", --{{{
-      callback = function()
-        if vim.bo.filetype == "help" then
-          if #vim.api.nvim_tabpage_list_wins(0) > 1 then
-            vim.cmd.wincmd[[T]]
-          end
-        elseif vim.bo.filetype == "qf" then
-          vim.bo.buflisted = false
+  BufEnter = { --{{{
+    callback = function()
+      if vim.bo.filetype == "help" then
+        if #vim.api.nvim_tabpage_list_wins(0) > 1 then
+          vim.cmd.wincmd[[T]]
         end
-        vim.cmd[[checktime]]
-      end,
-    }, --}}}
-  },
+      elseif vim.bo.filetype == "qf" then
+        vim.bo.buflisted = false
+      end
+      vim.cmd[[checktime]]
+    end,
+  }, --}}}
   BufHidden = { --{{{
     callback = function(args)
-      if fn.is_empty_buffer(args.buf) then
-        vim.bo[args.buf].buflisted = false
+      if fn.is_empty_buffer() then
+        vim.bo.buflisted = false
       end
     end,
   }, --}}}
@@ -34,9 +32,9 @@ my_autocmds {
   },
   BufWinEnter = { --{{{
     callback = function(args)
-      for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do
-        if #vim.bo[args.buf].buftype == 0 then
-          if #vim.bo[args.buf].filetype == "gitcommit" then
+      for _, win in ipairs(vim.fn.win_findbuf(0)) do
+        if #vim.bo.buftype == 0 and vim.bo.filetype ~= "toggleterm" then
+          if vim.bo.filetype == "gitcommit" then
             vim.wo[win].colorcolumn = "51,73"
           else
             vim.wo[win].colorcolumn = "81,120"
@@ -47,7 +45,7 @@ my_autocmds {
           vim.wo[win].number = false
         end
       end
-      if fn.is_file_buffer(args.buf) then
+      if fn.is_file_buffer() then
         if fn.has_workspace_file() then
           fn.save_workspace()
         end
