@@ -22,6 +22,7 @@ function plug.config()
           information = { "underline" },
         },
 			},
+      notify = true,
       telescope = true,
       treesitter = true,
     },

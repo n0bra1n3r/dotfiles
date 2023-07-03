@@ -12,6 +12,8 @@ my_plugins {
   { "catppuccin/nvim", name = "catppuccin.nvim", lazy = false },
   { "luukvbaal/statuscol.nvim", lazy = false },
   { "nvim-lualine/lualine.nvim", lazy = false },
+  { "rcarriga/nvim-notify", lazy = false },
+  { "stevearc/dressing.nvim", lazy = false },
   { "j-hui/fidget.nvim", event = "LspAttach" },
 
   { "kevinhwang91/nvim-bqf", ft = "qf" },
