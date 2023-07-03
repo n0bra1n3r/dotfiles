@@ -313,6 +313,20 @@ _G.my_launchers = function(launchers)
     vim.deepcopy(launchers))
 end
 --}}}
+--{{{
+_G.my_lsp_handlers = function(handlers)
+  if not my_config.lsp_handlers then
+    my_config.lsp_handlers = {}
+  end
+  for _, def in ipairs(handlers) do
+    table.insert(my_config.lsp_handlers, vim.deepcopy(def))
+    local event = def[1]
+    vim.lsp.handlers[event] = def.callback
+  end
+end
+
+require "lsp_handlers"
+--}}}
 --{{{ Load Snippets
 _G.my_snippets = function(new_snippets)
   my_config.snippets = vim.tbl_extend(
