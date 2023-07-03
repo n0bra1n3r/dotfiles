@@ -126,6 +126,14 @@ function gc() {
   git commit -m "$*"
 }
 
+function gr() {
+  git reset \*"$*"\*
+}
+
+function grs() {
+  git reset --staged \*"$*"\*
+}
+
 alias go='git config --file ~/.gitconfig'
 alias gp='git pu'
 alias gs='git st'
