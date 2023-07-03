@@ -42,9 +42,12 @@ case "$(uname -s)" in
 *)
   export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
   export PATH="/Applications/Alacritty.app/Contents/MacOS:$PATH"
+  export PATH="$HOME/Library/Python/3.9/bin:$PATH"
 
   eval "$(brew shellenv)"
 
+  alias pip="pip3"
+  alias python="python3"
   alias studio="open -a /Applications/Android\ Studio.app"
   ;;
 esac
