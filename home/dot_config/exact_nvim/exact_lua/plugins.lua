@@ -14,6 +14,9 @@ my_plugins {
   { "nvim-lualine/lualine.nvim", lazy = false },
   { "rcarriga/nvim-notify", lazy = false },
   { "stevearc/dressing.nvim", lazy = false },
+  { "kevinhwang91/nvim-ufo", event = "BufRead",
+    dependencies = { "kevinhwang91/promise-async" },
+  },
   { "j-hui/fidget.nvim", event = "LspAttach" },
 
   { "kevinhwang91/nvim-bqf", ft = "qf" },
