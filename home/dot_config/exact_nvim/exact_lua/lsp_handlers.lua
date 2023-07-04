@@ -10,9 +10,6 @@ my_lsp_handlers {
       })[result.type]
       vim.notify(result.message, lvl, {
         title = 'LSP | ' .. client.name,
-        keep = function()
-          return lvl == 'ERROR' or lvl == 'WARN'
-        end,
       })
     end,
   } --}}}
