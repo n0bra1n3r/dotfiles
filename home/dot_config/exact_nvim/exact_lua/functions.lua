@@ -5,6 +5,12 @@ local function get_tab_cwd(tabnr)
   return tabnr and vim.fn.getcwd(-1, tabnr) or vim.fn.getcwd(-1)
 end
 
+local function set_tab_cwd(path)
+  if vim.fn.getcwd(-1) ~= path then
+    vim.cmd("silent tcd "..vim.fn.fnameescape(vim.fn.fnamemodify(path, ":.")))
+  end
+end
+
 local function resolve_path(tabnrOrPath)
   return type(tabnrOrPath) == "string"
     and vim.fn.expand(tabnrOrPath)
@@ -372,13 +378,18 @@ function fn.open_file_list()
 end
 
 function fn.open_file_folder()
-  local shellslash = vim.o.shellslash
-  vim.o.shellslash = false
+  local shellslash
+  if vim.fn.has("win32") == 1 then
+    shellslash = vim.o.shellslash
+    vim.o.shellslash = false
+  end
   local folder = vim.fn.expand"%:p:h"
-  vim.o.shellslash = shellslash
+  if vim.fn.has("win32") == 1 then
+    vim.o.shellslash = shellslash
+  end
   local job = require'plenary.job':new {
     args = { folder },
-    command = vim.fn.has"win32" and "explorer" or "open",
+    command = vim.fn.has("win32") == 1 and "explorer" or "open",
     detached = true,
   }
   job:start()
@@ -988,7 +999,7 @@ end
 function fn.set_terminal_dir(cwd)
   fn.open_terminal()
   get_terminal().dir = cwd
-  fn.set_tab_cwd(cwd)
+  set_tab_cwd(cwd)
 end
 
 function fn.send_terminal(command)
@@ -1070,12 +1081,6 @@ function fn.is_subpath(path, other)
   local other_parts = vim.split(other, "/")
   local common_parts = vim.list_slice(path_parts, 1, #other_parts)
   return vim.deep_equal(common_parts, other_parts)
-end
-
-function fn.set_tab_cwd(path)
-  if vim.fn.getcwd(-1) ~= path then
-    vim.cmd("silent tcd "..vim.fn.fnameescape(path))
-  end
 end
 
 function fn.expand_path(path)
@@ -1204,7 +1209,7 @@ function fn.load_workspace(tabnr)
       local workspace = workspace_file:read("*a")
       vim.api.nvim_exec2(workspace, { output = false })
       io.close(workspace_file)
-      fn.set_tab_cwd(work_dir)
+      set_tab_cwd(work_dir)
     end
   end
 end
@@ -1223,7 +1228,7 @@ function fn.open_workspace(path)
   end
   if vim.fn.isdirectory(workspace_path) then
     vim.cmd[[tabnew]]
-    fn.set_tab_cwd(workspace_path)
+    set_tab_cwd(".")
     fn.load_workspace()
   end
 end
