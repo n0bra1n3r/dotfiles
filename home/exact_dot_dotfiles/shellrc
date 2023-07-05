@@ -173,8 +173,9 @@ function grs() {
   git rss --staged \*"$*"\*
 }
 
+alias gl='tig log'
 alias go='git config --file ~/.gitconfig'
 alias gp='git pu'
 alias gs='git st'
 alias gu='git pull'
-alias gl='tig log'
+alias gw='git sw'
