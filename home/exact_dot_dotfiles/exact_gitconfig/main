@@ -27,9 +27,9 @@
   au = add --update
   bd = !git branch -r | awk '{print $1}' | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk '{print $1}'
   bl = !git for-each-ref --sort=-committerdate refs/heads/ --format='%(committerdate:short) %(refname:short)' | less
-  ci = commit
-  cia = commit --amend
-  cim = commit --message
+  ca = commit --amend
+  ce = commit --allow-empty --message
+  cm = commit --message
   co = checkout
   mg = merge
   pu = push --follow-tags --recurse-submodules=check

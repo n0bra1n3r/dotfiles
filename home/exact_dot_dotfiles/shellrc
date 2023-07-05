@@ -153,14 +153,14 @@ function gc() {
     if [[ ! -z "$ticket" ]]; then
       echo "WARN: unknown commit type; leaving commit message as-is"
     fi
-    git cim "$type$message"
+    git cm "$type$message"
   else
     local prefix="$type($ticket):"
 
     if [[ -z "$ticket" || "$type" == "$prefix" ]]; then
-      git cim "$type $message"
+      git cm "$type $message"
     else
-      git cim "$prefix $message"
+      git cm "$prefix $message"
     fi
   fi
 }
