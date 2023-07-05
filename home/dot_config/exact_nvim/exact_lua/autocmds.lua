@@ -66,6 +66,11 @@ my_autocmds {
       fn.project_check()
     end,
   }, --}}}
+  { "BufWritePre", pattern = "*.dart", --{{{
+    callback = function()
+      vim.lsp.buf.format()
+    end,
+  }, --}}}
   { "CmdlineEnter", --{{{
     callback = function()
       vim.o.cmdheight = 1
