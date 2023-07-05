@@ -29,6 +29,7 @@
   bl = !git for-each-ref --sort=-committerdate refs/heads/ --format='%(committerdate:short) %(refname:short)' | less
   ca = commit --amend
   ce = commit --allow-empty --message
+  cf = config --file ~/.gitconfig
   cm = commit --message
   co = checkout
   mg = merge
