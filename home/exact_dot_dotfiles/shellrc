@@ -102,6 +102,18 @@ else
   }
 fi
 
+function git_ticket() {
+  local branch="$(git branch --show-current)"
+  if [[ -z "$branch" ]]; then
+    printf ''
+  else
+    printf "$branch" | \
+      grep -Eo '^(\w+/)?(\w+[-_])?[0-9]+' | \
+      grep -Eo '(\w+[-])?[0-9]+' | \
+      tr "[:lower:]" "[:upper:]"
+  fi
+}
+
 # General aliases
 
 alias c='cd'
@@ -123,7 +135,34 @@ function ga() {
 }
 
 function gc() {
-  git commit -m "$*"
+  local type="$1"
+
+  case "$type" in
+  test|feat|refactor|style|fix|chore|docs|build|perf|ci|revert)
+    shift
+    ;;
+  *)
+    unset type
+    ;;
+  esac
+
+  local ticket="$(git_ticket)"
+  local message="$*"
+
+  if [[ -z "$type" || -z "$message" ]]; then
+    if [[ ! -z "$ticket" ]]; then
+      echo "WARN: unknown commit type; leaving commit message as-is"
+    fi
+    git commit -m "$type$message"
+  else
+    local prefix="$type($ticket):"
+
+    if [[ -z "$ticket" || "$type" == "$prefix" ]]; then
+      git commit -m "$type $message"
+    else
+      git commit -m "$prefix $message"
+    fi
+  fi
 }
 
 function gr() {
