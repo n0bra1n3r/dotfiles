@@ -131,7 +131,7 @@ alias ce='cd ~/.local/share/chezmoi && nvim'
 # Git aliases
 
 function ga() {
-  git add -N \*"$*"\* && git add -p \*"$*"\*
+  git add -N \*"$*"\* && git ap \*"$*"\*
 }
 
 function gc() {
@@ -153,24 +153,24 @@ function gc() {
     if [[ ! -z "$ticket" ]]; then
       echo "WARN: unknown commit type; leaving commit message as-is"
     fi
-    git commit -m "$type$message"
+    git cim "$type$message"
   else
     local prefix="$type($ticket):"
 
     if [[ -z "$ticket" || "$type" == "$prefix" ]]; then
-      git commit -m "$type $message"
+      git cim "$type $message"
     else
-      git commit -m "$prefix $message"
+      git cim "$prefix $message"
     fi
   fi
 }
 
 function gr() {
-  git reset \*"$*"\*
+  git rs \*"$*"\*
 }
 
 function grs() {
-  git reset --staged \*"$*"\*
+  git rss --staged \*"$*"\*
 }
 
 alias go='git config --file ~/.gitconfig'
