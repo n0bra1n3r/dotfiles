@@ -96,7 +96,7 @@ my_plugins {
       ":MasonInstall shellcheck",
       ":MasonInstall actionlint",
       ":MasonInstall dart-debug-adapter",
-      ":MasonInstall robotframework-lsp",
+      ":MasonInstall pyright",
     },
   },
 
@@ -114,6 +114,7 @@ my_plugins {
       ":TSInstall gitcommit",
       ":TSInstall gitignore",
       ":TSInstall nim",
+      ":TSInstall python",
     },
     cmd = { "TSInstall", "TSInstallSync", "TSUninstall", "TSUpdate" },
     event = "BufRead",
