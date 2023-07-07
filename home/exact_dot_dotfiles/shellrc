@@ -144,7 +144,7 @@ alias ce='cd ~/.local/share/chezmoi && nvim'
 # Git aliases
 
 function ga() {
-  git add -N "*$@*" && git ap "*$@*"
+  git add -N "*$@*" && git ap "*$@*" && git reset --mixed "*$@*"
 }
 
 function gc() {
