@@ -115,4 +115,10 @@
   url = "https://github.com/Homebrew/brew/archive/refs/heads/master.zip"
   type = "archive"
   stripComponents = 1
+
+{{ template "dep" "jq/.local/bin/jq" }}
+  url = "https://github.com/jqlang/jq/releases/latest/download/jq-osx-amd64"
+  exact = true
+  type = "file"
+  executable = true
 {{- end }}
