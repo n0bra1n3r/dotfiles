@@ -6,7 +6,7 @@ function plug.config()
 
   configs.nim = {
     install_info = {
-      url = "~/.dotfiles/deps/tree-sitter-nim/_",
+      url = "~/.dotfiles/deps/tree-sitter-nim/.dotfiles",
       files = {
         "src/parser.c",
         "src/scanner.cc",
@@ -19,7 +19,7 @@ function plug.config()
 
   configs.norg = {
     install_info = {
-      url = "~/.dotfiles/deps/tree-sitter-norg/_",
+      url = "~/.dotfiles/deps/tree-sitter-norg/.dotfiles",
       files = {
         "src/parser.c",
         "src/scanner.cc",

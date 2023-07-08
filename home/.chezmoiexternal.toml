@@ -16,13 +16,13 @@
   url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
   type = "archive"
 
-{{ template "dep" "tree-sitter-nim/_" }}
+{{ template "dep" "tree-sitter-nim/.dotfiles" }}
   url = "https://github.com/aMOPel/tree-sitter-nim/archive/refs/heads/main.zip"
   exact = true
   type = "archive"
   stripComponents = 1
 
-{{ template "dep" "tree-sitter-norg/_" }}
+{{ template "dep" "tree-sitter-norg/.dotfiles" }}
   url = "https://github.com/nvim-neorg/tree-sitter-norg/archive/refs/heads/main.zip"
   exact = true
   type = "archive"
@@ -73,6 +73,11 @@
   {{- else }}
   url = "https://github.com/nektos/act/releases/latest/download/act_Darwin_arm64.tar.gz"
   {{- end }}
+  exact = true
+  type = "archive"
+
+{{ template "dep" "zsh-autosuggestions/.dotfiles" }}
+  url = "https://github.com/zsh-users/zsh-autosuggestions/archive/refs/heads/master.zip"
   exact = true
   type = "archive"
 
