@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# chezmoi:template:left-delimiter="#{" right-delimiter="}#"
+
+set -e
+
+FONT_DIR="$HOME/.local/share/fonts"
+
+DEP_NAME="nerd-font"
+
+REL_PATH="$HOME/.dotfiles/logs/$DEP_NAME.txt"
+SHA_PATH="$HOME/.dotfiles/logs/$DEP_NAME.sha256"
+
+if [[ -f "$REL_PATH" ]]; then
+  CUR_SHA=$(cat "$REL_PATH" | sha256sum)
+fi
+
+if [[ -f "$SHA_PATH" ]]; then
+  OLD_SHA=$(cat "$SHA_PATH")
+fi
+
+if [[ -z "$CUR_SHA" || "$CUR_SHA" != "$OLD_SHA" ]]; then
+  if [[ -d "$FONT_DIR" ]]; then
+  #{- if eq .chezmoi.os "windows" }#
+    printf "> register-fonts $FONT_DIR/* "
+    for font_file in "$FONT_DIR"/*.?tf; do
+      font_path="$(cygpath -m "$font_file")"
+      powershell \
+        -ExecutionPolicy Bypass \
+        -command "~/.dotfiles/scripts/register-fonts.ps1 '$font_path'" && \
+        printf "."
+    done
+    echo
+  #{- else if eq .chezmoi.os "darwin" }#
+  cp "$FONT_DIR"/* ~/Library/Fonts/ && echo "> cp $FONT_DIR/* ~/Library/Fonts"
+  #{- end }#
+  fi
+  printf "$CUR_SHA" > "$SHA_PATH"
+fi
+
+# vim: filetype=bash

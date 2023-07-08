@@ -1,3 +1,4 @@
+{{ $isDarwin := eq .chezmoi.os "darwin" }}
 {{ $isWindows := eq .chezmoi.os "windows" }}
 
 {{- define "dep" }}
@@ -16,11 +17,18 @@
   url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
   type = "archive"
 
+[".dotfiles/logs/nerd-font.txt"]
+  url = "https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
+  type = "file"
+
 {{ template "dep" "tree-sitter-nim/.dotfiles" }}
   url = "https://github.com/aMOPel/tree-sitter-nim/archive/refs/heads/main.zip"
-  exact = true
   type = "archive"
   stripComponents = 1
+
+[".dotfiles/logs/tree-sitter-nim.txt"]
+  url = "https://api.github.com/repos/aMOPel/tree-sitter-nim/commits"
+  type = "file"
 
 {{ template "dep" "tree-sitter-norg/.dotfiles" }}
   url = "https://github.com/nvim-neorg/tree-sitter-norg/archive/refs/heads/main.zip"
@@ -31,7 +39,7 @@
 {{ template "dep" "neovim/.local" }}
   {{- if $isWindows }}
   url = "https://github.com/neovim/neovim/releases/download/nightly/nvim-win64.zip"
-  {{- else }}
+  {{- else if $isDarwin }}
   url = "https://github.com/neovim/neovim/releases/download/nightly/nvim-macos.tar.gz"
   {{- end}}
   exact = true
@@ -41,7 +49,7 @@
 {{ template "dep" "starship/.local/bin" }}
   {{- if $isWindows }}
   url = "https://github.com/starship/starship/releases/latest/download/starship-x86_64-pc-windows-msvc.zip"
-  {{- else }}
+  {{- else if $isDarwin }}
   url = "https://github.com/starship/starship/releases/latest/download/starship-aarch64-apple-darwin.tar.gz"
   {{- end }}
   exact = true
@@ -50,7 +58,7 @@
 {{ template "dep" "fd/.local/bin" }}
   {{- if $isWindows }}
   url = "https://github.com/sharkdp/fd/releases/download/v8.7.0/fd-v8.7.0-x86_64-pc-windows-msvc.zip"
-  {{- else}}
+  {{- else if $isDarwin }}
   url = "https://github.com/sharkdp/fd/releases/download/v8.7.0/fd-v8.7.0-x86_64-apple-darwin.tar.gz"
   {{- end }}
   exact = true
@@ -60,7 +68,7 @@
 {{ template "dep" "ripgrep/.local/bin" }}
   {{- if $isWindows }}
   url = "https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-pc-windows-msvc.zip"
-  {{- else }}
+  {{- else if $isDarwin }}
   url = "https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-apple-darwin.tar.gz"
   {{- end }}
   exact = true
@@ -70,7 +78,7 @@
 {{ template "dep" "act/.local/bin" }}
   {{- if $isWindows }}
   url = "https://github.com/nektos/act/releases/latest/download/act_Windows_x86_64.zip"
-  {{- else }}
+  {{- else if $isDarwin }}
   url = "https://github.com/nektos/act/releases/latest/download/act_Darwin_arm64.tar.gz"
   {{- end }}
   exact = true
@@ -115,7 +123,7 @@
   exact = true
   type = "archive"
   stripComponents = 1
-{{- else }}
+{{- else if $isDarwin }}
 {{ template "dep" "homebrew/.local" }}
   url = "https://github.com/Homebrew/brew/archive/refs/heads/master.zip"
   type = "archive"

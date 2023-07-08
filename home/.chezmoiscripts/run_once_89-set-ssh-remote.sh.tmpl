@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# chezmoi:template:left-delimiter="#{" right-delimiter="}#"
 
-REMOTE=git@github.com:n0bra1n3r/dotfiles.git
+set -e
 
-cd #{ .chezmoi.sourceDir | quote }#
+GIT_REMOTE=git@github.com:n0bra1n3r/dotfiles.git
 
-git remote set-url origin $REMOTE && echo "> git remote set-url origin $REMOTE"
+cd "{{ .chezmoi.sourceDir }}"
 
-# vim: filetype=bash foldmethod=marker foldlevel=0 foldenable
+git remote set-url origin $GIT_REMOTE && \
+  echo "> git remote set-url origin $GIT_REMOTE"
+
+# vim: filetype=bash

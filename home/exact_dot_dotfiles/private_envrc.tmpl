@@ -1,4 +1,7 @@
-# vim: filetype=bash
+#!/usr/bin/env bash
+# chezmoi:template:left-delimiter="#{" right-delimiter="}#"
+
+set -e
 
 if [ -n "$ZSH_VERSION" ]; then
   setopt +o nomatch
@@ -23,31 +26,24 @@ done
 
 export GIT_CONFIG_GLOBAL="$HOME/.dotfiles/gitconfig/main"
 
-{{- if (index . "gitlab") }}
-export GITLAB_ACCESS_TOKEN={{ .gitlab.token | quote }}
-{{- end }}
+#{- if index . "gitlab" }#
+export GITLAB_ACCESS_TOKEN="#{ .gitlab.token }#"
+#{- end }#
 
-{{- if (index . "github") }}
-export GITHUB_ACCESS_TOKEN={{ .github.token | quote }}
-{{- end }}
+#{- if index . "github" }#
+export GITHUB_ACCESS_TOKEN="#{ .github.token }#"
+#{- end }#
 
-case "$(uname -s)" in
-*_NT*)
-  export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin:$PATH"
-  export PATH="/c/PROGRA~2/Microsoft Visual Studio/Shared/Python39_64:$PATH"
-  export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/MSBuild/Microsoft/VisualStudio/NodeJs:$PATH"
+#{- if eq .chezmoi.os "windows" }#
+export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin:$PATH"
+export PATH="/c/PROGRA~2/Microsoft Visual Studio/Shared/Python39_64:$PATH"
+export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/MSBuild/Microsoft/VisualStudio/NodeJs:$PATH"
+#{- else if eq .chezmoi.os "darwin" }#
+export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
+export PATH="/Applications/Alacritty.app/Contents/MacOS:$PATH"
+export PATH="$HOME/Library/Python/3.9/bin:$PATH"
 
-  alias npm="cmd -c npm.cmd"
-  ;;
-*)
-  export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
-  export PATH="/Applications/Alacritty.app/Contents/MacOS:$PATH"
-  export PATH="$HOME/Library/Python/3.9/bin:$PATH"
+eval "$(brew shellenv)"
+#{- end }#
 
-  eval "$(brew shellenv)"
-
-  alias pip="pip3"
-  alias python="python3"
-  alias studio="open -a /Applications/Android\ Studio.app"
-  ;;
-esac
+# vim: filetype=bash

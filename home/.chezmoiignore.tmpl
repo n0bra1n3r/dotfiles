@@ -1,5 +1,5 @@
 {{- if ne .chezmoi.os "windows" }}
 AppData/
-{{- else }}
+{{- else if eq .chezmoi.os "darwin" }}
 Library/
 {{- end }}
