@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# chezmoi:template:left-delimiter="#{" right-delimiter="}#"
+##{ (joinPath .chezmoi.homeDir ".ssh" | lstat).modTime }#
+
+chmod -R 700 ~/.ssh && echo "> chmod -R 700 ~/.ssh"
+
+# vim: filetype=bash foldmethod=marker foldlevel=0 foldenable

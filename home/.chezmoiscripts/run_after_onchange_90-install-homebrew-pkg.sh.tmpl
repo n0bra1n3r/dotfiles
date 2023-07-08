@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# chezmoi:template:left-delimiter="#{" right-delimiter="}#"
+
+#{- if eq .chezmoi.os "windows" }#
+#{- else }#
+source ~/.dotfiles/envrc
+
+brew install broot
+brew install alacritty
+#{- end }#
+
+# vim: filetype=bash foldmethod=marker foldlevel=0 foldenable

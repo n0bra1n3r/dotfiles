@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# chezmoi:template:left-delimiter="#{" right-delimiter="}#"
+##{ (joinPath .chezmoi.homeDir ".dotfiles/deps/tree-sitter-nim/.dotfiles/queries/nvim" | lstat).modTime }#
+
+NIM_QUERIES_PATH=~/.dotfiles/deps/tree-sitter-nim/.dotfiles/queries
+
+mkdir -p $NIM_QUERIES_PATH/nim && echo "> mkdir $NIM_QUERIES_PATH/nim"
+
+cp $NIM_QUERIES_PATH/nvim/highlights.scm \
+  $NIM_QUERIES_PATH/nim/highlights.scm && \
+echo "> cp $NIM_QUERIES_PATH/nvim/highlights.scm $NIM_QUERIES_PATH/nim/highlights.scm"
+
+cp $NIM_QUERIES_PATH/nvim/indents.scm \
+  $NIM_QUERIES_PATH/nim/indents.scm && \
+echo "> cp $NIM_QUERIES_PATH/nvim/indents.scm $NIM_QUERIES_PATH/nim/indents.scm"
+
+cp $NIM_QUERIES_PATH/nvim/untested_locals.scm \
+  $NIM_QUERIES_PATH/nim/locals.scm && \
+echo "> cp $NIM_QUERIES_PATH/nvim/locals.scm $NIM_QUERIES_PATH/nim/locals.scm"
+
+# vim: filetype=bash foldmethod=marker foldlevel=0 foldenable

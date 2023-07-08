@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# chezmoi:template:left-delimiter="#{" right-delimiter="}#"
+##{ (joinPath .chezmoi.homeDir ".dotfiles/deps" | lstat).modTime }#
+
+set -e
+
+if [ -n "$ZSH_VERSION" ]; then
+  setopt +o nomatch
+else
+  shopt -u nullglob
+fi
+
+for zip in ~/.dotfiles/deps/*/*.zip; do
+  dir="$(dirname "$zip")"
+  if [[ -d "$dir" ]]; then
+    pushd "$dir" >/dev/null && \
+      unzip -oqq "$zip" && \
+      rm "$zip" && \
+      echo "> unzip $zip"
+    popd >/dev/null
+  fi
+done
+
+#{- if eq .chezmoi.os "windows" }#
+for pkg in ~/.dotfiles/deps/*/.local/*.zst; do
+  dir="$(dirname "$pkg")"
+  if [[ -d "$dir" ]]; then
+    pushd "$dir" >/dev/null && \
+      rm -rf !"$pkg" && \
+      zstd --decompress "$pkg" &>/dev/null && \
+      tar -xvf ./*.pkg.tar >/dev/null && \
+      rm ./*.pkg.* && \
+      rm ./.* && \
+      echo "> zstd $pkg"
+    popd >/dev/null
+  fi
+done
+#{- end }#
+
+# vim: filetype=bash foldmethod=marker foldlevel=0 foldenable
