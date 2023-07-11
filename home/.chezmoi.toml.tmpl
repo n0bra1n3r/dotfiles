@@ -1,6 +1,7 @@
 {{- $gitlabToken := promptString "GitLab API token" }}
 {{- $githubToken := promptString "GitHub Access token" }}
 {{- $orgSlug := promptString "Github organization slug" }}
+{{- $openAiKey := promptString "OpenAI key" }}
 
 {{- if $orgSlug }}
 {{- $orgEmail := promptString "Organization member email" }}
@@ -18,6 +19,11 @@
 {{- if $githubToken }}
 [data.github]
   token = {{ $githubToken | quote }}
+{{- end }}
+
+{{- if $openAiKey }}
+[data.openAi]
+  key = {{ $openAiKey | quote }}
 {{- end }}
 
 {{- if eq .chezmoi.os "windows" }}

@@ -24,6 +24,8 @@ my_plugins {
 
   { "s1n7ax/nvim-window-picker", event = "WinEnter" },
 
+  { "MunifTanjim/nui.nvim" },
+
   -- Key Mappings --
 
   { "folke/which-key.nvim", event = "VeryLazy" },
@@ -182,6 +184,16 @@ my_plugins {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
     dependencies = { "hrsh7th/nvim-cmp" },
+  },
+
+  {
+    "jackMort/ChatGPT.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope.nvim",
+    },
   },
 
   -- Editor --
