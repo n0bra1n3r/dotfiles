@@ -337,10 +337,14 @@ _G.my_snippets = function(new_snippets)
   -- TODO: move this plugin-specific code to plugin config file
   for language, snippets in pairs(my_config.snippets) do
     for name, snippet in pairs(snippets) do
+      local description = snippet.description
+      if not description then
+        description = name:sub(1,1):upper()..name:sub(2).."."
+      end
       local is_ok, snippet_entry = pcall(
         require'luasnip.util.parser'.parse_snippet,
         {
-          dscr = snippet.description,
+          dscr = description,
           name = name,
           trig = snippet.prefix,
         },

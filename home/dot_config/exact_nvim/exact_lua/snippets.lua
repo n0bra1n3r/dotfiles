@@ -2,7 +2,6 @@ my_snippets {
   dart = {
     ["create flutter stateless widget class"] = {
       prefix = "fstatelesswidget",
-      description = "Create a flutter stateless widget class.",
       body = [[
       import 'package:flutter/material.dart';
 
@@ -18,7 +17,6 @@ my_snippets {
     },
     ["create flutter stateful widget class"] = {
       prefix = "fstatefulwidget",
-      description = "Create a flutter stateful widget class.",
       body = [[
       import 'package:flutter/material.dart';
 
@@ -41,7 +39,6 @@ my_snippets {
   lua = {
     ["create snippet"] = {
       prefix = "snippet",
-      description = "Create a new object.",
       body = [=[
       ["${1:name}"] = {
         prefix = "${2:prefix}",
