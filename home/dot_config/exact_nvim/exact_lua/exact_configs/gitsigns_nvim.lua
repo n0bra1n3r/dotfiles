@@ -4,7 +4,7 @@ function plug.config()
     current_line_blame_formatter = " <author_time:%R> - <summary>",
     current_line_blame_opts = {
       ignore_whitespace = true,
-      virt_text_pos = "right_align",
+      virt_text_pos = "eol",
     },
     signs = {
       add = { text = '┃' },
