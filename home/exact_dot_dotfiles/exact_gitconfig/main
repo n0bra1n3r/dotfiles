@@ -49,17 +49,17 @@
   sw = switch
 
 [tig "bind"]
-  log = C !?git checkout %(commit)
-  main = C !?git checkout %(commit)
-  pager = C !?git checkout %(commit)
-  refs = C !?git switch %(branch)
-  log = I !git rebase --rebase-merges --interactive %(commit)
-  main = I !git rebase --rebase-merges --interactive %(commit)
-  pager = I !git rebase --rebase-merges --interactive %(commit)
-  refs = I !git rebase --rebase-merges --interactive %(branch)
-  log = S !?git reset --soft %(commit)
-  main = S !?git reset --soft %(commit)
-  pager = S !?git reset --soft %(commit)
+  log = C !?<git checkout %(commit)
+  main = C !?<git checkout %(commit)
+  pager = C !?<git checkout %(commit)
+  refs = C !?<git switch %(branch)
+  log = I !<git rebase --rebase-merges --interactive %(commit)
+  main = I !<git rebase --rebase-merges --interactive %(commit)
+  pager = I !<git rebase --rebase-merges --interactive %(commit)
+  refs = I !<git rebase --rebase-merges --interactive %(branch)
+  log = S !?>git reset --soft %(commit)
+  main = S !?>git reset --soft %(commit)
+  pager = S !?>git reset --soft %(commit)
 
 [advice]
   useCoreFSMonitorConfig = false
