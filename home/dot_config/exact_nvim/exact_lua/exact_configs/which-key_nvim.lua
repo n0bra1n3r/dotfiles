@@ -25,6 +25,12 @@ function plug.config()
   }
   require'which-key'.register({
     ["<leader>"] = {
+      a = {
+        name = "AI",
+        c = { "<cmd>ChatGPT<CR>", "AI chat" },
+        d = { "<cmd>ChatGPTRun docstring<CR>", "Generate docstring" },
+        t = { "<cmd>ChatGPTRun add_tests<CR>", "Generate tests" },
+      },
       d = { fn.resume_debugging, "debug" },
       g = {
         name = "git",
