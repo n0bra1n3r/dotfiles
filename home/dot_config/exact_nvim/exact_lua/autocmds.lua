@@ -11,14 +11,14 @@ my_autocmds {
         vim.bo.buflisted = false
       else
         if #vim.bo.buftype == 0 and vim.bo.filetype ~= "toggleterm" then
+          vim.api.nvim_set_hl(0, "OverLength", { link = "ColorColumn" })
           if vim.bo.filetype == "gitcommit" then
-            vim.wo.colorcolumn = "51,73"
+            vim.cmd[[match OverLength /\%>50v.\+/]]
           else
-            vim.wo.colorcolumn = "81,120"
+            vim.cmd[[match OverLength /\%>80v.\+/]]
           end
           vim.wo.number = true
         else
-          vim.wo.colorcolumn = nil
           vim.wo.number = false
         end
       end
@@ -146,7 +146,6 @@ my_autocmds {
   }, --}}}
   { "TermEnter", --{{{
     callback = fn.vim_defer(function()
-      vim.wo.colorcolumn = nil
       vim.wo.number = false
     end),
   }, --}}}

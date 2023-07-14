@@ -44,6 +44,7 @@ my_options {
     tab = "▸ ",
   }, --}}}
   mouse = "nv",
+  number = false,
   numberwidth = 2,
   ruler = false,
   scrollback = 9001,
