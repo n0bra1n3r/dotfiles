@@ -720,7 +720,7 @@ function fn.resume_debugging()
   require'dap'.listeners.after.event_exited.my_debug_event =
     require'dap'.listeners.after.event_stopped.my_debug_event
   require'dap'.listeners.after.event_terminated.my_debug_event = function()
-    fn.stop_debugging()
+    update_debugging_state(1)
   end
   require'dap'.listeners.after.disconnect.my_debug_event =
     require'dap'.listeners.after.event_terminated.my_debug_event
