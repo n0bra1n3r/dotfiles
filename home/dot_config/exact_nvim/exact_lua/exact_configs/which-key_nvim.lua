@@ -49,6 +49,7 @@ function plug.config()
         m = { fn.move_file, "move" },
         o = { fn.open_file_folder, "open folder" },
       },
+      i = { "<cmd>Telescope diagnostics<CR>", "issues" },
       p = {
         name = "packages",
         a = { "<cmd>Mason<CR>", "packages" },
