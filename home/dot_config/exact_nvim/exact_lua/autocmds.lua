@@ -19,6 +19,8 @@ my_autocmds {
           end
           vim.wo.number = true
         else
+          vim.api.nvim_set_hl(0, "OverLength", {})
+
           vim.wo.number = false
         end
       end
