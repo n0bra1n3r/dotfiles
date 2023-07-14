@@ -172,8 +172,8 @@ function plug.config()
           }
         end,
         symbols = {
-           added = ' ',
-           modified = ' ',
+           added = '󰅟 ',
+           modified = ' ',
            removed = '',
         },
       },
@@ -233,7 +233,7 @@ function plug.config()
             return ''
           end
           if vim.bo.readonly then
-            return ''
+            return '󰈈'
           end
           return file_type_icon(vim.bo.filetype)
         end,
