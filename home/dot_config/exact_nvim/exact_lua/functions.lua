@@ -467,11 +467,6 @@ function fn.run_command(command)
     job_info.queue[command] = "command"
   end
 end
-
-function fn.project_check()
-  local filename = vim.api.nvim_buf_get_name(0)
-  fn.run_task(("project-check +file=\"%s\""):format(filename))
-end
 --}}}
 --{{{ Debugging
 local debug_info = {
