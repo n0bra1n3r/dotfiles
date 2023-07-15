@@ -63,11 +63,6 @@ my_autocmds {
       end
     end,
   }, --}}}
-  { "BufWritePost", --{{{
-    callback = function(args)
-      fn.project_check()
-    end,
-  }, --}}}
   { "BufWritePre", pattern = "*.dart", --{{{
     callback = function()
       vim.lsp.buf.format()

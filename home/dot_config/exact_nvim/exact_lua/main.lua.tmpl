@@ -7,6 +7,15 @@ function _G.get_my_config_json(key)
   return vim.fn.json_encode(my_config[key])
 end
 
+local function set_proj_config(id, key, value)
+  local conf_table = _G.my_config[key]
+  if not conf_table then
+    conf_table = {}
+    _G.my_config[key] = conf_table
+  end
+  conf_table[id] = value
+end
+
 --{{{ Load Globals
 _G.my_globals = function(globals)
   my_config.globals = vim.tbl_extend(
@@ -60,14 +69,13 @@ require "functions"
 local group_main_autocmd = vim.api.nvim_create_augroup("main", { clear = true })
 
 _G.my_autocmds = function(autocmds)
-  if not my_config.autocmds then
-    my_config.autocmds = {}
-  end
+  local conf_id = debug.getinfo(2, 'S').source:sub(2):match'(.*/)'
+  set_proj_config(conf_id, 'autocmds', autocmds)
+  local conf_group = vim.api.nvim_create_augroup(("main-%s"):format(conf_id), { clear = true })
   for _, def in ipairs(autocmds) do
-    table.insert(my_config.autocmds, vim.deepcopy(def))
     local autocmd = def[1]
     def[1] = nil
-    def.group = group_main_autocmd
+    def.group = conf_group
     vim.api.nvim_create_autocmd(autocmd, def)
   end
 end
