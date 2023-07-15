@@ -496,6 +496,7 @@ local debug_info = {
       [[<F10>]],
       action = function()
         if vim.bo.filetype == "dart" then
+          vim.notify("Detecting devices...", "INFO", { title = "FlutterTools" })
           vim.cmd[[FlutterDevices]]
         else
           require'dap'.continue()
