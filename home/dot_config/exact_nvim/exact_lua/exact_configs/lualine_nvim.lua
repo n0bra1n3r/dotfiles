@@ -17,11 +17,11 @@ local function right_section_separator()
   return ''
 end
 
-local function project_state(values)
+local function workspace_state()
   if fn.get_is_job_in_progress() then
     return fn.job_indicator()
   else
-    return values[fn.project_status()] or values.default
+    return require'lualine.utils.mode'.get_mode():sub(1, 1)
   end
 end
 
@@ -116,9 +116,7 @@ function plug.config()
     lualine_a = {
       {
         function()
-          return project_state {
-            default = require'lualine.utils.mode'.get_mode():sub(1, 1),
-          }
+          return workspace_state()
         end,
         color = function()
           return {

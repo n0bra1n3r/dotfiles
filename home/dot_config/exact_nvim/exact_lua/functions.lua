@@ -428,10 +428,6 @@ function fn.job_indicator()
   return job_info.progress_icons[job_info.progress_index]
 end
 
-function fn.project_status()
-  return vim.g.asynctasks_profile
-end
-
 vim.api.nvim_create_autocmd("User", {
   group = vim.api.nvim_create_augroup("queued_job_runner", { clear = true }),
   pattern = "AsyncRunStop",
@@ -451,14 +447,6 @@ vim.api.nvim_create_autocmd("User", {
     end
   end,
 })
-
-function fn.run_task(task)
-  if not fn.get_is_job_in_progress() then
-    vim.cmd.AsyncTask(task)
-  else
-    job_info.queue[task] = "task"
-  end
-end
 
 function fn.run_command(command)
   if not fn.get_is_job_in_progress() then
