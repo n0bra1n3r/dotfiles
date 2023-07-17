@@ -169,7 +169,12 @@ function plug.config()
         sources = { fn.get_qf_diagnostics },
       },
     },
-    lualine_x = {},
+    lualine_x = {
+      {
+        "overseer",
+        status = { require'overseer'.STATUS.RUNNING },
+      },
+    },
     lualine_y = {
       {
         right_section_separator,
