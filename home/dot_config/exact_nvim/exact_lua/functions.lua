@@ -400,6 +400,10 @@ function fn.run_command(command, args)
   local task = require'overseer'.new_task {
     args = args,
     cmd = { command },
+    components = {
+      'default',
+      'unique',
+    },
   }
   task:start()
 end
