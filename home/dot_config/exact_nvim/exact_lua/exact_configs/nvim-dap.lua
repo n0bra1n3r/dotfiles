@@ -19,7 +19,7 @@ function plug.config()
 
   dap.adapters = setmetatable({ codelldb = codelldb }, {
     __index = function(_, adapter)
-      return my_config.debuggers[adapter]
+      return my_config.debuggers and my_config.debuggers[adapter]
     end,
   })
 

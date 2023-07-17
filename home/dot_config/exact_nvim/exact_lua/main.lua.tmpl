@@ -309,9 +309,19 @@ end
 _G.my_debuggers = function(debuggers)
   my_config.debuggers = vim.tbl_extend(
     "force",
-    my_config.debuggers or {},
+    my_config.debuggers or { defaults = {} },
     vim.deepcopy(debuggers))
 end
+--}}}
+--{{{ Load Debugger Callbacks
+_G.my_debugger_callbacks = function(callbacks)
+  my_config.debugger_callbacks = vim.tbl_extend(
+    "force",
+    my_config.debugger_callbacks or {},
+    vim.deepcopy(callbacks))
+end
+
+require "debugger_callbacks"
 --}}}
 --{{{ Load Launchers
 _G.my_launchers = function(launchers)

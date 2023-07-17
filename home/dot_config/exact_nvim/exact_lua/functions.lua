@@ -477,14 +477,7 @@ local debug_info = {
     },
     {
       [[<F10>]],
-      action = function()
-        if vim.bo.filetype == "dart" then
-          vim.notify("Detecting devices...", "INFO", { title = "FlutterTools" })
-          vim.cmd[[FlutterDevices]]
-        else
-          require'dap'.continue()
-        end
-      end,
+      action = [[continue]],
       icon = {
         '',
         color = "Operator",
@@ -547,13 +540,7 @@ local debug_info = {
     },
     {
       [[<F11>]],
-      action = function()
-        if vim.bo.filetype == "dart" then
-          vim.cmd[[FlutterRestart]]
-        else
-          require'dap'.restart()
-        end
-      end,
+      action = [[restart]],
       icon = {
         '',
         color = "Function",
@@ -571,13 +558,7 @@ local debug_info = {
     },
     {
       [[<F12>]],
-      action = function()
-        if vim.bo.filetype == "dart" then
-          vim.cmd[[FlutterQuit]]
-        else
-          require'dap'.terminate()
-        end
-      end,
+      action = [[terminate]],
       icon = {
         '',
         color = "Error",
@@ -591,9 +572,20 @@ function fn.get_is_debugging()
   return debug_info.state ~= 0
 end
 
+function fn.get_debug_callback(action)
+  return function()
+    local callback =
+      my_config.debugger_callbacks and
+      my_config.debugger_callbacks[vim.o.filetype] and
+      my_config.debugger_callbacks[vim.o.filetype][action] or
+      require'dap'[action]
+    callback()
+  end
+end
+
 local function get_debug_button_callback(button)
   if type(button.action) == "string" then
-    return require'dap'[button.action]
+    return fn.get_debug_callback(button.action)
   end
   return button.action
 end
