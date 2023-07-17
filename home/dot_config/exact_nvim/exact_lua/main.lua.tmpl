@@ -309,8 +309,49 @@ end
 _G.my_debuggers = function(debuggers)
   my_config.debuggers = vim.tbl_extend(
     "force",
-    my_config.debuggers or { defaults = {} },
+    my_config.debuggers or {},
     vim.deepcopy(debuggers))
+end
+--}}}
+--{{{ Load Tasks
+_G.my_tasks = function(tasks)
+  my_config.tasks = vim.tbl_extend(
+    "force",
+    my_config.tasks or {},
+    vim.deepcopy(tasks))
+
+  -- TODO: move this plugin-specific code to plugin config file
+  for name, config in pairs(tasks) do
+    local tags = {}
+    if config.tags then
+      for _, tag in ipairs(config.tags) do
+        table.insert(tags, require'overseer'.TAG[tag])
+      end
+    end
+    require'overseer'.register_template {
+      name = name,
+      builder = function(params)
+        return {
+          cmd = { config.cmd },
+          args = vim.fn.extendnew(config.args, params.args or {}),
+          env = config.env,
+        }
+      end,
+      condition = {
+        filetype = config.filetype,
+        dir = fn.get_workspace_dir(),
+      },
+      params = vim.tbl_extend('keep', {
+        args = {
+          delimiter = " ",
+          optional = true,
+          subtype = { "string" },
+          type = "list",
+        },
+      }, config.params or {}),
+      tags = tags,
+    }
+  end
 end
 --}}}
 --{{{ Load Debugger Callbacks

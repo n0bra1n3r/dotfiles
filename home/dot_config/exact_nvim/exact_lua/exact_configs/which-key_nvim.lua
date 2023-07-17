@@ -27,8 +27,8 @@ function plug.config()
     ["<leader>"] = {
       a = {
         name = "AI",
-        c = { "<cmd>ChatGPT<CR>", "AI chat" },
         d = { "<cmd>ChatGPTRun docstring<CR>", "Generate docstring" },
+        i = { "<cmd>ChatGPT<CR>", "Chat" },
         t = { "<cmd>ChatGPTRun add_tests<CR>", "Generate tests" },
       },
       d = { fn.resume_debugging, "debug" },
@@ -56,6 +56,7 @@ function plug.config()
         l = { "<cmd>Lazy<CR>", "plugins" },
       },
       s = { search_and_replace, "search & replace" },
+      t = { "<cmd>OverseerRun<CR>", "tasks" },
       q = {
         name = "quickfix",
         q = { fn.toggle_quickfix, "toggle" },

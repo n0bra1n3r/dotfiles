@@ -395,13 +395,12 @@ function fn.open_file_folder()
   job:start()
 end
 --}}}
---{{{ Jobs
-function fn.run_command(command, args)
-  local task = require'overseer'.new_task {
-    args = args,
-    cmd = { command },
+--{{{ Tasks
+function fn.run_task(name, args)
+  require'overseer'.run_template {
+    name = name,
+    params = { args = args },
   }
-  task:start()
 end
 --}}}
 --{{{ Debugging
