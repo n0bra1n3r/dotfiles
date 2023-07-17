@@ -79,7 +79,6 @@ function plug.config()
   require'null-ls'.setup {
     sources = {
       require'null-ls'.builtins.diagnostics.actionlint,
-      require'null-ls'.builtins.formatting.dart_format,
       nim_diagnostics(),
       require'null-ls'.builtins.diagnostics.shellcheck,
     },
