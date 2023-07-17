@@ -396,64 +396,12 @@ function fn.open_file_folder()
 end
 --}}}
 --{{{ Jobs
-local job_info = {
-  count = 0,
-  queue = {},
-  progress_icons = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
-  progress_index = 0,
-}
-
-function fn.get_is_job_in_progress()
-  return job_info.count > 0
-end
-
-function fn.set_is_job_in_progress(value)
-  if value then
-    job_info.count = job_info.count + 1
-  else
-    job_info.count = math.max(job_info.count - 1, 0)
-  end
-end
-
-function fn.job_indicator()
-  if job_info.progress_index == 0 then
-    job_info.progress_index = 1
-    local timer = vim.loop.new_timer()
-    timer:start(0, vim.o.updatetime, function()
-      job_info.progress_index =
-        job_info.progress_index %
-        #job_info.progress_icons + 1
-    end)
-  end
-  return job_info.progress_icons[job_info.progress_index]
-end
-
-vim.api.nvim_create_autocmd("User", {
-  group = vim.api.nvim_create_augroup("queued_job_runner", { clear = true }),
-  pattern = "AsyncRunStop",
-  callback = function()
-    local job
-    for e, k in pairs(job_info.queue) do
-      job = { kind = k, exec = e }
-      break
-    end
-    if job ~= nil then
-      job_info.queue[job.exec] = nil
-      if job.kind == "task" then
-        vim.cmd.AsyncTask(job.exec)
-      elseif job.kind == "command" then
-        vim.cmd.AsyncRun(job.exec)
-      end
-    end
-  end,
-})
-
-function fn.run_command(command)
-  if not fn.get_is_job_in_progress() then
-    vim.cmd.AsyncRun(command)
-  else
-    job_info.queue[command] = "command"
-  end
+function fn.run_command(command, args)
+  local task = require'overseer'.new_task {
+    args = args,
+    cmd = { command },
+  }
+  task:start()
 end
 --}}}
 --{{{ Debugging

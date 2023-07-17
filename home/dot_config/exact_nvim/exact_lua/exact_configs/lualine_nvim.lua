@@ -17,19 +17,8 @@ local function right_section_separator()
   return ''
 end
 
-local function workspace_state()
-  if fn.get_is_job_in_progress() then
-    return fn.job_indicator()
-  else
-    return require'lualine.utils.mode'.get_mode():sub(1, 1)
-  end
-end
-
 local function section_highlight(section)
   return function()
-    if fn.get_is_job_in_progress() then
-      return "lualine_"..section.."_command"
-    end
     return "lualine_"..section..require'lualine.highlight'.get_mode_suffix()
   end
 end
@@ -116,7 +105,7 @@ function plug.config()
     lualine_a = {
       {
         function()
-          return workspace_state()
+          return require'lualine.utils.mode'.get_mode():sub(1, 1)
         end,
         color = function()
           return {

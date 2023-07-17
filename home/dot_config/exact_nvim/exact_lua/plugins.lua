@@ -228,6 +228,8 @@ my_plugins {
     dependencies = { "skywind3000/asyncrun.vim" },
   },
 
+  { "stevearc/overseer.nvim" },
+
   -- Debuggers --
 
   { "mfussenegger/nvim-dap" },
