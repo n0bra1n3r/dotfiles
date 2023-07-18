@@ -99,12 +99,11 @@ my_plugins {
       ":MasonInstall actionlint",
       ":MasonInstall dart-debug-adapter",
       ":MasonInstall pyright",
+      ":MasonInstall efm",
     },
   },
 
-  -- Completion --
-
-  { "williamboman/mason-lspconfig.nvim" },
+  -- Syntax Highlighting --
 
   {
     "nvim-treesitter/nvim-treesitter",
@@ -121,6 +120,10 @@ my_plugins {
     cmd = { "TSInstall", "TSInstallSync", "TSUninstall", "TSUpdate" },
     event = "BufRead",
   },
+
+  -- Language Servers --
+
+  { "williamboman/mason-lspconfig.nvim" },
 
   {
     "jose-elias-alvarez/null-ls.nvim",

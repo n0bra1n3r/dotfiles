@@ -89,6 +89,16 @@
   exact = true
   type = "archive"
 
+{{ template "dep" "go/.local" }}
+  {{- if $isWindows }}
+  url = "https://go.dev/dl/go1.20.6.windows-amd64.zip"
+  {{- else if $isDarwin }}
+  url = "https://go.dev/dl/go1.20.6.darwin-arm64.tar.gz"
+  {{- end }}
+  exact = true
+  type = "archive"
+  stripComponents = 1
+
 {{- if $isWindows }}
 {{ template "dep" "broot/.local/bin" }}
   url = "https://github.com/Canop/broot/releases/download/v1.21.2/broot_1.21.2.zip"
