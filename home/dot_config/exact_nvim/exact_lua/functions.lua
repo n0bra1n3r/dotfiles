@@ -344,7 +344,7 @@ function fn.open_file_list()
     local cwd = vim.fn.getcwd()
     local conf = vim.fn.filereadable("./.nvim/files.toml") == 1
       and "./.nvim/files.toml"
-      or ("~/.config/broot/%s.toml"):format(vim.g.project_type)
+      or ("~/.config/broot/%s.toml"):format(vim.g.project_type or "base")
     terminal = require'toggleterm.terminal'.Terminal:new{
       id = 1,
       cmd = ("broot --conf %s -c :open_preview '%s'"):format(conf, cwd),
