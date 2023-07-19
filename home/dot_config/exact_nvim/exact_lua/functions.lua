@@ -341,12 +341,13 @@ function fn.open_file_list()
   local terminal = require'toggleterm.terminal'.get(1, true)
   local did_open_new = false
   if terminal == nil then
-    local config_path = vim.fn.filereadable('./.nvim/files.toml') == 1
-      and './.nvim/files.toml'
-      or '~/.config/broot/base.toml'
+    local cwd = vim.fn.getcwd()
+    local conf = vim.fn.filereadable("./.nvim/files.toml") == 1
+      and "./.nvim/files.toml"
+      or ("~/.config/broot/%s.toml"):format(vim.g.project_type)
     terminal = require'toggleterm.terminal'.Terminal:new{
       id = 1,
-      cmd = ("broot --conf %s -c :open_preview"):format(config_path),
+      cmd = ("broot --conf %s -c :open_preview '%s'"):format(conf, cwd),
       direction = "float",
       float_opts = {
         border = "single",

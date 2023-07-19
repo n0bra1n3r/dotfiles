@@ -2,5 +2,6 @@
 
 my_globals {
   mapleader = " ",
+  project_type = "base",
   workspace_file_name = ".nvim/workspace.vim",
 }
