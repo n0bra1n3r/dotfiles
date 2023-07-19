@@ -65,21 +65,20 @@ function plug.config()
     },
   }
 
-  local efm_yaml = {
+  local efm_gha_yaml = {
     {
       lintCommand = "actionlint -no-color -oneline -",
       lintFormats = {
         '%f:%l:%c: %m',
       },
       lintStdin = true,
-      rootMarkers = { ".github/" },
     },
   }
 
   config.efm.setup {
     settings = {
       languages = {
-        yaml = efm_yaml,
+        gha_yaml = efm_gha_yaml,
       },
     }
   }
