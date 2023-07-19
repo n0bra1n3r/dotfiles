@@ -1,0 +1,17 @@
+imports = [ "~/.config/broot/base.toml" ]
+
+[special-paths]
+  "**/*.iml" = "hide"
+  "**/.dart_tool" = "hide"
+  "**/.flutter-plugins" = "hide"
+  "**/.flutter-plugins-dependencies" = "hide"
+  "**/.idea" = "hide"
+  "**/.metadata" = "hide"
+  "**/android" = "hide"
+  "**/build" = "no-enter"
+  "**/ios" = "hide"
+  "**/linux" = "hide"
+  "**/macos" = "hide"
+  "**/pubspec.lock" = "hide"
+  "**/windows" = "hide"
+  "**/web" = "hide"

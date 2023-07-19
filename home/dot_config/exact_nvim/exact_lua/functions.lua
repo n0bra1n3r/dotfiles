@@ -341,9 +341,12 @@ function fn.open_file_list()
   local terminal = require'toggleterm.terminal'.get(1, true)
   local did_open_new = false
   if terminal == nil then
+    local config_path = vim.fn.filereadable('./.nvim/files.toml') == 1
+      and './.nvim/files.toml'
+      or '~/.config/broot/base.toml'
     terminal = require'toggleterm.terminal'.Terminal:new{
       id = 1,
-      cmd = "broot --conf ~/.config/broot/nvim.toml -c :open_preview",
+      cmd = ("broot --conf %s -c :open_preview"):format(config_path),
       direction = "float",
       float_opts = {
         border = "single",

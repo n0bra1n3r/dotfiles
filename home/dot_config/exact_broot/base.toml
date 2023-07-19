@@ -34,7 +34,6 @@ syntax_theme = "OceanDark"
 
 [special-paths]
   "**/.git" = "no-enter"
-  "**/.vs" = "no-enter"
   "**/.DS_Store" = "hide"
   "**/*.bin" = "hide"
   "**/*.db*" = "hide"
