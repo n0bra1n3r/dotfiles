@@ -25,7 +25,19 @@ function plug.config()
 
   dap.configurations = setmetatable({}, {
     __index = function(_, filetype)
-      local config = my_config.launchers and my_config.launchers[filetype]
+      local project_filetype =
+        vim.g.project_filetypes[vim.g.project_type] or
+        vim.g.project_type
+
+      local config =
+        my_config.launchers and (
+          my_config.launchers[project_filetype] or
+          my_config.launchers[filetype]
+        ) or (
+          project_filetype and
+          dap.configurations[project_filetype]
+        )
+
       if config == nil then
         config = {
           {

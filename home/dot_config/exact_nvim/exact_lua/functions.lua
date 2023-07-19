@@ -525,12 +525,15 @@ end
 
 function fn.get_debug_callback(action)
   return function()
-    local callback =
-      my_config.debugger_callbacks and
-      my_config.debugger_callbacks[vim.o.filetype] and
-      my_config.debugger_callbacks[vim.o.filetype][action] or
-      require'dap'[action]
-    callback()
+    local project_filetype =
+      vim.g.project_filetypes[vim.g.project_type] or
+      vim.g.project_type
+    local callback_table =
+      my_config.debugger_callbacks and (
+        my_config.debugger_callbacks[project_filetype] or
+        my_config.debugger_callbacks[vim.bo.filetype]
+      ) or require'dap'
+    callback_table[action]()
   end
 end
 
