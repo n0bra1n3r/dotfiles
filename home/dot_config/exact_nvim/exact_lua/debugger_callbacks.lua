@@ -1,7 +1,11 @@
 my_debugger_callbacks {
   dart = {
     continue = function()
-      vim.notify("Detecting devices...", "INFO", { title = "Flutter tools" })
+      vim.notify(
+        "Detecting devices...",
+        vim.log.levels.INFO,
+        { title = "Flutter tools" }
+      )
       vim.cmd[[FlutterDevices]]
     end,
     restart = function()

@@ -423,7 +423,7 @@ _G.my_snippets = function(new_snippets)
       else
         vim.notify(
           ("Could not load snippet '%s' (%s)"):format(name, language),
-          1,
+          vim.log.levels.ERROR,
           { title = "LuaSnip" }
         )
       end
