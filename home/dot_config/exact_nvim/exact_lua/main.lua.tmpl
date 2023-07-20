@@ -334,6 +334,7 @@ _G.my_tasks = function(tasks)
         return {
           cmd = { config.cmd },
           args = vim.fn.extendnew(config.args, params.args or {}),
+          cwd = config.cwd,
           env = config.env,
         }
       end,
