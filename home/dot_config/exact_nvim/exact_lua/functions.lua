@@ -532,8 +532,12 @@ function fn.get_debug_callback(action)
       my_config.debugger_callbacks and (
         my_config.debugger_callbacks[project_filetype] or
         my_config.debugger_callbacks[vim.bo.filetype]
-      ) or require'dap'
-    callback_table[action]()
+      )
+    if callback_table and callback_table[action] then
+      callback_table[action](debug_info.state, require'dap'[action])
+    else
+      require'dap'[action]()
+    end
   end
 end
 
@@ -630,12 +634,14 @@ end
 
 function fn.resume_debugging()
   if debug_info.state == 0 then
-    require'dapui'.open()
+    require'dapui'.open(1)
 
     update_debugging_state(1)
   end
 
   require'dap'.listeners.after.event_continued.my_debug_event = function()
+    require'dapui'.close(2)
+
     update_debugging_state(3)
   end
   require'dap'.listeners.after.continue.my_debug_event =
@@ -645,11 +651,15 @@ function fn.resume_debugging()
   require'dap'.listeners.after.launch.my_debug_event =
     require'dap'.listeners.after.event_continued.my_debug_event
   require'dap'.listeners.after.event_stopped.my_debug_event = function()
+    require'dapui'.open(2)
+
     update_debugging_state(2)
   end
   require'dap'.listeners.after.event_exited.my_debug_event =
     require'dap'.listeners.after.event_stopped.my_debug_event
   require'dap'.listeners.after.event_terminated.my_debug_event = function()
+    require'dapui'.close(2)
+
     update_debugging_state(1)
   end
   require'dap'.listeners.after.disconnect.my_debug_event =

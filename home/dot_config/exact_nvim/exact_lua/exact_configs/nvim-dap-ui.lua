@@ -11,30 +11,30 @@ function plug.config()
       {
         elements = {
           {
-            id = "scopes",
-            size = 0.4,
-          },
-          {
-            id = "stacks",
-            size = 0.4,
+            id = "repl",
+            size = 0.8,
           },
           {
             id = "breakpoints",
             size = 0.2,
           },
         },
-        position = "left",
-        size = 40,
+        position = "bottom",
+        size = 10,
       },
       {
         elements = {
           {
-            id = "repl",
-            size = 1.0,
+            id = "scopes",
+            size = 0.5,
+          },
+          {
+            id = "stacks",
+            size = 0.5,
           },
         },
-        position = "bottom",
-        size = 0.2,
+        position = "right",
+        size = 40,
       },
     },
   }
