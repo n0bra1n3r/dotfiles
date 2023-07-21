@@ -14,6 +14,11 @@ my_debugger_callbacks {
     end,
     restart = function()
       vim.cmd[[FlutterRestart]]
+      vim.notify(
+        "Restarted application",
+        vim.log.levels.INFO,
+        { title = "Flutter tools" }
+      )
     end,
     terminate = function()
       vim.cmd[[FlutterQuit]]
