@@ -150,6 +150,7 @@ function ga() {
 }
 
 function gc() {
+  local tick="$(git_ticket)"
   local type="$1"
 
   case "$type" in
@@ -161,21 +162,21 @@ function gc() {
     ;;
   esac
 
-  local ticket="$(git_ticket)"
   local message="$@"
 
   if [[ -z "$type" || -z "$message" ]]; then
-    if [[ ! -z "$ticket" ]]; then
-      echo "WARN: unknown commit type; leaving commit message as-is"
-    fi
     git cm "$type$message"
-  else
-    local prefix="$type($ticket):"
 
-    if [[ -z "$ticket" || "$type" == "$prefix" ]]; then
-      git cm "$type $message"
+    if [[ ! -z "$tick" ]]; then
+      echo -e "\e[33m\e[1mWARN:\e[0m\e[33m unknown commit type; left commit message as-is!\e[0m"
+    fi
+  else
+    local prefix="$type($tick)"
+
+    if [[ -z "$tick" || "$type" == "$prefix" ]]; then
+      git cm "$type: $message"
     else
-      git cm "$prefix $message"
+      git cm "$prefix: $message"
     fi
   fi
 }
