@@ -153,22 +153,33 @@ function gc() {
   local tick="$(git_ticket)"
   local type="$1"
 
-  case "$type" in
-  test|feat|refactor|style|fix|chore|docs|build|perf|ci|revert)
-    shift
-    ;;
-  *)
-    unset type
-    ;;
+  local bad_type=false
+
+  case "$1" in
+  b|bu|bui|buil|build) type=build ;;
+  ch|cho|chor|chore) type=chore ;;
+  d|do|doc|docs) type=docs ;;
+  fe|fea|feat) type=feat ;;
+  fi|fix) type=fix ;;
+  p|pe|per|perf) type=perf ;;
+  ref|refa|refac|refact|refacto|refactor) type=refactor ;;
+  rev|reve|rever|revert) type=revert ;;
+  s|st|sty|styl|style) type=style ;;
+  t|te|tes|test) type=test ;;
+  *) bad_type=true ;;
   esac
+
+  shift
 
   local message="$@"
 
-  if [[ -z "$type" || -z "$message" ]]; then
+  if [[ bad_type ]]; then
     git cm "$type$message"
 
     if [[ ! -z "$tick" ]]; then
-      echo -e "\e[33m\e[1mWARN:\e[0m\e[33m unknown commit type; left commit message as-is!\e[0m"
+      local info_msg="\n* types: build chore docs feat fix perf refactor revert style test"
+
+      echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m unknown commit type '$type'$info_msg\e[0m"
     fi
   else
     local prefix="$type($tick)"
