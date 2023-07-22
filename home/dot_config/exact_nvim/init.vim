@@ -17,11 +17,3 @@ set modeline
 """ Lua
 
 lua require "main"
-
-""" Autocommands
-
-augroup conf_lsp
-  autocmd!
-  "autocmd TextChangedI,TextChangedP * lua fn.trigger_completion()
-  "autocmd CursorMovedI * lua fn.end_completion()
-augroup end

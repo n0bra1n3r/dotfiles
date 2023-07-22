@@ -692,46 +692,91 @@ function fn.get_debug_toolbar()
 end
 --}}}
 --{{{ LSP
-local function preview_location_callback(_, result, ctx)
-  if result == nil or vim.tbl_isempty(result) then
-    vim.lsp.log.info(ctx, "No location found")
-    return nil
+local lsp_info = {
+  notifications = {},
+  spinner_frames = { "⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷" },
+}
+
+local function get_lsp_notif_data(client_id, token)
+  if not lsp_info.notifications[client_id] then
+    lsp_info.notifications[client_id] = {}
   end
-  if vim.tbl_islist(result) then
-    vim.lsp.util.preview_location(result[1])
-  else
-    vim.lsp.util.preview_location(result)
+
+  if not lsp_info.notifications[client_id][token] then
+    lsp_info.notifications[client_id][token] = {}
   end
+
+  return lsp_info.notifications[client_id][token]
 end
 
-function fn.peek_definition()
-  local params = vim.lsp.util.make_position_params()
-  return vim.lsp.buf_request(0, "textDocument/definition", params, preview_location_callback)
+local function update_spinner(message, client_id, token)
+ local notif_data = get_lsp_notif_data(client_id, token)
+
+ if notif_data.spinner then
+   local new_spinner = (notif_data.spinner + 1) % #lsp_info.spinner_frames
+   notif_data.spinner = new_spinner
+
+   notif_data.notification = vim.notify(message, nil, {
+     hide_from_history = true,
+     icon = lsp_info.spinner_frames[new_spinner],
+     replace = notif_data.notification,
+   })
+
+   vim.defer_fn(function()
+     update_spinner(message, client_id, token)
+   end, 100)
+ end
 end
 
-local completion_prev_line
-function fn.trigger_completion()
-  local line = vim.api.nvim_get_current_line()
-  local cursor = vim.api.nvim_win_get_cursor(0)[2]
-  local before_line = line:sub(1, cursor + 1)
-  local after_line = line:sub(cursor + 1, -1)
-  if completion_prev_line == nil or #completion_prev_line < #before_line then
-    if #after_line == 0 and (
-      before_line:match("[%w%.]%w$") or
-      before_line:match("[%.]$")) then
-      require'cmp'.complete()
-    else
-      require'cmp'.close()
-    end
-  else
-    require'cmp'.close()
-  end
-  completion_prev_line = before_line
+local function format_title(title, client)
+  return client.name..(#title > 0 and ": "..title or "")
 end
 
-function fn.end_completion()
-  require'cmp'.close()
+local function format_message(message, percentage)
+  return (percentage and percentage.."%\t" or "")..(message or "")
 end
+
+function fn.show_lsp_progress(client_id, token, info)
+ if not info.kind then
+   return
+ end
+
+ local notif_data = get_lsp_notif_data(client_id, token)
+
+ if info.kind == "begin" then
+   local message = format_message(info.message, info.percentage)
+
+   notif_data.spinner = 1
+   notif_data.notification = vim.notify(message, vim.log.levels.INFO, {
+     title = format_title(info.title, vim.lsp.get_client_by_id(client_id)),
+     icon = lsp_info.spinner_frames[1],
+     hide_from_history = false,
+   })
+
+   update_spinner(message, client_id, token)
+ elseif info.kind == "report" and notif_data then
+   notif_data.notification = vim.notify(
+     format_message(info.message, info.percentage),
+     vim.log.levels.INFO,
+     {
+       replace = notif_data.notification,
+       hide_from_history = false,
+     }
+   )
+ elseif info.kind == "end" and notif_data then
+   notif_data.notification = vim.notify(
+     info.message and format_message(info.message) or "Complete",
+     vim.log.levels.INFO,
+     {
+       icon = "",
+       replace = notif_data.notification,
+     }
+   )
+
+   notif_data.spinner = nil
+ end
+end
+
 --}}}
 --{{{ Navigation
 function fn.edit_buffer(mode, path)

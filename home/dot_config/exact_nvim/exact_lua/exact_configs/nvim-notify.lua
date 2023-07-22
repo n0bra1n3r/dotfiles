@@ -2,6 +2,7 @@ function plug.config()
   require'notify'.setup {
     fps = 1,
     stages = "static",
+    top_down = false,
   }
 
   vim.notify = function(msg, level, opts)
@@ -13,6 +14,12 @@ function plug.config()
       [vim.log.levels.WARN] = "WARN",
       [vim.log.levels.OFF] = "OFF",
     }
-    require'notify'(msg, notify_level[level], opts)
+
+    if not opts then
+      opts = {}
+    end
+    opts.animate = false
+
+    return require'notify'(msg, notify_level[level], opts)
   end
 end

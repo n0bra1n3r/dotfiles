@@ -17,7 +17,6 @@ my_plugins {
   { "kevinhwang91/nvim-ufo", event = "BufRead",
     dependencies = { "kevinhwang91/promise-async" },
   },
-  { "j-hui/fidget.nvim", event = "LspAttach" },
 
   { "kevinhwang91/nvim-bqf", ft = "qf" },
   { "https://gitlab.com/yorickpeterse/nvim-pqf.git", event = "VeryLazy" },

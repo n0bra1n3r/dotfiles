@@ -13,5 +13,10 @@ my_lsp_handlers {
         title = 'LSP | ' .. client.name,
       })
     end,
-  } --}}}
+  }, --}}}
+  { "$/progress", --{{{
+    callback = function(_, result, ctx)
+      fn.show_lsp_progress(ctx.client_id, result.token, result.value)
+    end
+  }, --}}}
 }
