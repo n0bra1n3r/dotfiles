@@ -65,23 +65,5 @@ function plug.config()
     },
   }
 
-  local efm_gha_yaml = {
-    {
-      lintCommand = "actionlint -no-color -oneline -",
-      lintFormats = {
-        '%f:%l:%c: %m',
-      },
-      lintStdin = true,
-    },
-  }
-
-  config.efm.setup {
-    settings = {
-      languages = {
-        gha_yaml = efm_gha_yaml,
-      },
-    }
-  }
-
   lsp.setup()
 end

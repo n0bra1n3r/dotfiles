@@ -26,7 +26,7 @@ local function nim_diagnostics()
           "--eval:$TEXT",
         }
       end,
-      check_exit_code = function(code, stderr)
+      check_exit_code = function(code)
         return code <= 1
       end,
       command = "nim",
@@ -78,6 +78,7 @@ end
 function plug.config()
   require'null-ls'.setup {
     sources = {
+      require'null-ls'.builtins.diagnostics.actionlint,
       nim_diagnostics(),
     },
   }

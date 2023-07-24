@@ -27,12 +27,6 @@ my_autocmds {
       vim.cmd[[checktime]]
     end,
   }, --}}}
-  { "BufEnter", pattern = { ".github/**/*.yaml", ".github/**/*.yml" }, --{{{
-    callback = function()
-      vim.bo.filetype = "gha_yaml"
-      vim.bo.syntax = "yaml"
-    end,
-  }, --}}}
   { "BufHidden", --{{{
     callback = function()
       if fn.is_empty_buffer() then
