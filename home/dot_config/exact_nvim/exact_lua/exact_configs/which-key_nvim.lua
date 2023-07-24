@@ -27,9 +27,7 @@ function plug.config()
     ["<leader>"] = {
       a = {
         name = "AI",
-        d = { "<cmd>ChatGPTRun docstring<CR>", "Generate docstring" },
         i = { "<cmd>ChatGPT<CR>", "Chat" },
-        t = { "<cmd>ChatGPTRun add_tests<CR>", "Generate tests" },
       },
       d = { fn.resume_debugging, "debug" },
       g = {
@@ -70,6 +68,12 @@ function plug.config()
   }, { mode = "n" })
   require'which-key'.register({
     ["<leader>"] = {
+      a = {
+        name = "AI",
+        d = { "<cmd>ChatGPTRun docstring<CR>", "Generate docstring" },
+        i = { "<cmd>ChatGPT<CR>", "Chat" },
+        t = { "<cmd>ChatGPTRun add_tests<CR>", "Generate tests" },
+      },
       s = { search_and_replace_selection, "search & replace" },
     },
   }, { mode = "x" })
