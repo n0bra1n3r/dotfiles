@@ -31,7 +31,7 @@ local function nim_diagnostics()
       end,
       command = "nim",
       format = "line",
-      on_output = function(line)
+      on_output = function(line, params)
         local row, column, type, code, message =
           line:match[[%w+%.nims?%((%d+), ?(%d+)%):? (%w+) ?(%w*): (.+)$]]
 
@@ -62,10 +62,10 @@ local function nim_diagnostics()
         elseif vim.startswith(type:lower(), "warn") then
           severity = severities.warning
         end
-
         return {
           col = column,
           code = code or type,
+          filename = vim.api.nvim_buf_get_name(params.bufnr),
           message = message or "???",
           row = row,
           severity = severity,
