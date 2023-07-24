@@ -173,8 +173,8 @@ function gc() {
 
   local message="$@"
 
-  if [[ bad_type ]]; then
-    git cm "$type$message"
+  if [[ $bad_type == true ]]; then
+    git cm "$type $message"
 
     if [[ ! -z "$tick" ]]; then
       local info_msg="\n* types: build chore docs feat fix perf refactor revert style test"
