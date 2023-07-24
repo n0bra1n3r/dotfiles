@@ -698,32 +698,30 @@ local lsp_info = {
 }
 
 local function get_lsp_notif_data(client_id, token)
-  if not lsp_info.notifications[client_id] then
-    lsp_info.notifications[client_id] = {}
+  local key = vim.lsp.get_client_by_id(client_id).name
+
+  if not lsp_info.notifications[key] then
+    lsp_info.notifications[key] = {}
   end
 
-  if not lsp_info.notifications[client_id][token] then
-    lsp_info.notifications[client_id][token] = {}
-  end
-
-  return lsp_info.notifications[client_id][token]
+  return lsp_info.notifications[key]
 end
 
-local function update_spinner(message, client_id, token)
+local function update_spinner(client_id, token)
  local notif_data = get_lsp_notif_data(client_id, token)
 
  if notif_data.spinner then
    local new_spinner = (notif_data.spinner + 1) % #lsp_info.spinner_frames
    notif_data.spinner = new_spinner
 
-   notif_data.notification = vim.notify(message, nil, {
+   notif_data.notification = vim.notify(nil, nil, {
      hide_from_history = true,
      icon = lsp_info.spinner_frames[new_spinner],
      replace = notif_data.notification,
    })
 
    vim.defer_fn(function()
-     update_spinner(message, client_id, token)
+     update_spinner(client_id, token)
    end, 100)
  end
 end
@@ -732,49 +730,91 @@ local function format_title(title, client)
   return client.name..(#title > 0 and ": "..title or "")
 end
 
-local function format_message(message, percentage)
-  return (percentage and percentage.."%\t" or "")..(message or "")
+local function format_message(message, part, total)
+  if part and total then
+    return ((part.." \\ "..total.."\t") or "")..(message or "")
+  elseif part and not total then
+    return (part.."%\t" or "")..(message or "")
+  elseif message then
+    return message
+  else
+    return "0%\t"
+  end
 end
 
 function fn.show_lsp_progress(client_id, token, info)
- if not info.kind then
-   return
- end
+  if not info.kind then
+    return
+  end
 
- local notif_data = get_lsp_notif_data(client_id, token)
+  local notif_data = get_lsp_notif_data(client_id, token)
 
- if info.kind == "begin" then
-   local message = format_message(info.message, info.percentage)
+  if info.kind == "begin" then
+    local message
+    if not notif_data.notification then
+      message = format_message(info.message, info.percentage)
 
-   notif_data.spinner = 1
-   notif_data.notification = vim.notify(message, vim.log.levels.INFO, {
-     title = format_title(info.title, vim.lsp.get_client_by_id(client_id)),
-     icon = lsp_info.spinner_frames[1],
-     hide_from_history = false,
-   })
+      notif_data.index = 1
+      notif_data.count = 1
+    else
+      notif_data.index = notif_data.index + 1
+      notif_data.count = notif_data.count + 1
 
-   update_spinner(message, client_id, token)
- elseif info.kind == "report" and notif_data then
-   notif_data.notification = vim.notify(
-     format_message(info.message, info.percentage),
-     vim.log.levels.INFO,
-     {
-       replace = notif_data.notification,
-       hide_from_history = false,
-     }
-   )
- elseif info.kind == "end" and notif_data then
-   notif_data.notification = vim.notify(
-     info.message and format_message(info.message) or "Complete",
-     vim.log.levels.INFO,
-     {
-       icon = "",
-       replace = notif_data.notification,
-     }
-   )
+      message = format_message(info.message, notif_data.index, notif_data.count)
+    end
 
-   notif_data.spinner = nil
- end
+    notif_data.spinner = 1
+    notif_data.notification = vim.notify(message, vim.log.levels.INFO, {
+      hide_from_history = false,
+      icon = lsp_info.spinner_frames[1],
+      replace = notif_data.notification,
+      title = format_title(info.title, vim.lsp.get_client_by_id(client_id)),
+    })
+
+    update_spinner(client_id, token)
+  elseif info.kind == "report" and notif_data then
+    local message
+    if notif_data.index <= 1 then
+      message = format_message(info.message, info.percentage)
+    else
+      message = format_message(info.message, notif_data.index, notif_data.count)
+    end
+
+    notif_data.notification = vim.notify(
+      message,
+      vim.log.levels.INFO,
+      {
+        hide_from_history = false,
+        replace = notif_data.notification,
+      }
+    )
+  elseif info.kind == "end" and notif_data then
+    local message
+    if notif_data.index <= 1 then
+      message = info.message and format_message(info.message) or "Done"
+    else
+      message = format_message(info.message, notif_data.index, notif_data.count)
+    end
+
+    notif_data.index = notif_data.index - 1
+    notif_data.notification = vim.notify(
+      message,
+      vim.log.levels.INFO,
+      {
+        hide_from_history = false,
+        icon = "",
+        on_close = function()
+          notif_data.notification = nil
+
+          notif_data.index = 0
+          notif_data.count = 0
+        end,
+        replace = notif_data.notification,
+      }
+    )
+
+    notif_data.spinner = nil
+  end
 end
 
 --}}}

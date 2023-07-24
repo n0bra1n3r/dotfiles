@@ -18,7 +18,12 @@ function plug.config()
     if not opts then
       opts = {}
     end
+
     opts.animate = false
+
+    if (not opts.title or #opts.title == 0) and not opts.replace then
+      opts.title = "neovim"
+    end
 
     return require'notify'(msg, notify_level[level], opts)
   end
