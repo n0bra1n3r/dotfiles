@@ -25,6 +25,18 @@ function plug.config()
       opts.title = "neovim"
     end
 
-    return require'notify'(msg, notify_level[level], opts)
+    local lines
+
+    if msg then
+      local max_len = 50
+
+      lines = {}
+
+      for i = 1, #msg, max_len do
+        table.insert(lines, msg:sub(i, i + max_len - 1))
+      end
+    end
+
+    return require'notify'(lines, notify_level[level], opts)
   end
 end
