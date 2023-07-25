@@ -765,7 +765,7 @@ function fn.show_lsp_progress(client_id, token, info)
 
     notif_data.spinner = 1
     notif_data.notification = vim.notify(message, vim.log.levels.INFO, {
-      hide_from_history = false,
+      hide_from_history = notif_data.index > 1,
       icon = lsp_info.spinner_frames[1],
       replace = notif_data.notification,
       title = format_title(info.title, vim.lsp.get_client_by_id(client_id)),
@@ -784,36 +784,37 @@ function fn.show_lsp_progress(client_id, token, info)
       message,
       vim.log.levels.INFO,
       {
-        hide_from_history = false,
+        hide_from_history = true,
         replace = notif_data.notification,
       }
     )
   elseif info.kind == "end" and notif_data then
-    local message
-    if notif_data.index <= 1 then
+    notif_data.index = notif_data.index - 1
+
+    local icon, message
+    if notif_data.index < 1 then
+      notif_data.index = 0
+      notif_data.count = 0
+      notif_data.spinner = nil
+
+      icon = ""
       message = info.message and format_message(info.message) or "Done"
     else
       message = format_message(info.message, notif_data.index, notif_data.count)
     end
 
-    notif_data.index = notif_data.index - 1
     notif_data.notification = vim.notify(
       message,
       vim.log.levels.INFO,
       {
-        hide_from_history = false,
-        icon = "",
+        hide_from_history = notif_data.index > 0,
+        icon = icon,
         on_close = function()
           notif_data.notification = nil
-
-          notif_data.index = 0
-          notif_data.count = 0
         end,
         replace = notif_data.notification,
       }
     )
-
-    notif_data.spinner = nil
   end
 end
 
