@@ -4,6 +4,7 @@ local opt = vim.opt
 
 my_options {
   background = "dark",
+  belloff="all",
   opt.clipboard + "unnamed,unnamedplus",
   cmdheight = 0,
   confirm = true,

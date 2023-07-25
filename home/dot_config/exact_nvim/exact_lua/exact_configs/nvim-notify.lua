@@ -37,6 +37,10 @@ function plug.config()
       end
     end
 
+    if not opts.replace then
+      vim.fn.system[[bell &]]
+    end
+
     return require'notify'(lines, notify_level[level], opts)
   end
 end

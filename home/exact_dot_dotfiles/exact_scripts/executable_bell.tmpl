@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# chezmoi:template:left-delimiter="#{" right-delimiter="}#"
+
+#{- if eq .chezmoi.os "windows" }#
+powershell "[console]::beep(500,600)"
+#{- else if eq .chezmoi.os "darwin" }#
+osascript -e "beep"
+#{- end }#
+
+# vim: filetype=bash
