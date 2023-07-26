@@ -32,8 +32,11 @@ function plug.config()
 
       lines = {}
 
-      for i = 1, #msg, max_len do
-        table.insert(lines, msg:sub(i, i + max_len - 1))
+      for _, line in ipairs(vim.split(msg, "\n")) do
+        for j = 1, #line, max_len do
+          table.insert(lines, line:sub(j, j + max_len - 1))
+          table.insert(lines, [[]])
+        end
       end
     end
 
