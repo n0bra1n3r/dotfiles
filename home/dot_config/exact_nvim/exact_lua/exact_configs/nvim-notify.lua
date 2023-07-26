@@ -35,7 +35,6 @@ function plug.config()
       for _, line in ipairs(vim.split(msg, "\n")) do
         for j = 1, #line, max_len do
           table.insert(lines, line:sub(j, j + max_len - 1))
-          table.insert(lines, [[]])
         end
       end
     end
