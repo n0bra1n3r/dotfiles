@@ -8,7 +8,7 @@ function plug.config()
       register_configurations = function(paths)
         local my_launchers =
           my_config.launchers and
-          my_config.launchers["dart"]
+          my_config.launchers.dart
         if my_launchers then
           local launchers = vim.deepcopy(my_launchers)
           for _, launcher in ipairs(launchers) do
