@@ -519,20 +519,23 @@ local debug_info = {
   },
 }
 
+local function get_callback_config()
+  local project_filetype =
+    vim.g.project_filetypes[vim.g.project_type] or
+    vim.g.project_type
+  return my_config.debugger_callbacks and (
+    my_config.debugger_callbacks[project_filetype] or
+    my_config.debugger_callbacks[vim.bo.filetype]
+  )
+end
+
 function fn.get_is_debugging()
   return debug_info.state ~= 0
 end
 
 function fn.get_debug_callback(action)
   return function()
-    local project_filetype =
-      vim.g.project_filetypes[vim.g.project_type] or
-      vim.g.project_type
-    local callback_table =
-      my_config.debugger_callbacks and (
-        my_config.debugger_callbacks[project_filetype] or
-        my_config.debugger_callbacks[vim.bo.filetype]
-      )
+    local callback_table = get_callback_config()
     if callback_table and callback_table[action] then
       callback_table[action](debug_info.state, require'dap'[action])
     else

@@ -56,6 +56,7 @@ function plug.config()
       enabled = false,
     },
     dev_tools = {
+      auto_open_browser = true,
       autostart = true,
     },
     ui = {
