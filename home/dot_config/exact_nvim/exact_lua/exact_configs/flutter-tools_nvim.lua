@@ -20,9 +20,37 @@ function plug.config()
             end
           end
           require'dap'.configurations.dart = launchers
+        else
+          require'dap'.configurations.dart = {
+            {
+              type = "dart",
+              request = "launch",
+              name = "Launch app",
+              dartSdkPath = paths.dart_sdk,
+              flutterSdkPath = paths.flutter_sdk,
+              program = "${workspaceFolder}/lib/main.dart",
+              cwd = "${workspaceFolder}",
+            },
+            {
+              type = "dart",
+              request = "attach",
+              name = "Connect to running app",
+              dartSdkPath = paths.dart_sdk,
+              flutterSdkPath = paths.flutter_sdk,
+              program = "${workspaceFolder}/lib/main.dart",
+              cwd = "${workspaceFolder}",
+            },
+          }
         end
       end,
       run_via_dap = true,
+    },
+    decorations = {
+      statusline = {
+        app_version = true,
+        device = true,
+        project_config = true,
+      },
     },
     dev_log = {
       enabled = false,

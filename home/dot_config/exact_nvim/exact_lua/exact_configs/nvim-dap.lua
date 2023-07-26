@@ -33,10 +33,7 @@ function plug.config()
         my_config.launchers and (
           my_config.launchers[project_filetype] or
           my_config.launchers[filetype]
-        ) or (
-          project_filetype and
-          dap.configurations[project_filetype]
-        )
+        ) or rawget(dap.configurations, project_filetype)
 
       if config == nil then
         config = {
