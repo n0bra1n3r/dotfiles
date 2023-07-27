@@ -2,9 +2,7 @@ function plug.config()
   require'flutter-tools'.setup {
     debugger = {
       enabled = true,
-      exception_breakpoints = {
-        "uncaught",
-      },
+      exception_breakpoints = "default",
       register_configurations = function(paths)
         local my_launchers =
           my_config.launchers and
