@@ -9,6 +9,7 @@ imports = [ "~/.config/broot/base.toml" ]
   "**/.metadata" = "hide"
   "**/android" = "hide"
   "**/build" = "no-enter"
+  "**/doc" = "no-enter"
   "**/ios" = "hide"
   "**/linux" = "hide"
   "**/macos" = "hide"
