@@ -2,7 +2,7 @@
 # chezmoi:template:left-delimiter="#{" right-delimiter="}#"
 
 #{- if eq .chezmoi.os "windows" }#
-powershell "[console]::beep(500,600)"
+powershell "[console]::beep(600,100)"
 #{- else if eq .chezmoi.os "darwin" }#
 osascript -e "beep"
 #{- end }#
