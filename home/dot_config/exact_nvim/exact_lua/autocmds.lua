@@ -3,6 +3,8 @@
 my_autocmds {
   { "BufEnter", --{{{
     callback = function()
+      vim.api.nvim_set_hl(0, "OverLength", {})
+
       if vim.bo.filetype == "help" then
         if #vim.api.nvim_tabpage_list_wins(0) > 1 then
           vim.cmd.wincmd[[T]]
@@ -19,8 +21,6 @@ my_autocmds {
           end
           vim.wo.number = true
         else
-          vim.api.nvim_set_hl(0, "OverLength", {})
-
           vim.wo.number = false
         end
       end
