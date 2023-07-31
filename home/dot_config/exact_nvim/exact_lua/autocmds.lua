@@ -27,6 +27,11 @@ my_autocmds {
       vim.cmd[[checktime]]
     end,
   }, --}}}
+  { "BufEnter", pattern = "fastlane/*", --{{{
+    callback = function()
+      vim.bo.filetype = "ruby"
+    end,
+  }, --}}}
   { "BufHidden", --{{{
     callback = function()
       if fn.is_empty_buffer() then
