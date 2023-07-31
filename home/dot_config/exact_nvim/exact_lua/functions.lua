@@ -754,7 +754,7 @@ function fn.show_lsp_progress(client_id, token, info)
 
   if info.kind == "begin" then
     local message
-    if not notif_data.notification then
+    if not notif_data.notification or notif_data.index == 0 then
       message = format_message(info.message, info.percentage)
 
       notif_data.index = 1
