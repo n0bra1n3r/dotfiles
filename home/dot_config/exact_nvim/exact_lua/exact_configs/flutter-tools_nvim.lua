@@ -57,8 +57,26 @@ function plug.config()
       auto_open_browser = true,
       autostart = true,
     },
+    fvm = true,
+    lsp = {
+      settings = {
+        renameFilesWithClasses = "always",
+        analysisExcludedFolders = {
+          ".dart_tool",
+          vim.fn.expand("~").."/.pub-cache/",
+          vim.fn.expand("~").."/fvm/",
+        },
+        completeFunctionCalls = true,
+        experimentalRefactors = true,
+      },
+    },
     ui = {
       border = "single",
     },
+    widget_guides = {
+      enabled = true,
+    },
   }
+
+  require'telescope'.load_extension("flutter")
 end

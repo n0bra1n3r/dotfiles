@@ -9,7 +9,10 @@ function plug.config()
     severity_sort = true,
     signs = false,
     virtual_text = {
-      format = function(_) return "" end,
+      prefix = '',
+      format = function()
+        return [[]]
+      end,
       spacing = 1,
     },
   })

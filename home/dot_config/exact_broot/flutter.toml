@@ -13,6 +13,7 @@ imports = [ "~/.config/broot/base.toml" ]
   "**/android/gradlew.bat" = "hide"
   "**/build" = "no-enter"
   "**/doc" = "no-enter"
+  "**/.fvm" = "hide"
   "**/ios/Flutter" = "hide"
   "**/ios/Runner" = "hide"
   "**/ios/RunnerTests" = "hide"

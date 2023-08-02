@@ -1,3 +1,5 @@
+# vim: filetype=toml
+
 {{ $isDarwin := eq .chezmoi.os "darwin" }}
 {{ $isWindows := eq .chezmoi.os "windows" }}
 
@@ -94,6 +96,16 @@
   url = "https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-v0.23.0-x86_64-pc-windows-msvc.zip"
   {{- else if $isDarwin }}
   url = "https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-v0.23.0-x86_64-apple-darwin.tar.gz"
+  {{- end }}
+  exact = true
+  type = "archive"
+  stripComponents = 1
+
+{{ template "dep" "fvm/.local/bin" }}
+  {{- if $isWindows }}
+  url = "https://github.com/fluttertools/fvm/releases/download/2.4.1/fvm-2.4.1-windows-x64.zip"
+  {{- else if $isDarwin }}
+  url = "https://github.com/fluttertools/fvm/releases/download/2.4.1/fvm-2.4.1-macos-arm64.tar.gz"
   {{- end }}
   exact = true
   type = "archive"

@@ -43,7 +43,7 @@ my_plugins {
 
   -- Frameworks --
 
-  { "akinsho/flutter-tools.nvim", ft = "dart", cmd = { "FlutterDevices" } },
+  { "akinsho/flutter-tools.nvim", lazy = false },
 
   {
     "nvim-neorg/neorg",
