@@ -153,42 +153,43 @@ function gc() {
   local tick="$(git_ticket)"
   local type="$1"
 
-  local bad_type=false
+  if [[ ! -z "$type" ]]; then
+    local bad_type=false
+    case "$1" in
+    b|bu|bui|buil|build) type=build ;;
+    c|ch|cho|chor|chore) type=chore ;;
+    d|do|doc|docs) type=docs ;;
+    fe|fea|feat) type=feat ;;
+    fi|fix) type=fix ;;
+    p|pe|per|perf) type=perf ;;
+    ref|refa|refac|refact|refacto|refactor) type=refactor ;;
+    rev|reve|rever|revert) type=revert ;;
+    s|st|sty|styl|style) type=style ;;
+    t|te|tes|test) type=test ;;
+    *) bad_type=true ;;
+    esac
+    shift
 
-  case "$1" in
-  b|bu|bui|buil|build) type=build ;;
-  ch|cho|chor|chore) type=chore ;;
-  d|do|doc|docs) type=docs ;;
-  fe|fea|feat) type=feat ;;
-  fi|fix) type=fix ;;
-  p|pe|per|perf) type=perf ;;
-  ref|refa|refac|refact|refacto|refactor) type=refactor ;;
-  rev|reve|rever|revert) type=revert ;;
-  s|st|sty|styl|style) type=style ;;
-  t|te|tes|test) type=test ;;
-  *) bad_type=true ;;
-  esac
+    local message="$@"
 
-  shift
+    if [[ $bad_type == true ]]; then
+      git cm "$type $message"
 
-  local message="$@"
+      if [[ ! -z "$tick" ]]; then
+        local info_msg="\n* types: build chore docs feat fix perf refactor revert style test"
+        echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m unknown commit type '$type'$info_msg\e[0m"
+      fi
+    else
+      local prefix="$type($tick)"
 
-  if [[ $bad_type == true ]]; then
-    git cm "$type $message"
-
-    if [[ ! -z "$tick" ]]; then
-      local info_msg="\n* types: build chore docs feat fix perf refactor revert style test"
-
-      echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m unknown commit type '$type'$info_msg\e[0m"
+      if [[ -z "$tick" || "$type" == "$prefix" ]]; then
+        git cm "$type: $message"
+      else
+        git cm "$prefix: $message"
+      fi
     fi
   else
-    local prefix="$type($tick)"
-
-    if [[ -z "$tick" || "$type" == "$prefix" ]]; then
-      git cm "$type: $message"
-    else
-      git cm "$prefix: $message"
-    fi
+    git cm "chore($tick): " -e
   fi
 }
 
