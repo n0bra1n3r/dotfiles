@@ -337,13 +337,13 @@ function fn.save_file()
   vim.cmd.saveas(vim.fn.fnameescape(path))
 end
 
-function fn.open_file_list()
+function fn.open_explorer()
   local terminal = require'toggleterm.terminal'.get(1, true)
   local did_open_new = false
   if terminal == nil then
     local cwd = vim.fn.getcwd()
-    local conf = vim.fn.filereadable("./.nvim/files.toml") == 1
-      and "./.nvim/files.toml"
+    local conf = vim.fn.filereadable("./.nvim/explorer.toml") == 1
+      and "./.nvim/explorer.toml"
       or ("~/.config/broot/%s.toml"):format(vim.g.project_type or "base")
     terminal = require'toggleterm.terminal'.Terminal:new{
       id = 1,
@@ -889,52 +889,6 @@ function fn.close_buffer()
 end
 --}}}
 --{{{ Quickfix
-local function open_quickfix()
-  vim.cmd(("%dcopen"):format(math.min(#vim.fn.getqflist(), vim.o.lines / 6)))
-  vim.cmd.wincmd[[J]]
-end
-
-local function close_quickfix()
-  vim.cmd[[cclose]]
-end
-
-function fn.is_quickfix_visible()
-  return #fn.get_wins_for_buf_type("quickfix") > 0
-end
-
-function fn.toggle_quickfix()
-  if not fn.is_quickfix_visible() then
-    if #vim.fn.getqflist() > 0 then
-      open_quickfix()
-    end
-  else
-    close_quickfix()
-  end
-end
-
-function fn.show_quickfix()
-  local diagnostics = fn.get_qf_diagnostics()
-  if diagnostics.error > 0 or
-      diagnostics.warn > 0 or
-      diagnostics.hint > 0 then
-    open_quickfix()
-  end
-end
-
-function fn.hide_quickfix()
-  close_quickfix()
-end
-
-function fn.next_quickfix()
-  open_quickfix()
-  vim.cmd[[cnext]]
-end
-
-function fn.prev_quickfix()
-  open_quickfix()
-  vim.cmd[[cprev]]
-end
-
 function fn.find_buf_in_loclist(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   for _, win in ipairs(vim.api.nvim_list_wins()) do
