@@ -313,7 +313,7 @@ function plug.config()
         "diagnostics",
         colored = true,
         padding = { left = 1, right = 0 },
-        sources = { "nvim_lsp", "nvim_diagnostic" },
+        sources = { "nvim_diagnostic" },
       },
     },
     lualine_x = {},
