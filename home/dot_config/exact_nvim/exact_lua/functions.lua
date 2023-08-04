@@ -754,7 +754,7 @@ function fn.show_lsp_progress(client_id, token, info)
 
   if info.kind == "begin" then
     local message
-    if not notif_data.notification or notif_data.index == 0 then
+    if not notif_data.notification or not notif_data.index then
       message = format_message(info.message, info.percentage)
 
       notif_data.index = 1
@@ -775,7 +775,7 @@ function fn.show_lsp_progress(client_id, token, info)
     })
 
     update_spinner(client_id, token)
-  elseif info.kind == "report" and notif_data then
+  elseif info.kind == "report" and notif_data and notif_data.index ~= nil then
     local message
     if notif_data.index <= 1 then
       message = format_message(info.message, info.percentage)
@@ -791,7 +791,7 @@ function fn.show_lsp_progress(client_id, token, info)
         replace = notif_data.notification,
       }
     )
-  elseif info.kind == "end" and notif_data then
+  elseif info.kind == "end" and notif_data and notif_data.index ~= nil then
     notif_data.index = notif_data.index - 1
 
     local icon, message
