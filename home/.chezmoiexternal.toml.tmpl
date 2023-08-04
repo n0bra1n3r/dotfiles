@@ -150,6 +150,12 @@
   exact = true
   type = "archive"
   stripComponents = 1
+
+{{ template "dep" "yq/.local/bin/yq.exe" }}
+  url = "https://github.com/mikefarah/yq/releases/latest/download/yq_windows_amd64.exe"
+  exact = true
+  type = "file"
+  executable = true
 {{- else if $isDarwin }}
 {{ template "dep" "homebrew/.local" }}
   url = "https://github.com/Homebrew/brew/archive/refs/heads/master.zip"
@@ -158,6 +164,12 @@
 
 {{ template "dep" "jq/.local/bin/jq" }}
   url = "https://github.com/jqlang/jq/releases/latest/download/jq-osx-amd64"
+  exact = true
+  type = "file"
+  executable = true
+
+{{ template "dep" "yq/.local/bin/yq" }}
+  url = "https://github.com/mikefarah/yq/releases/latest/download/yq_darwin_arm64"
   exact = true
   type = "file"
   executable = true
