@@ -12,7 +12,7 @@ my_autocmds {
       elseif vim.bo.filetype == "qf" then
         vim.bo.buflisted = false
       else
-        if #vim.bo.buftype == 0 and vim.bo.filetype ~= "toggleterm" then
+        if fn.is_file_buffer() then
           vim.api.nvim_set_hl(0, "OverLength", { link = "ColorColumn" })
           if vim.bo.filetype == "gitcommit" then
             vim.cmd[[match OverLength /\%>50v.\+/]]

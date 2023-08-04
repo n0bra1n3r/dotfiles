@@ -1016,14 +1016,19 @@ end
 
 function fn.is_empty_buffer(buf)
   local name = vim.api.nvim_buf_get_name(buf or 0)
+  if #name > 0 and vim.fn.fnamemodify(name, ":t") ~= "new" then
+    return false
+  end
   local lines = vim.api.nvim_buf_get_lines(buf or 0, 0, -1, false)
-  return name == ""
-    and #lines == 0
-    or (#lines == 1 and lines[1] == "")
+  return #lines == 0 or (#lines == 1 and #lines[1] == 0)
 end
 
 function fn.is_file_buffer(buf)
-  return #vim.bo[buf or 0].buftype == 0 and not fn.is_empty_buffer(buf)
+  if #vim.bo[buf or 0].buftype > 0 then
+    return false
+  end
+  local name = vim.api.nvim_buf_get_name(buf or 0)
+  return #name > 0 and vim.fn.fnamemodify(name, ":t") ~= "new"
 end
 
 function fn.did_cwd_change()
