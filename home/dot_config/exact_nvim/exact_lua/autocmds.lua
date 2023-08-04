@@ -3,7 +3,7 @@
 my_autocmds {
   { "BufEnter", --{{{
     callback = function()
-      vim.api.nvim_set_hl(0, "OverLength", {})
+      vim.cmd[[match OverLength //]]
 
       if vim.bo.filetype == "help" then
         if #vim.api.nvim_tabpage_list_wins(0) > 1 then
@@ -13,7 +13,6 @@ my_autocmds {
         vim.bo.buflisted = false
       else
         if fn.is_file_buffer() then
-          vim.api.nvim_set_hl(0, "OverLength", { link = "ColorColumn" })
           if vim.bo.filetype == "gitcommit" then
             vim.cmd[[match OverLength /\%>50v.\+/]]
           else
