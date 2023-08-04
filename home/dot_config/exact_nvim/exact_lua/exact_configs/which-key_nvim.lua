@@ -49,7 +49,7 @@ function plug.config()
       },
       i = { "<cmd>Telescope diagnostics<CR>", "Issues" },
       p = {
-        name = "packages",
+        name = "Packages",
         a = { "<cmd>Mason<CR>", "Packages" },
         l = { "<cmd>Lazy<CR>", "Plugins" },
       },

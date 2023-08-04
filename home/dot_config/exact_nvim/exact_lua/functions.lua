@@ -889,15 +889,13 @@ function fn.close_buffer()
 end
 --}}}
 --{{{ Quickfix
-function fn.find_buf_in_loclist(bufnr)
+local function foreach_buf_in_loclists(bufnr, callback)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   for _, win in ipairs(vim.api.nvim_list_wins()) do
-    for index, entry in ipairs(vim.fn.getloclist(win)) do
-      if entry.bufnr == bufnr then
-        return {
-          win = win,
-          index = index,
-        }
+    for i, entry in ipairs(vim.fn.getloclist(win)) do
+      if entry.qfbufnr == bufnr then
+        callback(i, win)
+        break
       end
     end
   end
@@ -910,16 +908,17 @@ function fn.add_buf_to_loclist(bufnr)
     local info = infos[1]
     if info.listed == 1 then
       for _, win in ipairs(info.windows) do
-        local list = vim.fn.getloclist(win)
-        for i, entry in ipairs(list) do
-          if entry.bufnr == bufnr then
-            table.remove(list, i)
-            break
-          end
-        end
+        local list = vim.tbl_filter(
+          function(e)
+            return e.bufnr ~= bufnr
+          end,
+          vim.fn.getloclist(win)
+        )
+        local cur = vim.api.nvim_win_get_cursor(win)
         table.insert(list, 1, {
           bufnr = bufnr,
-          lnum = info.lnum,
+          col = cur[2],
+          lnum = cur[1],
         })
         vim.fn.setloclist(win, list, "r")
       end
@@ -928,12 +927,11 @@ function fn.add_buf_to_loclist(bufnr)
 end
 
 function fn.del_buf_from_loclist(bufnr)
-  local loc = fn.find_buf_in_loclist(bufnr)
-  if loc ~= nil then
-    local list = vim.fn.getloclist(loc.win)
-    table.remove(list, loc.index)
-    vim.fn.setloclist(loc.win, list, "r")
-  end
+  foreach_buf_in_loclists(bufnr, function(i, win)
+    local list = vim.fn.getloclist(win)
+    table.remove(list, i)
+    vim.fn.setloclist(win, list, "r")
+  end)
 end
 --}}}
 --{{{ Terminal

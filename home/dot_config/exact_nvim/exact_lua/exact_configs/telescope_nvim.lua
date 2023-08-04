@@ -18,7 +18,7 @@ function plug.config()
         mappings = {
           i = {
             ["<Tab>"] = function(bufnr)
-              require'telescope.actions.set'.edit(bufnr, "drop")
+              require'telescope.actions.set'.edit(bufnr, "edit")
             end,
             ["<C-S-Tab>"] = function(bufnr)
               require'telescope.actions'.move_selection_previous(bufnr)
