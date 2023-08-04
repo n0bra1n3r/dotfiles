@@ -94,10 +94,6 @@ local function tab_name(name, context)
   end
   return ' '..label
 end
-
-local function diagnostics_at_line()
-  return vim.diagnostic.get(0, { lnum = vim.fn.line"." - 1 })
-end
 --}}}
 
 function plug.config()
@@ -326,7 +322,7 @@ function plug.config()
     for i, component in pairs(section) do
       if component.show_inactive ~= false then
         if component.color ~= nil then
-          component.color = "lualine_b_inactive"
+          component.color = "lualine_a_inactive"
           if component[1] == left_section_separator then
             component[1] = left_component_separator
           elseif component[1] == right_section_separator then
