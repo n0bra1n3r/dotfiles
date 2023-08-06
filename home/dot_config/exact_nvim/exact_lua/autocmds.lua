@@ -133,7 +133,6 @@ my_autocmds {
   { "FocusGained", --{{{
     callback = function()
       vim.o.cursorlineopt = "number"
-      vim.o.mouse = "nv"
     end
   }, --}}}
   { "FocusLost", --{{{
@@ -141,7 +140,20 @@ my_autocmds {
       if #vim.bo.buftype == 0 then
         vim.o.cursorlineopt = "both"
       end
-      vim.o.mouse = ""
+      for _, mode in ipairs({ 'c', 'i', 'n', 't', 'x' }) do
+        vim.api.nvim_set_keymap(mode, [[<LeftMouse>]], [[]], {
+          callback = function()
+            vim.api.nvim_del_keymap(mode, [[<LeftMouse>]])
+          end,
+          noremap = true,
+        })
+        vim.api.nvim_set_keymap(mode, [[<RightMouse>]], [[]], {
+          callback = function()
+            vim.api.nvim_del_keymap(mode, [[<RightMouse>]])
+          end,
+          noremap = true,
+        })
+      end
     end
   }, --}}}
   { "TabClosed", --{{{
