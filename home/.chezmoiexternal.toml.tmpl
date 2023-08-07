@@ -111,6 +111,16 @@
   type = "archive"
   stripComponents = 1
 
+{{ template "dep" "gh/.local" }}
+  {{- if $isWindows }}
+  url = "https://github.com/cli/cli/releases/download/v2.32.1/gh_2.32.1_windows_amd64.zip"
+  {{- else if $isDarwin }}
+  url = "https://github.com/cli/cli/releases/download/v2.32.1/gh_2.32.1_macOS_arm64.zip"
+  {{- end }}
+  exact = true
+  type = "archive"
+  stripComponents = 1
+
 {{- if $isWindows }}
 {{ template "dep" "broot/.local/bin" }}
   url = "https://github.com/Canop/broot/releases/download/v1.21.2/broot_1.21.2.zip"

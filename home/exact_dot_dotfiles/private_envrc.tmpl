@@ -30,6 +30,7 @@ export GITLAB_ACCESS_TOKEN="#{ .gitlab.token }#"
 
 #{- if index . "github" }#
 export GITHUB_ACCESS_TOKEN="#{ .github.token }#"
+export GH_TOKEN="$GITHUB_ACCESS_TOKEN"
 #{- end }#
 
 #{- if index . "openAi" }#
