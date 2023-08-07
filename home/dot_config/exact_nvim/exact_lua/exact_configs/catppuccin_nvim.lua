@@ -3,9 +3,9 @@ function plug.config()
     flavour = "frappe",
     integrations = {
       cmp = true,
-      fidget = true,
       gitsigns = true,
       leap = true,
+      mason = true,
       mini = true,
       native_lsp = {
         enabled = true,
@@ -22,13 +22,14 @@ function plug.config()
           information = { "underline" },
         },
 			},
+      overseer = true,
       notify = true,
       telescope = true,
       treesitter = true,
+      which_key = true,
     },
     term_colors = true,
-    transparent_background = true,
-    which_key = true,
+    transparent_background = false,
   }
 
   vim.cmd.colorscheme("catppuccin")
