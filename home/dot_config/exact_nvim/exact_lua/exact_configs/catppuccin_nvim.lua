@@ -1,6 +1,10 @@
 function plug.config()
   require'catppuccin'.setup {
     flavour = "frappe",
+    background = {
+      dark = "frappe",
+      light = "latte",
+    },
     integrations = {
       cmp = true,
       gitsigns = true,
@@ -29,7 +33,7 @@ function plug.config()
       which_key = true,
     },
     term_colors = true,
-    transparent_background = false,
+    transparent_background = vim.g.transparent_enabled,
   }
 
   vim.cmd.colorscheme("catppuccin")
