@@ -54,6 +54,12 @@ my_mappings {
     ["<S-Tab>"]         = { "<C-d>" },
     ["<Up>"]            = { fn.get_map_expr_i("<Up>"), expr = true },
   }, --}}}
+  c = { --{{{
+    ["<M-;>"]           = { "<Right>", silent = false },
+    ["<M-j>"]           = { "<Down>", silent = false },
+    ["<M-k>"]           = { "<Up>", silent = false },
+    ["<M-l>"]           = { "<Left>", silent = false },
+  }, --}}}
   n = { --{{{
     ["<M-\\>"]          = { "<cmd>vsplit<CR>" },
     ["<M-->"]           = { "<cmd>split<CR>" },
