@@ -9,8 +9,11 @@ my_plugins {
 
   { "kyazdani42/nvim-web-devicons" },
 
-  { "catppuccin/nvim", name = "catppuccin.nvim", lazy = false },
   { "xiyaowong/transparent.nvim", lazy = false },
+  {
+    "catppuccin/nvim", name = "catppuccin.nvim", lazy = false,
+    dependencies = { "xiyaowong/transparent.nvim" },
+  },
   { "luukvbaal/statuscol.nvim", lazy = false },
   { "nvim-lualine/lualine.nvim", lazy = false },
   { "rcarriga/nvim-notify", lazy = false },
