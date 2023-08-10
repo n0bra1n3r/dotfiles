@@ -16,9 +16,9 @@ my_options {
   fillchars = { --{{{
     eob = " ",
     fold = " ",
-    foldopen = "",
-    foldsep = " ",
-    foldclose = "",
+    foldopen = "┯",
+    foldsep = "│",
+    foldclose = "󰐕",
     stl = " ",
   }, --}}}
   foldcolumn = '1',

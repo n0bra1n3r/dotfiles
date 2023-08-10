@@ -1,6 +1,7 @@
 function plug.config()
   require'telescope'.setup {
     defaults = {
+      borderchars = { '─', '│', '─', '│', '┌', '┐', '┘', '└' },
       history = false,
       mappings = {
         i = {
@@ -31,7 +32,7 @@ function plug.config()
             end,
           },
         },
-        path_display = function(opts, path)
+        path_display = function(_, path)
           return vim.fn.fnamemodify(path, ":~:.")
         end,
         theme = "dropdown",

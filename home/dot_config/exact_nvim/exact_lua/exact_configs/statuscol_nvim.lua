@@ -1,10 +1,4 @@
 function plug.config()
-  local function dap_handler(args)
-    if fn.get_is_debugging() then
-      require'statuscol.builtin'.toggle_breakpoint(args)
-    end
-  end
-
   require'statuscol'.setup {
     bt_ignore = {
       "help",
@@ -42,7 +36,7 @@ function plug.config()
       },
       {
         text = { require'statuscol.builtin'.foldfunc },
-        click = "v:lua.ScFa"
+        click = "v:lua.ScFa",
       },
       { text = { " " } },
     },
