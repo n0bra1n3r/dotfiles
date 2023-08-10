@@ -1132,6 +1132,60 @@ function fn.apply_focused_highlight()
     require'catppuccin'.load("frappe")
   end)()
 end
+
+function fn.foldfunc(close, start_open, open, sep, end_sep)
+  local C = require'ffi'.C
+  return function(args)
+    local width = C.compute_foldcolumn(args.wp, 0)
+    if C.compute_foldcolumn(args.wp, 0) == 0 then
+      return ""
+    end
+
+    local foldinfo = C.fold_info(args.wp, args.lnum)
+
+    local string = args.cul and args.relnum == 0
+      and "%#CursorLineFold#"
+      or "%#FoldColumn#"
+
+    local level = foldinfo.level
+    if level == 0 then
+      return string..(" "):rep(width).."%*"
+    end
+
+    local closed = foldinfo.lines > 0
+
+    local first_level = level - width - (closed and 1 or 0) + 1
+    if first_level < 1 then
+      first_level = 1
+    end
+
+    local range = level < width and level or width
+    for col = 1, range do
+      if closed and (col == level or col == width) then
+        string = string..close
+      elseif foldinfo.start == args.lnum
+        and first_level + col > foldinfo.llevel then
+        local prev_foldinfo = C.fold_info(args.wp, args.lnum - 1)
+        if prev_foldinfo.level == 0 then
+          string = string..start_open
+        else
+          string = string..open
+        end
+      else
+        local next_foldinfo = C.fold_info(args.wp, args.lnum + 1)
+        if next_foldinfo.level ~= 0 then
+          string = string..sep
+        else
+          string = string..end_sep
+        end
+      end
+    end
+    if range < width then
+      string = string..(" "):rep(width - range)
+    end
+    return string.."%*"
+  end
+end
 --}}}
 --{{{ Workspace
 local function get_workspace_file_path(tabnr)

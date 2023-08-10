@@ -35,7 +35,7 @@ function plug.config()
         click = "v:lua.ScSa",
       },
       {
-        text = { require'statuscol.builtin'.foldfunc },
+        text = { fn.foldfunc('󰐕', '┯', '┿', '│', '└') },
         click = "v:lua.ScFa",
       },
       { text = { " " } },
