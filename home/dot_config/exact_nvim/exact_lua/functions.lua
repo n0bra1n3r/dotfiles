@@ -1120,6 +1120,18 @@ function fn.get_highlight_color_fg(name)
   local hl = vim.api.nvim_get_hl(0, { name = name })
   return hl.fg and ('#%06X'):format(hl.fg) or "#000000"
 end
+
+function fn.apply_unfocused_highlight()
+  fn.vim_defer(function()
+    require'catppuccin'.load("mocha")
+  end)()
+end
+
+function fn.apply_focused_highlight()
+  fn.vim_defer(function()
+    require'catppuccin'.load("frappe")
+  end)()
+end
 --}}}
 --{{{ Workspace
 local function get_workspace_file_path(tabnr)

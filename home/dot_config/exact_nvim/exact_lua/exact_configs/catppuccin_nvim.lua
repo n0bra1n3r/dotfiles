@@ -25,7 +25,7 @@ function plug.config()
           warnings = { "underline" },
           information = { "underline" },
         },
-			},
+      },
       overseer = true,
       notify = true,
       telescope = true,
@@ -33,7 +33,6 @@ function plug.config()
       which_key = true,
     },
     term_colors = true,
-    transparent_background = vim.g.transparent_enabled,
   }
 
   vim.cmd.colorscheme("catppuccin")

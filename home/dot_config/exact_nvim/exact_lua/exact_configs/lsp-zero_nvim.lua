@@ -9,18 +9,11 @@ function plug.config()
     severity_sort = true,
     signs = false,
     virtual_text = {
-      prefix = '',
       format = function()
         return [[]]
       end,
+      prefix = '',
       spacing = 1,
     },
   })
-
-  lsp.set_sign_icons {
-    error = my_config.signs.DiagnosticSignError.text,
-    hint = my_config.signs.DiagnosticSignHint.text,
-    info = my_config.signs.DiagnosticSignInfo.text,
-    warn = my_config.signs.DiagnosticSignWarn.text,
-  }
 end

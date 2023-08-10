@@ -132,18 +132,14 @@ my_autocmds {
   }, --}}}
   { "FocusGained", --{{{
     callback = function()
-      fn.vim_defer(function()
-        require'transparent'.toggle(false)
-      end)()
+      fn.apply_focused_highlight()
 
       vim.o.cursorlineopt = "number"
     end
   }, --}}}
   { "FocusLost", --{{{
     callback = function()
-      fn.vim_defer(function()
-        require'transparent'.toggle(true)
-      end)()
+      fn.apply_unfocused_highlight()
 
       if #vim.bo.buftype == 0 then
         vim.o.cursorlineopt = "both"
