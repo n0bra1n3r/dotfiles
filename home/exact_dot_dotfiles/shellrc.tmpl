@@ -134,7 +134,18 @@ alias c='cd'
 alias cat='bat'
 alias dart='fvm dart'
 alias e='nvim'
-alias flutter='fvm flutter'
+
+function flutter() {
+  if [[ ! -f "$PWD/.fvm/fvm_config.json" ]]; then
+    command flutter "$@"
+    local exit_code=$?
+    echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m FVM configuration not found. Did you forget to run \`fvm use <version>\`?\e[0m"
+    return exit_code
+  else
+    fvm flutter "$@"
+  fi
+}
+
 alias g='git'
 alias l='ls'
 alias vim='nvim'
