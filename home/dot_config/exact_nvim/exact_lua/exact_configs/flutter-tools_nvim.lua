@@ -73,9 +73,6 @@ function plug.config()
     ui = {
       border = "single",
     },
-    widget_guides = {
-      enabled = true,
-    },
   }
 
   require'telescope'.load_extension("flutter")
