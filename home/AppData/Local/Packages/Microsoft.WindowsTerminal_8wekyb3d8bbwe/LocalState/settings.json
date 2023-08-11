@@ -51,6 +51,7 @@
             },
             "intenseTextStyle": "all",
             "padding": "8",
+            "scrollbarState": "hidden",
             "useAtlasEngine": false
         },
         "list":
