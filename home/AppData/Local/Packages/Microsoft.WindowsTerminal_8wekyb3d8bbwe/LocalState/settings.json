@@ -52,7 +52,7 @@
                 "face": "CaskaydiaCove Nerd Font"
             },
             "intenseTextStyle": "all",
-            "padding": "8",
+            "padding": "0",
             "scrollbarState": "hidden",
             "useAtlasEngine": false
         },
