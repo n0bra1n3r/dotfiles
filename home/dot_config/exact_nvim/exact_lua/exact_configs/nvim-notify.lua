@@ -2,7 +2,6 @@ function plug.config()
   require'notify'.setup {
     fps = 1,
     stages = "static",
-    top_down = false,
   }
 
   vim.notify = function(msg, level, opts)
