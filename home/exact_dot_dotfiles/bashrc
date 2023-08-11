@@ -8,7 +8,7 @@ _GIT_COMPLETION_PATH="${_GIT_EXEC_PATH%/libexec/git-core}"
 _GIT_COMPLETION_PATH="${_GIT_COMPLETION_PATH%/lib/git-core}"
 _GIT_COMPLETION_PATH="$_GIT_COMPLETION_PATH/share/git/completion"
 
-if [ -f "$_GIT_COMPLETION_PATH/git-completion.bash" ]; then
+if [[ -f "$_GIT_COMPLETION_PATH/git-completion.bash" ]]; then
   source "$_GIT_COMPLETION_PATH/git-completion.bash"
 fi
 
@@ -46,6 +46,8 @@ function _workspace() {
 complete -o nosort -F _workspace workspace
 complete -o nosort -F _workspace ws
 
-[ -f ~/.bashrc ] && source ~/.bashrc
+if [[ -f ~/.bashrc ]] && ! (return 0 2>/dev/null); then
+  source ~/.bashrc
+fi
 
 eval "$(starship init bash)"
