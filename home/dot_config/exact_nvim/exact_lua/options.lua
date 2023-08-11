@@ -25,7 +25,7 @@ my_options {
   foldenable = true,
   foldlevelstart = 99,
   foldmethod = "indent",
-  grepprg = "rg --vimgrep --no-heading --smart-case",
+  grepprg = "rg --vimgrep --no-heading --smart-case --hidden --glob=!.git",
   grepformat = "%f:%l:%c:%m",
   guicursor = { --{{{
     "v-n-sm:block",
