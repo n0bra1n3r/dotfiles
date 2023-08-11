@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # chezmoi:template:left-delimiter="#{" right-delimiter="}#"
 
+printf '\033[?12l' # disable cursor blink
+
 export HISTSIZE=10000
 
 if [ ! -z "$STARSHIP_CONFIG" ]; then
