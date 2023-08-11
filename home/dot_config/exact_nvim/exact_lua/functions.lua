@@ -411,11 +411,6 @@ end
 local debug_info = {
   keymaps = {},
   state = 0,
-  toolbar_states = {
-    [[  [~]  [<Ins>]  [<F10>] 󰗼 [<F12>] ]],
-    [[  [~]  [<Ins>]  [<F10>]  [<F6>]  [<F7>]  [<F8>]  [<F9>]  [<F11>]  [<F12>] ]],
-    [[  [~]  [<Ins>]  [<F10>]  [<F11>]  [<F12>] ]],
-  },
   toolbar = {
     {
       [[<Ins>]],
@@ -430,7 +425,7 @@ local debug_info = {
       [[<F10>]],
       action = [[continue]],
       icon = {
-        '',
+        '',
         color = "Operator",
       },
       states = { 1 },
@@ -678,13 +673,11 @@ function fn.get_debug_toolbar()
       or fn.stop_debugging
     local component = {
       function()
-        return ("[%s]"):format(button[1])
+        return ("%%#%s#%s %%#Comment#%s"):format(button.icon.color, button.icon[1], button[1])
       end,
-      color = "Comment",
       cond = function()
         return vim.tbl_contains(button.states, debug_info.state)
       end,
-      icon = button.icon,
       on_click = function()
         callback()
       end,
