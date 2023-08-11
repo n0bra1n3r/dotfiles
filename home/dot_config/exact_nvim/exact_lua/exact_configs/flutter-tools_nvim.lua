@@ -64,7 +64,7 @@ function plug.config()
         analysisExcludedFolders = {
           ".dart_tool",
           vim.fn.expand("~").."/.pub-cache/",
-          vim.fn.expand("~").."/fvm/",
+          vim.fn.expand("~").."/.fvm/",
         },
         completeFunctionCalls = true,
         experimentalRefactors = true,
