@@ -83,16 +83,13 @@ local function tab_name(name, context)
   end
   if vim.tbl_count(types) == 1 then
     if types.help then
-      return '󰋖 '..label
+      return vim.trim('󰋖 '..label)
     end
     if types.terminal then
-      return ' '..label
+      return vim.trim(' '..label)
     end
   end
-  if fn.is_workspace_frozen(context.tabnr) then
-    return ' '..label
-  end
-  return ' '..label
+  return vim.trim(' '..label)
 end
 --}}}
 
