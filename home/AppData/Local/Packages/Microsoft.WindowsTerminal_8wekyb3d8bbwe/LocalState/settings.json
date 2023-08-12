@@ -8,16 +8,98 @@
             {
                 "action": "copy",
                 "singleLine": false
-            },
-            "keys": "ctrl+c"
+            }
         },
         {
-            "command": "paste",
-            "keys": "ctrl+v"
+            "command": "paste"
         },
         {
             "command": "find",
             "keys": "ctrl+shift+f"
+        },
+        {
+            "command":
+            {
+              "action": "sendInput",
+              "input": "\u001b[9;5u"
+            },
+            "keys": "ctrl+tab"
+        },
+        {
+            "command":
+            {
+              "action": "sendInput",
+              "input": "\u001b[96;5u"
+            },
+            "keys": "ctrl+`"
+        },
+        {
+            "command": "unbound",
+            "keys": "ctrl+insert"
+        },
+        {
+            "command": null,
+            "keys": "ctrl+c"
+        },
+        {
+            "command": "unbound",
+            "keys": "enter"
+        },
+        {
+            "command": "unbound",
+            "keys": "shift+insert"
+        },
+        {
+            "command": null,
+            "keys": "ctrl+v"
+        },
+        {
+            "command": "unbound",
+            "keys": "ctrl+shift+tab"
+        },
+        {
+            "command": "unbound",
+            "keys": "alt+enter"
+        },
+        {
+            "command": null,
+            "keys": "f11"
+        },
+        {
+            "command": null,
+            "keys": "ctrl+0"
+        },
+        {
+            "command": null,
+            "keys": "alt+down"
+        },
+        {
+            "command": null,
+            "keys": "alt+left"
+        },
+        {
+            "command": null,
+            "keys": "alt+right"
+        },
+        {
+            "command": null,
+            "keys": "alt+up"
+        },
+        {
+            "command": "unbound",
+            "keys": "ctrl+minus"
+        },
+        {
+            "command": "unbound",
+            "keys": "ctrl+plus"
+        },
+        {
+            "command":
+            {
+              "action": "sendInput",
+              "input": "\u001b[13;5u"
+            },
+            "keys": "ctrl+enter"
         },
         {
             "command":
@@ -27,6 +109,20 @@
                 "splitMode": "duplicate"
             },
             "keys": "alt+shift+d"
+        },
+        {
+            "command":
+            {
+                "action": "nextTab"
+            },
+            "keys": "ctrl+alt+tab"
+        },
+        {
+            "command":
+            {
+                "action": "prevTab"
+            },
+            "keys": "ctrl+alt+shift+tab"
         }
     ],
     "copyFormatting": "none",
