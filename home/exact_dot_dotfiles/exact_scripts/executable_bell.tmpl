@@ -2,7 +2,7 @@
 # chezmoi:template:left-delimiter="#{" right-delimiter="}#"
 
 #{- if eq .chezmoi.os "windows" }#
-powershell -c "(New-Object Media.SoundPlayer '$(cygpath -w "$HOME/.dotfiles/scripts/drop.wav")').PlaySync();"
+powershell -c "(New-Object Media.SoundPlayer '$(cygpath -w "$HOME/.dotfiles/scripts/bell.wav")').PlaySync();"
 #{- else if eq .chezmoi.os "darwin" }#
 osascript -e "beep"
 #{- end }#
