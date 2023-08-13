@@ -129,17 +129,6 @@
   type = "archive"
   stripComponents = 1
 
-[".config/alacritty/catppuccin"]
-  url = "https://github.com/catppuccin/alacritty/archive/refs/heads/main.zip"
-  type = "archive"
-  stripComponents = 1
-  exact = true
-
-{{ template "dep" "alacritty/.local/bin/alacritty.exe" }}
-  url = "https://github.com/alacritty/alacritty/releases/download/v0.12.1/Alacritty-v0.12.1-portable.exe"
-  exact = true
-  type = "file"
-
 {{ template "dep" "jq/.local/bin/jq.exe" }}
   url = "https://github.com/jqlang/jq/releases/latest/download/jq-win64.exe"
   exact = true
@@ -183,4 +172,9 @@
   exact = true
   type = "file"
   executable = true
+
+{{ template "dep" "iterm2/Applications" }}
+  url = "https://iterm2.com/downloads/stable/latest"
+  exact = true
+  type = "archive"
 {{- end }}
