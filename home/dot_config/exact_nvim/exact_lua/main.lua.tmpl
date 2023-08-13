@@ -46,6 +46,19 @@ end
 
 require "options"
 --}}}
+--{{{ Load Highlights
+_G.my_highlights = function(highlights)
+  my_config.highlights = vim.tbl_extend(
+    "force",
+    my_config.highlights or {},
+    vim.deepcopy(highlights))
+  for name, value in pairs(highlights) do
+    vim.api.nvim_set_hl(0, name, value)
+  end
+end
+
+require "highlights"
+--}}}
 --{{{ Load Signs
 _G.my_signs = function(signs)
   my_config.signs = vim.tbl_extend(
@@ -66,12 +79,10 @@ _G.fn = my_config.functions
 require "functions"
 --}}}
 --{{{ Load Autocmds
-local group_main_autocmd = vim.api.nvim_create_augroup("main", { clear = true })
-
 _G.my_autocmds = function(autocmds)
   local conf_id = debug.getinfo(2, 'S').source:sub(2):match'(.*/)'
   set_proj_config(conf_id, 'autocmds', autocmds)
-  local conf_group = vim.api.nvim_create_augroup(("main-%s"):format(conf_id), { clear = true })
+  local conf_group = vim.api.nvim_create_augroup(("autocmds-%s"):format(conf_id), { clear = true })
   for _, def in ipairs(autocmds) do
     local autocmd = def[1]
     def[1] = nil
@@ -81,22 +92,6 @@ _G.my_autocmds = function(autocmds)
 end
 
 require "autocmds"
---}}}
---{{{ Load Commands
-_G.my_commands = function(commands)
-  my_config.commands = vim.deepcopy(commands)
-  for command, def in pairs(commands) do
-    local info = def
-    if type(info) == "string" then
-      info = my_config.commands[def]
-    end
-    local targetCmd = info[1]
-    info[1] = nil
-    vim.api.nvim_create_user_command(command, targetCmd, info)
-  end
-end
-
-require "commands"
 --}}}
 --{{{ Load Plugins
 local default_providers = {
@@ -112,7 +107,7 @@ end
 
 local lazypath = vim.fn.stdpath("data").."/lazy/lazy.nvim"
 
-if not vim.loop.fs_stat(lazypath) then
+if not vim.fn.filereadable(lazypath) then
   vim.fn.system {
     "git",
     "clone",
@@ -126,7 +121,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 local function get_plugin_config_name(plugin)
-  return string.gsub(vim.fn.fnamemodify(plugin, ":t"), "%.", "_")
+  return vim.fn.fnamemodify(plugin, ":t"):gsub("%.", "_")
 end
 
 _G.my_plugins = function(plugins)
@@ -249,18 +244,21 @@ vim.api.nvim_create_autocmd("BufEnter", {
 
 require "plugins"
 --}}}
---{{{ Load Highlights
-_G.my_highlights = function(highlights)
-  my_config.highlights = vim.tbl_extend(
-    "force",
-    my_config.highlights or {},
-    vim.deepcopy(highlights))
-  for name, value in pairs(highlights) do
-    vim.api.nvim_set_hl(0, name, value)
+--{{{ Load Commands
+_G.my_commands = function(commands)
+  my_config.commands = vim.deepcopy(commands)
+  for command, def in pairs(commands) do
+    local info = def
+    if type(info) == "string" then
+      info = my_config.commands[def]
+    end
+    local targetCmd = info[1]
+    info[1] = nil
+    vim.api.nvim_create_user_command(command, targetCmd, info)
   end
 end
 
-require "highlights"
+require "commands"
 --}}}
 --{{{ Load Mappings
 _G.my_mappings = function(mappings)
@@ -313,6 +311,16 @@ _G.my_debuggers = function(debuggers)
     vim.deepcopy(debuggers))
 end
 --}}}
+--{{{ Load Debugger Callbacks
+_G.my_debugger_callbacks = function(callbacks)
+  my_config.debugger_callbacks = vim.tbl_extend(
+    "force",
+    my_config.debugger_callbacks or {},
+    vim.deepcopy(callbacks))
+end
+
+require "debugger_callbacks"
+--}}}
 --{{{ Load Tasks
 _G.my_tasks = function(tasks)
   my_config.tasks = vim.tbl_extend(
@@ -355,16 +363,6 @@ _G.my_tasks = function(tasks)
   end
 end
 --}}}
---{{{ Load Debugger Callbacks
-_G.my_debugger_callbacks = function(callbacks)
-  my_config.debugger_callbacks = vim.tbl_extend(
-    "force",
-    my_config.debugger_callbacks or {},
-    vim.deepcopy(callbacks))
-end
-
-require "debugger_callbacks"
---}}}
 --{{{ Load Launchers
 _G.my_launchers = function(launchers)
   my_config.launchers = vim.tbl_extend(
@@ -372,20 +370,6 @@ _G.my_launchers = function(launchers)
     my_config.launchers or {},
     vim.deepcopy(launchers))
 end
---}}}
---{{{ Load LSP Handlers
-_G.my_lsp_handlers = function(handlers)
-  if not my_config.lsp_handlers then
-    my_config.lsp_handlers = {}
-  end
-  for _, def in ipairs(handlers) do
-    table.insert(my_config.lsp_handlers, vim.deepcopy(def))
-    local event = def[1]
-    vim.lsp.handlers[event] = def.callback
-  end
-end
-
-require "lsp_handlers"
 --}}}
 --{{{ Load Snippets
 _G.my_snippets = function(new_snippets)
@@ -432,4 +416,18 @@ _G.my_snippets = function(new_snippets)
 end
 
 require "snippets"
+--}}}
+--{{{ Load LSP Handlers
+_G.my_lsp_handlers = function(handlers)
+  if not my_config.lsp_handlers then
+    my_config.lsp_handlers = {}
+  end
+  for _, def in ipairs(handlers) do
+    table.insert(my_config.lsp_handlers, vim.deepcopy(def))
+    local event = def[1]
+    vim.lsp.handlers[event] = def.callback
+  end
+end
+
+require "lsp_handlers"
 --}}}

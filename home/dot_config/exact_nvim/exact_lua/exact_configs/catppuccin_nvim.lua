@@ -5,6 +5,9 @@ function plug.config()
       dark = "frappe",
       light = "latte",
     },
+    custom_highlights = function()
+      return my_config.highlights
+    end,
     integrations = {
       cmp = true,
       gitsigns = true,
