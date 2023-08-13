@@ -23,15 +23,15 @@ my_signs {
     numhl = "DiagnosticSignWarn",
   }, --}}}
   DiagnosticSignError = { --{{{
-    text = '',
+    text = '',
   }, --}}}
   DiagnosticSignHint = { --{{{
-    text = '',
+    text = '',
   }, --}}}
   DiagnosticSignInfo = { --{{{
-    text = '',
+    text = '',
   }, --}}}
   DiagnosticSignWarn = { --{{{
-    text = '',
+    text = '',
   }, --}}}
 }

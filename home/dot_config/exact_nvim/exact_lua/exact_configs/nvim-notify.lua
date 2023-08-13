@@ -1,6 +1,13 @@
 function plug.config()
   require'notify'.setup {
     fps = 1,
+    icons = {
+      DEBUG = '󰉄',
+      ERROR = '',
+      INFO = '',
+      TRACE = '󰎈',
+      WARN = ''
+    },
     stages = "static",
   }
 
