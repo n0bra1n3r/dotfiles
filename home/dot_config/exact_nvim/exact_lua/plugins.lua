@@ -98,6 +98,7 @@ my_plugins {
       ":MasonInstall actionlint",
       ":MasonInstall dart-debug-adapter",
       ":MasonInstall pyright",
+      ":MasonInstall nimlangserver",
     },
   },
 

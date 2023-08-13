@@ -41,8 +41,7 @@ function plug.config()
 
   config.lua_ls.setup(lsp.nvim_lua_ls())
 
-  config.nimls.setup {
-    cmd = { fn.expand_path"~/.nimble/bin/nimlangserver.cmd" },
+  config.nim_langserver.setup {
     on_new_config = function(new_config, new_root_dir)
       new_config.rootUri = ([[file://%s]]):format(new_root_dir)
     end,
