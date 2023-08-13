@@ -7,6 +7,18 @@ function plug.config()
       end
     end
 
+    vim.diagnostic.config(require'lsp-zero'.defaults.diagnostics {
+      severity_sort = true,
+      signs = false,
+      virtual_text = {
+        format = function()
+          return [[]]
+        end,
+        prefix = '',
+        spacing = 1,
+      },
+    })
+
     local lspfn = fmt('<cmd>lua vim.lsp.%s<cr>')
     local diagfn = fmt('<cmd>lua vim.diagnostic.%s<cr>')
 
