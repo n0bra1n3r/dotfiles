@@ -191,8 +191,6 @@ my_autocmds {
   }, --}}}
   { "VimEnter", --{{{
     callback = fn.vim_defer(function()
-      require'catppuccin'.load(require'catppuccin'.flavor)
-
       if vim.env.PARENT_NVIM ~= nil then
         fn.on_child_nvim_enter(
           vim.env.NVIM_CHILD_ID,
