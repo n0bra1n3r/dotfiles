@@ -15,7 +15,7 @@ for zip in ~/.dotfiles/deps/*/*.zip; do
     pushd "$dir" >/dev/null && \
       unzip -oqq "$zip" && \
       rm "$zip" && \
-      echo "> unzip $zip"
+      echo "> unarchived $(basename "$zip")"
     popd >/dev/null
   fi
 done
@@ -30,7 +30,7 @@ for pkg in ~/.dotfiles/deps/*/.local/*.zst; do
       tar -xvf ./*.pkg.tar >/dev/null && \
       rm ./*.pkg.* && \
       rm ./.* && \
-      echo "> zstd $pkg"
+      echo "> unarchived $(basename "$pkg")"
     popd >/dev/null
   fi
 done

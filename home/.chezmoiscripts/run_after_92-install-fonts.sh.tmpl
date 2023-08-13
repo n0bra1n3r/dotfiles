@@ -21,7 +21,7 @@ fi
 if [[ -z "$CUR_SHA" || "$CUR_SHA" != "$OLD_SHA" ]]; then
   if [[ -d "$FONT_DIR" ]]; then
   #{- if eq .chezmoi.os "windows" }#
-    printf "> register-fonts $FONT_DIR/* "
+    printf "> registering fonts "
     for font_file in "$FONT_DIR"/*.?tf; do
       font_path="$(cygpath -m "$font_file")"
       powershell \
@@ -31,7 +31,7 @@ if [[ -z "$CUR_SHA" || "$CUR_SHA" != "$OLD_SHA" ]]; then
     done
     echo
   #{- else if eq .chezmoi.os "darwin" }#
-  cp "$FONT_DIR"/* ~/Library/Fonts/ && echo "> cp $FONT_DIR/* ~/Library/Fonts"
+  cp "$FONT_DIR"/* ~/Library/Fonts/ && echo "> registered fonts"
   #{- end }#
   fi
   printf "$CUR_SHA" > "$SHA_PATH"

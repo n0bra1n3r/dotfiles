@@ -7,6 +7,6 @@ GIT_REMOTE=git@github.com:n0bra1n3r/dotfiles.git
 cd "{{ .chezmoi.sourceDir }}"
 
 git remote set-url origin $GIT_REMOTE && \
-  echo "> git remote set-url origin $GIT_REMOTE"
+  echo "> set remote to $GIT_REMOTE"
 
 # vim: filetype=bash
