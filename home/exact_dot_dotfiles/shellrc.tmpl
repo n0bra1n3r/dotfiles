@@ -134,7 +134,18 @@ function git_ticket() {
 
 alias c='cd'
 alias cat='bat'
-alias dart='fvm dart'
+
+function dart() {
+  if [[ ! -f "$PWD/.fvm/fvm_config.json" ]]; then
+    command dart "$@"
+    local exit_code=$?
+    echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m FVM configuration not found. Did you forget to run \`fvm use <version>\`?\e[0m"
+    return exit_code
+  else
+    fvm dart "$@"
+  fi
+}
+
 alias e='nvim'
 
 function flutter() {
