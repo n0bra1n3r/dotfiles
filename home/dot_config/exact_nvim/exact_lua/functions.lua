@@ -793,7 +793,7 @@ function fn.show_lsp_progress(client_id, token, info)
       notif_data.count = 0
       notif_data.spinner = nil
 
-      icon = ""
+      icon = ''
       message = info.message and format_message(info.message) or "Done"
     else
       message = format_message(info.message, notif_data.index, notif_data.count)
