@@ -37,6 +37,8 @@ export GH_TOKEN="$GITHUB_ACCESS_TOKEN"
 export OPENAI_API_KEY="#{ .openAi.key }#"
 #{- end }#
 
+export BAT_THEME="Catppuccin-frappe"
+
 #{- if eq .chezmoi.os "windows" }#
 export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin:$PATH"
 export PATH="/c/PROGRA~2/Microsoft Visual Studio/Shared/Python39_64:$PATH"
