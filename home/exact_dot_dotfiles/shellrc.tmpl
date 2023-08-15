@@ -54,20 +54,26 @@ if [ ! -z "$NVIM" ]; then
 
   function cd() {
     builtin cd "$@"
+    local exit_code=$?
     local dir="$(cygpath -m "$PWD")"
     _silent_background _nvim_remote --remote-expr "v:lua.fn.set_terminal_dir(\"$dir\")"
+    return exit_code
   }
 
   function git() {
     _git_override "$@"
+    local exit_code=$?
     _silent_background _nvim_remote --remote-expr "v:lua.fn.refresh_git_info()"
+    return exit_code
   }
 
   function nvim() {
     if [ $# -eq 0 ]; then
       local dir="$(cygpath -m "$PWD")"
       _nvim_remote --remote-expr "v:lua.fn.open_workspace(\"$dir\")" &>/dev/null
+      local exit_code=$?
       _load_nvim_env
+      return exit_code
     else
       local opts="$@"
       while [ $# -gt 0 ]; do
@@ -86,7 +92,9 @@ if [ ! -z "$NVIM" ]; then
         esac
       done
       _nvim_remote --remote-expr "v:lua.fn.open_tab(\"$opts\")" &>/dev/null
+      local exit_code=$?
       _load_nvim_env
+      return exit_code
     fi
   }
 
@@ -201,11 +209,13 @@ function gc() {
 
     if [[ $bad_type == true ]]; then
       git cm "$type $message"
+      local exit_code=$?
 
       if [[ ! -z "$tick" ]]; then
         local info_msg="\n* types: build chore docs feat fix perf refactor revert style test"
         echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m unknown commit type '$type'$info_msg\e[0m"
       fi
+      return exit_code
     else
       local prefix="$type($tick)"
 
