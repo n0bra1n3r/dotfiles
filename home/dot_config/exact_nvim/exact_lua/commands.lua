@@ -52,12 +52,11 @@ my_commands {
     end,
     complete = function(lead)
       local completions = {}
+      local cur_cwd = fn.get_tab_cwd()
       for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
-        local tabnr = vim.api.nvim_tabpage_get_number(tabpage)
-        local cwd = vim.fn.getcwd(-1, tabnr)
-        if cwd:find(lead) ~= nil
-            and vim.fn.getcwd(-1) ~= cwd
-            and not fn.is_workspace_frozen(tabnr) then
+        local cwd = fn.get_tab_cwd(tabpage)
+        if cwd:find(lead) ~= nil and cur_cwd ~= cwd
+            and not fn.is_workspace_frozen(tabpage) then
           table.insert(completions, vim.fn.fnamemodify(cwd, ":~"))
         end
       end

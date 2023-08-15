@@ -57,7 +57,8 @@ end
 
 local function tab_name(name, context)
   local types = {}
-  for _, buf in ipairs(vim.fn.tabpagebuflist(context.tabnr)) do
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(context.tabId)) do
+    local buf = vim.api.nvim_win_get_buf(win)
     local filetype = vim.bo[buf].filetype
     if vim.startswith(filetype, "git") or
         vim.tbl_contains({
@@ -69,10 +70,10 @@ local function tab_name(name, context)
     types[vim.bo[buf].buftype] = true
   end
   local cur_path = fn.get_workspace_dir()
-  local tab_path = fn.get_workspace_dir(context.tabnr)
+  local tab_path = fn.get_workspace_dir(context.tabId)
   local label = ""
   if cur_path ~= tab_path then
-    local tab_root = fn.get_git_worktree_root(context.tabnr)
+    local tab_root = fn.get_git_worktree_root(context.tabId)
     if tab_path == tab_root then
       label = vim.fn.pathshorten(vim.fn.fnamemodify(tab_path, ":~:."))
     else

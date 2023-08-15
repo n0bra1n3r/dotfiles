@@ -134,8 +134,8 @@ _G.my_plugins = function(plugins)
     local config = get_plugin_config_name(plugin)
     local module = {}
     _G.plug = module
-    local hasConfig, _ = pcall(require, "configs."..config)
-    if hasConfig then
+    local has_config, _ = pcall(require, "configs."..config)
+    if has_config then
       if module.init ~= nil then
         if spec.init == nil then
           spec.init = module.init
