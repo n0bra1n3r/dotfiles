@@ -91,14 +91,11 @@ my_plugins {
     "williamboman/mason.nvim",
     build = {
       ":MasonUpdate",
-      ":MasonInstall codelldb",
-      ":MasonInstall lua-language-server",
-      ":MasonInstall bash-language-server",
-      ":MasonInstall shellcheck",
       ":MasonInstall actionlint",
+      ":MasonInstall codelldb",
       ":MasonInstall dart-debug-adapter",
-      ":MasonInstall pyright",
-      ":MasonInstall nimlangserver",
+      ":MasonInstall nim_langserver",
+      ":MasonInstall shellcheck",
     },
   },
 

@@ -51,7 +51,21 @@ function plug.config()
 
   local config = require'lspconfig'
 
-  config.lua_ls.setup(lsp.nvim_lua_ls())
+  require'mason-lspconfig'.setup({
+    ensure_installed = {
+      "bashls",
+      "lua_ls",
+      "pyright",
+    },
+    handlers = {
+      function(server)
+        config[server].setup{}
+      end,
+      lua_ls = function()
+        config.lua_ls.setup(lsp.nvim_lua_ls())
+      end,
+    }
+  })
 
   config.nim_langserver.setup {
     on_new_config = function(new_config, new_root_dir)
