@@ -23,4 +23,5 @@ imports = [ "~/.config/broot/base.toml" ]
   "**/macos" = "hide"
   "**/pubspec.lock" = "hide"
   "**/windows" = "hide"
+  "**/WebDriverAgent" = "hide"
   "**/web" = "hide"
