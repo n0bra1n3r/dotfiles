@@ -7,37 +7,33 @@ function plug.config()
         local my_launchers =
           my_config.launchers and
           my_config.launchers.dart
+        local default_launcher = {
+          type = "dart",
+          dartSdkPath = paths.dart_sdk,
+          flutterSdkPath = paths.flutter_sdk,
+          program = "${workspaceFolder}/lib/main.dart",
+          cwd = "${workspaceFolder}",
+        }
         if my_launchers then
           local launchers = vim.deepcopy(my_launchers)
-          for _, launcher in ipairs(launchers) do
-            if not launcher.dart_sdk then
-              launcher.dart_sdk = paths.dart_sdk
-            end
-            if not launcher.flutter_sdk then
-              launcher.flutter_sdk = paths.flutter_sdk
-            end
+          for i, launcher in ipairs(launchers) do
+            launchers[i] = vim.tbl_extend(
+              "keep",
+              launcher,
+              default_launcher
+            )
           end
           require'dap'.configurations.dart = launchers
         else
           require'dap'.configurations.dart = {
-            {
-              type = "dart",
+            vim.tbl_extend("keep", {
               request = "launch",
               name = "Launch app",
-              dartSdkPath = paths.dart_sdk,
-              flutterSdkPath = paths.flutter_sdk,
-              program = "${workspaceFolder}/lib/main.dart",
-              cwd = "${workspaceFolder}",
-            },
-            {
-              type = "dart",
+            }, default_launcher),
+            vim.tbl_extend("keep", {
               request = "attach",
               name = "Connect to running app",
-              dartSdkPath = paths.dart_sdk,
-              flutterSdkPath = paths.flutter_sdk,
-              program = "${workspaceFolder}/lib/main.dart",
-              cwd = "${workspaceFolder}",
-            },
+            }, default_launcher),
           }
         end
       end,
