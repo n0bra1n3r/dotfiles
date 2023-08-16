@@ -998,11 +998,13 @@ function fn.get_tab_cwd(tabpage)
 end
 
 function fn.set_tab_cwd(tabpage, path)
-  return vim.api.nvim_tabpage_set_var(
+  local cwd = path or vim.fn.getcwd(-1)
+  vim.api.nvim_tabpage_set_var(
     tabpage or vim.api.nvim_get_current_tabpage(),
     "cwd",
-    path or vim.fn.getcwd(-1)
+    cwd
   )
+  vim.cmd("tcd "..vim.fn.fnameescape(cwd))
 end
 
 function fn.expand_each(list)
