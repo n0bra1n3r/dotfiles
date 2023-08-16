@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
-function __main__() {
+if [ -n "$ZSH_VERSION" ]; then
+  setopt +o nomatch
+else
+  shopt -u nullglob
+fi
+
+function __workspace_main__() {
 
 local INFO_MSG="INFO"
 local ERROR_MSG="ERROR"
@@ -155,7 +161,13 @@ if [[ ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]]; then
     if [[ -f "$WORKSPACE_ROOT_DIR/$BRANCH/.nvim/workspace.vim" ]]; then
       true > "$WORKSPACE_ROOT_DIR/$BRANCH/.nvim/workspace.vim"
     fi
+
+    echo "$INFO_MSG: initialized nvim workspace" >&2
   fi
+
+  for init_script in ~/.dotfiles/scripts/workspace-scripts/init-*.sh; do
+    sh "$init_script"
+  done
 
   echo "$INFO_MSG: created workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'" >&2
 
@@ -176,4 +188,4 @@ unset -f pop_workspace
 
 }
 
-__main__ "$@"
+__workspace_main__ "$@"
