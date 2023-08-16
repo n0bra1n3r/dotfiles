@@ -189,6 +189,23 @@ my_autocmds {
       }
     end,
   }, --}}}
+  { "User", pattern = "ConfigLocalFinished", --{{{
+    callback = function()
+      if vim.g.project_type then
+        local project_config = vim.g.project_configs[vim.g.project_type]
+        if project_config then
+          vim.api.nvim_set_keymap("n", [[<leader>pr]], [[]], {
+            callback = function()
+              fn.open_tab(project_config)
+            end,
+            desc = "Project",
+            noremap = true,
+            silent = true,
+          })
+        end
+      end
+    end,
+  }, --}}}
   { "VimEnter", --{{{
     callback = fn.vim_defer(function()
       if vim.env.PARENT_NVIM ~= nil then

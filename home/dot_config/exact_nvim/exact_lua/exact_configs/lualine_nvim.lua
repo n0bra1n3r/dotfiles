@@ -67,7 +67,9 @@ local function tab_name(name, context)
         }, filetype) then
       return file_type_icon(filetype)..' '..name
     end
-    types[vim.bo[buf].buftype] = true
+    local buftype = vim.bo[buf].buftype
+    local type = #buftype > 0 and buftype or filetype
+    types[type] = (types[type] or 0) + 1
   end
   local cur_path = fn.get_workspace_dir()
   local tab_path = fn.get_workspace_dir(context.tabId)
@@ -88,6 +90,13 @@ local function tab_name(name, context)
     end
     if types.terminal then
       return vim.trim(' '..label)
+    end
+    if fn.is_workspace_frozen(context.tabId) then
+      for type, count in pairs(types) do
+        if count == 1 then
+          return vim.trim(file_type_icon(type)..' '..label)
+        end
+      end
     end
   end
   return vim.trim(' '..label)

@@ -860,6 +860,7 @@ end
 
 function fn.open_tab(filename)
   vim.cmd.tabe(vim.fn.fnameescape(filename))
+  fn.freeze_workspace()
 end
 
 function fn.close_buffer()

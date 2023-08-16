@@ -2,8 +2,11 @@
 
 my_globals {
   mapleader = " ",
+  project_configs = {
+    flutter = "pubspec.yaml",
+  },
   project_filetypes = {
-    ["flutter"] = "dart",
+    flutter = "dart",
   },
   workspace_file_name = ".nvim/workspace.vim",
 }
