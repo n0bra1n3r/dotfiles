@@ -144,16 +144,10 @@ my_autocmds {
       if #vim.bo.buftype == 0 then
         vim.o.cursorlineopt = "both"
       end
-      for _, mode in ipairs({ 'c', 'i', 'n', 't', 'x' }) do
+      for _, mode in ipairs({ 'c', 'i', 'n', 'x' }) do
         vim.api.nvim_set_keymap(mode, [[<LeftMouse>]], [[]], {
           callback = function()
             vim.api.nvim_del_keymap(mode, [[<LeftMouse>]])
-          end,
-          noremap = true,
-        })
-        vim.api.nvim_set_keymap(mode, [[<RightMouse>]], [[]], {
-          callback = function()
-            vim.api.nvim_del_keymap(mode, [[<RightMouse>]])
           end,
           noremap = true,
         })

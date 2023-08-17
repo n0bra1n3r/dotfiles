@@ -111,7 +111,6 @@ my_mappings {
     ["<C-Right>"]       = { "<End>" },
     ["<Esc>"]           = { "<C-\\><C-n>" },
     ["<LeftMouse>"]     = { "<nop>" },
-    ["<RightMouse>"]    = { "<nop>" },
     ["<M-1>"]           = { fn.execute_last_terminal_command },
     ["<M-;>"]           = { "<Right>" },
     ["<M-j>"]           = { "<C-\\><C-n>j" },
