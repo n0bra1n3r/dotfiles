@@ -806,6 +806,8 @@ end
 
 --}}}
 --{{{ Navigation
+local nav_info = {}
+
 function fn.edit_buffer(mode, path)
   local tabpage = vim.api.nvim_get_current_tabpage()
   local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
@@ -869,6 +871,21 @@ function fn.close_buffer()
   else
     require'mini.bufremove'.unshow()
   end
+end
+
+function fn.restore_tabpage()
+  if nav_info.last_tabpage and
+      vim.api.nvim_tabpage_is_valid(nav_info.last_tabpage) then
+    pcall(vim.api.nvim_set_current_tabpage, nav_info.last_tabpage)
+    nav_info.last_tabpage = nil
+  end
+end
+
+function fn.save_tabpage()
+  local cur_tabpage = vim.api.nvim_get_current_tabpage()
+  fn.vim_defer(function()
+    nav_info.last_tabpage = cur_tabpage
+  end)()
 end
 --}}}
 --{{{ Quickfix
