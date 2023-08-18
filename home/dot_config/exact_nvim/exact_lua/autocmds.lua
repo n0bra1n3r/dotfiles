@@ -31,6 +31,11 @@ my_autocmds {
       vim.bo.filetype = "ruby"
     end,
   }, --}}}
+  { "BufEnter", pattern = "Podfile", --{{{
+    callback = function()
+      vim.bo.filetype = "ruby"
+    end,
+  }, --}}}
   { "BufHidden", --{{{
     callback = function()
       if fn.is_empty_buffer() then
