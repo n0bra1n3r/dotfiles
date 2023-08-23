@@ -350,11 +350,12 @@ _G.my_tasks = function(tasks)
         filetype = config.filetype,
         dir = fn.get_workspace_dir(),
       },
-      params = vim.tbl_extend('keep', {
+      params = vim.tbl_extend('force', {
         args = {
           delimiter = " ",
+          desc = "Task arguments",
           optional = true,
-          subtype = { "string" },
+          subtype = { type = "string" },
           type = "list",
         },
       }, config.params or {}),
