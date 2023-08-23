@@ -155,6 +155,12 @@ if [[ ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]]; then
   fi
   popd >/dev/null || return 1
 
+  if [[ -d "$WORKSPACE_DEFAULT_DIR/.scripts" ]]; then
+    cp -r "$WORKSPACE_DEFAULT_DIR/.scripts" "$WORKSPACE_ROOT_DIR/$BRANCH/.scripts"
+
+    echo "$INFO_MSG: initialized workspace scripts" >&2
+  fi
+
   if [[ -d "$WORKSPACE_DEFAULT_DIR/.nvim" ]]; then
     cp -r "$WORKSPACE_DEFAULT_DIR/.nvim" "$WORKSPACE_ROOT_DIR/$BRANCH/.nvim"
 
@@ -165,13 +171,17 @@ if [[ ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]]; then
     echo "$INFO_MSG: initialized nvim workspace" >&2
   fi
 
-  for init_script in ~/.dotfiles/scripts/workspace-scripts/init-*.sh; do
-    sh "$init_script"
+  for init_script in "$WORKSPACE_ROOT_DIR/$BRANCH/.scripts"/init-*.sh; do
+    [[ -f "$init_script" ]] && sh "$init_script"
+  done
+
+  cd "$WORKSPACE_ROOT_DIR/$BRANCH" || return 1
+
+  for init_script in ~/.dotfiles/scripts/workspace-init-*.sh; do
+    [[ -f "$init_script" ]] && sh "$init_script"
   done
 
   echo "$INFO_MSG: created workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'" >&2
-
-  cd "$WORKSPACE_ROOT_DIR/$BRANCH" || return 1
 else
   pushd "$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH" >/dev/null || return 1
   git worktree repair
