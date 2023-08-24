@@ -35,8 +35,16 @@ function plug.config()
       treesitter = true,
       which_key = true,
     },
-    term_colors = false,
   }
+
+  vim.api.nvim_create_autocmd("ColorScheme", {
+    group = vim.api.nvim_create_augroup("conf_catppuccin", { clear = true }),
+    callback = fn.vim_defer(function()
+      if vim.startswith(vim.g.colors_name, "catppuccin") then
+        require'catppuccin'.load(require'catppuccin'.flavour)
+      end
+    end)
+  })
 
   vim.cmd.colorscheme("catppuccin")
 end
