@@ -1,6 +1,6 @@
 local M = {}
 
-local search_icon = ''
+local search_icon = ''
 local search_filetype = "search"
 local search_namespace = "Search"
 local search_scrolloff = 3

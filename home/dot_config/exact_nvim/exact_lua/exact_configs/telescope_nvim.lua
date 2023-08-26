@@ -11,7 +11,7 @@ function plug.config()
       preview = {
         check_mime_type = true,
       },
-      prompt_prefix = ' ',
+      prompt_prefix = ' ',
     },
     pickers = {
       loclist = {
