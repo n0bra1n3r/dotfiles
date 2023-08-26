@@ -79,7 +79,7 @@ function plug.config()
   require'null-ls'.setup {
     sources = {
       require'null-ls'.builtins.diagnostics.actionlint,
-      nim_diagnostics(),
+      --nim_diagnostics(),
     },
   }
 end

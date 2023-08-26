@@ -69,26 +69,12 @@ function plug.config()
   })
 
   config.nim_langserver.setup {
-    on_new_config = function(new_config, new_root_dir)
-      new_config.rootUri = ([[file://%s]]):format(new_root_dir)
-    end,
-    root_dir = function(filename)
-      return config.util.root_pattern[[*.nimble]](filename) or
-        config.util.root_pattern[[config.nims]](filename) or
-        config.util.root_pattern[[*.cfg]](filename) or
-        config.util.root_pattern[[*.nimcfg]](filename) or
-        config.util.root_pattern[[*.nims]](filename) or
-        config.util.root_pattern[[.nvim]](filename) or
-        config.util.root_pattern[[.git]](filename) or
-        config.util.root_pattern[[main.nim]](filename) or
-        config.util.root_pattern[[*.nim]](filename)
-    end,
-    settings = {
-      -- We are using null-ls for checking.
-      checkOnSave = false,
-      autoCheckFile = false,
-      autoCheckProject = false,
-    },
+    -- settings = {
+    --   nim = {
+    --     autoCheckFile = false,
+    --     autoCheckProject = false,
+    --   },
+    -- },
   }
 
   lsp.setup()
