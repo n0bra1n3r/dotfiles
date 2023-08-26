@@ -852,8 +852,10 @@ end
 local function on_cmdline_changed()
   clear_input_timer()
 
+  local delay_factor = math.max(6 - #vim.fn.getcmdline(), 1)
+
   M.input_timer = vim.loop.new_timer()
-  M.input_timer:start(200, 0, vim.schedule_wrap(function()
+  M.input_timer:start(200 * delay_factor, 0, vim.schedule_wrap(function()
     clear_input_timer()
     if #process_search_input() == 0 then
       if get_is_in_search_buffer() then
