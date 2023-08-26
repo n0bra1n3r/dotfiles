@@ -31,11 +31,15 @@ function plug.config()
       opts.title = "neovim"
     end
 
+    local max_len = 50
+
+    if opts.title and #opts.title > max_len then
+      opts.title = opts.title:sub(1, 22).."..."..opts.title:sub(-22, -1)
+    end
+
     local lines
 
     if msg then
-      local max_len = 50
-
       lines = {}
 
       for _, line in ipairs(vim.split(msg, "\n")) do
