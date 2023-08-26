@@ -933,7 +933,7 @@ function M.prompt(search_args, search_term)
 
   search_term = vim.fn.input {
     default = search_term,
-    prompt = (" %s  "):format(get_search_icon()),
+    prompt = (" %s "):format(get_search_icon()),
   }
 
   disable_live_search()
