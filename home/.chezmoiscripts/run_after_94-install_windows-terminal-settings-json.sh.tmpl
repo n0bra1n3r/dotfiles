@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# chezmoi:template:left-delimiter="#{" right-delimiter="}#"
+
+#{- if eq .chezmoi.os "windows" }#
+
+powershell -c '& cmd.exe /C "del /F %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json && mklink /H %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json %USERPROFILE%\.local\share\chezmoi\linked\settings.json"' 1>/dev/null \
+  && echo "> installed Windows Terminal configuration"
+#{- end }#
+
+# vim: filetype=sh
