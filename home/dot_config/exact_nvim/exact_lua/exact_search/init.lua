@@ -872,10 +872,12 @@ local function enable_live_search()
     callback = on_cmdline_changed,
   })
   vim.fn.inputsave()
+  vim.cmd.echohl("Constant")
 end
 
 local function disable_live_search()
   clear_input_timer()
+  vim.cmd.echohl("None")
   vim.fn.inputrestore()
   vim.api.nvim_del_augroup_by_name(augroup_live_search)
 end
@@ -933,6 +935,9 @@ function M.prompt(search_args, search_term)
 
   search_term = vim.fn.input {
     default = search_term,
+    highlight = function(input)
+      return {{ 0, #input, "CurSearch" }}
+    end,
     prompt = (" %s "):format(get_search_icon()),
   }
 
