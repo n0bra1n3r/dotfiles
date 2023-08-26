@@ -19,7 +19,7 @@ my_options {
     foldopen = "┯",
     foldsep = "│",
     foldclose = "󰐕",
-    stl = " ",
+    stl = " ",
   }, --}}}
   foldcolumn = '1',
   foldenable = true,
