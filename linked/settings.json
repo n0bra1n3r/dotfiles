@@ -145,7 +145,11 @@
             "cursorShape": "filledBox",
             "font":
             {
-                "face": "CaskaydiaCove Nerd Font"
+                "face": "CaskaydiaCove Nerd Font",
+                "features": {
+                    "calt": 0,
+                    "liga": 0
+                }
             },
             "intenseTextStyle": "all",
             "padding": "0",
