@@ -3,7 +3,7 @@
 
 #{- if eq .chezmoi.os "windows" }#
 
-powershell -c '& cmd.exe /C "del /F %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json && mklink /H %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json %USERPROFILE%\.local\share\chezmoi\linked\settings.json"' 1>/dev/null \
+powershell -c '& cmd.exe /C "rmdir /S /Q %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState 2> nul & mklink /J %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState %USERPROFILE%\.local\share\chezmoi\linked\Terminal"' 1>/dev/null \
   && echo "> installed Windows Terminal configuration"
 #{- end }#
 
