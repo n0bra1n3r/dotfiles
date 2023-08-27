@@ -1,58 +1,71 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
 --{{{ Helpers
-local function show_buffer_list()
-  require'telescope.builtin'.loclist { prompt_title = "Window Buffers" }
-end
-
-local function open_float()
-  local width = math.min(vim.o.columns * 0.9, vim.o.columns - 16)
-  local height = vim.o.lines * 0.9
-  require'mini.misc'.zoom(0, {
-    border = "single",
-    width = vim.fn.ceil(width),
-    height = vim.fn.ceil(height),
-    row = vim.o.lines / 2 - height / 2 - 1,
-    col = vim.o.columns / 2 - width / 2,
-  })
+local function edit_in_split()
+  fn.edit_buffer("split", vim.fn.expand("<cfile>"))
 end
 
 local function edit_in_vert_split()
   fn.edit_buffer("vsplit", vim.fn.expand("<cfile>"))
 end
 
-local function edit_in_split()
-  fn.edit_buffer("split", vim.fn.expand("<cfile>"))
+local function edit_in_buf()
+  fn.edit_buffer("edit", vim.fn.expand("<cfile>"))
 end
 
-local function edit()
-  fn.edit_buffer("edit", vim.fn.expand("<cfile>"))
+local function execute_last_terminal_command()
+  fn.send_terminal("!!", true)
+  fn.open_terminal()
+end
+
+local function get_map_expr(key)
+  return ("(v:count!=0||mode(1)[0:1]=='no'?'%s':'g%s')"):format(key, key)
+end
+
+local function get_map_expr_i(key)
+  return ("(v:count!=0||mode(1)[0:1]=='no'?'%s':'<C-o>g%s')"):format(key, key)
+end
+
+local function search_and_replace()
+  require'search'.prompt()
+end
+
+local function search_and_replace_selection()
+  require'search'.prompt([[]], vim.fn.expand[[<cword>]])
+end
+
+local function show_buffer_list()
+  require'telescope.builtin'.loclist { prompt_title = "Window Buffers" }
+end
+
+local function show_commits()
+  require'telescope.builtin'.git_commits()
 end
 --}}}
 
 my_mappings {
   [""] = { --{{{ normal mode, visual mode, operator pending mode
-    ["<Down>"]          = { fn.get_map_expr("<Down>"), expr = true },
-    ["<Up>"]            = { fn.get_map_expr("<Up>"), expr = true },
-    ["^"]               = { fn.get_map_expr("^"), expr = true },
-    ["$"]               = { fn.get_map_expr("$"), expr = true },
-    ["0"]               = { fn.get_map_expr("0"), expr = true },
-    j                   = { fn.get_map_expr("j"), expr = true },
-    k                   = { fn.get_map_expr("k"), expr = true },
+    ["<Down>"]          = { get_map_expr("<Down>"), expr = true },
+    ["<Up>"]            = { get_map_expr("<Up>"), expr = true },
+    ["^"]               = { get_map_expr("^"), expr = true },
+    ["$"]               = { get_map_expr("$"), expr = true },
+    ["0"]               = { get_map_expr("0"), expr = true },
+    j                   = { get_map_expr("j"), expr = true },
+    k                   = { get_map_expr("k"), expr = true },
   }, --}}}
   i = { --{{{
-    ["<Down>"]          = { fn.get_map_expr_i("<Down>"), expr = true },
+    ["<Down>"]          = { get_map_expr_i("<Down>"), expr = true },
     ["<End>"]           = { "<C-o>$", noremap = false },
     ["<Home>"]          = { "<C-o>^", noremap = false },
     ["<Insert>"]        = { "<Esc>" },
     ["<M-;>"]           = { "<Right>" },
-    ["<M-j>"]           = { "'<C-o>'."..fn.get_map_expr("<Down>"), expr = true },
-    ["<M-k>"]           = { "'<C-o>'."..fn.get_map_expr("<Up>"), expr = true },
+    ["<M-j>"]           = { "'<C-o>'."..get_map_expr("<Down>"), expr = true },
+    ["<M-k>"]           = { "'<C-o>'."..get_map_expr("<Up>"), expr = true },
     ["<M-l>"]           = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up><End>':'<Left>'", expr = true },
-    ["<PageUp>"]        = { "<Esc>H<Up>", noremap = false },
     ["<PageDown>"]      = { "<Esc>L<Down>", noremap = false },
+    ["<PageUp>"]        = { "<Esc>H<Up>", noremap = false },
     ["<S-Tab>"]         = { "<C-d>" },
-    ["<Up>"]            = { fn.get_map_expr_i("<Up>"), expr = true },
+    ["<Up>"]            = { get_map_expr_i("<Up>"), expr = true },
   }, --}}}
   c = { --{{{
     ["<M-;>"]           = { "<Right>", silent = false },
@@ -61,40 +74,61 @@ my_mappings {
     ["<M-l>"]           = { "<Left>", silent = false },
   }, --}}}
   n = { --{{{
-    ["<M-\\>"]          = { "<cmd>vsplit<CR>" },
-    ["<M-->"]           = { "<cmd>split<CR>" },
-    ["<M-=>"]           = { open_float },
-    ["<M-1>"]           = { fn.execute_last_terminal_command },
-    ["<M-;>"]           = { "<C-w>l" },
-    ["<M-j>"]           = { "<C-w>j" },
-    ["<M-k>"]           = { "<C-w>k" },
-    ["<M-l>"]           = { "<C-w>h" },
     ["<C-`>"]           = { fn.toggle_terminal },
     ["<C-c>"]           = { "<cmd>tabclose<CR>" },
-    ["<C-w><C-f>"]      = { edit_in_vert_split, desc = "Edit in vert split" },
-    ["<C-w>f"]          = { edit_in_split, desc = "Edit in split" },
-    ["<C-w>gf"]         = { "<cmd>tabe <cfile><CR>", desc = "Edit in tab" },
     ["<C-Down>"]        = { "<C-w>j" },
     ["<C-Left>"]        = { "<C-w>h" },
     ["<C-Right>"]       = { "<C-w>l" },
-    ["<C-Up>"]          = { "<C-w>k" },
     ["<C-Tab>"]         = { show_buffer_list },
+    ["<C-Up>"]          = { "<C-w>k" },
+    ["<C-w><C-f>"]      = { edit_in_vert_split, desc = "Edit in vert split" },
+    ["<C-w>f"]          = { edit_in_split, desc = "Edit in split" },
+    ["<C-w>gf"]         = { "<cmd>tabe <cfile><CR>", desc = "Edit in tab" },
     ["<C-z>"]           = { fn.open_terminal },
-    ["<Esc>"]           = { ":nohlsearch<CR>" },
     ["<End>"]           = { "$", noremap = false },
-    ["<Home>"]          = { "^", noremap = false },
     ["<Enter>"]         = { fn.save_file, silent = false },
-    ["<F1>"]            = { "':help ' . expand('<cword>') . '<CR>'", expr = true },
+    ["<Esc>"]           = { ":nohlsearch<CR>" },
+    ["<F1>"]            = { "':help '.expand('<cword>').'<CR>'", expr = true },
+    ["<Home>"]          = { "^", noremap = false },
     ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up><End><Right>':'<Left>'", expr = true },
-    ["<PageUp>"]        = { "H<Up>", noremap = false },
+    ["<leader><Space>"] = { fn.open_explorer, desc = "Explorer" },
+    ["<leader>ac"]      = { "<cmd>ChatGPT<CR>", desc = "Chat" },
+    ["<leader>d"]       = { fn.resume_debugging, desc = "Debug" },
+    ["<leader>fd"]      = { fn.delete_file, desc = "Delete" },
+    ["<leader>fe"]      = { fn.edit_file, desc = "Edit" },
+    ["<leader>fm"]      = { fn.move_file, desc = "Move" },
+    ["<leader>fo"]      = { fn.open_file_folder, desc = "Open folder" },
+    ["<leader>gb"]      = { "<cmd>Gitsigns blame_line<CR>", desc = "Blame" },
+    ["<leader>gc"]      = { show_commits, desc = "Commits" },
+    ["<leader>gN"]      = { "<cmd>Gitsigns prev_hunk<CR>", desc = "Prev hunk" },
+    ["<leader>gn"]      = { "<cmd>Gitsigns next_hunk<CR>", desc = "Next hunk" },
+    ["<leader>gp"]      = { "<cmd>Gitsigns preview_hunk<CR>", desc = "Preview hunk" },
+    ["<leader>gr"]      = { ":Gitsigns reset_hunk<CR>", desc = "Reset hunk" },
+    ["<leader>gs"]      = { ":Gitsigns stage_hunk<CR>", desc = "Stage hunk" },
+    ["<leader>i"]       = { "<cmd>Telescope diagnostics<CR>", desc = "Issues" },
+    ["<leader>pa"]      = { "<cmd>Mason<CR>", desc = "Packages" },
+    ["<leader>pl"]      = { "<cmd>Lazy<CR>", desc = "Plugins" },
+    ["<leader>s"]       = { search_and_replace, desc = "Search & replace" },
+    ["<leader>t"]       = { "<cmd>OverseerRun<CR>", desc = "Tasks" },
+    ["<leader>w"]       = { fn.choose_window, desc = "Switch window" },
+    ["<leader>x"]       = { fn.close_buffer, desc = "Close" },
+    ["<leader>z"]       = { "<cmd>only<CR>", desc = "Zoom" },
+    ["<M-\\>"]          = { "<cmd>vsplit<CR>" },
+    ["<M-->"]           = { "<cmd>split<CR>" },
+    ["<M-=>"]           = { fn.float_window },
+    ["<M-;>"]           = { "<C-w>l" },
+    ["<M-1>"]           = { execute_last_terminal_command },
+    ["<M-j>"]           = { "<C-w>j" },
+    ["<M-k>"]           = { "<C-w>k" },
+    ["<M-l>"]           = { "<C-w>h" },
     ["<PageDown>"]      = { "L<Down>", noremap = false },
-    ["<Space><Space>"]  = { fn.open_explorer, desc = "Explorer" },
+    ["<PageUp>"]        = { "H<Up>", noremap = false },
     [";"]               = { "l" },
     C                   = { '"_C' },
     c                   = { '"_c' },
-    d                   = { '"_d' },
     D                   = { '"_D' },
-    gf                  = { edit, desc = "Edit" },
+    d                   = { '"_d' },
+    gf                  = { edit_in_buf, desc = "Edit" },
     h                   = { ";" },
     l                   = { "col('.')==1&&col([line('.')-1,'$'])>1?'k$l':'h'", expr = true },
     x                   = { "col('$')==col('.')?'gJ':'\"_x'", expr = true },
@@ -106,29 +140,33 @@ my_mappings {
   t = { --{{{
     ["<C-`>"]           = { fn.toggle_terminal },
     ["<C-;>"]           = { "<End>" },
-    ["<C-l>"]           = { "<Home>" },
     ["<C-Left>"]        = { "<Home>" },
+    ["<C-l>"]           = { "<Home>" },
     ["<C-Right>"]       = { "<End>" },
     ["<Esc>"]           = { "<C-\\><C-n>" },
     ["<LeftMouse>"]     = { "<nop>" },
-    ["<M-1>"]           = { fn.execute_last_terminal_command },
     ["<M-;>"]           = { "<Right>" },
+    ["<M-1>"]           = { execute_last_terminal_command },
     ["<M-j>"]           = { "<C-\\><C-n>j" },
     ["<M-k>"]           = { "<C-\\><C-n>k" },
     ["<M-l>"]           = { "<Left>" },
-    ["<PageUp>"]        = { "<C-\\><C-n>H<Up>" },
     ["<PageDown>"]      = { "<C-\\><C-n>L<Down>" },
+    ["<PageUp>"]        = { "<C-\\><C-n>H<Up>" },
   }, --}}}
   x = { --{{{
+    [";"]               = { "l" },
+    ["<leader>ac"]      = { "<cmd>ChatGPT<CR>", desc = "Chat" },
+    ["<leader>ad"]      = { "<cmd>ChatGPTRun docstring<CR>", desc = "Generate docstring" },
+    ["<leader>at"]      = { "<cmd>ChatGPTRun add_tests<CR>", desc = "Generate tests" },
+    ["<leader>s"]       = { search_and_replace_selection, desc = "Search & replace" },
     ["<S-Tab>"]         = { "<gv" },
     ["<Tab>"]           = { ">gv" },
-    [";"]               = { "l" },
     c                   = { '"_c' },
     d                   = { '"_d' },
     h                   = { ";" },
     l                   = { "h" },
-    p                   = { "P" },
     P                   = { "p" },
+    p                   = { "P" },
     y                   = { "ygv" },
   }, --}}}
 }

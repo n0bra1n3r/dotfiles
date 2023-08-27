@@ -851,6 +851,18 @@ function fn.choose_window()
   end
 end
 
+function fn.float_window()
+  local width = math.min(vim.o.columns * 0.9, vim.o.columns - 16)
+  local height = vim.o.lines * 0.9
+  require'mini.misc'.zoom(0, {
+    border = "single",
+    width = vim.fn.ceil(width),
+    height = vim.fn.ceil(height),
+    row = vim.o.lines / 2 - height / 2 - 1,
+    col = vim.o.columns / 2 - width / 2,
+  })
+end
+
 function fn.get_prior_tabpage()
   local tabnr = vim.fn.tabpagenr[[#]]
   for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
@@ -983,13 +995,8 @@ function fn.set_terminal_dir(cwd)
   fn.set_tab_cwd(nil, cwd)
 end
 
-function fn.send_terminal(command)
-  get_terminal():send(" "..command, false)
-end
-
-function fn.execute_last_terminal_command()
-  get_terminal():send("!!", false)
-  fn.open_terminal()
+function fn.send_terminal(command, is_hist)
+  get_terminal():send((is_hist and "" or " ")..command, false)
 end
 
 function fn.sync_terminal()
@@ -1048,13 +1055,6 @@ function fn.is_file_buffer(buf)
   end
   local name = vim.api.nvim_buf_get_name(buf or 0)
   return #name > 0 and vim.fn.fnamemodify(name, ":t") ~= "new"
-end
-
-function fn.get_map_expr(key)
-  return string.format("(v:count!=0||mode(1)[0:1]=='no'?'%s':'g%s')", key, key)
-end
-function fn.get_map_expr_i(key)
-  return string.format("(v:count!=0||mode(1)[0:1]=='no'?'%s':'<C-o>g%s')", key, key)
 end
 
 function fn.get_wins_for_buf_type(buf_type)
