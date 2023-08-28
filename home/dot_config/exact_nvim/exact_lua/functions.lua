@@ -195,7 +195,7 @@ end
 function fn.refresh_git_diff_info(tabpageOrPath)
   if fn.is_git_dir(tabpageOrPath) then
     local branch = fn.get_git_branch(tabpageOrPath)
-    local command = string.format("rev-list --left-right --count %s@{upstream}...%s", branch, branch)
+    local command = ("rev-list --left-right --count %s@{upstream}...%s"):format(branch, branch)
     local results = vim.split(run_git_command(tabpageOrPath, command), "\t", { trimempty = true })
     local has_remote = vim.v.shell_error == 0
     set_git_info(tabpageOrPath, { has_remote = has_remote })
@@ -205,7 +205,7 @@ function fn.refresh_git_diff_info(tabpageOrPath)
         remote_change_count = tonumber(results[1]),
       })
     else
-      command = string.format("rev-list --count %s", branch)
+      command = ("rev-list --count %s"):format(branch)
       local output = run_git_command(tabpageOrPath, command)
       set_git_info(tabpageOrPath, { local_change_count = tonumber(output) })
     end
@@ -1104,7 +1104,7 @@ end
 function fn.get_wins_for_buf_type(buf_type)
   return vim.fn.filter(
     vim.fn.range(1, vim.fn.winnr("$")),
-    string.format("getwinvar(v:val, '&bt') == '%s'", buf_type))
+    ("getwinvar(v:val, '&bt') == '%s'"):format(buf_type))
 end
 
 function fn.vim_defer(fn, timer)
