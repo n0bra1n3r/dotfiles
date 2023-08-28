@@ -2,6 +2,9 @@ function plug.config()
   require'dressing'.setup {
     input = {
       border = "single",
+      get_config = function(opts)
+        return opts.dressing
+      end,
     },
     select = {
       builtin = {

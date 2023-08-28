@@ -293,24 +293,42 @@ end
 
 function fn.edit_file()
   local rel_dir = vim.fn.expand("%:~:.:h")
-  local path = vim.fn.input("  Edit at: ", rel_dir.."/", "dir")
-  if #path == 0 or path == rel_dir or path.."/" == rel_dir then
-    return
-  end
-  create_parent_dirs(path)
-  vim.cmd.edit(vim.fn.fnameescape(path))
+  vim.ui.input({
+      completion = "dir",
+      default = rel_dir.."/",
+      prompt = " 󱇧 Edit at: ",
+      dressing = {
+        relative = "win",
+      },
+    },
+    function(path)
+      if path == nil or #path == 0 or path == rel_dir or path.."/" == rel_dir then
+        return
+      end
+      create_parent_dirs(path)
+      vim.cmd.edit(vim.fn.fnameescape(path))
+    end)
 end
 
 function fn.move_file()
   local rel_file = vim.fn.expand("%:~:.")
-  local path = vim.fn.input("  Move to: ", rel_file, "file")
-  if #path == 0 or path == rel_file then
-    return
-  end
-  create_parent_dirs(path)
-  vim.cmd.saveas(vim.fn.fnameescape(path))
-  vim.fn.delete(vim.fn.expand("#"))
-  vim.cmd.bwipeout("#")
+  vim.ui.input({
+      completion = "file",
+      default = rel_file,
+      prompt = " 󰪹 Move to: ",
+      dressing = {
+        relative = "win",
+      },
+    },
+    function(path)
+      if path == nil or #path == 0 or path == rel_file then
+        return
+      end
+      create_parent_dirs(path)
+      vim.cmd.saveas(vim.fn.fnameescape(path))
+      vim.fn.delete(vim.fn.expand("#"))
+      vim.cmd.bwipeout("#")
+    end)
 end
 
 function fn.save_file()
@@ -319,12 +337,21 @@ function fn.save_file()
     return
   end
   local rel_dir = vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.")
-  local path = vim.fn.input("  Save to: ", rel_dir.."/", "dir")
-  if #path == 0 or path == rel_dir or path.."/" == rel_dir then
-    return
-  end
-  create_parent_dirs(path)
-  vim.cmd.saveas(vim.fn.fnameescape(path))
+  vim.ui.input({
+      completion = "dir",
+      default = rel_dir.."/",
+      prompt = " 󰈔 Save to: ",
+      dressing = {
+        relative = "win",
+      },
+    },
+    function(path)
+      if path == nil or #path == 0 or path == rel_dir or path.."/" == rel_dir then
+        return
+      end
+      create_parent_dirs(path)
+      vim.cmd.saveas(vim.fn.fnameescape(path))
+    end)
 end
 
 function fn.open_explorer()
