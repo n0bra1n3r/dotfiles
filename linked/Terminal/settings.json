@@ -1,35 +1,43 @@
 {
     "$help": "https://aka.ms/terminal-documentation",
     "$schema": "https://aka.ms/terminal-profiles-schema",
-    "actions":
+    "actions": 
     [
         {
-            "command":
+            "command": 
             {
                 "action": "copy",
                 "singleLine": false
             }
         },
         {
+            "command": 
+            {
+                "action": "sendInput",
+                "input": "\u001b[9;5u"
+            },
+            "keys": "ctrl+tab"
+        },
+        {
             "command": "paste"
+        },
+        {
+            "command": 
+            {
+                "action": "sendInput",
+                "input": "\u001b[13;5u"
+            },
+            "keys": "ctrl+enter"
         },
         {
             "command": "find",
             "keys": "ctrl+shift+f"
         },
         {
-            "command":
+            "command": 
             {
-              "action": "sendInput",
-              "input": "\u001b[9;5u"
-            },
-            "keys": "ctrl+tab"
-        },
-        {
-            "command":
-            {
-              "action": "sendInput",
-              "input": "\u001b[96;5u"
+                "action": "sendInput",
+                "input": "\u001b[96;5u"
             },
             "keys": "ctrl+`"
         },
@@ -38,7 +46,7 @@
             "keys": "ctrl+insert"
         },
         {
-            "command": null,
+            "command": "unbound",
             "keys": "ctrl+c"
         },
         {
@@ -50,7 +58,7 @@
             "keys": "shift+insert"
         },
         {
-            "command": null,
+            "command": "unbound",
             "keys": "ctrl+v"
         },
         {
@@ -62,27 +70,27 @@
             "keys": "alt+enter"
         },
         {
-            "command": null,
+            "command": "unbound",
             "keys": "f11"
         },
         {
-            "command": null,
+            "command": "unbound",
             "keys": "ctrl+0"
         },
         {
-            "command": null,
+            "command": "unbound",
             "keys": "alt+down"
         },
         {
-            "command": null,
+            "command": "unbound",
             "keys": "alt+left"
         },
         {
-            "command": null,
+            "command": "unbound",
             "keys": "alt+right"
         },
         {
-            "command": null,
+            "command": "unbound",
             "keys": "alt+up"
         },
         {
@@ -94,15 +102,7 @@
             "keys": "ctrl+plus"
         },
         {
-            "command":
-            {
-              "action": "sendInput",
-              "input": "\u001b[13;5u"
-            },
-            "keys": "ctrl+enter"
-        },
-        {
-            "command":
+            "command": 
             {
                 "action": "splitPane",
                 "split": "auto",
@@ -111,14 +111,14 @@
             "keys": "alt+shift+d"
         },
         {
-            "command":
+            "command": 
             {
                 "action": "nextTab"
             },
             "keys": "ctrl+alt+tab"
         },
         {
-            "command":
+            "command": 
             {
                 "action": "prevTab"
             },
@@ -130,33 +130,36 @@
     "defaultProfile": "{2ece5bfe-50ed-5f3a-ab87-5cd4baafed2b}",
     "initialCols": 220,
     "initialRows": 60,
-    "newTabMenu":
+    "newTabMenu": 
     [
         {
             "type": "remainingProfiles"
         }
     ],
-    "profiles":
+    "profiles": 
     {
-        "defaults":
+        "defaults": 
         {
+            "antialiasingMode": "cleartype",
             "bellStyle": "none",
             "colorScheme": "Catppuccin Frappe",
             "cursorShape": "filledBox",
-            "font":
+            "font": 
             {
-                "face": "CaskaydiaCove Nerd Font",
-                "features": {
+                "face": "JetBrainsMonoNL Nerd Font",
+                "features": 
+                {
                     "calt": 0,
                     "liga": 0
-                }
+                },
+                "weight": "medium"
             },
             "intenseTextStyle": "all",
             "padding": "0",
             "scrollbarState": "hidden",
             "useAtlasEngine": false
         },
-        "list":
+        "list": 
         [
             {
                 "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
@@ -208,7 +211,7 @@
             }
         ]
     },
-    "schemes":
+    "schemes": 
     [
         {
             "background": "#0C0C0C",
@@ -442,22 +445,22 @@
         }
     ],
     "theme": "Catppuccin Frappe",
-    "themes":
+    "themes": 
     [
         {
             "name": "Catppuccin Frappe",
-            "tab":
+            "tab": 
             {
                 "background": "#303446FF",
                 "showCloseButton": "always",
                 "unfocusedBackground": null
             },
-            "tabRow":
+            "tabRow": 
             {
                 "background": "#292C3CFF",
                 "unfocusedBackground": "#232634FF"
             },
-            "window":
+            "window": 
             {
                 "applicationTheme": "dark",
                 "useMica": false
@@ -465,13 +468,13 @@
         },
         {
             "name": "legacyDark",
-            "tab":
+            "tab": 
             {
                 "background": null,
                 "showCloseButton": "always",
                 "unfocusedBackground": null
             },
-            "window":
+            "window": 
             {
                 "applicationTheme": "dark",
                 "useMica": false
@@ -479,13 +482,13 @@
         },
         {
             "name": "legacyLight",
-            "tab":
+            "tab": 
             {
                 "background": null,
                 "showCloseButton": "always",
                 "unfocusedBackground": null
             },
-            "window":
+            "window": 
             {
                 "applicationTheme": "light",
                 "useMica": false
@@ -493,13 +496,13 @@
         },
         {
             "name": "legacySystem",
-            "tab":
+            "tab": 
             {
                 "background": null,
                 "showCloseButton": "always",
                 "unfocusedBackground": null
             },
-            "window":
+            "window": 
             {
                 "applicationTheme": "system",
                 "useMica": false

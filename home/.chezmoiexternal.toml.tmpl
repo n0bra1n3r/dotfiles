@@ -16,7 +16,7 @@
 {{- end }}
 
 [".local/share/fonts"]
-  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
+  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
   type = "archive"
 
 [".dotfiles/logs/nerd-font.txt"]
@@ -131,11 +131,6 @@
 
 {{ template "dep" "jq/.local/bin/jq.exe" }}
   url = "https://github.com/jqlang/jq/releases/latest/download/jq-win64.exe"
-  exact = true
-  type = "file"
-
-{{ template "dep" "make/.local/make.pkg.tar.zst" }}
-  url = "https://mirror.msys2.org/msys/x86_64/make-4.4.1-1-x86_64.pkg.tar.zst"
   exact = true
   type = "file"
 
