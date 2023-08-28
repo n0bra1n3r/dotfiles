@@ -15,7 +15,6 @@ end
 
 local function execute_last_terminal_command()
   fn.send_terminal("!!", true)
-  fn.open_terminal()
 end
 
 local function get_map_expr(key)

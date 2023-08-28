@@ -4,8 +4,8 @@ my_commands {
   G = { --{{{
     function(opts)
       fn.send_terminal("git "..fn.expand_each(opts.fargs))
-      fn.open_terminal()
     end,
+    bang = true,
     complete = function(lead)
       local pipe = io.popen("bash -c 'git-complete.bash "..lead.."'")
       local completions = pipe:read("*a")
@@ -18,7 +18,6 @@ my_commands {
   Ga = { --{{{
     function(opts)
       fn.send_terminal("git add -p "..fn.expand_each(opts.fargs))
-      fn.open_terminal()
     end,
     complete = function(lead)
       return my_config.commands.G.complete("add -p "..lead)

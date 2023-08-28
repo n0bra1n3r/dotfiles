@@ -39,11 +39,14 @@ if [[ ! -z "$NVIM" ]]; then
   autoload -U add-zsh-hook
 
   function _nvim_precmd() {
-    _silent_background _nvim_remote --remote-expr "v:lua.fn.set_shell_active(v:true)"
+    _silent_background _nvim_remote --remote-expr \
+      "v:lua.fn.set_shell_active(v:true, \"$1\")"
   }
 
   function _nvim_postcmd() {
-    _silent_background _nvim_remote --remote-expr "v:lua.fn.set_shell_active(v:false)"
+    local cmd=$history[$(($HISTCMD - 1))]
+    _silent_background _nvim_remote --remote-expr \
+      "v:lua.fn.set_shell_active(v:false, \"$cmd\", $?)"
   }
 
   add-zsh-hook preexec _nvim_precmd
