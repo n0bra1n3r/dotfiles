@@ -2,7 +2,7 @@
 
 source ~/.dotfiles/shellrc
 
-if [ -d ~/.dotfiles/deps/zsh ]; then
+if [[ -d ~/.dotfiles/deps/zsh ]]; then
   export fpath=(~/.dotfiles/deps/zsh/.local/usr/share/zsh/functions/* $fpath)
   export module_path=(~/.dotfiles/deps/zsh/.local/usr/lib/zsh/* $module_path)
 fi
@@ -35,6 +35,21 @@ source ~/.dotfiles/deps/zsh-autosuggestions/.dotfiles/zsh-autosuggestions-master
 export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 export ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 
+if [[ ! -z "$NVIM" ]]; then
+  autoload -U add-zsh-hook
+
+  function _nvim_precmd() {
+    _silent_background _nvim_remote --remote-expr "v:lua.fn.set_shell_active(v:true)"
+  }
+
+  function _nvim_postcmd() {
+    _silent_background _nvim_remote --remote-expr "v:lua.fn.set_shell_active(v:false)"
+  }
+
+  add-zsh-hook preexec _nvim_precmd
+  add-zsh-hook precmd _nvim_postcmd
+fi
+
 function _workspace() {
   reply=()
   if command git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -49,6 +64,6 @@ function _workspace() {
 
 compctl -K _workspace -V workspaces workspace
 
-[ -f ~/.zshrc ] && source ~/.zshrc
+[[ -f ~/.zshrc ]] && source ~/.zshrc
 
 eval "$(starship init zsh)"

@@ -974,6 +974,8 @@ function fn.del_buf_from_loclist(bufnr)
 end
 --}}}
 --{{{ Terminal
+local term_info = {}
+
 local function get_terminal()
   return require'toggleterm.terminal'.Terminal:new{
     id = 0,
@@ -1024,6 +1026,14 @@ end
 
 function fn.send_terminal(command, is_hist)
   get_terminal():send((is_hist and "" or " ")..command, false)
+end
+
+function fn.set_shell_active(is_active)
+  term_info.is_shell_active = is_active
+end
+
+function fn.get_shell_active()
+  return term_info.is_shell_active
 end
 
 function fn.sync_terminal()

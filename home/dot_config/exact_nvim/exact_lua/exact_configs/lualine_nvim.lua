@@ -89,7 +89,11 @@ local function tab_name(name, context)
       return vim.trim('󰋖 '..label)
     end
     if types.terminal then
-      return vim.trim(' '..label)
+      if fn.get_shell_active() then
+        return vim.trim('󱆃 '..label)
+      else
+        return vim.trim(' '..label)
+      end
     end
     if fn.is_workspace_frozen(context.tabId) then
       for type, count in pairs(types) do
