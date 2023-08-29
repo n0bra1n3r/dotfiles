@@ -50,7 +50,12 @@ function plug.config()
     end
 
     if not opts.replace then
-      vim.fn.system[[bell &]]
+      local job = require'plenary.job':new {
+        args = { vim.fn.expand"~/.dotfiles/scripts/bell" },
+        command = "sh",
+        detached = true,
+      }
+      job:start()
     end
 
     return require'notify'(lines, notify_level[level], opts)
