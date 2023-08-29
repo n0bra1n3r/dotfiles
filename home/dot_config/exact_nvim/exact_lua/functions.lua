@@ -278,6 +278,9 @@ function fn.open_in_github(path)
   file_path = vim.fn.substitute(file_path, info.dir.."/", "", "")
   local url = ("https://github.com/%s/blob/%s/%s")
     :format(repo_path, info.branch, file_path)
+  if not path and vim.fn.mode() == "V" then
+    url = url.."#L"..vim.api.nvim_win_get_cursor(0)[1]
+  end
   local job = require'plenary.job':new {
     args = { url },
     command = vim.fn.has("win32") == 1 and "explorer" or "open",

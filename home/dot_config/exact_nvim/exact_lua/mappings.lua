@@ -162,6 +162,7 @@ my_mappings {
     ["<leader>ac"]      = { "<cmd>ChatGPT<CR>", desc = "Chat" },
     ["<leader>ad"]      = { "<cmd>ChatGPTRun docstring<CR>", desc = "Generate docstring" },
     ["<leader>at"]      = { "<cmd>ChatGPTRun add_tests<CR>", desc = "Generate tests" },
+    ["<leader>go"]      = { open_file_in_github, desc = "Open in Github" },
     ["<leader>s"]       = { search_and_replace_selection, desc = "Search & replace" },
     ["<S-Tab>"]         = { "<gv" },
     ["<Tab>"]           = { ">gv" },
