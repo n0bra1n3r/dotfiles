@@ -102,16 +102,7 @@ my_plugins {
 
   {
     "nvim-treesitter/nvim-treesitter",
-    build = {
-      ":TSUpdate",
-      ":TSInstall git_config",
-      ":TSInstall git_rebase",
-      ":TSInstall gitattributes",
-      ":TSInstall gitcommit",
-      ":TSInstall gitignore",
-      ":TSInstall nim",
-      ":TSInstall python",
-    },
+    build = { ":TSUpdate" },
     cmd = { "TSInstall", "TSInstallSync", "TSUninstall", "TSUpdate" },
     event = "BufRead",
   },
