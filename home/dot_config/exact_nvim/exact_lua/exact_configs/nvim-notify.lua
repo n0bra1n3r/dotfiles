@@ -34,7 +34,7 @@ function plug.config()
     local max_len = 50
 
     if opts.title and #opts.title > max_len then
-      opts.title = opts.title:sub(1, 22).."..."..opts.title:sub(-22, -1)
+      opts.title = opts.title:sub(1, 20).."..."..opts.title:sub(-20, -1)
     end
 
     local lines
