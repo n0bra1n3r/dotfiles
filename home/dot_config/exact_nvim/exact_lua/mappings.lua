@@ -25,6 +25,10 @@ local function get_map_expr_i(key)
   return ("(v:count!=0||mode(1)[0:1]=='no'?'%s':'<C-o>g%s')"):format(key, key)
 end
 
+local function open_file_in_github()
+  fn.open_in_github()
+end
+
 local function search_and_replace()
   require'search'.prompt()
 end
@@ -102,6 +106,7 @@ my_mappings {
     ["<leader>gN"]      = { "<cmd>Gitsigns prev_hunk<CR>", desc = "Prev hunk" },
     ["<leader>gn"]      = { "<cmd>Gitsigns next_hunk<CR>", desc = "Next hunk" },
     ["<leader>gp"]      = { "<cmd>Gitsigns preview_hunk<CR>", desc = "Preview hunk" },
+    ["<leader>go"]      = { open_file_in_github, desc = "Open in Github" },
     ["<leader>gr"]      = { ":Gitsigns reset_hunk<CR>", desc = "Reset hunk" },
     ["<leader>gs"]      = { ":Gitsigns stage_hunk<CR>", desc = "Stage hunk" },
     ["<leader>i"]       = { "<cmd>Telescope diagnostics<CR>", desc = "Issues" },

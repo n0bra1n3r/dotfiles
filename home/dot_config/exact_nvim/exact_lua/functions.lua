@@ -267,6 +267,24 @@ function fn.get_git_worktree_root(tabpageOrPath)
     end
   end
 end
+
+function fn.open_in_github(path)
+  local remote = run_git_command(path, "remote get-url origin")
+  local repo_path = remote:sub(1, 4) == "http"
+    and remote:match[[com/(.*)%.]]
+    or remote:match[[com:(.*)%.]]
+  local file_path = path or vim.api.nvim_buf_get_name(0)
+  local info = get_git_info(file_path)
+  file_path = vim.fn.substitute(file_path, info.dir.."/", "", "")
+  local url = ("https://github.com/%s/blob/%s/%s")
+    :format(repo_path, info.branch, file_path)
+  local job = require'plenary.job':new {
+    args = { url },
+    command = vim.fn.has("win32") == 1 and "explorer" or "open",
+    detached = true,
+  }
+  job:start()
+end
 --}}}
 --{{{ Files
 local function create_parent_dirs(path)
