@@ -40,7 +40,7 @@ if [[ ! -z "$NVIM" ]]; then
 
   function _load_nvim_env() {
     local env="$(_nvim_remote \
-      --remote_expr "v:lua.get_my_config_json('env')" 2>&1)"
+      --remote_expr "v:lua.fn.get_my_config_json('env')" 2>&1)"
     if [[ "$env" != "null" ]]; then
       env="$(printf "%s" "$env" \
         | jq -r "to_entries[] | \"\\(.key)='\\(.value)'\"")"

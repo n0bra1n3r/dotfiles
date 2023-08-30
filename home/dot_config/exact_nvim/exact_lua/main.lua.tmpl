@@ -3,10 +3,6 @@
 
 _G.my_config = {}
 
-function _G.get_my_config_json(key)
-  return vim.fn.json_encode(my_config[key])
-end
-
 local function set_proj_config(id, key, value)
   local conf_table = _G.my_config[key]
   if not conf_table then
