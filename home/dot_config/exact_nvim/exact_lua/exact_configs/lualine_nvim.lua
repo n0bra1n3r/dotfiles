@@ -58,18 +58,20 @@ end
 local function tab_name(name, context)
   local types = {}
   for _, win in ipairs(vim.api.nvim_tabpage_list_wins(context.tabId)) do
-    local buf = vim.api.nvim_win_get_buf(win)
-    local filetype = vim.bo[buf].filetype
-    if vim.startswith(filetype, "git") or
-        vim.tbl_contains({
-          "diff",
-          "search",
-        }, filetype) then
-      return file_type_icon(filetype)..' '..name
+    if vim.api.nvim_win_get_config(win).relative == [[]] then
+      local buf = vim.api.nvim_win_get_buf(win)
+      local filetype = vim.bo[buf].filetype
+      if vim.startswith(filetype, "git") or
+          vim.tbl_contains({
+            "diff",
+            "search",
+          }, filetype) then
+        return file_type_icon(filetype)..' '..name
+      end
+      local buftype = vim.bo[buf].buftype
+      local type = #buftype > 0 and buftype or filetype
+      types[type] = (types[type] or 0) + 1
     end
-    local buftype = vim.bo[buf].buftype
-    local type = #buftype > 0 and buftype or filetype
-    types[type] = (types[type] or 0) + 1
   end
   local cur_path = fn.get_workspace_dir()
   local tab_path = fn.get_workspace_dir(context.tabId)
