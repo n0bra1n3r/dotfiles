@@ -5,8 +5,9 @@ printf '\033[?12l' # disable cursor blink
 
 export HISTSIZE=10000
 
-if [[ ! -z "$STARSHIP_CONFIG" ]]; then
-  export STARSHIP_CONFIG="$(eval echo "$STARSHIP_CONFIG")"
+if [[ -n "$STARSHIP_CONFIG" ]]; then
+  STARSHIP_CONFIG="$(eval echo "$STARSHIP_CONFIG")"
+  export STARSHIP_CONFIG
 fi
 
 function cygpath() {
@@ -19,7 +20,7 @@ function cygpath() {
 }
 
 function _git_override() {
-  if [[ "$1" == "config" && "$@" != *"--help"* ]]; then
+  if [[ "$1" == "config" && "$*" != *"--help"* ]]; then
     shift 1
     command git cf "$@"
   else
@@ -31,7 +32,7 @@ function _silent_background() {
   ("$@" &>/dev/null &)
 }
 
-if [[ ! -z "$NVIM" ]]; then
+if [[ -n "$NVIM" ]]; then
   export EDITOR="$HOME/.dotfiles/scripts/nvim-nested"
 
   function _nvim_remote() {
@@ -39,43 +40,43 @@ if [[ ! -z "$NVIM" ]]; then
   }
 
   function _load_nvim_env() {
-    local env="$(_nvim_remote \
+    local env
+    env="$(_nvim_remote \
       --remote_expr "v:lua.fn.get_my_config_json('env')" 2>&1)"
     if [[ "$env" != "null" ]]; then
       env="$(printf "%s" "$env" \
         | jq -r "to_entries[] | \"\\(.key)='\\(.value)'\"")"
       local old_path="$PATH"
-      eval export $env
+      eval "export $env"
       local new_path="$PATH"
-      export PATH="$old_path"
-      export PATH=$(cygpath -pu "$new_path")
+      PATH="$old_path"
+      PATH=$(cygpath -pu "$new_path")
+      export PATH
     fi
   }
 
   function cd() {
-    builtin cd "$@"
-    local exit_code=$?
-    local dir="$(cygpath -m "$PWD")"
+    local dir
+    builtin cd "$@" || return $?
+    dir="$(cygpath -m "$PWD")"
     _silent_background _nvim_remote --remote-expr "v:lua.fn.set_terminal_dir(\"$dir\")"
-    return exit_code
   }
 
   function git() {
-    _git_override "$@"
-    local exit_code=$?
+    _git_override "$@" || return $?
     _silent_background _nvim_remote --remote-expr "v:lua.fn.refresh_git_info()"
-    return exit_code
   }
 
   function nvim() {
     if [ $# -eq 0 ]; then
-      local dir="$(cygpath -m "$PWD")"
-      _nvim_remote --remote-expr "v:lua.fn.open_workspace(\"$dir\")" &>/dev/null
-      local exit_code=$?
+      local dir
+      dir="$(cygpath -m "$PWD")"
+      _nvim_remote --remote-expr "v:lua.fn.open_workspace(\"$dir\")" &>/dev/null \
+        || return $?
       _load_nvim_env
-      return exit_code
     else
-      local opts="$@"
+      local opts
+      opts="$*"
       while [ $# -gt 0 ]; do
         case "$1" in
         -h|--help)
@@ -91,10 +92,9 @@ if [[ ! -z "$NVIM" ]]; then
           ;;
         esac
       done
-      _nvim_remote --remote-expr "v:lua.fn.open_tab(\"$opts\")" &>/dev/null
-      local exit_code=$?
+      _nvim_remote --remote-expr "v:lua.fn.open_tab(\"$opts\")" &>/dev/null \
+        || return $?
       _load_nvim_env
-      return exit_code
     fi
   }
 
@@ -127,11 +127,12 @@ else
 fi
 
 function git_ticket() {
-  local branch="$(git branch --show-current)"
+  local branch
+  branch="$(git branch --show-current)"
   if [[ -z "$branch" ]]; then
     printf ''
   else
-    printf "$branch" | \
+    printf '%s' "$branch" | \
       grep -Eo '^(\w+/)?(\w+[-_])?[0-9]+' | \
       grep -Eo '(\w+[-])?[0-9]+' | \
       tr "[:lower:]" "[:upper:]"
@@ -145,10 +146,8 @@ alias cat='bat'
 
 function dart() {
   if [[ ! -f "$PWD/.fvm/fvm_config.json" ]]; then
-    command dart "$@"
-    local exit_code=$?
+    command dart "$@" || return $?
     echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m FVM configuration not found. Did you forget to run \`fvm use <version>\`?\e[0m"
-    return exit_code
   else
     fvm dart "$@"
   fi
@@ -158,10 +157,8 @@ alias e='nvim'
 
 function flutter() {
   if [[ ! -f "$PWD/.fvm/fvm_config.json" ]]; then
-    command flutter "$@"
-    local exit_code=$?
+    command flutter "$@" || return $?
     echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m FVM configuration not found. Did you forget to run \`fvm use <version>\`?\e[0m"
-    return exit_code
   else
     fvm flutter "$@"
   fi
@@ -180,42 +177,41 @@ alias ce='cd ~/.local/share/chezmoi && nvim'
 # Git aliases
 
 function ga() {
-  git add -N "*$@*" && git ap "*$@*"
+  git add -N "*$**" && git ap "*$**"
 }
 
 function gc() {
-  local tick="$(git_ticket)"
-  local type="$1"
+  local tick
+  local type
+  tick="$(git_ticket)"
+  type="$1"
 
-  if [[ ! -z "$type" ]]; then
+  if [[ -n "$type" ]]; then
     local bad_type=false
     case "$1" in
-    b|bu|bui|buil|build) type=build ;;
-    ch|cho|chor|chore) type=chore ;;
-    ci) type=ci ;;
-    d|do|doc|docs) type=docs ;;
-    fe|fea|feat) type=feat ;;
-    fi|fix) type=fix ;;
-    p|pe|per|perf) type=perf ;;
-    ref|refa|refac|refact|refacto|refactor) type=refactor ;;
-    rev|reve|rever|revert) type=revert ;;
-    s|st|sty|styl|style) type=style ;;
-    t|te|tes|test) type=test ;;
+    b|bu|bui|buil|build) type="build" ;;
+    ch|cho|chor|chore) type="chore" ;;
+    ci) type="ci" ;;
+    d|do|doc|docs) type="docs" ;;
+    fe|fea|feat) type="feat" ;;
+    fi|fix) type="fix" ;;
+    p|pe|per|perf) type="perf" ;;
+    ref|refa|refac|refact|refacto|refactor) type="refactor" ;;
+    rev|reve|rever|revert) type="revert" ;;
+    s|st|sty|styl|style) type="style" ;;
+    t|te|tes|test) type="test" ;;
     *) bad_type=true ;;
     esac
     shift
 
-    local message="$@"
+    local message="$*"
 
     if [[ $bad_type == true ]]; then
-      git cm "$type $message"
-      local exit_code=$?
-
-      if [[ ! -z "$tick" ]]; then
+      git cm "$type $message" || return $?
+      if [[ -n "$tick" ]]; then
         local info_msg="\n* types: build chore docs feat fix perf refactor revert style test"
         echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m unknown commit type '$type'$info_msg\e[0m"
       fi
-      return exit_code
     else
       local prefix="$type($tick)"
 
@@ -235,11 +231,11 @@ alias go='git cf'
 alias gp='git pu'
 
 function gr() {
-  git rs "*$@*"
+  git rs "*$**"
 }
 
 function grs() {
-  git rss "*$@*"
+  git rss "*$**"
 }
 
 alias gs='git st'
