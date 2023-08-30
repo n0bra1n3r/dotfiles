@@ -80,6 +80,10 @@ my_plugins {
   { "haya14busa/vim-asterisk", event = { "BufRead", "BufModifiedSet" } },
 
   { "nvim-telescope/telescope.nvim", event = "VeryLazy" },
+  {
+    "nvim-telescope/telescope-dap.nvim",
+    dependencies = { "nvim-telescope/telescope.nvim" },
+  },
 
   -- VCS --
 

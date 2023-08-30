@@ -12,11 +12,7 @@ function plug.config()
         elements = {
           {
             id = "repl",
-            size = 0.8,
-          },
-          {
-            id = "breakpoints",
-            size = 0.2,
+            size = 1.0,
           },
         },
         position = "bottom",

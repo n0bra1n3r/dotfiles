@@ -138,7 +138,16 @@ function plug.config()
       {
         function()
           local icon = fn.has_git_remote() and '󱓎' or '󰘬'
-          return icon.." "..fn.get_git_branch()
+          local text = icon.." "..fn.get_git_branch()
+          local down_change_count = fn.git_remote_change_count()
+          local up_change_count = fn.git_local_change_count()
+          if down_change_count > 0 then
+            text = text.." "..''..down_change_count
+          end
+          if up_change_count > 0 then
+            text = text.." "..''..up_change_count
+          end
+          return text
         end,
         color = section_highlight'b',
         cond = function()
@@ -151,31 +160,7 @@ function plug.config()
         padding = 0,
       },
     },
-    lualine_c = {
-      {
-        "diff",
-        colored = true,
-        cond = function()
-          return fn.is_git_dir()
-        end,
-        source = function()
-          return {
-            added = fn.git_remote_change_count(),
-            modified = fn.git_local_change_count(),
-            removed = 0,
-          }
-        end,
-        symbols = {
-           added = '󰅟 ',
-           modified = ' ',
-           removed = '',
-        },
-      },
-      {
-        "diagnostics",
-        sources = { fn.get_qf_diagnostics },
-      },
-    },
+    lualine_c = fn.get_debug_toolbar(),
     lualine_x = {
       {
         "overseer",
@@ -350,14 +335,7 @@ function plug.config()
   end
 
   local tabline = {
-    lualine_c = fn.get_debug_toolbar(),
   }
-  table.insert(tabline.lualine_c, 1, "%=")
-  table.insert(tabline.lualine_c, "%=")
-  table.insert(tabline.lualine_c, function()
-    vim.o.showtabline = fn.get_is_debugging() and 2 or 0
-    return [[]]
-  end)
 
   require'lualine'.setup {
     extensions = {},

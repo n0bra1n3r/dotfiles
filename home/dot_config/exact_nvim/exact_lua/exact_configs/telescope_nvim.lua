@@ -37,6 +37,11 @@ function plug.config()
         end,
         theme = "dropdown",
       },
+      quickfix = {
+        theme = "dropdown",
+      },
     },
   }
+
+  require'telescope'.load_extension("dap")
 end

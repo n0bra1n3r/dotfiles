@@ -117,44 +117,6 @@ function fn.is_child_alive(id)
   return false
 end
 --}}}
---{{{ Diagnostics
-  function fn.get_qf_diagnostics()
-    local error_count = 0
-    local hint_count = 0
-    local warn_count = 0
-    for _, value in ipairs(vim.fn.getqflist()) do
-      if value.type == "E" then
-        error_count = error_count + 1
-      elseif value.type == "N" then
-        hint_count = hint_count + 1
-      elseif value.type == "W" then
-        warn_count = warn_count + 1
-      end
-    end
-    return { error = error_count, hint = hint_count, warn = warn_count }
-  end
-
-  function fn.set_qf_diagnostics()
-    local namespace = vim.api.nvim_create_namespace("qf-diagnostics")
-    local buf_diagnostics = {}
-
-    for _, diagnostic in ipairs(vim.diagnostic.fromqflist(vim.fn.getqflist())) do
-      local buf_key = diagnostic.bufnr
-
-      if buf_diagnostics[buf_key] == nil then
-        buf_diagnostics[buf_key] = {}
-      end
-
-      table.insert(buf_diagnostics[buf_key], diagnostic)
-    end
-
-    vim.diagnostic.reset(namespace)
-
-    for buf_key, diagnostics in pairs(buf_diagnostics) do
-      vim.diagnostic.set(namespace, buf_key, diagnostics)
-    end
-  end
---}}}
 --{{{ Git
 local dir_git_info = {}
 
@@ -584,7 +546,7 @@ local function get_debug_button_callback(button)
   return button.action
 end
 
-local function set_debugging_keymap(lhs, callback)
+local function set_debugging_keymap(lhs, callback, desc)
   local keymap = debug_info.keymaps[lhs]
   if keymap == nil then
     keymap = vim.fn.maparg(lhs, "n", 0, 1)
@@ -598,6 +560,7 @@ local function set_debugging_keymap(lhs, callback)
     callback = function()
       callback()
     end,
+    desc = desc,
     noremap = true,
   })
 end
@@ -648,6 +611,11 @@ function fn.stop_debugging()
   require'dap'.listeners.after.terminate.my_debug_event = nil
 
   require'dapui'.close()
+
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    vim.api.nvim_win_set_option(win, "numberwidth",
+      vim.api.nvim_win_get_option(win, "numberwidth"))
+  end
 end
 
 local function update_debugging_state(state)
@@ -663,9 +631,11 @@ local function update_debugging_state(state)
         set_debugging_keymap(button[1], callback)
       end
     end
-  end
 
-  require'lualine'.refresh{ place = { "tabline" } }
+    set_debugging_keymap([[<leader>b]], function()
+      require'telescope'.extensions.dap.list_breakpoints{}
+    end, "List breakpoints")
+  end
 end
 
 function fn.resume_debugging()
@@ -706,6 +676,7 @@ end
 
 function fn.get_debug_toolbar()
   local components = {}
+  table.insert(components, "%=")
   for _, button in ipairs(debug_info.toolbar) do
     local callback = get_debug_button_callback(button)
       or fn.stop_debugging
@@ -714,7 +685,8 @@ function fn.get_debug_toolbar()
         return ("%%#%s#%s %%#Comment#%s"):format(button.icon.color, button.icon[1], button[1])
       end,
       cond = function()
-        return vim.tbl_contains(button.states, debug_info.state)
+        return fn.get_is_debugging() and
+          vim.tbl_contains(button.states, debug_info.state)
       end,
       on_click = function()
         callback()
@@ -722,6 +694,7 @@ function fn.get_debug_toolbar()
     }
     table.insert(components, component)
   end
+  table.insert(components, "%=")
   return components
 end
 --}}}
