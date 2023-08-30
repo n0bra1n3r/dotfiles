@@ -1,6 +1,6 @@
 local M = {}
 
-local search_icon = ''
+local search_icon = '󱉶'
 local search_filetype = "search"
 local search_namespace = "Search"
 local search_scrolloff = 3
@@ -938,7 +938,7 @@ function M.prompt(search_args, search_term)
     highlight = function(input)
       return {{ 0, #input, "CurSearch" }}
     end,
-    prompt = (" %s "):format(get_search_icon()),
+    prompt = ("  %s  "):format(get_search_icon()),
   }
 
   disable_live_search()
