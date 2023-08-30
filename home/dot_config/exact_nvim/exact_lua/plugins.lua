@@ -85,6 +85,8 @@ my_plugins {
     dependencies = { "nvim-telescope/telescope.nvim" },
   },
 
+  { "cbochs/portal.nvim", event = "VeryLazy" },
+
   -- VCS --
 
   { "lewis6991/gitsigns.nvim", event = "BufRead" },

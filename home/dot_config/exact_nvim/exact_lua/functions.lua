@@ -920,6 +920,15 @@ function fn.save_tabpage()
     nav_info.last_tabpage = cur_tabpage
   end)()
 end
+
+function fn.show_buffer_jump_picker(dir)
+  require'portal.builtin'.jumplist.tunnel({
+    direction = dir,
+    filter = function(j)
+      return j.buffer == vim.api.nvim_get_current_buf()
+    end,
+  })
+end
 --}}}
 --{{{ Quickfix
 local function foreach_buf_in_loclists(bufnr, callback)

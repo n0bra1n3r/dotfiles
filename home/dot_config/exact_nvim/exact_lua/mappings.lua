@@ -44,6 +44,14 @@ end
 local function show_commits()
   require'telescope.builtin'.git_commits()
 end
+
+local function show_backward_jumps()
+  fn.show_buffer_jump_picker[[backward]]
+end
+
+local function show_forward_jumps()
+  fn.show_buffer_jump_picker[[forward]]
+end
 --}}}
 
 my_mappings {
@@ -80,7 +88,9 @@ my_mappings {
     ["<C-`>"]           = { fn.toggle_terminal },
     ["<C-c>"]           = { "<cmd>tabclose<CR>" },
     ["<C-Down>"]        = { "<C-w>j" },
+    ["<C-i>"]           = { show_backward_jumps },
     ["<C-Left>"]        = { "<C-w>h" },
+    ["<C-o>"]           = { show_forward_jumps },
     ["<C-Right>"]       = { "<C-w>l" },
     ["<C-Tab>"]         = { show_buffer_list },
     ["<C-Up>"]          = { "<C-w>k" },
@@ -127,6 +137,8 @@ my_mappings {
     ["<M-l>"]           = { "<C-w>h" },
     ["<PageDown>"]      = { "L<Down>", noremap = false },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
+    ["<S-Tab><S-Tab>"]  = { show_forward_jumps },
+    ["<Tab><Tab>"]      = { show_backward_jumps },
     [";"]               = { "l" },
     C                   = { '"_C' },
     c                   = { '"_c' },
