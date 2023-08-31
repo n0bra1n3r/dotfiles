@@ -59,7 +59,8 @@ if [[ -n "$NVIM" ]]; then
     local dir
     builtin cd "$@" || return $?
     dir="$(cygpath -m "$PWD")"
-    _silent_background _nvim_remote --remote-expr "v:lua.fn.set_terminal_dir(\"$dir\")"
+    _silent_background _nvim_remote --remote-expr \
+      "v:lua.fn.set_terminal_dir(\"$dir\")"
   }
 
   function git() {
@@ -71,7 +72,8 @@ if [[ -n "$NVIM" ]]; then
     if [ $# -eq 0 ]; then
       local dir
       dir="$(cygpath -m "$PWD")"
-      _nvim_remote --remote-expr "v:lua.fn.open_workspace(\"$dir\")" &>/dev/null \
+      _nvim_remote --remote-expr \
+        "v:lua.fn.open_workspace(\"$dir\")" &>/dev/null \
         || return $?
       _load_nvim_env
     else

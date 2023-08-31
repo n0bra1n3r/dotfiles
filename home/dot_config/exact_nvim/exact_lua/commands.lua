@@ -3,7 +3,7 @@
 my_commands {
   G = { --{{{
     function(opts)
-      fn.send_terminal("git "..fn.expand_each(opts.fargs))
+      fn.send_terminal("git "..fn.expand_each(opts.fargs), false, not opts.bang)
     end,
     bang = true,
     complete = function(lead)

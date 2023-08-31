@@ -1027,15 +1027,16 @@ function fn.set_terminal_dir(cwd)
   fn.set_tab_cwd(nil, cwd)
 end
 
-function fn.send_terminal(command, is_hist)
-  get_terminal():send((is_hist and "" or " ")..command, false)
+function fn.send_terminal(command, is_hist, should_focus)
+  get_terminal():send((is_hist and '' or ' ')..command,
+    should_focus ~= nil and not should_focus)
 end
 
 function fn.set_shell_active(is_active, cmd, exit_code)
   term_info.is_shell_active = is_active
   if not is_active and not get_terminal():is_focused() and cmd:sub(1, 1) ~= " " then
     vim.notify(
-      "Command exited with code "..exit_code,
+      "exited with code "..exit_code,
       vim.log.levels.INFO,
       { title = cmd }
     )

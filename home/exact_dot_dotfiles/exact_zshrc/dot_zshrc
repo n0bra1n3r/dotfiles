@@ -44,7 +44,7 @@ if [[ ! -z "$NVIM" ]]; then
   }
 
   function _nvim_postcmd() {
-    local cmd=$history[$(($HISTCMD - 1))]
+    local cmd=$history[$((HISTCMD - 1))]
     _silent_background _nvim_remote --remote-expr \
       "v:lua.fn.set_shell_active(v:false, \"$cmd\", $?)"
   }
