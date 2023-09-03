@@ -1,12 +1,6 @@
 function plug.config()
   local lsp = require'lsp-zero'
   lsp.on_attach(function(_, bufnr)
-    local function fmt(cmd)
-      return function(str)
-        return cmd:format(str)
-      end
-    end
-
     vim.diagnostic.config(require'lsp-zero'.defaults.diagnostics {
       severity_sort = true,
       signs = false,
@@ -19,34 +13,34 @@ function plug.config()
       },
     })
 
-    local lspfn = fmt('<cmd>lua vim.lsp.%s<cr>')
-    local diagfn = fmt('<cmd>lua vim.diagnostic.%s<cr>')
-
     local function map(m, lhs, rhs)
-      vim.api.nvim_buf_set_keymap(bufnr, m, lhs, rhs, { noremap = true })
+      vim.api.nvim_buf_set_keymap(bufnr, m, lhs, [[]], {
+        callback = rhs,
+        noremap = true,
+      })
     end
 
-    map('n', 'K', lspfn'buf.hover()')
-    map('n', 'gd', lspfn'buf.definition()')
-    map('n', 'gD', lspfn'buf.declaration()')
-    map('n', 'gi', lspfn'buf.implementation()')
-    map('n', 'go', lspfn'buf.type_definition()')
-    map('n', 'gr', lspfn'buf.references()')
-    map('n', 'gs', lspfn'buf.signature_help()')
-    map('n', '<F2>', lspfn'buf.rename()')
-    map('n', '<F3>', lspfn'buf.format{ async = true }')
-    map('x', '<F3>', lspfn'buf.format{ async = true }')
-    map('n', '<F4>', lspfn'buf.code_action()')
+    map('n', 'K', vim.lsp.buf.hover)
+    map('n', 'gd', vim.lsp.buf.definition)
+    map('n', 'gD', vim.lsp.buf.declaration)
+    map('n', 'gi', vim.lsp.buf.implementation)
+    map('n', 'go', vim.lsp.buf.type_definition)
+    map('n', 'gr', vim.lsp.buf.references)
+    map('n', 'gs', vim.lsp.buf.signature_help)
+    map('n', '<F2>', vim.lsp.buf.rename)
+    map('n', '<F3>', function() vim.lsp.buf.format{ async = true } end)
+    map('x', '<F3>', function() vim.lsp.buf.format{ async = true } end)
+    map('n', '<F4>', vim.lsp.buf.code_action)
 
     if vim.lsp.buf.range_code_action then
-      map('x', '<F4>', lspfn'buf.range_code_action()')
+      map('x', '<F4>', vim.lsp.buf.range_code_action)
     else
-      map('x', '<F4>', lspfn'buf.code_action()')
+      map('x', '<F4>', vim.lsp.buf.code_action)
     end
 
-    map('n', 'gl', diagfn'open_float()')
-    map('n', '[d', diagfn'goto_prev()')
-    map('n', ']d', diagfn'goto_next()')
+    map('n', 'gl', vim.diagnostic.open_float)
+    map('n', '[d', vim.diagnostic.goto_prev)
+    map('n', ']d', vim.diagnostic.goto_next)
   end)
 
   local config = require'lspconfig'
