@@ -103,7 +103,7 @@ end
 
 local lazypath = vim.fn.stdpath("data").."/lazy/lazy.nvim"
 
-if not vim.fn.filereadable(lazypath) then
+if vim.fn.filereadable(lazypath) ~= 1 then
   vim.fn.system {
     "git",
     "clone",
