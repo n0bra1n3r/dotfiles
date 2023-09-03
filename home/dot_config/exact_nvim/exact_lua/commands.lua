@@ -33,7 +33,7 @@ my_commands {
       fn.open_terminal()
       vim.cmd[[tabonly]]
       if opts.args and #opts.args > 0 then
-        fn.send_terminal(opts.args)
+        fn.send_terminal(opts.args.." && clear")
       end
     end,
     desc = "Start terminal mode",
