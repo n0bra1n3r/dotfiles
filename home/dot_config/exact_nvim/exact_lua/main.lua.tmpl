@@ -98,10 +98,10 @@ local default_providers = {
 }
 
 for _, provider in ipairs(default_providers) do
-  vim.g["loaded_" .. provider .. "_provider"] = 0
+  vim.g["loaded_"..provider.."_provider"] = 0
 end
 
-local lazypath = vim.fn.stdpath("data").."/lazy/lazy.nvim"
+local lazypath = vim.fn.expand("~/.local/share/nvim/lazy/lazy.nvim")
 
 if vim.fn.filereadable(lazypath) ~= 1 then
   vim.fn.system {
@@ -164,9 +164,11 @@ _G.my_plugins = function(plugins)
     defaults = {
       lazy = true,
     },
-    ui = {
-      border = "single",
+    install = {
+      colorscheme = { "catppuccin-frappe" },
+      missing = false,
     },
+    lockfile = vim.fn.expand("~/.config/nvim/lazy-lock.json"),
     performance = {
       rtp = {
         disabled_plugins = {
@@ -201,6 +203,11 @@ _G.my_plugins = function(plugins)
         },
         reset = false,
       },
+    },
+    root = vim.fn.expand("~/.local/share/nvim/lazy"),
+    state = vim.fn.expand("~/.local/state/nvim/lazy/state.json"),
+    ui = {
+      border = "single",
     },
   })
 
