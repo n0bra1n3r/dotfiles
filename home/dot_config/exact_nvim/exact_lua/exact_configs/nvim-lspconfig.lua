@@ -55,7 +55,6 @@ function plug.config()
     ensure_installed = {
       "bashls",
       "lua_ls",
-      "nim_langserver",
       "pyright",
     },
     handlers = {

@@ -100,6 +100,7 @@ my_plugins {
       ":MasonInstall actionlint",
       ":MasonInstall codelldb",
       ":MasonInstall dart-debug-adapter",
+      ":MasonInstall nimlangserver",
       ":MasonInstall shellcheck",
     },
   },
