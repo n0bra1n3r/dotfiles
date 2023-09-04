@@ -55,57 +55,18 @@ local function file_type_color(file_type)
   return color
 end
 
-local function tab_name(name, context)
+local function get_visible_buf_type_counts(tab)
   local types = {}
-  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(context.tabId)) do
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tab)) do
     if vim.api.nvim_win_get_config(win).relative == [[]] then
       local buf = vim.api.nvim_win_get_buf(win)
       local filetype = vim.bo[buf].filetype
-      if vim.startswith(filetype, "git") or
-          vim.tbl_contains({
-            "diff",
-            "search",
-          }, filetype) then
-        return file_type_icon(filetype)..' '..name
-      end
       local buftype = vim.bo[buf].buftype
       local type = #buftype > 0 and buftype or filetype
       types[type] = (types[type] or 0) + 1
     end
   end
-  local cur_path = fn.get_workspace_dir()
-  local tab_path = fn.get_workspace_dir(context.tabId)
-  local label = ""
-  if cur_path ~= tab_path then
-    local tab_root = fn.get_git_worktree_root(context.tabId)
-    if tab_path == tab_root then
-      label = vim.fn.pathshorten(vim.fn.fnamemodify(tab_path, ":~:."))
-    else
-      if fn.is_subpath(tab_path, tab_root) then
-        label = tab_path:sub(#tab_root + 2, -1)
-      end
-    end
-  end
-  if vim.tbl_count(types) == 1 then
-    if types.help then
-      return vim.trim('󰋖 '..label)
-    end
-    if types.terminal then
-      if fn.get_shell_active() then
-        return vim.trim('󱆃 '..label)
-      else
-        return vim.trim(' '..label)
-      end
-    end
-    if fn.is_workspace_frozen(context.tabId) then
-      for type, count in pairs(types) do
-        if count == 1 then
-          return vim.trim(file_type_icon(type)..' '..label)
-        end
-      end
-    end
-  end
-  return vim.trim(' '..label)
+  return types
 end
 --}}}
 
@@ -201,7 +162,38 @@ function plug.config()
     lualine_z = {
       {
         "tabs",
-        fmt = tab_name,
+        fmt = function(name, context)
+          local icon = ''
+          local label = [[]]
+
+          local cur_path = fn.get_workspace_dir()
+          local tab_path = fn.get_workspace_dir(context.tabId)
+          if cur_path ~= tab_path then
+            local tab_root = fn.get_git_worktree_root(context.tabId)
+            if tab_path == tab_root then
+              label = vim.fn.pathshorten(vim.fn.fnamemodify(tab_path, ":~:."))
+            elseif fn.is_subpath(tab_path, tab_root) then
+              label = tab_path:sub(#tab_root + 2, -1)
+            else
+              label = name
+            end
+          end
+
+          local types = get_visible_buf_type_counts(context.tabId)
+          if vim.tbl_count(types) == 1 then
+            if types.help then
+              icon = '󰋖'
+            elseif types.terminal and fn.get_shell_active() then
+              icon = '󱆃'
+            elseif types.terminal and not fn.get_shell_active() then
+              icon = ''
+            elseif fn.is_workspace_frozen(context.tabId) then
+              icon = file_type_icon(vim.tbl_keys(types)[1])
+            end
+          end
+
+          return vim.trim(icon..' '..label)
+        end,
         mode = 1,
         tabs_color = {
           active = section_highlight'a',
