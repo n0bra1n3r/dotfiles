@@ -33,7 +33,6 @@ my_options {
     "r-cr:hor20",
     "o:hor20-blinkwait0-blinkon400-blinkoff250",
   }, --}}}
-  guifont = "CaskaydiaCove Nerd Font:h12",
   hidden = true,
   ignorecase = true,
   isfname = "@,48-57,/,\\,.,-,_,+,,,#,$,%,~,=",
@@ -67,7 +66,7 @@ my_options {
   termguicolors = true,
   timeoutlen = 400,
   title = true,
-  titlestring = [[%f [%{fnamemodify(v:lua.fn.get_workspace_dir(), ":~:.")}] - %{v:progname}]],
+  titlestring = [[%{pathshorten(expand("%"))} [%{fnamemodify(v:lua.fn.get_workspace_dir(), ":~:.")}] - %{v:progname}]],
   undofile = true,
   updatetime = 500,
   virtualedit = "onemore",
