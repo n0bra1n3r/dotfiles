@@ -180,6 +180,7 @@ my_autocmds {
   { "TermEnter", --{{{
     callback = fn.vim_defer(function()
       vim.wo.number = false
+      vim.cmd[[nohlsearch]]
     end),
   }, --}}}
   { "TextYankPost", --{{{
