@@ -12,6 +12,7 @@ my_plugins {
   { "catppuccin/nvim", name = "catppuccin.nvim", lazy = false, priority = 1000 },
   { "luukvbaal/statuscol.nvim", lazy = false },
   { "nvim-lualine/lualine.nvim", lazy = false },
+  { "nanozuki/tabby.nvim", lazy = false },
   { "rcarriga/nvim-notify", lazy = false },
   { "stevearc/dressing.nvim", lazy = false },
   { "kevinhwang91/nvim-ufo", event = "BufRead",
@@ -20,8 +21,6 @@ my_plugins {
 
   { "kevinhwang91/nvim-bqf", ft = "qf" },
   { "https://gitlab.com/yorickpeterse/nvim-pqf.git", event = "VeryLazy" },
-
-  { "s1n7ax/nvim-window-picker", event = "WinEnter" },
 
   { "MunifTanjim/nui.nvim" },
 
@@ -85,7 +84,11 @@ my_plugins {
     dependencies = { "nvim-telescope/telescope.nvim" },
   },
 
+  { "s1n7ax/nvim-window-picker", event = "WinEnter" },
+
   { "cbochs/portal.nvim", event = "VeryLazy" },
+
+  { "cbochs/grapple.nvim" },
 
   -- VCS --
 

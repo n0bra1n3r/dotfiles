@@ -10,6 +10,7 @@ function plug.config()
   require'which-key'.register({
     ["<leader>"] = {
       a = { name = "AI" },
+      b = { name = "Bookmarks" },
       f = { name = "File" },
       g = { name = "Git" },
       p = { name = "Packages" },

@@ -87,7 +87,7 @@ function plug.config()
       },
       {
         function()
-          return vim.fn.fnamemodify(fn.get_git_worktree_root(), ":~:.")
+          return vim.fn.fnamemodify(fn.get_git_worktree_root(), ':~:.')
         end,
         color = section_highlight'a',
       },
@@ -105,10 +105,10 @@ function plug.config()
           local down_change_count = fn.git_remote_change_count()
           local up_change_count = fn.git_local_change_count()
           if down_change_count > 0 then
-            text = text.." "..''..down_change_count
+            text = text..' '..''..down_change_count
           end
           if up_change_count > 0 then
-            text = text.." "..''..up_change_count
+            text = text..' '..''..up_change_count
           end
           return text
         end,
@@ -135,7 +135,7 @@ function plug.config()
         right_section_separator,
         color = section_separator_highlight('b', 'c'),
         cond = function()
-          return vim.bo.buftype ~= "terminal"
+          return vim.bo.buftype ~= 'terminal'
         end,
         padding = 0,
       },
@@ -144,14 +144,14 @@ function plug.config()
         color = section_highlight'b',
         cond = function()
           local mode = require'lualine.utils.mode'.get_mode()
-          return vim.bo.buftype ~= "terminal" and mode:sub(1, 1) ~= "V"
+          return vim.bo.buftype ~= 'terminal' and mode:sub(1, 1) ~= 'V'
         end,
       },
       {
         function()
-          local line_count = vim.fn.line("'>") - vim.fn.line("'<") + 1
+          local line_count = vim.fn.line"'>" - vim.fn.line"'<" + 1
           local char_count = vim.fn.wordcount().visual_chars
-          return tostring(line_count) .. ":" .. tostring(char_count)
+          return tostring(line_count)..':'.. tostring(char_count)
         end,
         color = section_highlight'b',
         cond = function()
@@ -216,15 +216,11 @@ function plug.config()
           return file_type_icon(vim.bo.filetype)
         end,
         color = function()
-          if vim.bo.modified then
-            return {
-              bg = 'none',
-              fg = mode_color'insert',
-            }
-          end
           return {
             bg = 'none',
-            fg = file_type_color(vim.bo.filetype),
+            fg = vim.bo.modified
+              and mode_color'insert'
+              or file_type_color(vim.bo.filetype),
           }
         end,
         padding = 2,
@@ -232,10 +228,8 @@ function plug.config()
       {
         "filename",
         color = function()
-          if vim.bo.modified then
-            return "lualine_a_insert"
-          end
-          return "lualine_a_normal"
+          local mode = vim.bo.modified and 'insert' or 'normal'
+          return 'lualine_a_'..mode
         end,
         file_status = false,
         path = 1,
@@ -243,10 +237,8 @@ function plug.config()
       {
         left_section_separator,
         color = function()
-          if vim.bo.modified then
-            return section_separator_highlight('a', 'b', 'insert')()
-          end
-          return section_separator_highlight('a', 'b', 'normal')()
+          local mode = vim.bo.modified and 'insert' or 'normal'
+          return section_separator_highlight('a', 'b', mode)()
         end,
         padding = 0,
       },
@@ -258,10 +250,8 @@ function plug.config()
           return #vim.bo.buftype == 0
         end,
         color = function()
-          if vim.bo.modified then
-            return "lualine_b_insert"
-          end
-          return "lualine_b_normal"
+          local mode = vim.bo.modified and 'insert' or 'normal'
+          return 'lualine_b_'..mode
         end,
         symbols = {
           unix = '',
@@ -273,10 +263,8 @@ function plug.config()
           return #vim.bo.buftype == 0
         end,
         color = function()
-          if vim.bo.modified then
-            return "lualine_b_insert"
-          end
-          return "lualine_b_normal"
+          local mode = vim.bo.modified and 'insert' or 'normal'
+          return 'lualine_b_'..mode
         end,
         padding = { left = 0, right = 1 },
       },
@@ -286,10 +274,8 @@ function plug.config()
           return #vim.bo.buftype == 0
         end,
         color = function()
-          if vim.bo.modified then
-            return section_separator_highlight('b', 'c', 'insert')()
-          end
-          return section_separator_highlight('b', 'c', 'normal')()
+          local mode = vim.bo.modified and 'insert' or 'normal'
+          return section_separator_highlight('b', 'c', mode)()
         end,
         padding = 0,
       },
@@ -312,7 +298,7 @@ function plug.config()
     for i, component in pairs(section) do
       if component.show_inactive ~= false then
         if component.color ~= nil then
-          component.color = "lualine_a_inactive"
+          component.color = 'lualine_a_inactive'
           if component[1] == left_section_separator then
             component[1] = left_component_separator
           elseif component[1] == right_section_separator then
@@ -335,9 +321,14 @@ function plug.config()
     extensions = {},
     options = {
       always_divide_middle = false,
-      component_separators = "",
+      component_separators = '',
       disabled_filetypes = {
-        winbar = { "help", "search", "qf", "toggleterm" },
+        winbar = {
+          'help',
+          'search',
+          'qf',
+          'toggleterm',
+        },
       },
       globalstatus = true,
       refresh = {
@@ -345,13 +336,11 @@ function plug.config()
         winbar = vim.o.updatetime,
       },
       section_separators = '',
-      theme = "catppuccin",
+      theme = 'catppuccin',
     },
     sections = sections,
     tabline = tabline,
     winbar = winbar,
     inactive_winbar = inactive_winbar,
   }
-
-  vim.o.showtabline = 0
 end

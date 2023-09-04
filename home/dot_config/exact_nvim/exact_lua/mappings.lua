@@ -52,6 +52,16 @@ end
 local function show_forward_jumps()
   fn.show_buffer_jump_picker[[forward]]
 end
+
+local function goto_bookmark(tag)
+  return function()
+    fn.goto_bookmark(tag)
+  end
+end
+
+local function del_cur_bookmark()
+  fn.del_bookmark()
+end
 --}}}
 
 my_mappings {
@@ -137,8 +147,14 @@ my_mappings {
     ["<M-l>"]           = { "<C-w>h" },
     ["<PageDown>"]      = { "L<Down>", noremap = false },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
-    ["<S-Tab><S-Tab>"]  = { show_forward_jumps },
-    ["<Tab><Tab>"]      = { show_backward_jumps },
+    ["<S-Tab><S-Tab>"]  = { show_forward_jumps, desc = "Forward jumps" },
+    ["<S-Tab><Tab>"]    = { show_backward_jumps, desc = "Backward jumps" },
+    ["<Tab>1"]          = { goto_bookmark(1), desc = "Bookmark 1" },
+    ["<Tab>2"]          = { goto_bookmark(2), desc = "Bookmark 2" },
+    ["<Tab>3"]          = { goto_bookmark(3), desc = "Bookmark 3" },
+    ["<Tab>4"]          = { goto_bookmark(4), desc = "Bookmark 4" },
+    ["<Tab>5"]          = { goto_bookmark(5), desc = "Bookmark 5" },
+    ["<Tab><BS>"]       = { del_cur_bookmark, desc = "Delete bookmark" },
     [";"]               = { "l" },
     C                   = { '"_C' },
     c                   = { '"_c' },

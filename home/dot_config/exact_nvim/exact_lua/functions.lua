@@ -929,6 +929,21 @@ function fn.show_buffer_jump_picker(dir)
     end,
   })
 end
+
+function fn.goto_bookmark(tag)
+  if not require'grapple'.exists{ key = tag } then
+    require'grapple'.tag{ key = tag }
+    vim.o.showtabline = 2
+  end
+  require'grapple'.select{ key = tag }
+end
+
+function fn.del_bookmark(tag)
+  require'grapple'.untag{ key = tag }
+  if #require'grapple'.tags() == 0 then
+    vim.o.showtabline = 0
+  end
+end
 --}}}
 --{{{ Quickfix
 local function foreach_buf_in_loclists(bufnr, callback)
