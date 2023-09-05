@@ -10,8 +10,13 @@ function plug.config()
     end,
     integrations = {
       cmp = true,
+      dap = {
+        enabled = true,
+        enable_ui = true,
+      },
       gitsigns = true,
       leap = true,
+      markdown = true,
       mason = true,
       mini = true,
       native_lsp = {
@@ -28,12 +33,18 @@ function plug.config()
           warnings = { "underline" },
           information = { "underline" },
         },
+        inlay_hints = {
+          background = true,
+        },
       },
       overseer = true,
       notify = true,
+      semantic_tokens = true,
       telescope = true,
       treesitter = true,
+      --ufo = true,
       which_key = true,
+      window_picker = true,
     },
   }
 
@@ -46,5 +57,5 @@ function plug.config()
     end)
   })
 
-  vim.cmd.colorscheme("catppuccin")
+  vim.cmd.colorscheme[[catppuccin]]
 end
