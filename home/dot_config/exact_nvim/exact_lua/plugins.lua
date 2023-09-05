@@ -12,7 +12,7 @@ my_plugins {
   { "catppuccin/nvim", name = "catppuccin.nvim", lazy = false, priority = 1000 },
   { "luukvbaal/statuscol.nvim", lazy = false },
   { "nvim-lualine/lualine.nvim", lazy = false },
-  { "nanozuki/tabby.nvim", lazy = false },
+  { "rebelot/heirline.nvim", lazy = false },
   { "rcarriga/nvim-notify", lazy = false },
   { "stevearc/dressing.nvim", lazy = false },
   { "kevinhwang91/nvim-ufo", event = "BufRead",
@@ -51,7 +51,6 @@ my_plugins {
     cmd = "Neorg",
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
-      "nvim-telescope/telescope.nvim",
     },
   },
 
@@ -119,37 +118,27 @@ my_plugins {
 
   -- Language Servers --
 
-  { "williamboman/mason-lspconfig.nvim" },
+  {
+    "williamboman/mason-lspconfig.nvim",
+    dependencies = { "williamboman/mason.nvim" },
+  },
 
   {
     "jose-elias-alvarez/null-ls.nvim",
     event = "BufRead",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    },
+    dependencies = { "nvim-lua/plenary.nvim" },
   },
 
-  {
-    "L3MON4D3/LuaSnip",
-    dependencies = {
-      "rafamadriz/friendly-snippets",
-    },
-  },
+  { "L3MON4D3/LuaSnip" },
+  { "rafamadriz/friendly-snippets" },
 
   { "VonHeikemen/lsp-zero.nvim" },
-
-  { "rafamadriz/friendly-snippets" },
 
   { "hrsh7th/cmp-nvim-lsp-signature-help" },
   { "hrsh7th/cmp-buffer" },
   { "hrsh7th/cmp-cmdline" },
   { "hrsh7th/cmp-path" },
-  {
-    "saadparwaiz1/cmp_luasnip",
-    dependencies = {
-      "L3MON4D3/LuaSnip",
-    },
-  },
+  { "saadparwaiz1/cmp_luasnip", dependencies = { "L3MON4D3/LuaSnip" } },
   { "hrsh7th/cmp-nvim-lua" },
   { "folke/neodev.nvim" },
   {
@@ -175,7 +164,6 @@ my_plugins {
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
       "williamboman/mason-lspconfig.nvim",
-      "williamboman/mason.nvim",
     },
   },
 
