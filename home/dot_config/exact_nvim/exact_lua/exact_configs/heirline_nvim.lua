@@ -100,7 +100,6 @@ local function tab()
       tab_close_btn(),
       space(),
     },
-    border('', get_bg'TabLine'),
   }
 end
 --}}}
@@ -401,7 +400,6 @@ function plug.config()
                 hl = 'Normal',
                 space(),
                 tab(),
-                space(),
               }, i)
               child = self[i]
               child.key = tag.key
@@ -425,7 +423,6 @@ function plug.config()
       diagnostics(),
       space(math.huge),
       bookmark(),
-      space(),
     },
   }
 
