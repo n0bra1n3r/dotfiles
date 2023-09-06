@@ -1,3 +1,10 @@
+-- vim: foldmethod=marker foldlevel=0 foldenable
+
+--{{{ Helpers
+local function refresh_tabline()
+  vim.o.showtabline = #require'grapple'.tags() > 0 and 2 or 0
+end
+
 local function get_bg(name)
   return require'heirline.utils'.get_highlight(name).bg
 end
@@ -22,7 +29,7 @@ local function space(count)
   elseif width < math.huge then
     return { provider = (' '):rep(width) }
   else
-    return { provider = '%=' }
+    return { provider = '%= ' }
   end
 end
 
@@ -32,13 +39,12 @@ local function border(char, color)
     hl = { fg = color },
   }
 end
+--}}}
 
+--{{{ Tabline
 local function tab_label()
   return {
-    {
-      provider = '󰃀',
-      hl = 'Comment',
-    },
+    { provider = '󰃀', hl = 'Comment' },
     space(),
     {
       provider = function(self)
@@ -97,34 +103,9 @@ local function tab()
     border('', get_bg'TabLine'),
   }
 end
+--}}}
 
-local function tab_add_btn()
-  return {
-    provider = '󰃅',
-    hl = 'Comment',
-    on_click = {
-      callback = function()
-        local tags = require'grapple'.tags()
-        vim.fn.sort(tags, function(a, b) return a.key - b.key end)
-        local key
-        for i, tag in ipairs(tags) do
-          if i ~= tag.key then
-            key = i
-            break
-          end
-        end
-        require'grapple'.tag{ key = key }
-        vim.schedule(vim.cmd.redrawtabline)
-      end,
-      name = 'bookmark_tag_callback',
-    },
-  }
-end
-
-local function update_tabline_visibility()
-  vim.o.showtabline = #require'grapple'.tags() > 0 and 2 or 0
-end
-
+--{{{ Winbar
 local function header_icon()
   return {
     init = function(self)
@@ -160,25 +141,19 @@ local function header_label()
   return {
     {
       hl = function()
+        local hl
         if not get_is_active() then
-          return {
-            fg = get_fg'Comment',
-            bold = true,
-            italic = true,
-          }
+          hl = 'Comment'
         elseif vim.bo.modified then
-          return {
-            fg = get_fg'String',
-            bold = true,
-            italic = true,
-          }
+          hl = 'String'
         else
-          return {
-            fg = get_fg'Title',
-            bold = true,
-            italic = true,
-          }
+          hl = 'Title'
         end
+        return {
+          fg = get_fg(hl),
+          bold = true,
+          italic = true,
+        }
       end,
       {
         provider = function(self)
@@ -206,9 +181,7 @@ local function header_close_btn()
         minwid = function()
           return vim.api.nvim_get_current_win()
         end,
-        name = function(self)
-          return 'window_close_callback'..self.win
-        end,
+        name = 'window_close_callback',
       },
     },
   }
@@ -240,177 +213,161 @@ local function header()
   }
 end
 
+local function diagnostic(severity)
+  return {
+    condition = function(self)
+      return self.counts[severity] > 0
+    end,
+    init = function(self)
+      self.count = self.counts[severity]
+      self.icon = self.icons[severity]
+      self.name = self.severities[severity]
+    end,
+    {
+      provider = function(self)
+        return self.icon..self.count
+      end,
+      hl = function(self)
+        if not get_is_active() then
+          return { fg = get_fg'Comment' }
+        else
+          return { fg = get_fg('Diagnostic'..self.name) }
+        end
+      end,
+    },
+    on_click = {
+      callback = function(_, minwid)
+        vim.api.nvim_set_current_win(minwid)
+        vim.diagnostic.goto_next{ severity = severity }
+      end,
+      minwid = function()
+        return vim.api.nvim_get_current_win()
+      end,
+      name = function(self)
+        return 'diagnostic_'..self.name..'_click_callback'
+      end,
+    },
+    space(),
+  }
+end
+
 local function diagnostics()
+  local s = vim.diagnostic.severity
+  local severities = {
+    [s.ERROR] = 'Error',
+    [s.WARN] = 'Warn',
+    [s.HINT] = 'Hint',
+    [s.INFO] = 'Info',
+  }
+  local icons = {}
+  for severity, name in pairs(severities) do
+    icons[severity] = vim.fn.sign_getdefined('DiagnosticSign'..name)[1].text
+  end
   return {
     condition = require'heirline.conditions'.has_diagnostics,
+    init = function(self)
+      self.win = vim.api.nvim_get_current_win()
+      self.counts = {}
+      for severity, _ in pairs(self.severities) do
+        self.counts[severity] = #vim.diagnostic.get(0, { severity = severity })
+      end
+    end,
+    static = {
+      icons = icons,
+      severities = severities,
+    },
     border('', get_bg'TabLine'),
     {
-      init = function(self)
-        self.win = vim.api.nvim_get_current_win()
-        self.error_count = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR })
-        self.warn_count = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.WARN })
-        self.hint_count = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.HINT })
-        self.info_count = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.INFO })
-      end,
-      static = {
-        error_icon = vim.fn.sign_getdefined('DiagnosticSignError')[1].text,
-        warn_icon = vim.fn.sign_getdefined('DiagnosticSignWarn')[1].text,
-        info_icon = vim.fn.sign_getdefined('DiagnosticSignInfo')[1].text,
-        hint_icon = vim.fn.sign_getdefined('DiagnosticSignHint')[1].text,
-      },
       update = { 'DiagnosticChanged', 'BufEnter' },
       hl = 'TabLine',
       space(),
+      diagnostic(s.ERROR),
       {
         condition = function(self)
-          return self.error_count > 0
-        end,
-        {
-          provider = function(self)
-            return self.error_icon..self.error_count
-          end,
-          hl = function()
-            if not get_is_active() then
-              return { fg = get_fg'Comment' }
-            else
-              return { fg = get_fg'DiagnosticError' }
-            end
-          end,
-        },
-        on_click = {
-          callback = function(_, minwid)
-            vim.api.nvim_set_current_win(minwid)
-            vim.diagnostic.goto_next{ severity = vim.diagnostic.severity.ERROR }
-          end,
-          minwid = function()
-            return vim.api.nvim_get_current_win()
-          end,
-          name = function(self)
-            return 'diagnostic_error_click_callback'..self.win
-          end,
-        },
-        space(),
-      },
-      {
-        condition = function(self)
-          return self.error_count > 0 and
-            (self.warn_count > 0 or
-              self.info_count > 0 or
-              self.hint_count > 0)
+          return self.counts[s.ERROR] > 0 and
+            (self.counts[s.WARN] > 0 or
+              self.counts[s.INFO] > 0 or
+              self.counts[s.HINT] > 0)
         end,
         border('┃', get_bg'Normal'),
         space(),
       },
+      diagnostic(s.WARN),
       {
         condition = function(self)
-          return self.warn_count > 0
-        end,
-        {
-          provider = function(self)
-            return self.warn_icon..self.warn_count
-          end,
-          hl = function()
-            if not get_is_active() then
-              return { fg = get_fg'Comment' }
-            else
-              return { fg = get_fg'DiagnosticWarn' }
-            end
-          end,
-        },
-        on_click = {
-          callback = function(_, minwid)
-            vim.api.nvim_set_current_win(minwid)
-            vim.diagnostic.goto_next{ severity = vim.diagnostic.severity.WARN }
-          end,
-          minwid = function()
-            return vim.api.nvim_get_current_win()
-          end,
-          name = function(self)
-            return 'diagnostic_warn_click_callback'..self.win
-          end,
-        },
-        space(),
-      },
-      {
-        condition = function(self)
-          return self.warn_count > 0 and
-            (self.info_count > 0 or
-              self.hint_count > 0)
+          return self.counts[s.WARN] > 0 and
+            (self.counts[s.INFO] > 0 or
+              self.counts[s.HINT] > 0)
         end,
         border('┃', get_bg'Normal'),
         space(),
       },
+      diagnostic(s.INFO),
       {
         condition = function(self)
-          return self.info_count > 0
-        end,
-        {
-          provider = function(self)
-            return self.info_icon..self.info_count
-          end,
-          hl = function()
-            if not get_is_active() then
-              return { fg = get_fg'Comment' }
-            else
-              return { fg = get_fg'DiagnosticInfo' }
-            end
-          end,
-        },
-        on_click = {
-          callback = function(_, minwid)
-            vim.api.nvim_set_current_win(minwid)
-            vim.diagnostic.goto_next{ severity = vim.diagnostic.severity.INFO }
-          end,
-          minwid = function()
-            return vim.api.nvim_get_current_win()
-          end,
-          name = function(self)
-            return 'diagnostic_info_click_callback'..self.win
-          end,
-        },
-        space(),
-      },
-      {
-        condition = function(self)
-          return self.info_count > 0 and self.hint_count > 0
+          return self.counts[s.INFO] > 0 and
+            self.counts[s.HINT] > 0
         end,
         border('┃', get_bg'Normal'),
         space(),
       },
-      {
-        condition = function(self)
-          return self.hint_count > 0
-        end,
-        {
-          provider = function(self)
-            return self.hint_icon..self.hint_count
-          end,
-          hl = function()
-            if not get_is_active() then
-              return { fg = get_fg'Comment' }
-            else
-              return { fg = get_fg'DiagnosticHint' }
-            end
-          end,
-        },
-        on_click = {
-          callback = function(_, minwid)
-            vim.api.nvim_set_current_win(minwid)
-            vim.diagnostic.goto_next{ severity = vim.diagnostic.severity.HINT }
-          end,
-          minwid = function()
-            return vim.api.nvim_get_current_win()
-          end,
-          name = function(self)
-            return 'diagnostic_hint_click_callback'..self.win
-          end,
-        },
-        space(),
-      },
+      diagnostic(s.HINT),
     },
     border('', get_bg'TabLine'),
   }
 end
+
+local function bookmark()
+  return {
+    init = function(self)
+      self.filename = vim.api.nvim_buf_get_name(0)
+    end,
+    border('', get_bg'TabLine'),
+    {
+      hl = 'TabLine',
+      on_click = {
+        callback = function(_, minwid)
+          local tags = require'grapple'.tags()
+          vim.fn.sort(tags, function(a, b) return a.key - b.key end)
+          local key
+          for i, tag in ipairs(tags) do
+            if i ~= tag.key then
+              key = i
+              break
+            end
+          end
+          print(minwid)
+          require'grapple'.toggle{ buffer = minwid, key = key }
+          vim.schedule(vim.cmd.redrawtabline)
+        end,
+        minwid = function()
+          return vim.api.nvim_get_current_buf()
+        end,
+        name = 'bookmark_tag_callback',
+      },
+      space(),
+      {
+        provider = function(self)
+          if require'grapple'.exists{ file_path = self.filename } then
+            return '󰃀'
+          else
+            return '󰃃'
+          end
+        end,
+        hl = function()
+          if not get_is_active() then
+            return 'Comment'
+          else
+            return 'WinBar'
+          end
+        end,
+      },
+      space(),
+    },
+    border('', get_bg'TabLine'),
+  }
+end
+--}}}
 
 function plug.config()
   require'heirline'.setup {
@@ -456,11 +413,9 @@ function plug.config()
               self[i] = nil
             end
           end
-          update_tabline_visibility()
+          refresh_tabline()
         end,
       },
-      tab_add_btn(),
-      space(),
     },
     winbar = {
       hl = 'Normal',
@@ -468,8 +423,11 @@ function plug.config()
       header(),
       space(),
       diagnostics(),
+      space(math.huge),
+      bookmark(),
+      space(),
     },
   }
 
-  update_tabline_visibility()
+  refresh_tabline()
 end
