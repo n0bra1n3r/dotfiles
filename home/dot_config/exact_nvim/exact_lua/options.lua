@@ -55,7 +55,7 @@ my_options {
   showbreak = "↪",
   showcmd = false,
   showmode = false,
-  showtabline = 1,
+  showtabline = 0,
   signcolumn = "yes",
   smartcase = true,
   smartindent = true,

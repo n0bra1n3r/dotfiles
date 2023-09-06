@@ -1280,6 +1280,10 @@ function fn.foldfunc(close, start_open, open, sep, end_sep)
     return string.."%*"
   end
 end
+
+function fn.is_floating(win)
+  return vim.api.nvim_win_get_config(win or 0).relative ~= [[]]
+end
 --}}}
 --{{{ Workspace
 local function get_workspace_file_path(tabpage)

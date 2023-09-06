@@ -340,7 +340,7 @@ function plug.config()
     },
     sections = sections,
     tabline = tabline,
-    winbar = winbar,
-    inactive_winbar = inactive_winbar,
+    -- winbar = winbar,
+    -- inactive_winbar = inactive_winbar,
   }
 end
