@@ -676,25 +676,21 @@ end
 
 function fn.get_debug_toolbar()
   local components = {}
-  table.insert(components, "%=")
   for _, button in ipairs(debug_info.toolbar) do
-    local callback = get_debug_button_callback(button)
+    local btn_cb = get_debug_button_callback(button)
       or fn.stop_debugging
-    local component = {
-      function()
-        return ("%%#%s#%s %%#Comment#%s"):format(button.icon.color, button.icon[1], button[1])
+    table.insert(components, {
+      highlight = button.icon.color,
+      icon = button.icon[1],
+      keymap = button[1],
+      click_cb = function()
+        btn_cb()
       end,
-      cond = function()
-        return fn.get_is_debugging() and
-          vim.tbl_contains(button.states, debug_info.state)
+      cond_cb = function()
+        return vim.tbl_contains(button.states, debug_info.state)
       end,
-      on_click = function()
-        callback()
-      end,
-    }
-    table.insert(components, component)
+    })
   end
-  table.insert(components, "%=")
   return components
 end
 --}}}

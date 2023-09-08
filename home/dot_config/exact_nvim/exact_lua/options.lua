@@ -37,6 +37,7 @@ my_options {
   ignorecase = true,
   isfname = "@,48-57,/,\\,.,-,_,+,,,#,$,%,~,=",
   isident = "@,48-57,_,192-255",
+  laststatus = 3,
   linebreak = true,
   list = true,
   opt.listchars + { --{{{

@@ -1,10 +1,6 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
 --{{{ Helpers
-local function refresh_tabline()
-  vim.o.showtabline = #require'grapple'.tags() > 0 and 2 or 0
-end
-
 local function get_bg(name)
   return require'heirline.utils'.get_highlight(name).bg
 end
@@ -15,6 +11,10 @@ end
 
 local function get_is_active()
   return require'heirline.conditions'.is_active()
+end
+
+local function file_type_icon(name)
+  return require'nvim-web-devicons'.get_icon(name)
 end
 
 local function space(count)
@@ -35,71 +35,497 @@ end
 
 local function border(char, color)
   return {
+    hl = function()
+      return { fg = color }
+    end,
     provider = char,
-    hl = { fg = color },
+  }
+end
+
+local function get_visible_buf_type_counts(tab)
+  local types = {}
+  if vim.api.nvim_tabpage_is_valid(tab) then
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tab)) do
+      if vim.api.nvim_win_get_config(win).relative == [[]] then
+        local buf = vim.api.nvim_win_get_buf(win)
+        local filetype = vim.bo[buf].filetype
+        local buftype = vim.bo[buf].buftype
+        local type = #buftype > 0 and buftype or filetype
+        types[type] = (types[type] or 0) + 1
+      end
+    end
+  end
+  return types
+end
+
+local function refresh_bookmark_list()
+  local old_showtabline = vim.o.showtabline
+  vim.o.showtabline = #require'grapple'.tags() > 0 and 2 or 0
+  if vim.o.showtabline == old_showtabline and vim.o.showtabline ~= 0 then
+    vim.schedule(vim.cmd.redrawtabline)
+  end
+end
+--}}}
+
+--{{{ Statusline
+local function mode_label()
+  local c = require'catppuccin.palettes'.get_palette()
+  return {
+    hl = function(self)
+      local mode = self.mode:sub(1, 2)
+      return { fg = self.mode_colors[mode], bold = true }
+    end,
+    init = function(self)
+      self.mode = vim.fn.mode(1)
+    end,
+    provider = function(self)
+      return self.mode_names[self.mode]
+    end,
+    static = {
+      mode_colors = {
+        ['\19'] = c.maroon,
+        ['\22'] = c.flamingo,
+        ['\22s'] = c.flamingo,
+        ['!'] = c.green,
+        c = c.peach,
+        ce = c.peach,
+        cv = c.peach,
+        i = c.green,
+        ic = c.green,
+        ix = c.green,
+        n = c.blue,
+        ni = c.blue,
+        no = c.blue,
+        nt = c.blue,
+        r = c.teal,
+        rm = c.teal,
+        ['r?'] = c.mauve,
+        R = c.maroon,
+        Rc = c.maroon,
+        Rv = c.maroon,
+        Rx = c.maroon,
+        s = c.maroon,
+        S = c.maroon,
+        t = c.green,
+        v = c.flamingo,
+        vs = c.flamingo,
+        V = c.flamingo,
+        Vs = c.flamingo,
+      },
+      mode_names = {
+        ['\19'] = 'S',
+        ['\22'] = 'V',
+        ['\22s'] = 'V',
+        ['!'] = '!',
+        c = 'C',
+        ce = 'E',
+        cv = 'E',
+        i = 'I',
+        ic = 'I',
+        ix = 'I',
+        n = 'N',
+        niI = 'N',
+        niR = 'N',
+        niV = 'N',
+        no = 'N',
+        nov = 'N',
+        noV = 'N',
+        ['no\22'] = 'N',
+        nt = 'N',
+        r = '·',
+        rm = 'M',
+        ['r?'] = '?',
+        R = 'R',
+        Rc = 'R',
+        Rv = 'R',
+        Rvc = 'R',
+        Rvx = 'R',
+        Rx = 'R',
+        s = 'S',
+        S = 'S',
+        t = 'T',
+        v = 'V',
+        vs = 'V',
+        V = 'V',
+        Vs = 'V',
+      },
+    },
+    update = { 'ModeChanged' },
+  }
+end
+
+local function git_repo_status()
+  return {
+    hl = function(self)
+      local hl = self.git_has_remote and 'String' or 'Comment'
+      return { fg = get_fg(hl), italic = true }
+    end,
+    init = function(self)
+      self.git_branch = fn.get_git_branch(self.cwd)
+      self.git_has_remote = fn.has_git_remote(self.cwd)
+    end,
+    provider = function(self)
+      local icon = self.git_has_remote and '󱓎' or '󰘬'
+      return icon..' '..self.git_branch
+    end,
+  },
+  {
+    condition = function(self)
+      return fn.git_remote_change_count(self.cwd) > 0
+    end,
+    space(),
+    {
+      hl = { fg = get_fg'DiagnosticWarn' },
+      provider = function(self)
+        return ''..fn.git_remote_change_count(self.cwd)
+      end,
+    },
+  },
+  {
+    condition = function(self)
+      return fn.git_local_change_count(self.cwd) > 0
+    end,
+    space(),
+    {
+      hl = { fg = get_fg'DiagnosticHint' },
+      provider = function(self)
+        return ''..fn.git_local_change_count(self.cwd)
+      end,
+    },
+  }
+end
+
+local function workspace_label()
+  return {
+    border('', get_bg'TabLine'),
+    {
+      hl = 'TabLine',
+      init = function(self)
+        self.cwd = fn.get_tab_cwd()
+      end,
+      space(),
+      {
+        hl = {
+          fg = get_fg'Title',
+          bold = true,
+        },
+        provider = function(self)
+          local root = fn.get_git_worktree_root(self.cwd)
+          return vim.fn.fnamemodify(root, ':~:.')
+        end,
+      },
+      {
+        condition = function(self)
+          return fn.is_git_dir(self.cwd)
+        end,
+        space(),
+        border('╱', get_bg'Normal'),
+        space(),
+        git_repo_status(),
+      },
+      space(),
+    },
+    border('', get_bg'TabLine'),
+  }
+end
+
+local function debug_btn()
+  return {
+    condition = function(self)
+      return self.cond_cb()
+    end,
+    init = function(self)
+      self.child_index.value = self.child_index.value + 1
+    end,
+    {
+      space(),
+      condition = function(self)
+        return self.child_index.value > 1
+      end,
+      border('┃', get_bg'Normal'),
+      space(),
+    },
+    {
+      on_click = {
+        callback = function(self)
+          self.click_cb()
+        end,
+        name = function(self)
+          return 'debug_click_callback'..self.child_index.value
+        end,
+      },
+      {
+        hl = function(self)
+          return self.highlight
+        end,
+        provider = function(self)
+          return self.icon
+        end,
+      },
+      space(),
+      {
+        hl = { fg = get_fg'TabLine' },
+        provider = function(self)
+          return self.keymap
+        end,
+      },
+    },
+  }
+end
+
+local function debug_bar()
+  return {
+    condition = function()
+      return fn.get_is_debugging()
+    end,
+    border('', get_bg'TabLine'),
+    {
+      hl = 'TabLine',
+      init = function(self)
+        self.child_index = { value = 0 }
+
+        local toolbar = fn.get_debug_toolbar()
+        for i, item in ipairs(toolbar) do
+          local child = self[i]
+          if not child or child.icon ~= item.icon then
+            self[i] = self:new({
+              hl = 'TabLine',
+              debug_btn(),
+            }, i)
+            child = self[i]
+            child.highlight = item.highlight
+            child.icon = item.icon
+            child.keymap = item.keymap
+            child.click_cb = item.click_cb
+            child.cond_cb = item.cond_cb
+          end
+        end
+        if #self > #toolbar then
+          for i = #toolbar + 1, #self do
+            self[i] = nil
+          end
+        end
+      end,
+    },
+    border('', get_bg'TabLine'),
+  }
+end
+
+local function location_label()
+  return {
+    border('', get_bg'TabLine'),
+    {
+      hl = 'TabLine',
+      init = function(self)
+        local win = vim.api.nvim_get_current_win()
+        self.cursor = vim.api.nvim_win_get_cursor(win)
+      end,
+      update = { 'CursorMoved','CursorMovedI' },
+      space(),
+      {
+        hl = { fg = get_fg'Directory', italic = true },
+        provider = function(self)
+          local line_num = tostring(self.cursor[1])
+          return (' '):rep(3 - #line_num)..'L'..line_num
+        end,
+      },
+      space(),
+      border('╱', get_bg'Normal'),
+      space(),
+      {
+        hl = { fg = get_fg'Directory', italic = true },
+        provider = function(self)
+          local col_num = tostring(self.cursor[2])
+          return 'C'..col_num..(' '):rep(3 - #col_num)
+        end,
+      },
+      space(),
+    },
+    border('', get_bg'TabLine'),
+  }
+end
+
+local function tab_btn()
+  return {
+    init = function(self)
+      local cur_win = vim.api.nvim_tabpage_get_win(self.tab)
+      local cur_buf = vim.api.nvim_win_get_buf(cur_win)
+      self.name = vim.api.nvim_buf_get_name(cur_buf)
+    end,
+    {
+      space(),
+      condition = function(self)
+        return vim.api.nvim_tabpage_get_number(self.tab) > 1
+      end,
+      border('┃', get_bg'Normal'),
+      space(),
+    },
+    {
+      hl = function(self)
+        local is_cur = self.tab == vim.api.nvim_get_current_tabpage()
+        local hl
+        if is_cur then
+          hl = 'Directory'
+        else
+          hl = 'Comment'
+        end
+        return { fg = get_fg(hl), bold = is_cur, italic = is_cur }
+      end,
+      on_click = {
+        callback = function(self)
+          vim.api.nvim_set_current_tabpage(self.tab)
+        end,
+        name = function(self)
+          return 'tab_click_callback'..self.tab
+        end,
+      },
+      provider = function(self)
+        local icon = ''
+        local label = [[]]
+
+        local cur_path = fn.get_workspace_dir()
+        local tab_path = fn.get_workspace_dir(self.tab)
+        if cur_path ~= tab_path then
+          local tab_root = fn.get_git_worktree_root(self.tab)
+          if tab_path == tab_root then
+            label = vim.fn.pathshorten(vim.fn.fnamemodify(tab_path, ":~:."))
+          elseif fn.is_subpath(tab_path, tab_root) then
+            label = tab_path:sub(#tab_root + 2, -1)
+          else
+            label = self.name
+          end
+        end
+
+        local types = get_visible_buf_type_counts(self.tab)
+        if vim.tbl_count(types) == 1 then
+          if types.help then
+            icon = '󰋖'
+          elseif types.terminal and not fn.get_shell_active() then
+            icon = ''
+          elseif types.terminal and fn.get_shell_active() then
+            icon = '%#String#󱆃%*'
+          elseif fn.is_workspace_frozen(self.tab) then
+            icon = file_type_icon(vim.tbl_keys(types)[1])
+          end
+        end
+
+        return vim.trim(icon..' '..label)
+      end,
+    },
+  }
+end
+
+local function tabs_bar()
+  return {
+    border('', get_bg'TabLine'),
+    {
+      hl = 'TabLine',
+      init = function(self)
+        local tabs = vim.api.nvim_list_tabpages()
+        for i, tab in ipairs(tabs) do
+          local child = self[i]
+          if not child or child.tab ~= tab then
+            self[i] = self:new({
+              hl = 'TabLine',
+              tab_btn(),
+            }, i)
+            child = self[i]
+            child.tab = tab
+          end
+        end
+        if #self > #tabs then
+          for i = #tabs + 1, #self do
+            self[i] = nil
+          end
+        end
+      end,
+    },
+    border('', get_bg'TabLine'),
   }
 end
 --}}}
 
 --{{{ Tabline
-local function tab_label()
+local function bookmark_label()
   return {
     { provider = '󰃀', hl = 'Comment' },
     space(),
     {
+      hl = { fg = get_fg'TabLine', bold = true },
       provider = function(self)
         return self.key
       end,
-      hl = { bold = true, italic = true },
     },
     space(),
     {
-      provider = function(self)
-        return vim.fn.fnamemodify(self.path, ':~:.')
-      end,
-      hl = { italic = true },
+      hl = { fg = get_fg'TabLine' },
       on_click = {
         callback = function(self)
           require'grapple'.select{ key = self.key }
-          vim.schedule(vim.cmd.redrawtabline)
         end,
         name = function(self)
           return 'bookmark_select_callback'..self.key
         end,
       },
+      provider = function(self)
+        return vim.fn.fnamemodify(self.path, ':~:.')
+      end,
     },
   }
 end
 
-local function tab_close_btn()
+local function bookmark_del_btn()
   return {
     {
-      provider = '',
       hl = 'Comment',
       on_click = {
         callback = function(self)
           require'grapple'.untag{ key = self.key }
-          vim.schedule( vim.cmd.redrawtabline)
+          refresh_bookmark_list()
         end,
         name = function(self)
           return 'bookmark_untag_callback'..self.key
         end,
       },
+      provider = '',
     },
   }
 end
 
-local function tab()
+local function bookmarks_bar()
   return {
-    border('', get_bg'TabLine'),
-    {
-      hl = 'TabLine',
-      space(),
-      tab_label(),
-      space(2),
-      tab_close_btn(),
-      space(),
-    },
+    init = function(self)
+      local tags = require'grapple'.tags()
+      for i, tag in ipairs(tags) do
+        local child = self[i]
+        if not child or
+          child.path ~= tag.file_path or
+          child.key ~= tag.key
+        then
+          self[i] = self:new({
+            hl = 'Normal',
+            space(),
+            border('', get_bg'TabLine'),
+            {
+              hl = 'TabLine',
+              space(),
+              bookmark_label(),
+              space(2),
+              bookmark_del_btn(),
+              space(),
+            },
+          }, i)
+          child = self[i]
+          child.key = tag.key
+          child.path = tag.file_path
+        end
+      end
+      if #self > #tags then
+        for i = #tags + 1, #self do
+          self[i] = nil
+        end
+      end
+    end,
   }
 end
 --}}}
@@ -107,6 +533,15 @@ end
 --{{{ Winbar
 local function header_icon()
   return {
+    hl = function(self)
+      if not get_is_active() then
+        return 'Comment'
+      elseif vim.bo.modified then
+        return 'String'
+      else
+        return { fg = self.icon_color }
+      end
+    end,
     init = function(self)
       local filename = self.filename
       local extension = vim.fn.fnamemodify(filename, ':e')
@@ -124,15 +559,6 @@ local function header_icon()
         return self.icon
       end
     end,
-    hl = function(self)
-      if not get_is_active() then
-        return 'Comment'
-      elseif vim.bo.modified then
-        return 'String'
-      else
-        return { fg = self.icon_color }
-      end
-    end
   }
 end
 
@@ -141,18 +567,15 @@ local function header_label()
     {
       hl = function()
         local hl
-        if not get_is_active() then
+        local is_active = get_is_active()
+        if not is_active then
           hl = 'Comment'
         elseif vim.bo.modified then
           hl = 'String'
         else
           hl = 'Title'
         end
-        return {
-          fg = get_fg(hl),
-          bold = true,
-          italic = true,
-        }
+        return { fg = get_fg(hl), bold = is_active, italic = is_active }
       end,
       {
         provider = function(self)
@@ -170,8 +593,10 @@ end
 
 local function header_close_btn()
   return {
+    space(),
+    border('┃', get_bg'Normal'),
+    space(),
     {
-      provider = '',
       hl = 'Comment',
       on_click = {
         callback = function(_, minwid)
@@ -182,6 +607,7 @@ local function header_close_btn()
         end,
         name = 'window_close_callback',
       },
+      provider = '',
     },
   }
 end
@@ -192,19 +618,18 @@ local function header()
       self.filename = vim.api.nvim_buf_get_name(0)
       self.win = vim.api.nvim_get_current_win()
     end,
+    update = { 'BufEnter', 'BufModifiedSet' },
     border('', get_bg'TabLine'),
     {
       hl = 'TabLine',
       header_icon(),
       space(2),
       header_label(),
-      space(),
       {
-        condition = function()
-          return not vim.bo.modified
+        condition = function(self)
+          local cur_buf = vim.api.nvim_win_get_buf(self.win)
+          return not vim.api.nvim_buf_get_option(cur_buf, 'modified')
         end,
-        border('┃', get_bg'Normal'),
-        space(),
         header_close_btn(),
       },
     },
@@ -212,20 +637,38 @@ local function header()
   }
 end
 
-local function diagnostic(severity)
+local function diagnostic_label(severity)
   return {
-    condition = function(self)
-      return self.counts[severity] > 0
-    end,
     init = function(self)
+      self.child_index.value = self.child_index.value + 1
       self.count = self.counts[severity]
       self.icon = self.icons[severity]
       self.name = self.severities[severity]
     end,
+    condition = function(self)
+      return self.counts[severity] > 0
+    end,
     {
-      provider = function(self)
-        return self.icon..self.count
+      space(),
+      condition = function(self)
+        return self.child_index.value > 1
       end,
+      border('┃', get_bg'Normal'),
+      space(),
+    },
+    {
+      on_click = {
+        callback = function(_, minwid)
+          vim.api.nvim_set_current_win(minwid)
+          vim.diagnostic.goto_next{ severity = severity }
+        end,
+        minwid = function()
+          return vim.api.nvim_get_current_win()
+        end,
+        name = function(self)
+          return 'diagnostic_click_callback'..self.name
+        end,
+      },
       hl = function(self)
         if not get_is_active() then
           return { fg = get_fg'Comment' }
@@ -233,24 +676,14 @@ local function diagnostic(severity)
           return { fg = get_fg('Diagnostic'..self.name) }
         end
       end,
-    },
-    on_click = {
-      callback = function(_, minwid)
-        vim.api.nvim_set_current_win(minwid)
-        vim.diagnostic.goto_next{ severity = severity }
-      end,
-      minwid = function()
-        return vim.api.nvim_get_current_win()
-      end,
-      name = function(self)
-        return 'diagnostic_'..self.name..'_click_callback'
+      provider = function(self)
+        return self.icon..self.count
       end,
     },
-    space(),
   }
 end
 
-local function diagnostics()
+local function diagnostics_bar()
   local s = vim.diagnostic.severity
   local severities = {
     [s.ERROR] = 'Error',
@@ -277,49 +710,24 @@ local function diagnostics()
     },
     border('', get_bg'TabLine'),
     {
-      update = { 'DiagnosticChanged', 'BufEnter' },
       hl = 'TabLine',
-      space(),
-      diagnostic(s.ERROR),
-      {
-        condition = function(self)
-          return self.counts[s.ERROR] > 0 and
-            (self.counts[s.WARN] > 0 or
-              self.counts[s.INFO] > 0 or
-              self.counts[s.HINT] > 0)
-        end,
-        border('┃', get_bg'Normal'),
-        space(),
-      },
-      diagnostic(s.WARN),
-      {
-        condition = function(self)
-          return self.counts[s.WARN] > 0 and
-            (self.counts[s.INFO] > 0 or
-              self.counts[s.HINT] > 0)
-        end,
-        border('┃', get_bg'Normal'),
-        space(),
-      },
-      diagnostic(s.INFO),
-      {
-        condition = function(self)
-          return self.counts[s.INFO] > 0 and
-            self.counts[s.HINT] > 0
-        end,
-        border('┃', get_bg'Normal'),
-        space(),
-      },
-      diagnostic(s.HINT),
+      init = function(self)
+        self.child_index = { value = 0 }
+      end,
+      update = { 'DiagnosticChanged', 'BufEnter' },
+      diagnostic_label(s.ERROR),
+      diagnostic_label(s.WARN),
+      diagnostic_label(s.INFO),
+      diagnostic_label(s.HINT),
     },
     border('', get_bg'TabLine'),
   }
 end
 
-local function bookmark()
+local function bookmark_btn()
   return {
     init = function(self)
-      self.filename = vim.api.nvim_buf_get_name(0)
+      self.buf = vim.api.nvim_get_current_buf()
     end,
     border('', get_bg'TabLine'),
     {
@@ -335,24 +743,17 @@ local function bookmark()
               break
             end
           end
-          print(minwid)
           require'grapple'.toggle{ buffer = minwid, key = key }
-          vim.schedule(vim.cmd.redrawtabline)
+          refresh_bookmark_list()
         end,
         minwid = function()
           return vim.api.nvim_get_current_buf()
         end,
-        name = 'bookmark_tag_callback',
-      },
-      space(),
-      {
-        provider = function(self)
-          if require'grapple'.exists{ file_path = self.filename } then
-            return '󰃀'
-          else
-            return '󰃃'
-          end
+        name = function(self)
+          return 'bookmark_tag_callback'..self.buf
         end,
+      },
+      {
         hl = function()
           if not get_is_active() then
             return 'Comment'
@@ -360,8 +761,15 @@ local function bookmark()
             return 'WinBar'
           end
         end,
+        provider = function(self)
+          local filename = vim.api.nvim_buf_get_name(self.buf)
+          if require'grapple'.exists{ file_path = filename } then
+            return '󰃀'
+          else
+            return '󰃃'
+          end
+        end,
       },
-      space(),
     },
     border('', get_bg'TabLine'),
   }
@@ -386,45 +794,34 @@ function plug.config()
           }, args.buf)
       end,
     },
+    statusline = {
+      hl = 'Normal',
+      space(2),
+      mode_label(),
+      space(2),
+      workspace_label(),
+      space(math.huge),
+      debug_bar(),
+      space(math.huge),
+      location_label(),
+      space(),
+      tabs_bar(),
+    },
     tabline = {
       hl = 'Normal',
       space(math.huge),
-      {
-        init = function(self)
-          local tags = require'grapple'.tags()
-          for i, tag in ipairs(tags) do
-            local child = self[i]
-            if not child or child.path ~= tag.file_path or child.key ~= tag.key
-            then
-              self[i] = self:new({
-                hl = 'Normal',
-                space(),
-                tab(),
-              }, i)
-              child = self[i]
-              child.key = tag.key
-              child.path = tag.file_path
-            end
-          end
-          if #self > #tags then
-            for i = #tags + 1, #self do
-              self[i] = nil
-            end
-          end
-          refresh_tabline()
-        end,
-      },
+      bookmarks_bar(),
     },
     winbar = {
       hl = 'Normal',
       space(-3),
       header(),
       space(),
-      diagnostics(),
+      diagnostics_bar(),
       space(math.huge),
-      bookmark(),
+      bookmark_btn(),
     },
   }
 
-  refresh_tabline()
+  refresh_bookmark_list()
 end

@@ -11,7 +11,6 @@ my_plugins {
 
   { "catppuccin/nvim", name = "catppuccin.nvim", lazy = false, priority = 1000 },
   { "luukvbaal/statuscol.nvim", lazy = false },
-  { "nvim-lualine/lualine.nvim", lazy = false },
   { "rebelot/heirline.nvim", lazy = false },
   { "rcarriga/nvim-notify", lazy = false },
   { "stevearc/dressing.nvim", lazy = false },
