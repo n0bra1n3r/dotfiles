@@ -612,7 +612,7 @@ local function header()
     {
       hl = 'TabLine',
       header_icon(),
-      space(2),
+      space(),
       header_label(),
       {
         condition = function(self)
