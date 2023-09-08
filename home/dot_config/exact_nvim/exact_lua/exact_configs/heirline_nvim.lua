@@ -1,22 +1,6 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
 --{{{ Helpers
-local function get_bg(name)
-  return require'heirline.utils'.get_highlight(name).bg
-end
-
-local function get_fg(name)
-  return require'heirline.utils'.get_highlight(name).fg
-end
-
-local function get_is_active()
-  return require'heirline.conditions'.is_active()
-end
-
-local function file_type_icon(name)
-  return require'nvim-web-devicons'.get_icon(name)
-end
-
 local function space(count)
   local width = count or 1
   if width <= 0 then
@@ -33,11 +17,16 @@ local function space(count)
   end
 end
 
-local function border(char, color)
+local function border(char)
   return {
-    hl = function()
-      return { fg = color }
-    end,
+    hl = { fg = 'border' },
+    provider = char,
+  }
+end
+
+local function sep(char)
+  return {
+    hl = { fg = 'separator' },
     provider = char,
   }
 end
@@ -157,8 +146,10 @@ end
 local function git_repo_status()
   return {
     hl = function(self)
-      local hl = self.git_has_remote and 'String' or 'Comment'
-      return { fg = get_fg(hl), italic = true }
+      local hl = self.git_has_remote
+        and 'git_branch_synced'
+        or 'git_branch'
+      return { fg = hl, italic = true }
     end,
     init = function(self)
       self.git_branch = fn.get_git_branch(self.cwd)
@@ -175,7 +166,7 @@ local function git_repo_status()
     end,
     space(),
     {
-      hl = { fg = get_fg'DiagnosticWarn' },
+      hl = { fg = 'git_remote' },
       provider = function(self)
         return ''..fn.git_remote_change_count(self.cwd)
       end,
@@ -187,7 +178,7 @@ local function git_repo_status()
     end,
     space(),
     {
-      hl = { fg = get_fg'DiagnosticHint' },
+      hl = { fg = 'git_local' },
       provider = function(self)
         return ''..fn.git_local_change_count(self.cwd)
       end,
@@ -197,7 +188,7 @@ end
 
 local function workspace_label()
   return {
-    border('', get_bg'TabLine'),
+    border'',
     {
       hl = 'TabLine',
       init = function(self)
@@ -205,10 +196,7 @@ local function workspace_label()
       end,
       space(),
       {
-        hl = {
-          fg = get_fg'Title',
-          bold = true,
-        },
+        hl = { fg = 'workspace', bold = true },
         provider = function(self)
           local root = fn.get_git_worktree_root(self.cwd)
           return vim.fn.fnamemodify(root, ':~:.')
@@ -219,13 +207,13 @@ local function workspace_label()
           return fn.is_git_dir(self.cwd)
         end,
         space(),
-        border('╱', get_bg'Normal'),
+        sep'╱',
         space(),
         git_repo_status(),
       },
       space(),
     },
-    border('', get_bg'TabLine'),
+    border'',
   }
 end
 
@@ -242,7 +230,7 @@ local function debug_btn()
       condition = function(self)
         return self.child_index.value > 1
       end,
-      border('┃', get_bg'Normal'),
+      sep'┃',
       space(),
     },
     {
@@ -264,7 +252,7 @@ local function debug_btn()
       },
       space(),
       {
-        hl = { fg = get_fg'TabLine' },
+        hl = { fg = 'keymap' },
         provider = function(self)
           return self.keymap
         end,
@@ -278,7 +266,7 @@ local function debug_bar()
     condition = function()
       return fn.get_is_debugging()
     end,
-    border('', get_bg'TabLine'),
+    border'',
     {
       hl = 'TabLine',
       init = function(self)
@@ -307,13 +295,13 @@ local function debug_bar()
         end
       end,
     },
-    border('', get_bg'TabLine'),
+    border'',
   }
 end
 
 local function location_label()
   return {
-    border('', get_bg'TabLine'),
+    border'',
     {
       hl = 'TabLine',
       init = function(self)
@@ -323,17 +311,17 @@ local function location_label()
       update = { 'CursorMoved','CursorMovedI' },
       space(),
       {
-        hl = { fg = get_fg'Directory', italic = true },
+        hl = { fg = 'location', italic = true },
         provider = function(self)
           local line_num = tostring(self.cursor[1])
           return (' '):rep(3 - #line_num)..'L'..line_num
         end,
       },
       space(),
-      border('╱', get_bg'Normal'),
+      sep'╱',
       space(),
       {
-        hl = { fg = get_fg'Directory', italic = true },
+        hl = { fg = 'location', italic = true },
         provider = function(self)
           local col_num = tostring(self.cursor[2])
           return 'C'..col_num..(' '):rep(3 - #col_num)
@@ -341,7 +329,7 @@ local function location_label()
       },
       space(),
     },
-    border('', get_bg'TabLine'),
+    border'',
   }
 end
 
@@ -357,7 +345,7 @@ local function tab_btn()
       condition = function(self)
         return vim.api.nvim_tabpage_get_number(self.tab) > 1
       end,
-      border('┃', get_bg'Normal'),
+      sep'┃',
       space(),
     },
     {
@@ -365,11 +353,11 @@ local function tab_btn()
         local is_cur = self.tab == vim.api.nvim_get_current_tabpage()
         local hl
         if is_cur then
-          hl = 'Directory'
+          hl = 'tab'
         else
-          hl = 'Comment'
+          hl = 'tab_inactive'
         end
-        return { fg = get_fg(hl), bold = is_cur, italic = is_cur }
+        return { fg = hl, bold = is_cur, italic = is_cur }
       end,
       on_click = {
         callback = function(self)
@@ -405,7 +393,7 @@ local function tab_btn()
           elseif types.terminal and fn.get_shell_active() then
             icon = '%#String#󱆃%*'
           elseif fn.is_workspace_frozen(self.tab) then
-            icon = file_type_icon(vim.tbl_keys(types)[1])
+            icon = require'nvim-web-devicons'.get_icon(vim.tbl_keys(types)[1])
           end
         end
 
@@ -417,7 +405,7 @@ end
 
 local function tabs_bar()
   return {
-    border('', get_bg'TabLine'),
+    border'',
     {
       hl = 'TabLine',
       init = function(self)
@@ -440,7 +428,7 @@ local function tabs_bar()
         end
       end,
     },
-    border('', get_bg'TabLine'),
+    border'',
   }
 end
 --}}}
@@ -451,14 +439,14 @@ local function bookmark_label()
     { provider = '󰃀', hl = 'Comment' },
     space(),
     {
-      hl = { fg = get_fg'TabLine', bold = true },
+      hl = { fg = 'bookmark_key', bold = true },
       provider = function(self)
         return self.key
       end,
     },
     space(),
     {
-      hl = { fg = get_fg'TabLine' },
+      hl = { fg = 'bookmark' },
       on_click = {
         callback = function(self)
           require'grapple'.select{ key = self.key }
@@ -505,7 +493,7 @@ local function bookmarks_bar()
           self[i] = self:new({
             hl = 'Normal',
             space(),
-            border('', get_bg'TabLine'),
+            border'',
             {
               hl = 'TabLine',
               space(),
@@ -534,7 +522,7 @@ end
 local function header_icon()
   return {
     hl = function(self)
-      if not get_is_active() then
+      if not require'heirline.conditions'.is_active() then
         return 'Comment'
       elseif vim.bo.modified then
         return 'String'
@@ -567,15 +555,15 @@ local function header_label()
     {
       hl = function()
         local hl
-        local is_active = get_is_active()
+        local is_active = require'heirline.conditions'.is_active()
         if not is_active then
-          hl = 'Comment'
+          hl = 'buffer_inactive'
         elseif vim.bo.modified then
-          hl = 'String'
+          hl = 'buffer_modified'
         else
-          hl = 'Title'
+          hl = 'buffer'
         end
-        return { fg = get_fg(hl), bold = is_active, italic = is_active }
+        return { fg = hl, bold = is_active, italic = is_active }
       end,
       {
         provider = function(self)
@@ -594,7 +582,7 @@ end
 local function header_close_btn()
   return {
     space(),
-    border('┃', get_bg'Normal'),
+    sep'┃',
     space(),
     {
       hl = 'Comment',
@@ -619,7 +607,7 @@ local function header()
       self.win = vim.api.nvim_get_current_win()
     end,
     update = { 'BufEnter', 'BufModifiedSet' },
-    border('', get_bg'TabLine'),
+    border'',
     {
       hl = 'TabLine',
       header_icon(),
@@ -633,7 +621,7 @@ local function header()
         header_close_btn(),
       },
     },
-    border('', get_bg'TabLine'),
+    border'',
   }
 end
 
@@ -653,7 +641,7 @@ local function diagnostic_label(severity)
       condition = function(self)
         return self.child_index.value > 1
       end,
-      border('┃', get_bg'Normal'),
+      sep'┃',
       space(),
     },
     {
@@ -670,10 +658,10 @@ local function diagnostic_label(severity)
         end,
       },
       hl = function(self)
-        if not get_is_active() then
-          return { fg = get_fg'Comment' }
+        if not require'heirline.conditions'.is_active() then
+          return { fg = 'diagnostic_inactive' }
         else
-          return { fg = get_fg('Diagnostic'..self.name) }
+          return { fg = 'diagnostic_'..self.name }
         end
       end,
       provider = function(self)
@@ -708,7 +696,7 @@ local function diagnostics_bar()
       icons = icons,
       severities = severities,
     },
-    border('', get_bg'TabLine'),
+    border'',
     {
       hl = 'TabLine',
       init = function(self)
@@ -720,7 +708,7 @@ local function diagnostics_bar()
       diagnostic_label(s.INFO),
       diagnostic_label(s.HINT),
     },
-    border('', get_bg'TabLine'),
+    border'',
   }
 end
 
@@ -729,7 +717,7 @@ local function bookmark_btn()
     init = function(self)
       self.buf = vim.api.nvim_get_current_buf()
     end,
-    border('', get_bg'TabLine'),
+    border'',
     {
       hl = 'TabLine',
       on_click = {
@@ -755,7 +743,7 @@ local function bookmark_btn()
       },
       {
         hl = function()
-          if not get_is_active() then
+          if not require'heirline.conditions'.is_active() then
             return 'Comment'
           else
             return 'WinBar'
@@ -771,12 +759,43 @@ local function bookmark_btn()
         end,
       },
     },
-    border('', get_bg'TabLine'),
+    border'',
+  }
+end
+--}}}
+
+--{{{ Colors
+local function colors()
+  local hl = require'heirline.utils'.get_highlight
+  return {
+    bookmark = hl'TabLine'.fg,
+    bookmark_key = hl'Comment'.fg,
+    border = hl'TabLine'.bg,
+    buffer = hl'Title'.fg,
+    buffer_inactive = hl'Comment'.fg,
+    buffer_modified = hl'String'.fg,
+    diagnostic_inactive = hl'Comment'.fg,
+    diagnostic_Error = hl'DiagnosticError'.fg,
+    diagnostic_Hint = hl'DiagnosticHint'.fg,
+    diagnostic_Info = hl'DiagnosticInfo'.fg,
+    diagnostic_Warn = hl'DiagnosticWarn'.fg,
+    keymap = hl'TabLine'.fg,
+    git_branch = hl'Comment'.fg,
+    git_branch_synced = hl'String'.fg,
+    git_local = hl'DiagnosticHint'.fg,
+    git_remote = hl'DiagnosticWarn'.fg,
+    location = hl'Directory'.fg,
+    separator = hl'Normal'.bg,
+    tab = hl'Directory'.fg,
+    tab_inactive = hl'Comment'.fg,
+    workspace = hl'Title'.fg,
   }
 end
 --}}}
 
 function plug.config()
+  require'heirline'.load_colors(colors())
+
   require'heirline'.setup {
     opts = {
       disable_winbar_cb = function(args)
@@ -822,6 +841,18 @@ function plug.config()
       bookmark_btn(),
     },
   }
+
+  vim.api.nvim_create_autocmd({
+    'ColorScheme',
+    'FocusLost',
+    'FocusGained',
+    'WinEnter',
+  }, {
+    group = vim.api.nvim_create_augroup('conf_heirline', { clear = true }),
+    callback = function()
+      require'heirline.utils'.on_colorscheme(colors)
+    end,
+  })
 
   refresh_bookmark_list()
 end
