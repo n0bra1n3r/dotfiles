@@ -676,10 +676,11 @@ end
 
 function fn.get_debug_toolbar()
   local components = {}
-  for _, button in ipairs(debug_info.toolbar) do
+  for i, button in ipairs(debug_info.toolbar) do
     local btn_cb = get_debug_button_callback(button)
       or fn.stop_debugging
     table.insert(components, {
+      action = button.action or ('action_'..i),
       highlight = button.icon.color,
       icon = button.icon[1],
       keymap = button[1],

@@ -239,7 +239,7 @@ local function debug_btn()
           self.click_cb()
         end,
         name = function(self)
-          return 'debug_click_callback'..self.child_index.value
+          return 'debug_click_callback'..self.action
         end,
       },
       {
@@ -281,6 +281,7 @@ local function debug_bar()
               debug_btn(),
             }, i)
             child = self[i]
+            child.action = item.action
             child.highlight = item.highlight
             child.icon = item.icon
             child.keymap = item.keymap
