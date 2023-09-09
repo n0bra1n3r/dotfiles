@@ -1,5 +1,5 @@
 my_lsp_handlers {
-  { "window/showMessage", --{{{
+  ['window/showMessage'] = { --{{{
     callback = function(_, result, ctx)
       local client = vim.lsp.get_client_by_id(ctx.client_id)
       local log_level = ({
@@ -10,11 +10,11 @@ my_lsp_handlers {
       })[result.type]
 
       vim.notify(result.message, log_level, {
-        title = 'LSP | ' .. client.name,
+        title = 'LSP | '..client.name,
       })
     end,
   }, --}}}
-  { "$/progress", --{{{
+  ['$/progress'] = { --{{{
     callback = function(_, result, ctx)
       fn.show_lsp_progress(ctx.client_id, result.token, result.value)
     end

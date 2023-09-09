@@ -14,8 +14,7 @@ end
 
 --{{{ Load Globals
 _G.my_globals = function(globals)
-  my_config.globals = vim.tbl_extend(
-    "force",
+  my_config.globals = vim.tbl_extend('force',
     my_config.globals or {},
     vim.deepcopy(globals))
   for key, value in pairs(globals) do
@@ -23,16 +22,15 @@ _G.my_globals = function(globals)
   end
 end
 
-require "globals"
+require 'globals'
 --}}}
 --{{{ Load Options
 _G.my_options = function(options)
-  my_config.options = vim.tbl_extend(
-    "force",
+  my_config.options = vim.tbl_extend('force',
     my_config.options or {},
     vim.deepcopy(options))
   for option, value in pairs(options) do
-    if type(option) == "string" then
+    if type(option) == 'string' then
       vim.opt[option] = value
     else
       vim.opt[value._name] = value
@@ -44,8 +42,7 @@ require "options"
 --}}}
 --{{{ Load Highlights
 _G.my_highlights = function(highlights)
-  my_config.highlights = vim.tbl_extend(
-    "force",
+  my_config.highlights = vim.tbl_extend('force',
     my_config.highlights or {},
     vim.deepcopy(highlights))
   for name, value in pairs(highlights) do
@@ -57,8 +54,7 @@ require "highlights"
 --}}}
 --{{{ Load Signs
 _G.my_signs = function(signs)
-  my_config.signs = vim.tbl_extend(
-    "force",
+  my_config.signs = vim.tbl_extend('force',
     my_config.signs or {},
     vim.deepcopy(signs))
   for name, opts in pairs(signs) do
@@ -72,13 +68,14 @@ require "signs"
 my_config.functions = {}
 _G.fn = my_config.functions
 
-require "functions"
+require 'functions'
 --}}}
 --{{{ Load Autocmds
 _G.my_autocmds = function(autocmds)
   local conf_id = debug.getinfo(2, 'S').source:sub(2):match'(.*/)'
   set_proj_config(conf_id, 'autocmds', autocmds)
-  local conf_group = vim.api.nvim_create_augroup(("autocmds-%s"):format(conf_id), { clear = true })
+  local conf_group = vim.api.nvim_create_augroup(('autocmds-%s')
+    :format(conf_id), { clear = true })
   for _, def in ipairs(autocmds) do
     local autocmd = def[1]
     def[1] = nil
@@ -91,25 +88,25 @@ require "autocmds"
 --}}}
 --{{{ Load Plugins
 local default_providers = {
-  "node",
-  "perl",
-  "python3",
-  "ruby",
+  'node',
+  'perl',
+  'python3',
+  'ruby',
 }
 
 for _, provider in ipairs(default_providers) do
-  vim.g["loaded_"..provider.."_provider"] = 0
+  vim.g['loaded_'..provider..'_provider'] = 0
 end
 
-local lazypath = vim.fn.expand("~/.local/share/nvim/lazy/lazy.nvim")
+local lazypath = vim.fn.expand('~/.local/share/nvim/lazy/lazy.nvim')
 
 if vim.fn.filereadable(lazypath) ~= 1 then
   vim.fn.system {
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable",
+    'git',
+    'clone',
+    '--filter=blob:none',
+    'https://github.com/folke/lazy.nvim.git',
+    '--branch=stable',
     lazypath,
   }
 end
@@ -117,12 +114,11 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 local function get_plugin_config_name(plugin)
-  return vim.fn.fnamemodify(plugin, ":t"):gsub("%.", "_")
+  return vim.fn.fnamemodify(plugin, ':t'):gsub('%.', '_')
 end
 
 _G.my_plugins = function(plugins)
-  my_config.plugins = vim.tbl_extend(
-    "force",
+  my_config.plugins = vim.tbl_extend('force',
     my_config.plugins or {},
     vim.deepcopy(plugins))
   for _, spec in ipairs(plugins) do
@@ -130,7 +126,7 @@ _G.my_plugins = function(plugins)
     local config = get_plugin_config_name(plugin)
     local module = {}
     _G.plug = module
-    local has_config, _ = pcall(require, "configs."..config)
+    local has_config, _ = pcall(require, 'configs.'..config)
     if has_config then
       if module.init ~= nil then
         if spec.init == nil then
@@ -165,94 +161,96 @@ _G.my_plugins = function(plugins)
       lazy = true,
     },
     install = {
-      colorscheme = { "catppuccin-frappe" },
+      colorscheme = { 'catppuccin-frappe' },
       missing = false,
     },
-    lockfile = vim.fn.expand("~/.config/nvim/lazy-lock.json"),
+    lockfile = vim.fn.expand('~/.config/nvim/lazy-lock.json'),
     performance = {
       rtp = {
         disabled_plugins = {
-          "2html_plugin",
-          "bugreport",
-          "compiler",
-          "ftplugin",
-          "getscript",
-          "getscriptPlugin",
-          "gzip",
-          "logipat",
-          "netrw",
-          "netrwPlugin",
-          "netrwSettings",
-          "netrwFileHandlers",
-          "matchit",
-          "optwin",
-          "rplugin",
-          "rrhelper",
-          "spellfile",
-          "spellfile_plugin",
-          "syntax",
-          "synmenu",
-          "tar",
-          "tarPlugin",
-          "tohtml",
-          "tutor",
-          "vimball",
-          "vimballPlugin",
-          "zip",
-          "zipPlugin",
+          '2html_plugin',
+          'bugreport',
+          'compiler',
+          'ftplugin',
+          'getscript',
+          'getscriptPlugin',
+          'gzip',
+          'logipat',
+          'netrw',
+          'netrwPlugin',
+          'netrwSettings',
+          'netrwFileHandlers',
+          'matchit',
+          'optwin',
+          'rplugin',
+          'rrhelper',
+          'spellfile',
+          'spellfile_plugin',
+          'syntax',
+          'synmenu',
+          'tar',
+          'tarPlugin',
+          'tohtml',
+          'tutor',
+          'vimball',
+          'vimballPlugin',
+          'zip',
+          'zipPlugin',
         },
         reset = false,
       },
     },
-    root = vim.fn.expand("~/.local/share/nvim/lazy"),
-    state = vim.fn.expand("~/.local/state/nvim/lazy/state.json"),
+    root = vim.fn.expand('~/.local/share/nvim/lazy'),
+    state = vim.fn.expand('~/.local/state/nvim/lazy/state.json'),
     ui = {
-      border = "single",
+      border = 'single',
     },
   })
 
-  vim.api.nvim_create_autocmd("FileType", {
-    group = vim.api.nvim_create_augroup("conf_lazy", { clear = true }),
-    pattern = "lazy",
+  vim.api.nvim_create_autocmd('FileType', {
+    group = vim.api.nvim_create_augroup('conf_lazy', { clear = true }),
+    pattern = 'lazy',
     callback = function()
-      vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[<cmd>close<CR>]],
+      vim.api.nvim_buf_set_keymap(0, 'n', [[<Esc>]], [[<cmd>close<CR>]],
         { noremap = true, silent = true })
     end,
   })
 end
 
-local config_base = "<< .chezmoi.sourceDir >>/<< .chezmoi.sourceFile | dir >>"
-local config_dir = config_base.."/exact_configs/"
+local config_base = '<< .chezmoi.sourceDir >>/<< .chezmoi.sourceFile | dir >>'
+local config_dir = config_base..'/exact_configs/'
 local function set_plugins_keymap(key, method)
-  vim.api.nvim_buf_set_keymap(0, "n", key, [[]], {
+  vim.api.nvim_buf_set_keymap(0, 'n', key, [[]], {
     noremap = true,
     callback = function()
-      local plugin = vim.fn.expand("<cfile>")
+      local plugin = vim.fn.expand('<cfile>')
       local config = get_plugin_config_name(plugin)
-      fn.edit_buffer(method, config_dir..config..".lua")
+      fn.edit_buffer(method, config_dir..config..'.lua')
     end,
   })
 end
 
-vim.api.nvim_create_autocmd("BufEnter", {
-  group = vim.api.nvim_create_augroup("plugins", { clear = true }),
-  pattern = vim.fn.expand(config_base.."/plugins.lua"),
+vim.api.nvim_create_autocmd('BufEnter', {
+  group = vim.api.nvim_create_augroup('plugins', { clear = true }),
+  pattern = vim.fn.expand(config_base..'/plugins.lua'),
   callback = function()
-    set_plugins_keymap("gf", "edit")
-    set_plugins_keymap("<C-w><C-f>", "vsplit")
-    set_plugins_keymap("<C-w>f", "split")
-    set_plugins_keymap("<C-w>gf", "tabe")
+    set_plugins_keymap([[gf]], 'edit')
+    set_plugins_keymap([[<C-w><C-f>]], 'vsplit')
+    set_plugins_keymap([[<C-w>f]], 'split')
+    set_plugins_keymap([[<C-w>gf]], 'tabe')
   end,
 })
 
-require "plugins"
+require 'plugins'
 --}}}
 --{{{ Load Commands
 _G.my_commands = function(commands)
-  my_config.commands = vim.deepcopy(commands)
+  my_config.commands = vim.tbl_extend('force',
+    my_config.commands or {},
+    vim.deepcopy(commands))
   for command, def in pairs(commands) do
     local info = def
-    if type(info) == "string" then
+    if type(info) == 'string' then
       info = my_config.commands[def]
     end
     local targetCmd = info[1]
@@ -261,12 +259,11 @@ _G.my_commands = function(commands)
   end
 end
 
-require "commands"
+require 'commands'
 --}}}
 --{{{ Load Mappings
 _G.my_mappings = function(mappings)
-  my_config.mappings = vim.tbl_extend(
-    "force",
+  my_config.mappings = vim.tbl_extend('force',
     my_config.mappings or {},
     vim.deepcopy(mappings))
   for mode, mapping in pairs(mappings) do
@@ -279,8 +276,8 @@ _G.my_mappings = function(mappings)
       if map.silent == nil then
         map.silent = true
       end
-      if type(targetKey) == "function" then
-        map = vim.tbl_extend("keep", map, { callback = targetKey })
+      if type(targetKey) == 'function' then
+        map = vim.tbl_extend('keep', map, { callback = targetKey })
         vim.api.nvim_set_keymap(mode, key, [[]], map)
       else
         vim.api.nvim_set_keymap(mode, key, targetKey, map)
@@ -293,12 +290,11 @@ require "mappings"
 --}}}
 --{{{ Load Env
 _G.my_env = function(env)
-  my_config.env = vim.tbl_extend(
-    "force",
+  my_config.env = vim.tbl_extend('force',
     my_config.env or {},
     vim.deepcopy(env))
   for key, value in pairs(env) do
-    local expanded_value = key == "PATH"
+    local expanded_value = key == 'PATH'
       and fn.path_str(value)
       or fn.env_str(value)
     vim.env[key] = expanded_value
@@ -308,21 +304,10 @@ end
 --}}}
 --{{{ Load Debuggers
 _G.my_debuggers = function(debuggers)
-  my_config.debuggers = vim.tbl_extend(
-    "force",
+  my_config.debuggers = vim.tbl_extend('force',
     my_config.debuggers or {},
     vim.deepcopy(debuggers))
 end
---}}}
---{{{ Load Debugger Callbacks
-_G.my_debugger_callbacks = function(callbacks)
-  my_config.debugger_callbacks = vim.tbl_extend(
-    "force",
-    my_config.debugger_callbacks or {},
-    vim.deepcopy(callbacks))
-end
-
-require "debugger_callbacks"
 --}}}
 --{{{ Load Tasks
 _G.my_tasks = function(tasks)
@@ -330,119 +315,32 @@ _G.my_tasks = function(tasks)
     my_config.tasks or {},
     vim.deepcopy(tasks))
 
-  -- TODO: move this plugin-specific code to plugin config file
   for name, config in pairs(tasks) do
-    local tags = {}
-    if config.tags then
-      for _, tag in ipairs(config.tags) do
-        table.insert(tags, require'overseer'.TAG[tag])
-      end
-    end
-    require'overseer'.register_template {
-      name = name,
-      builder = function(params)
-        local args = vim.list_extend(
-          vim.deepcopy(config.args or {}),
-          vim.deepcopy(params.args or {}))
-        local deps = {
-          'run_after',
-          task_names = config.deps or {},
-        }
-        if not config.callback then
-          return {
-            args = args,
-            cmd = { config.cmd },
-            components = {
-              deps,
-              'on_output_quickfix',
-              'default',
-            },
-            cwd = config.cwd,
-            env = config.env,
-            name = name,
-          }
-        else
-          if not _G.task_cb_id then
-            _G.task_cb_id = 0
-            _G.task_cb_reg = {}
-            _G.task_cb_runner = function(id)
-              local cb = _G.task_cb_reg[id]
-              local cwd = vim.fn.getcwd()
-              if cb.cwd then
-                vim.api.nvim_set_current_dir(cb.cwd)
-              end
-              cb.func(cb.args)
-              if cb.cwd then
-                vim.api.nvim_set_current_dir(cwd)
-              end
-              _G.task_cb_reg[id] = nil
-            end
-          end
-          _G.task_cb_id = _G.task_cb_id + 1
-          _G.task_cb_reg[_G.task_cb_id] = {
-            args = args,
-            cwd = config.cwd,
-            func = config.callback,
-          }
-          return {
-            args = {
-              '--clean',
-              '--headless',
-              '--server',
-              vim.v.servername,
-              '--remote-expr',
-              'v:lua.task_cb_runner('.._G.task_cb_id..')',
-              '>/dev/null',
-            },
-            cmd = { vim.v.progpath },
-            components = {
-              deps,
-              'on_output_quickfix',
-              'on_exit_set_status',
-            },
-            name = name,
-          }
-        end
-      end,
-      condition = {
-        filetype = config.filetype,
-        dir = fn.get_workspace_dir(),
-      },
-      params = vim.tbl_extend('force', {
-        args = {
-          delimiter = ' ',
-          desc = "Task arguments",
-          optional = true,
-          subtype = { type = 'string' },
-          type = 'list',
-        },
-      }, config.params or {}),
-      tags = tags,
-    }
+    fn.create_task(name, config)
   end
 end
+
+require 'tasks'
 --}}}
 --{{{ Load Launchers
 _G.my_launchers = function(launchers)
-  my_config.launchers = vim.tbl_extend(
-    "force",
+  my_config.launchers = vim.tbl_extend('force',
     my_config.launchers or {},
     vim.deepcopy(launchers))
 end
 --}}}
 --{{{ Load Snippets
 _G.my_snippets = function(new_snippets)
-  my_config.snippets = vim.tbl_extend(
-    "force",
+  my_config.snippets = vim.tbl_extend('force',
     my_config.snippets or {},
     vim.deepcopy(new_snippets))
 
   -- TODO: move this plugin-specific code to plugin config file
-  for language, snippets in pairs(my_config.snippets) do
+  for language, snippets in pairs(new_snippets) do
     for name, snippet in pairs(snippets) do
       local description = snippet.description
       if not description then
-        description = name:sub(1,1):upper()..name:sub(2).."."
+        description = name:sub(1,1):upper()..name:sub(2)..'.'
       end
       local is_ok, snippet_entry = pcall(
         require'luasnip.util.parser'.parse_snippet,
@@ -461,7 +359,7 @@ _G.my_snippets = function(new_snippets)
         require'luasnip'.add_snippets(
           language,
           { snippet_entry },
-          { key = ("%s.%s"):format(language, name) }
+          { key = ('%s.%s'):format(language, name) }
         )
       else
         vim.notify(
@@ -474,19 +372,17 @@ _G.my_snippets = function(new_snippets)
   end
 end
 
-require "snippets"
+require 'snippets'
 --}}}
 --{{{ Load LSP Handlers
 _G.my_lsp_handlers = function(handlers)
-  if not my_config.lsp_handlers then
-    my_config.lsp_handlers = {}
-  end
-  for _, def in ipairs(handlers) do
-    table.insert(my_config.lsp_handlers, vim.deepcopy(def))
-    local event = def[1]
+  my_config.lsp_handlers = vim.tbl_extend('force',
+    my_config.lsp_handlers or {},
+    vim.deepcopy(handlers))
+  for event, def in pairs(handlers) do
     vim.lsp.handlers[event] = def.callback
   end
 end
 
-require "lsp_handlers"
+require 'lsp_handlers'
 --}}}

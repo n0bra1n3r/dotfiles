@@ -290,6 +290,112 @@ function fn.open_file_folder()
 end
 --}}}
 --{{{ Tasks
+local function vim_task_def(name, args, cwd, deps, func)
+  if not _G.task_cb_id then
+    _G.task_cb_id = 0
+    _G.task_cb_reg = {}
+    _G.task_cb_runner = function(id)
+      local cb = _G.task_cb_reg[id]
+      local old_cwd = vim.fn.getcwd()
+      if cb.cwd then
+        vim.api.nvim_set_current_dir(cb.cwd)
+      end
+      local is_ok, out = pcall(cb.func, cb.args)
+      if cb.cwd then
+        vim.api.nvim_set_current_dir(old_cwd)
+      end
+      _G.task_cb_reg[id] = nil
+      if not is_ok then
+        error(out)
+      end
+      return out or ''
+    end
+  end
+  _G.task_cb_id = _G.task_cb_id + 1
+  _G.task_cb_reg[_G.task_cb_id] = {
+    args = args,
+    cwd = cwd,
+    func = func,
+    name = name,
+  }
+  return {
+    args = {
+      '--clean',
+      '--headless',
+      '--server',
+      vim.v.servername,
+      '--remote-expr',
+      'v:lua.task_cb_runner('.._G.task_cb_id..')',
+    },
+    cmd = { vim.v.progpath },
+    components = deps,
+    name = name,
+  }
+end
+
+function fn.create_task(name, config)
+  require'overseer'.register_template {
+    name = name,
+    builder = function(params)
+      local args = vim.list_extend(
+        vim.deepcopy(config.args or {}),
+        vim.deepcopy(params.args or {}))
+      local deps = {
+        config.notify == false
+          and { 'on_complete_notify', statuses = {} }
+          or 'on_complete_notify',
+        { 'run_after', task_names = config.deps or {} },
+        'on_output_quickfix',
+        'default',
+      }
+      if not config.func then
+        return {
+          args = args,
+          cmd = { config.cmd },
+          components = deps,
+          cwd = config.cwd,
+          env = config.env,
+          name = name,
+        }
+      else
+        return vim_task_def(
+          name,
+          args,
+          config.cwd,
+          deps,
+          config.func
+        )
+      end
+    end,
+    condition = {
+      callback = config.cond,
+      dir = fn.get_workspace_dir(),
+      filetype = config.filetype,
+    },
+    params = {
+      args = {
+        delimiter = ',',
+        desc = "Task arguments",
+        optional = true,
+        subtype = { type = 'string' },
+        type = 'list',
+      },
+    },
+    priority = config.priority,
+  }
+end
+
+function fn.has_task(name)
+  local task_def
+  require'overseer.template'.get_by_name(
+    name,
+    { dir = fn.get_workspace_dir() },
+    function(def)
+      task_def = def
+    end)
+  return task_def ~= nil
+end
+
 function fn.run_task(name, args)
   require'overseer'.run_template {
     name = name,
@@ -404,25 +510,15 @@ local debug_info = {
   },
 }
 
-local function get_callback_config()
-  local project_filetype =
-    vim.g.project_filetypes[vim.g.project_type] or
-    vim.g.project_type
-  return my_config.debugger_callbacks and (
-    my_config.debugger_callbacks[project_filetype] or
-    my_config.debugger_callbacks[vim.bo.filetype]
-  )
-end
-
 function fn.get_is_debugging()
   return debug_info.state ~= 0
 end
 
 function fn.get_debug_callback(action)
   return function()
-    local callback_table = get_callback_config()
-    if callback_table and callback_table[action] then
-      callback_table[action](debug_info.state, require'dap'[action])
+    local task_name = 'Debug '..action
+    if fn.has_task(task_name) then
+      fn.run_task(task_name)
     else
       require'dap'[action]()
     end
@@ -430,7 +526,7 @@ function fn.get_debug_callback(action)
 end
 
 local function get_debug_button_callback(button)
-  if type(button.action) == "string" then
+  if type(button.action) == 'string' then
     return fn.get_debug_callback(button.action)
   end
   return button.action
