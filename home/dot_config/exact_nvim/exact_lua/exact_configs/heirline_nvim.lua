@@ -352,12 +352,7 @@ local function tab_btn()
     {
       hl = function(self)
         local is_cur = self.tab == vim.api.nvim_get_current_tabpage()
-        local hl
-        if is_cur then
-          hl = 'tab'
-        else
-          hl = 'tab_inactive'
-        end
+        local hl = is_cur and 'tab' or 'tab_inactive'
         return { fg = hl, bold = is_cur, italic = is_cur }
       end,
       on_click = {
@@ -527,9 +522,8 @@ local function header_icon()
         return 'Comment'
       elseif vim.bo.modified then
         return 'String'
-      else
-        return { fg = self.icon_color }
       end
+      return { fg = self.icon_color }
     end,
     init = function(self)
       local filename = self.filename
@@ -540,13 +534,8 @@ local function header_icon()
         { default = true })
     end,
     provider = function(self)
-      if vim.bo.modified then
-        return ''
-      elseif vim.bo.readonly then
-        return '󰈈'
-      else
-        return self.icon
-      end
+      if vim.bo.readonly then return '󰈈' end
+      return vim.bo.modified and '' or self.icon
     end,
   }
 end
@@ -555,25 +544,17 @@ local function header_label()
   return {
     {
       hl = function()
-        local hl
+        local hl = 'buffer_inactive'
         local is_active = require'heirline.conditions'.is_active()
-        if not is_active then
-          hl = 'buffer_inactive'
-        elseif vim.bo.modified then
-          hl = 'buffer_modified'
-        else
-          hl = 'buffer'
+        if is_active then
+          hl = vim.bo.modified and 'buffer_modified' or 'buffer'
         end
         return { fg = hl, bold = is_active, italic = is_active }
       end,
       {
         provider = function(self)
           local filename = vim.fn.fnamemodify(self.filename, ':~:.')
-          if #filename == 0 then
-            return '[No Name]'
-          else
-            return filename
-          end
+          return #filename == 0 and '[No Name]' or filename
         end,
       },
     },
@@ -661,9 +642,8 @@ local function diagnostic_label(severity)
       hl = function(self)
         if not require'heirline.conditions'.is_active() then
           return { fg = 'diagnostic_inactive' }
-        else
-          return { fg = 'diagnostic_'..self.name }
         end
+        return { fg = 'diagnostic_'..self.name }
       end,
       provider = function(self)
         return self.icon..self.count
@@ -744,19 +724,14 @@ local function bookmark_btn()
       },
       {
         hl = function()
-          if not require'heirline.conditions'.is_active() then
-            return 'Comment'
-          else
-            return 'WinBar'
-          end
+          return require'heirline.conditions'.is_active()
+            and 'WinBar'
+            or 'Comment'
         end,
         provider = function(self)
           local filename = vim.api.nvim_buf_get_name(self.buf)
-          if require'grapple'.exists{ file_path = filename } then
-            return '󰃀'
-          else
-            return '󰃃'
-          end
+          return require'grapple'.exists{ file_path = filename }
+            and '󰃀' or '󰃃'
         end,
       },
     },
