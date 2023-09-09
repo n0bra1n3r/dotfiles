@@ -9,6 +9,7 @@ function plug.config()
       WARN = ''
     },
     stages = "static",
+    top_down = false,
   }
 
   vim.notify = function(msg, level, opts)
