@@ -700,7 +700,7 @@ end
 local function update_spinner(client_id, token)
  local notif_data = get_lsp_notif_data(client_id, token)
 
- if notif_data.spinner then
+ if notif_data.spinner and notif_data.notification then
    local new_spinner = (notif_data.spinner + 1) % #lsp_info.spinner_frames
    notif_data.spinner = new_spinner
 
