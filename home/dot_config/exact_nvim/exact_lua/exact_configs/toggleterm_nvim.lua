@@ -4,6 +4,7 @@ function plug.config()
     hide_numbers = false,
     direction = "float",
     open_mapping = nil,
+    shade_terminals = false,
     -- required to avoid '\r\n' for `chansend` in git bash
     shell = "powershell",
   }
