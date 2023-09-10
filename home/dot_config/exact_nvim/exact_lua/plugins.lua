@@ -142,7 +142,7 @@ my_plugins {
   { "folke/neodev.nvim" },
   {
     "hrsh7th/nvim-cmp",
-    event = "InsertEnter",
+    event = { 'InsertEnter', 'CmdlineEnter' },
     dependencies = {
       "hrsh7th/cmp-nvim-lsp-signature-help",
       "hrsh7th/cmp-buffer",
