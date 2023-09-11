@@ -978,7 +978,7 @@ end
 local term_info = {}
 
 local function get_terminal()
-  return require'toggleterm.terminal'.Terminal:new{
+  return require'toggleterm.terminal'.Terminal:new {
     id = 0,
     cmd = "zsh --login",
     direction = "tab",
@@ -1056,6 +1056,15 @@ function fn.sync_terminal()
       end
     end
   end
+end
+
+function fn.is_terminal_buf(buf)
+  for _, term in ipairs(require'toggleterm.terminal'.get_all(true)) do
+    if term.bufnr == buf then
+      return true
+    end
+  end
+  return false
 end
 --}}}
 --{{{ Utilities

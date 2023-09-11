@@ -444,8 +444,15 @@ local function bookmark_label()
     {
       hl = { fg = 'bookmark' },
       on_click = {
-        callback = function(self)
-          require'grapple'.select{ key = self.key }
+        callback = function(self, minwid)
+          if fn.is_terminal_buf(minwid) then
+            fn.set_terminal_dir(vim.fn.fnamemodify(self.path, ':h'))
+          else
+            require'grapple'.select{ key = self.key }
+          end
+        end,
+        minwid = function()
+          return vim.api.nvim_get_current_buf()
         end,
         name = function(self)
           return 'bookmark_select_callback'..self.key
