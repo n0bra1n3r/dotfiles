@@ -6,20 +6,6 @@ else
   shopt -u nullglob
 fi
 
-function __workspace_main__() {
-
-local INFO_MSG="INFO"
-local ERROR_MSG="ERROR"
-
-local BRANCH="$1"
-
-local GIT_DIR=""
-local THIS_BRANCH=""
-
-local WORKSPACE_BRANCH="$WORKSPACE_BRANCH"
-local WORKSPACE_ROOT_DIR="$WORKSPACE_ROOT_DIR"
-local WORKSPACE_DEFAULT_DIR="$WORKSPACE_DEFAULT_DIR"
-
 function push_workspace() {
   if [[ "${WORKSPACE_STACK:-0}" -gt "9" ]]; then
     (( WORKSPACE_STACK=1 ))
@@ -28,6 +14,7 @@ function push_workspace() {
   fi
   eval "WORKSPACE_STACK_$WORKSPACE_STACK=\"$1\""
 }
+
 function pop_workspace() {
   if [[ "${WORKSPACE_STACK:-0}" -gt "0" ]]; then
     eval "echo -e \$WORKSPACE_STACK_$WORKSPACE_STACK;unset WORKSPACE_STACK_$WORKSPACE_STACK"
@@ -36,6 +23,21 @@ function pop_workspace() {
     echo ""
   fi
 }
+
+function __workspace_main__() {
+
+local INFO_MSG="INFO"
+local ERROR_MSG="ERROR"
+
+local BRANCH="$1"
+local OPERATION="$2"
+
+local GIT_DIR=""
+local THIS_BRANCH=""
+
+local WORKSPACE_BRANCH="$WORKSPACE_BRANCH"
+local WORKSPACE_ROOT_DIR="$WORKSPACE_ROOT_DIR"
+local WORKSPACE_DEFAULT_DIR="$WORKSPACE_DEFAULT_DIR"
 
 GIT_DIR="$(git rev-parse --show-toplevel)"
 
@@ -74,6 +76,9 @@ else
     ;;
   "-")
     BRANCH="$(pop_workspace)"
+    ;;
+  ".")
+    BRANCH="$THIS_BRANCH"
     ;;
   "")
     BRANCH="$WORKSPACE_BRANCH"
@@ -123,7 +128,11 @@ else
   fi
 fi
 
-if [[ ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]]; then
+if [[ "$OPERATION" != "--" && ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]]; then
+  if [[ -n "$OPERATION" ]]; then
+    echo "$ERROR_MSG: cannot perform operation '$OPERATION'"
+    return 1
+  fi
   if [[ -n "$WORKSPACE_DEFAULT_DIR" ]]; then
     if [[ -t 0 ]]; then
       # confirm intent if WORKSPACE_ROOT_DIR was guessed
@@ -183,19 +192,53 @@ if [[ ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]]; then
 
   echo "$INFO_MSG: created workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'" >&2
 else
-  pushd "$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH" >/dev/null || return 1
-  git worktree repair
-  popd >/dev/null || return 1
+  if [[ -n "$OPERATION" ]]; then
+    for (( i=1; i <= $#; i++ )); do
+      case "$OPERATION" in
+      "clean")
+        if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null; then
+          echo "$INFO_MSG: can't remove branch '$BRANCH'" >&2
+        else
+          echo -n "Clean up workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'? [Y/n] "
+          read -r DO_CLEAN_WORKSPACE
+          if [[ -n "${DO_CLEAN_WORKSPACE#[Yy]}" ]]; then
+            break
+          fi
+          cd "$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH" >/dev/null || return 1
+          rm -rf "$WORKSPACE_ROOT_DIR/${BRANCH:?}"
+          git worktree prune
+          git branch --delete "$BRANCH" >/dev/null
+          echo "$INFO_MSG: removed workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'" >&2
+        fi
+        [[ $i == 1 ]] && return 0
+        eval BRANCH="\${$i}"
+        ;;
+      "--")
+        OPERATION="$1"
+        shift
+        BRANCH="$2"
+        ;;
+      *)
+        echo "$ERROR_MSG: unknown operation '$OPERATION'"
+        return 1
+        ;;
+      esac
+    done
+  else
+    pushd "$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH" >/dev/null || return 1
+    git worktree repair
+    popd >/dev/null || return 1
 
-  echo "$INFO_MSG: found workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'" >&2
+    echo "$INFO_MSG: found workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'" >&2
 
-  cd "$WORKSPACE_ROOT_DIR/$BRANCH" || return 1
-  git worktree repair
+    cd "$WORKSPACE_ROOT_DIR/$BRANCH" || return 1
+    git worktree repair
+  fi
 fi
-
-unset -f push_workspace
-unset -f pop_workspace
 
 }
 
 __workspace_main__ "$@"
+
+unset -f push_workspace
+unset -f pop_workspace
