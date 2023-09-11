@@ -40,9 +40,9 @@
 
 {{ template "dep" "neovim/.local" }}
   {{- if $isWindows }}
-  url = "https://github.com/neovim/neovim/releases/download/nightly/nvim-win64.zip"
+  url = "https://github.com/neovim/neovim/releases/download/stable/nvim-win64.zip"
   {{- else if $isDarwin }}
-  url = "https://github.com/neovim/neovim/releases/download/nightly/nvim-macos.tar.gz"
+  url = "https://github.com/neovim/neovim/releases/download/stable/nvim-macos.tar.gz"
   {{- end}}
   exact = true
   type = "archive"
