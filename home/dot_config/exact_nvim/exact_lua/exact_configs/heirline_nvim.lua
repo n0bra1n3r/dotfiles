@@ -302,6 +302,10 @@ end
 
 local function location_label()
   return {
+    condition = function()
+      local win = vim.api.nvim_get_current_win()
+      return not fn.is_terminal_buf(vim.api.nvim_win_get_buf(win))
+    end,
     border'',
     {
       hl = 'TabLine',
@@ -767,7 +771,7 @@ local function colors()
     git_branch_synced = hl'String'.fg,
     git_local = hl'DiagnosticHint'.fg,
     git_remote = hl'DiagnosticWarn'.fg,
-    location = hl'Directory'.fg,
+    location = hl'String'.fg,
     separator = hl'Normal'.bg,
     tab = hl'Directory'.fg,
     tab_inactive = hl'Comment'.fg,
