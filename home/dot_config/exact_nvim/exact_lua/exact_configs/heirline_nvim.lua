@@ -12,15 +12,15 @@ local mode_names = {
   i = 'I',
   ic = 'I',
   ix = 'I',
-  n = 'N',
-  niI = 'N',
-  niR = 'N',
-  niV = 'N',
-  no = 'N',
-  nov = 'N',
-  noV = 'N',
-  ['no\22'] = 'N',
-  nt = 'N',
+  n = '',
+  niI = '',
+  niR = '',
+  niV = '',
+  no = '',
+  nov = '',
+  noV = '',
+  ['no\22'] = '',
+  nt = '',
   r = '·',
   rm = 'M',
   ['r?'] = '?',
@@ -179,7 +179,7 @@ local function mode_label()
     {
       hl = { fg = 'task_running', bold = true },
       provider = function(self)
-        return self.task_count > 0 and '[' or ' '
+        return self.task_count > 0 and '󰇙' or ' '
       end,
     },
     {
@@ -191,19 +191,13 @@ local function mode_label()
         self.mode = vim.fn.mode(1)
       end,
       provider = function(self)
-        return self.mode_names[self.mode]
+        return self.mode_names[self.mode]..' '
       end,
       static = {
         mode_colors = mode_colors(),
         mode_names = mode_names,
       },
       update = { 'ModeChanged' },
-    },
-    {
-      hl = { fg = 'task_running', bold = true },
-      provider = function(self)
-        return self.task_count > 0 and ']' or ' '
-      end,
     },
   }
 end
