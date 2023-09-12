@@ -35,6 +35,7 @@ function plug.config()
       "gitattributes",
       "gitcommit",
       "gitignore",
+      "lua",
       "nim",
       "python",
     },
