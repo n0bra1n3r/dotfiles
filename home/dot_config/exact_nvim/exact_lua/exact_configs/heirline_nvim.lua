@@ -1,5 +1,109 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
+--{{{ Constants
+local mode_names = {
+  ['\19'] = 'S',
+  ['\22'] = 'V',
+  ['\22s'] = 'V',
+  ['!'] = '!',
+  c = 'C',
+  ce = 'E',
+  cv = 'E',
+  i = 'I',
+  ic = 'I',
+  ix = 'I',
+  n = 'N',
+  niI = 'N',
+  niR = 'N',
+  niV = 'N',
+  no = 'N',
+  nov = 'N',
+  noV = 'N',
+  ['no\22'] = 'N',
+  nt = 'N',
+  r = '·',
+  rm = 'M',
+  ['r?'] = '?',
+  R = 'R',
+  Rc = 'R',
+  Rv = 'R',
+  Rvc = 'R',
+  Rvx = 'R',
+  Rx = 'R',
+  s = 'S',
+  S = 'S',
+  t = 'T',
+  v = 'V',
+  vs = 'V',
+  V = 'V',
+  Vs = 'V',
+}
+--}}}
+
+--{{{ Colors
+local function colors()
+  local hl = require'heirline.utils'.get_highlight
+  return {
+    bookmark = hl'TabLine'.fg,
+    bookmark_key = hl'Comment'.fg,
+    border = hl'TabLine'.bg,
+    buffer = hl'Title'.fg,
+    buffer_inactive = hl'Comment'.fg,
+    buffer_modified = hl'String'.fg,
+    diagnostic_inactive = hl'Comment'.fg,
+    diagnostic_Error = hl'DiagnosticError'.fg,
+    diagnostic_Hint = hl'DiagnosticHint'.fg,
+    diagnostic_Info = hl'DiagnosticInfo'.fg,
+    diagnostic_Warn = hl'DiagnosticWarn'.fg,
+    keymap = hl'TabLine'.fg,
+    git_branch = hl'Comment'.fg,
+    git_branch_synced = hl'String'.fg,
+    git_local = hl'DiagnosticHint'.fg,
+    git_remote = hl'DiagnosticWarn'.fg,
+    location = hl'String'.fg,
+    separator = hl'Normal'.bg,
+    tab = hl'Directory'.fg,
+    tab_inactive = hl'Comment'.fg,
+    task_running = hl'String'.fg,
+    workspace = hl'Title'.fg,
+  }
+end
+
+local function mode_colors()
+  local c = require'catppuccin.palettes'.get_palette()
+  return {
+    ['\19'] = c.maroon,
+    ['\22'] = c.flamingo,
+    ['\22s'] = c.flamingo,
+    ['!'] = c.green,
+    c = c.peach,
+    ce = c.peach,
+    cv = c.peach,
+    i = c.green,
+    ic = c.green,
+    ix = c.green,
+    n = c.blue,
+    ni = c.blue,
+    no = c.blue,
+    nt = c.blue,
+    r = c.teal,
+    rm = c.teal,
+    ['r?'] = c.mauve,
+    R = c.maroon,
+    Rc = c.maroon,
+    Rv = c.maroon,
+    Rx = c.maroon,
+    s = c.maroon,
+    S = c.maroon,
+    t = c.green,
+    v = c.flamingo,
+    vs = c.flamingo,
+    V = c.flamingo,
+    Vs = c.flamingo,
+  }
+end
+--}}}
+
 --{{{ Helpers
 local function space(count)
   local width = count or 1
@@ -58,7 +162,6 @@ end
 
 --{{{ Statusline
 local function mode_label()
-  local c = require'catppuccin.palettes'.get_palette()
   return {
     init = function(self)
       self.task_count = #require'overseer.task_list'.list_tasks {
@@ -83,73 +186,8 @@ local function mode_label()
         return self.mode_names[self.mode]
       end,
       static = {
-        mode_colors = {
-          ['\19'] = c.maroon,
-          ['\22'] = c.flamingo,
-          ['\22s'] = c.flamingo,
-          ['!'] = c.green,
-          c = c.peach,
-          ce = c.peach,
-          cv = c.peach,
-          i = c.green,
-          ic = c.green,
-          ix = c.green,
-          n = c.blue,
-          ni = c.blue,
-          no = c.blue,
-          nt = c.blue,
-          r = c.teal,
-          rm = c.teal,
-          ['r?'] = c.mauve,
-          R = c.maroon,
-          Rc = c.maroon,
-          Rv = c.maroon,
-          Rx = c.maroon,
-          s = c.maroon,
-          S = c.maroon,
-          t = c.green,
-          v = c.flamingo,
-          vs = c.flamingo,
-          V = c.flamingo,
-          Vs = c.flamingo,
-        },
-        mode_names = {
-          ['\19'] = 'S',
-          ['\22'] = 'V',
-          ['\22s'] = 'V',
-          ['!'] = '!',
-          c = 'C',
-          ce = 'E',
-          cv = 'E',
-          i = 'I',
-          ic = 'I',
-          ix = 'I',
-          n = 'N',
-          niI = 'N',
-          niR = 'N',
-          niV = 'N',
-          no = 'N',
-          nov = 'N',
-          noV = 'N',
-          ['no\22'] = 'N',
-          nt = 'N',
-          r = '·',
-          rm = 'M',
-          ['r?'] = '?',
-          R = 'R',
-          Rc = 'R',
-          Rv = 'R',
-          Rvc = 'R',
-          Rvx = 'R',
-          Rx = 'R',
-          s = 'S',
-          S = 'S',
-          t = 'T',
-          v = 'V',
-          vs = 'V',
-          V = 'V',
-          Vs = 'V',
-        },
+        mode_colors = mode_colors(),
+        mode_names = mode_names,
       },
       update = { 'ModeChanged' },
     },
@@ -766,36 +804,6 @@ local function bookmark_btn()
       },
     },
     border'',
-  }
-end
---}}}
-
---{{{ Colors
-local function colors()
-  local hl = require'heirline.utils'.get_highlight
-  return {
-    bookmark = hl'TabLine'.fg,
-    bookmark_key = hl'Comment'.fg,
-    border = hl'TabLine'.bg,
-    buffer = hl'Title'.fg,
-    buffer_inactive = hl'Comment'.fg,
-    buffer_modified = hl'String'.fg,
-    diagnostic_inactive = hl'Comment'.fg,
-    diagnostic_Error = hl'DiagnosticError'.fg,
-    diagnostic_Hint = hl'DiagnosticHint'.fg,
-    diagnostic_Info = hl'DiagnosticInfo'.fg,
-    diagnostic_Warn = hl'DiagnosticWarn'.fg,
-    keymap = hl'TabLine'.fg,
-    git_branch = hl'Comment'.fg,
-    git_branch_synced = hl'String'.fg,
-    git_local = hl'DiagnosticHint'.fg,
-    git_remote = hl'DiagnosticWarn'.fg,
-    location = hl'String'.fg,
-    separator = hl'Normal'.bg,
-    tab = hl'Directory'.fg,
-    tab_inactive = hl'Comment'.fg,
-    task_running = hl'String'.fg,
-    workspace = hl'Title'.fg,
   }
 end
 --}}}
