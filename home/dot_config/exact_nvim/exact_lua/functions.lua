@@ -3,7 +3,7 @@
 --{{{ Helpers
 local function resolve_path(tabpageOrPath)
   return type(tabpageOrPath) == "string"
-    and vim.fn.expand(tabpageOrPath)
+    and tostring(vim.fn.expand(tabpageOrPath))
     or fn.get_tab_cwd(tabpageOrPath)
 end
 --}}}
@@ -160,7 +160,7 @@ function fn.get_open_files()
 end
 
 function fn.delete_file()
-  vim.fn.delete(vim.fn.expand('%:p'))
+  vim.fn.delete(tostring(vim.fn.expand('%:p')))
   require'mini.bufremove'.wipeout()
 end
 
@@ -199,7 +199,7 @@ function fn.move_file()
       end
       create_parent_dirs(path)
       vim.cmd.saveas(vim.fn.fnameescape(path))
-      vim.fn.delete(vim.fn.expand("#"))
+      vim.fn.delete(tostring(vim.fn.expand("#")))
       vim.cmd.bwipeout("#")
     end)
 end
@@ -535,7 +535,7 @@ end
 local function set_debugging_keymap(lhs, callback, desc)
   local keymap = debug_info.keymaps[lhs]
   if keymap == nil then
-    keymap = vim.fn.maparg(lhs, "n", 0, 1)
+    keymap = vim.fn.maparg(lhs, 'n', false, true)
     keymap.lhs = lhs
     debug_info.keymaps[lhs] = keymap
   end
@@ -687,7 +687,7 @@ local lsp_info = {
   spinner_frames = { "⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷" },
 }
 
-local function get_lsp_notif_data(client_id, token)
+local function get_lsp_notif_data(client_id, _)
   local key = vim.lsp.get_client_by_id(client_id).name
 
   if not lsp_info.notifications[key] then
