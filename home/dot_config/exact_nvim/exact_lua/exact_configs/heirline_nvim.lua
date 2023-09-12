@@ -674,7 +674,7 @@ local function header()
     {
       hl = 'TabLine',
       header_icon(),
-      space(),
+      space(2),
       header_label(),
       {
         condition = function(self)
@@ -810,8 +810,7 @@ local function bookmark_btn()
             or 'Comment'
         end,
         provider = function(self)
-          local filename = vim.api.nvim_buf_get_name(self.buf)
-          return require'grapple'.exists{ file_path = filename }
+          return require'grapple'.exists{ buffer = self.buf }
             and '󰃀' or '󰃃'
         end,
       },
