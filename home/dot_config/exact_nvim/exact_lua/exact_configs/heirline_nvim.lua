@@ -44,12 +44,15 @@ local mode_names = {
 local function colors()
   local hl = require'heirline.utils'.get_highlight
   return {
+    background = hl'TabLine'.bg,
     bookmark = hl'TabLine'.fg,
     bookmark_key = hl'Comment'.fg,
     border = hl'TabLine'.bg,
     buffer = hl'Title'.fg,
     buffer_inactive = hl'Comment'.fg,
     buffer_modified = hl'String'.fg,
+    close_btn = hl'Comment'.fg,
+    default = hl'Normal'.bg,
     diagnostic_inactive = hl'Comment'.fg,
     diagnostic_Error = hl'DiagnosticError'.fg,
     diagnostic_Hint = hl'DiagnosticHint'.fg,
@@ -260,7 +263,7 @@ local function workspace_label()
   return {
     border'',
     {
-      hl = 'TabLine',
+      hl = { bg = 'background' },
       init = function(self)
         self.cwd = fn.get_tab_cwd()
       end,
@@ -338,7 +341,7 @@ local function debug_bar()
     end,
     border'',
     {
-      hl = 'TabLine',
+      hl = { bg = 'background' },
       init = function(self)
         self.child_index = { value = 0 }
 
@@ -347,7 +350,7 @@ local function debug_bar()
           local child = self[i]
           if not child or child.icon ~= item.icon then
             self[i] = self:new({
-              hl = 'TabLine',
+              hl = { bg = 'background' },
               debug_btn(),
             }, i)
             child = self[i]
@@ -378,7 +381,7 @@ local function location_label()
     end,
     border'',
     {
-      hl = 'TabLine',
+      hl = { bg = 'background' },
       init = function(self)
         local win = vim.api.nvim_get_current_win()
         self.cursor = vim.api.nvim_win_get_cursor(win)
@@ -477,14 +480,14 @@ local function tabs_bar()
   return {
     border'',
     {
-      hl = 'TabLine',
+      hl = { bg = 'background' },
       init = function(self)
         local tabs = vim.api.nvim_list_tabpages()
         for i, tab in ipairs(tabs) do
           local child = self[i]
           if not child or child.tab ~= tab then
             self[i] = self:new({
-              hl = 'TabLine',
+              hl = { bg = 'background' },
               tab_btn(),
             }, i)
             child = self[i]
@@ -506,7 +509,7 @@ end
 --{{{ Tabline
 local function bookmark_label()
   return {
-    { provider = '󰃀', hl = 'Comment' },
+    { provider = '󰃀', hl = { fg = 'bookmark_key' } },
     space(),
     {
       hl = { fg = 'bookmark_key', bold = true },
@@ -542,7 +545,7 @@ end
 local function bookmark_del_btn()
   return {
     {
-      hl = 'Comment',
+      hl = { fg = 'close_btn' },
       on_click = {
         callback = function(self)
           require'grapple'.untag{ key = self.key }
@@ -568,11 +571,11 @@ local function bookmarks_bar()
           child.key ~= tag.key
         then
           self[i] = self:new({
-            hl = 'Normal',
+            hl = { bg = 'default' },
             space(),
             border'',
             {
-              hl = 'TabLine',
+              hl = { bg = 'background' },
               space(),
               bookmark_label(),
               space(2),
@@ -599,12 +602,13 @@ end
 local function header_icon()
   return {
     hl = function(self)
+      local fg = self.icon_color
       if not require'heirline.conditions'.is_active() then
-        return 'Comment'
+        fg = 'buffer_inactive'
       elseif vim.bo.modified then
-        return 'String'
+        fg = 'buffer_modified'
       end
-      return { fg = self.icon_color }
+      return { fg = fg }
     end,
     init = function(self)
       local filename = self.filename
@@ -625,12 +629,12 @@ local function header_label()
   return {
     {
       hl = function()
-        local hl = 'buffer_inactive'
+        local fg = 'buffer_inactive'
         local is_active = require'heirline.conditions'.is_active()
         if is_active then
-          hl = vim.bo.modified and 'buffer_modified' or 'buffer'
+          fg = vim.bo.modified and 'buffer_modified' or 'buffer'
         end
-        return { fg = hl, bold = is_active, italic = is_active }
+        return { fg = fg, bold = is_active, italic = is_active }
       end,
       {
         provider = function(self)
@@ -648,7 +652,7 @@ local function header_close_btn()
     sep'┃',
     space(),
     {
-      hl = 'Comment',
+      hl = { fg = 'close_btn' },
       on_click = {
         callback = function(_, minwid)
           vim.api.nvim_win_close(minwid, false)
@@ -672,9 +676,9 @@ local function header()
     update = { 'BufEnter', 'BufModifiedSet' },
     border'',
     {
-      hl = 'TabLine',
+      hl = { bg = 'background' },
       header_icon(),
-      space(2),
+      space(),
       header_label(),
       {
         condition = function(self)
@@ -760,7 +764,7 @@ local function diagnostics_bar()
     },
     border'',
     {
-      hl = 'TabLine',
+      hl = { bg = 'background' },
       init = function(self)
         self.child_index = { value = 0 }
       end,
@@ -781,7 +785,7 @@ local function bookmark_btn()
     end,
     border'',
     {
-      hl = 'TabLine',
+      hl = { bg = 'background' },
       on_click = {
         callback = function(_, minwid)
           local tags = require'grapple'.tags()
@@ -841,7 +845,7 @@ function plug.config()
       end,
     },
     statusline = {
-      hl = 'Normal',
+      hl = { bg = 'default' },
       space(),
       mode_label(),
       space(),
@@ -854,12 +858,12 @@ function plug.config()
       tabs_bar(),
     },
     tabline = {
-      hl = 'Normal',
+      hl = { bg = 'default' },
       space(math.huge),
       bookmarks_bar(),
     },
     winbar = {
-      hl = 'Normal',
+      hl = { bg = 'default' },
       space(-3),
       header(),
       space(),
