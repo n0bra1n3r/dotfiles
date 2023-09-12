@@ -179,7 +179,7 @@ local function mode_label()
     {
       hl = { fg = 'task_running', bold = true },
       provider = function(self)
-        return self.task_count > 0 and '󰇙' or ' '
+        return self.task_count > 0 and '' or ' '
       end,
     },
     {
