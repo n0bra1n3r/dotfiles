@@ -13,12 +13,14 @@ local dir_git_info = {}
 local function get_git_info(tabpageOrPath)
   local key = resolve_path(tabpageOrPath)
   local info = dir_git_info[key]
+  local prev_key
   while not info do
     key = vim.fn.fnamemodify(key, ":h")
-    if key == "/" or key == "." then
+    if key == prev_key then
       break
     end
     info = dir_git_info[key]
+    prev_key = key
   end
   return info
 end
