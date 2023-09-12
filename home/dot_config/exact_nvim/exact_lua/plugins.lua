@@ -140,6 +140,7 @@ my_plugins {
   { "saadparwaiz1/cmp_luasnip", dependencies = { "L3MON4D3/LuaSnip" } },
   { "hrsh7th/cmp-nvim-lua" },
   { "folke/neodev.nvim" },
+  { "folke/neoconf.nvim", lazy = false },
   {
     "hrsh7th/nvim-cmp",
     event = { 'InsertEnter', 'CmdlineEnter' },
@@ -161,6 +162,7 @@ my_plugins {
     cmd = "LspInfo",
     event = { "BufRead", "BufNewFile" },
     dependencies = {
+      "folke/neoconf.nvim",
       "hrsh7th/cmp-nvim-lsp",
       "williamboman/mason-lspconfig.nvim",
     },
