@@ -555,7 +555,7 @@ local function bookmark_del_btn()
           return 'bookmark_untag_callback'..self.key
         end,
       },
-      provider = '',
+      provider = '󰅖',
     },
   }
 end
@@ -578,7 +578,9 @@ local function bookmarks_bar()
               hl = { bg = 'background' },
               space(),
               bookmark_label(),
-              space(2),
+              space(),
+              sep'┃',
+              space(),
               bookmark_del_btn(),
               space(),
             },
@@ -648,9 +650,7 @@ end
 
 local function header_close_btn()
   return {
-    space(),
-    sep'┃',
-    space(),
+    sep'',
     {
       hl = { fg = 'close_btn' },
       on_click = {
@@ -662,7 +662,7 @@ local function header_close_btn()
         end,
         name = 'window_close_callback',
       },
-      provider = '',
+      provider = '󰅖',
     },
   }
 end
@@ -680,13 +680,8 @@ local function header()
       header_icon(),
       space(),
       header_label(),
-      {
-        condition = function(self)
-          local cur_buf = vim.api.nvim_win_get_buf(self.win)
-          return not vim.api.nvim_buf_get_option(cur_buf, 'modified')
-        end,
-        header_close_btn(),
-      },
+      space(),
+      header_close_btn(),
     },
     border'',
   }
