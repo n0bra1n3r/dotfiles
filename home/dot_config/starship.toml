@@ -3,7 +3,7 @@
 palette = "catppuccin_frappe"
 
 [nim]
-  symbol = ' '
+  symbol = '󰆥 '
 
 [palettes.catppuccin_frappe]
   rosewater = "#f2d5cf"

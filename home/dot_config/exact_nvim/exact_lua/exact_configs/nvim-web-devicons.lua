@@ -3,17 +3,17 @@ function plug.config()
     default = true,
     override = {
       nim = {
-        icon = '',
+        icon = '󰆥',
         color = "orange",
         name = "Nim",
       },
       nimble = {
-        icon = '',
+        icon = '󰆥',
         color = "orange",
         name = "Nimble",
       },
       nims = {
-        icon = '',
+        icon = '󰆥',
         color = "orange",
         name = "NimScript",
       },
