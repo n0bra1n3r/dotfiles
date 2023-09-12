@@ -47,19 +47,26 @@ end
 function fn.refresh_git_diff_info(tabpageOrPath)
   if fn.is_git_dir(tabpageOrPath) then
     local branch = fn.get_git_branch(tabpageOrPath)
-    local command = ("rev-list --left-right --count %s@{upstream}...%s"):format(branch, branch)
-    local results = vim.split(run_git_command(tabpageOrPath, command), "\t", { trimempty = true })
+    local remote_cmd = 'show-branch remotes/origin/'..branch
+    run_git_command(tabpageOrPath, remote_cmd)
     local has_remote = vim.v.shell_error == 0
     set_git_info(tabpageOrPath, { has_remote = has_remote })
+    local stash_cmd = 'rev-list --walk-reflogs --count refs/stash'
+    set_git_info(tabpageOrPath, {
+      stash_count = tonumber(run_git_command(tabpageOrPath, stash_cmd)),
+    })
     if has_remote then
+      local count_cmd = ('rev-list --left-right --count %s@{upstream}...%s'):format(branch, branch)
+      local counts = vim.split(run_git_command(tabpageOrPath, count_cmd), "\t", { trimempty = true })
       set_git_info(tabpageOrPath, {
-        local_change_count = tonumber(results[2]),
-        remote_change_count = tonumber(results[1]),
+        local_change_count = tonumber(counts[2]),
+        remote_change_count = tonumber(counts[1]),
       })
     else
-      command = ("rev-list --count %s"):format(branch)
-      local output = run_git_command(tabpageOrPath, command)
-      set_git_info(tabpageOrPath, { local_change_count = tonumber(output) })
+      local count_cmd = ("rev-list --count %s"):format(branch)
+      set_git_info(tabpageOrPath, {
+        local_change_count = tonumber(run_git_command(tabpageOrPath, count_cmd)),
+      })
     end
   end
 end
@@ -86,6 +93,11 @@ end
 function fn.has_git_remote(tabpageOrPath)
   local info = get_git_info(tabpageOrPath)
   return info and (info.has_remote or false) or false
+end
+
+function fn.git_stash_count(tabpageOrPath)
+  local info = get_git_info(tabpageOrPath)
+  return info and (info.stash_count or 0) or 0
 end
 
 function fn.git_local_change_count(tabpageOrPath)

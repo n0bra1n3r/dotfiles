@@ -60,6 +60,7 @@ local function colors()
     git_branch_synced = hl'String'.fg,
     git_local = hl'DiagnosticHint'.fg,
     git_remote = hl'DiagnosticWarn'.fg,
+    git_stash = hl'DiagnosticInfo'.fg,
     location = hl'String'.fg,
     separator = hl'Normal'.bg,
     tab = hl'Directory'.fg,
@@ -203,19 +204,27 @@ end
 local function git_repo_status()
   return {
     hl = function(self)
-      local hl = self.git_has_remote
+      local hl = fn.has_git_remote(self.cwd)
         and 'git_branch_synced'
         or 'git_branch'
       return { fg = hl, italic = true }
     end,
-    init = function(self)
-      self.git_branch = fn.get_git_branch(self.cwd)
-      self.git_has_remote = fn.has_git_remote(self.cwd)
-    end,
     provider = function(self)
-      local icon = self.git_has_remote and '󱓎' or '󰘬'
-      return icon..' '..self.git_branch
+      local icon = fn.has_git_remote(self.cwd) and '󱓎' or '󰘬'
+      return icon..' '..fn.get_git_branch(self.cwd)
     end,
+  },
+  {
+    condition = function(self)
+      return fn.git_stash_count(self.cwd) > 0
+    end,
+    space(),
+    {
+      hl = { fg = 'git_stash' },
+      provider = function(self)
+        return '󰇙'..fn.git_stash_count(self.cwd)
+      end,
+    },
   },
   {
     condition = function(self)
