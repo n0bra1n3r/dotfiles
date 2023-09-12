@@ -297,7 +297,7 @@ local function debug_btn()
       condition = function(self)
         return self.child_index.value > 1
       end,
-      sep'┃',
+      sep'│',
       space(),
     },
     {
@@ -417,7 +417,7 @@ local function tab_btn()
       condition = function(self)
         return vim.api.nvim_tabpage_get_number(self.tab) > 1
       end,
-      sep'┃',
+      sep'│',
       space(),
     },
     {
@@ -573,7 +573,7 @@ local function bookmarks_bar()
               space(),
               bookmark_label(),
               space(),
-              sep'┃',
+              sep'│',
               space(),
               bookmark_del_btn(),
               space(),
@@ -697,7 +697,7 @@ local function diagnostic_label(severity)
       condition = function(self)
         return self.child_index.value > 1
       end,
-      sep'┃',
+      sep'│',
       space(),
     },
     {
