@@ -348,60 +348,67 @@ local function vim_task_def(name, args, cwd, deps, func)
 end
 
 function fn.create_task(name, config)
-  require'overseer'.register_template {
-    name = name,
-    builder = function(params)
-      local args = vim.list_extend(
-        vim.deepcopy(config.args or {}),
-        vim.deepcopy(params.args or {}))
-      local deps = {
-        config.notify == false
-          and { 'on_complete_notify', statuses = {} }
-          or 'on_complete_notify',
-        { 'run_after', task_names = config.deps or {} },
-        'on_output_quickfix',
-        'default',
-      }
-      if not config.func then
-        return {
-          args = args,
-          cmd = { config.cmd },
-          components = deps,
-          cwd = config.cwd,
-          env = config.env,
-          name = name,
+  local is_ok, overseer = pcall(require, 'overseer')
+  if is_ok then
+    overseer.register_template {
+      name = name,
+      builder = function(params)
+        local args = vim.list_extend(
+          vim.deepcopy(config.args or {}),
+          vim.deepcopy(params.args or {}))
+        local deps = {
+          config.notify == false
+            and { 'on_complete_notify', statuses = {} }
+            or 'on_complete_notify',
+          { 'run_after', task_names = config.deps or {} },
+          'on_output_quickfix',
+          'default',
         }
-      else
-        return vim_task_def(
-          name,
-          args,
-          config.cwd,
-          deps,
-          config.func
-        )
-      end
-    end,
-    condition = {
-      callback = config.cond,
-      dir = fn.get_workspace_dir(),
-      filetype = config.filetype,
-    },
-    params = {
-      args = {
-        delimiter = ',',
-        desc = "Task arguments",
-        optional = true,
-        subtype = { type = 'string' },
-        type = 'list',
+        if not config.func then
+          return {
+            args = args,
+            cmd = { config.cmd },
+            components = deps,
+            cwd = config.cwd,
+            env = config.env,
+            name = name,
+          }
+        else
+          return vim_task_def(
+            name,
+            args,
+            config.cwd,
+            deps,
+            config.func
+          )
+        end
+      end,
+      condition = {
+        callback = config.cond,
+        dir = fn.get_workspace_dir(),
+        filetype = config.filetype,
       },
-    },
-    priority = config.priority,
-  }
+      params = {
+        args = {
+          delimiter = ',',
+          desc = "Task arguments",
+          optional = true,
+          subtype = { type = 'string' },
+          type = 'list',
+        },
+      },
+      priority = config.priority,
+    }
+  end
 end
 
 function fn.has_task(name)
+  local is_ok, overseer_template = pcall(require, 'overseer.template')
+  if not is_ok then
+    return false
+  end
   local task_def
-  require'overseer.template'.get_by_name(
+  overseer_template.get_by_name(
     name,
     { dir = fn.get_workspace_dir() },
     function(def)
@@ -411,10 +418,13 @@ function fn.has_task(name)
 end
 
 function fn.run_task(name, args)
-  require'overseer'.run_template {
-    name = name,
-    params = { args = args },
-  }
+  local is_ok, overseer = pcall(require, 'overseer')
+  if is_ok then
+    overseer.run_template {
+      name = name,
+      params = { args = args },
+    }
+  end
 end
 --}}}
 --{{{ Debugging

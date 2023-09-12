@@ -165,9 +165,13 @@ end
 local function mode_label()
   return {
     init = function(self)
-      self.task_count = #require'overseer.task_list'.list_tasks {
-        status = require'overseer'.STATUS.RUNNING,
-      }
+      self.task_count = 0
+      local is_ok, overseer_task_list = pcall(require, 'overseer.task_list')
+      if is_ok then
+        self.task_count = #overseer_task_list.list_tasks {
+          status = require'overseer'.STATUS.RUNNING,
+        }
+      end
     end,
     {
       hl = { fg = 'task_running', bold = true },
