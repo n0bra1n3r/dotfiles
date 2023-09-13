@@ -769,6 +769,9 @@ end
 
 local function bookmark_btn()
   return {
+    condition = function()
+      return fn.is_file_buffer()
+    end,
     init = function(self)
       self.buf = vim.api.nvim_get_current_buf()
     end,
