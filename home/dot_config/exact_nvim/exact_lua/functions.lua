@@ -82,6 +82,10 @@ function fn.refresh_git_info(tabpageOrPath)
     local dir = run_git_command(tabpageOrPath, "rev-parse --show-toplevel")
     set_git_info(tabpageOrPath, { dir = dir })
     fn.refresh_git_diff_info(tabpageOrPath)
+    local is_ok, gitsigns = pcall(require, 'gitsigns.actions')
+    if is_ok then
+      gitsigns.refresh()
+    end
   else
     set_git_info(tabpageOrPath, nil)
   end
