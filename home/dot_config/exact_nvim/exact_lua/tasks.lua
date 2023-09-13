@@ -1,5 +1,5 @@
 my_tasks {
-  ["Debug continue"] = {
+  ["Debug continue 1"] = {
     cond = function()
       return vim.g.project_type == 'flutter'
     end,

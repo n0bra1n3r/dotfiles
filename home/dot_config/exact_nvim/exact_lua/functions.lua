@@ -540,9 +540,13 @@ end
 
 function fn.get_debug_callback(action)
   return function()
-    local task_name = 'Debug '..action
-    if fn.has_task(task_name) then
-      fn.run_task(task_name)
+    local action_name = action:gsub('_', ' ')
+    local task_name_1 = ('Debug %s'):format(action_name)
+    local task_name_2 = ('Debug %s %s'):format(action_name, debug_info.state)
+    if fn.has_task(task_name_1) then
+      fn.run_task(task_name_1)
+    elseif fn.has_task(task_name_2) then
+      fn.run_task(task_name_2)
     else
       require'dap'[action]()
     end
