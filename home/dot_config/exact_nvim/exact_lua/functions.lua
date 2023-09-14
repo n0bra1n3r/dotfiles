@@ -54,8 +54,9 @@ function fn.refresh_git_diff_info(tabpageOrPath)
     local has_remote = vim.v.shell_error == 0
     set_git_info(tabpageOrPath, { has_remote = has_remote })
     local stash_cmd = 'rev-list --walk-reflogs --count refs/stash'
+    local stash_count = tonumber(run_git_command(tabpageOrPath, stash_cmd))
     set_git_info(tabpageOrPath, {
-      stash_count = tonumber(run_git_command(tabpageOrPath, stash_cmd)),
+      stash_count = vim.v.shell_error == 0 and stash_count or 0,
     })
     if has_remote then
       local count_cmd = ('rev-list --left-right --count %s@{upstream}...%s'):format(branch, branch)
