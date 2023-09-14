@@ -47,6 +47,8 @@ local function colors()
     background = hl'TabLine'.bg,
     bookmark = hl'TabLine'.fg,
     bookmark_key = hl'Comment'.fg,
+    bookmark_btn = hl'WinBar'.fg,
+    bookmark_btn_inactive = hl'Comment'.fg,
     border = hl'TabLine'.bg,
     buffer = hl'Title'.fg,
     buffer_inactive = hl'Comment'.fg,
@@ -595,6 +597,46 @@ end
 --}}}
 
 --{{{ Winbar
+local function bookmark_btn()
+  return {
+    hl = function()
+      local fg = 'bookmark_btn'
+      if not require'heirline.conditions'.is_active() then
+        fg = 'bookmark_btn_inactive'
+      end
+      return { fg = fg }
+    end,
+    init = function(self)
+      self.buf = vim.api.nvim_get_current_buf()
+    end,
+    on_click = {
+      callback = function(_, minwid)
+        local tags = require'grapple'.tags()
+        vim.fn.sort(tags, function(a, b) return a.key - b.key end)
+        local key
+        for i, tag in ipairs(tags) do
+          if i ~= tag.key then
+            key = i
+            break
+          end
+        end
+        require'grapple'.toggle{ buffer = minwid, key = key }
+        refresh_bookmark_list()
+      end,
+      minwid = function()
+        return vim.api.nvim_get_current_buf()
+      end,
+      name = function(self)
+        return 'bookmark_tag_callback'..self.buf
+      end,
+    },
+    provider = function(self)
+      return require'grapple'.exists{ buffer = self.buf }
+        and '󰃀' or '󰃃'
+    end,
+  }
+end
+
 local function header_icon()
   return {
     hl = function(self)
@@ -644,20 +686,17 @@ end
 
 local function header_close_btn()
   return {
-    sep'',
-    {
-      hl = { fg = 'close_btn' },
-      on_click = {
-        callback = function(_, minwid)
-          vim.api.nvim_win_close(minwid, false)
-        end,
-        minwid = function()
-          return vim.api.nvim_get_current_win()
-        end,
-        name = 'window_close_callback',
-      },
-      provider = '󰅖',
+    hl = { fg = 'close_btn' },
+    on_click = {
+      callback = function(_, minwid)
+        vim.api.nvim_win_close(minwid, false)
+      end,
+      minwid = function()
+        return vim.api.nvim_get_current_win()
+      end,
+      name = 'window_close_callback',
     },
+    provider = '󰅖',
   }
 end
 
@@ -671,10 +710,19 @@ local function header()
     border'',
     {
       hl = { bg = 'background' },
+      {
+        condition = function()
+          return fn.is_file_buffer()
+        end,
+        bookmark_btn(),
+        sep'',
+        space(),
+      },
       header_icon(),
       space(),
       header_label(),
       space(),
+      sep'',
       header_close_btn(),
     },
     border'',
@@ -766,54 +814,6 @@ local function diagnostics_bar()
     border'',
   }
 end
-
-local function bookmark_btn()
-  return {
-    condition = function()
-      return fn.is_file_buffer()
-    end,
-    init = function(self)
-      self.buf = vim.api.nvim_get_current_buf()
-    end,
-    border'',
-    {
-      hl = { bg = 'background' },
-      on_click = {
-        callback = function(_, minwid)
-          local tags = require'grapple'.tags()
-          vim.fn.sort(tags, function(a, b) return a.key - b.key end)
-          local key
-          for i, tag in ipairs(tags) do
-            if i ~= tag.key then
-              key = i
-              break
-            end
-          end
-          require'grapple'.toggle{ buffer = minwid, key = key }
-          refresh_bookmark_list()
-        end,
-        minwid = function()
-          return vim.api.nvim_get_current_buf()
-        end,
-        name = function(self)
-          return 'bookmark_tag_callback'..self.buf
-        end,
-      },
-      {
-        hl = function()
-          return require'heirline.conditions'.is_active()
-            and 'WinBar'
-            or 'Comment'
-        end,
-        provider = function(self)
-          return require'grapple'.exists{ buffer = self.buf }
-            and '󰃀' or '󰃃'
-        end,
-      },
-    },
-    border'',
-  }
-end
 --}}}
 
 function plug.config()
@@ -860,8 +860,6 @@ function plug.config()
       header(),
       space(),
       diagnostics_bar(),
-      space(math.huge),
-      bookmark_btn(),
     },
   }
 
