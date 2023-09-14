@@ -46,32 +46,31 @@ local function colors()
   return {
     background = hl'TabLine'.bg,
     bookmark = hl'TabLine'.fg,
-    bookmark_key = hl'Comment'.fg,
-    bookmark_btn = hl'WinBar'.fg,
-    bookmark_btn_inactive = hl'Comment'.fg,
+    bookmark_key = hl'FoldColumn'.fg,
+    bookmark_btn = hl'FoldColumn'.fg,
     border = hl'TabLine'.bg,
     buffer = hl'Title'.fg,
-    buffer_inactive = hl'Comment'.fg,
+    buffer_inactive = hl'FoldColumn'.fg,
     buffer_modified = hl'String'.fg,
-    close_btn = hl'Comment'.fg,
+    close_btn = hl'FoldColumn'.fg,
     default = hl'Normal'.bg,
-    diagnostic_inactive = hl'Comment'.fg,
+    diagnostic_inactive = hl'FoldColumn'.fg,
     diagnostic_Error = hl'DiagnosticError'.fg,
     diagnostic_Hint = hl'DiagnosticHint'.fg,
     diagnostic_Info = hl'DiagnosticInfo'.fg,
     diagnostic_Warn = hl'DiagnosticWarn'.fg,
     keymap = hl'TabLine'.fg,
-    git_branch = hl'Comment'.fg,
-    git_branch_synced = hl'String'.fg,
+    git_branch = hl'FoldColumn'.fg,
+    git_branch_synced = hl'WinBar'.fg,
     git_local = hl'DiagnosticHint'.fg,
     git_remote = hl'DiagnosticWarn'.fg,
     git_stash = hl'DiagnosticInfo'.fg,
-    location = hl'String'.fg,
+    location = hl'WinBar'.fg,
     separator = hl'Normal'.bg,
-    tab = hl'Directory'.fg,
-    tab_inactive = hl'Comment'.fg,
-    task_running = hl'String'.fg,
-    window_btn = hl'Comment'.fg,
+    tab = hl'Title'.fg,
+    tab_inactive = hl'FoldColumn'.fg,
+    task_running = hl'WinBar'.fg,
+    window_btn = hl'FoldColumn'.fg,
     workspace = hl'Title'.fg,
   }
 end
@@ -600,13 +599,7 @@ end
 --{{{ Winbar
 local function bookmark_btn()
   return {
-    hl = function()
-      local fg = 'bookmark_btn'
-      if not require'heirline.conditions'.is_active() then
-        fg = 'bookmark_btn_inactive'
-      end
-      return { fg = fg }
-    end,
+    hl = { fg = 'bookmark_btn' },
     init = function(self)
       self.buf = vim.api.nvim_get_current_buf()
     end,
