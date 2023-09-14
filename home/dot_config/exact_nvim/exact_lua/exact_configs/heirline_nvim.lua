@@ -71,6 +71,7 @@ local function colors()
     tab = hl'Directory'.fg,
     tab_inactive = hl'Comment'.fg,
     task_running = hl'String'.fg,
+    window_btn = hl'Comment'.fg,
     workspace = hl'Title'.fg,
   }
 end
@@ -814,6 +815,45 @@ local function diagnostics_bar()
     border'',
   }
 end
+
+local function window_bar()
+  return {
+    border'',
+    {
+      hl = { bg = 'background' },
+      {
+        on_click = {
+          callback = function(_, minwid)
+            vim.fn.win_execute(minwid, [[split]])
+          end,
+          name = 'window_split_callback',
+          minwid = function()
+            return vim.fn.win_getid()
+          end,
+        },
+        hl = { fg = 'window_btn' },
+        provider = '󱋰',
+      },
+      space(),
+      sep'│',
+      space(),
+      {
+        on_click = {
+          callback = function(_, minwid)
+            vim.fn.win_execute(minwid, [[vsplit]])
+          end,
+          name = 'window_vsplit_callback',
+          minwid = function()
+            return vim.fn.win_getid()
+          end,
+        },
+        hl = { fg = 'window_btn' },
+        provider = '󱋱',
+      },
+    },
+    border'',
+  }
+end
 --}}}
 
 function plug.config()
@@ -860,6 +900,8 @@ function plug.config()
       header(),
       space(),
       diagnostics_bar(),
+      space(math.huge),
+      window_bar(),
     },
   }
 
