@@ -654,7 +654,7 @@ local function header_icon()
       if vim.bo.readonly then return '󰈈' end
       return vim.bo.modified and '' or self.icon
     end,
-    update = { 'BufEnter', 'BufModifiedSet', 'TermLeave' },
+    update = { 'BufEnter', 'BufNew', 'BufModifiedSet', 'TermLeave' },
   }
 end
 
@@ -673,7 +673,7 @@ local function header_label()
         local filename = vim.fn.fnamemodify(self.filename, ':~:.')
         return #filename == 0 and '[No Name]' or filename
       end,
-      update = { 'BufEnter', 'BufModifiedSet', 'TermLeave' },
+      update = { 'BufEnter', 'BufNew', 'BufModifiedSet', 'TermLeave' },
     },
   }
 end
