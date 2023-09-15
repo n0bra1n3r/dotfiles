@@ -87,6 +87,11 @@ else
     ;;
   esac
 
+  if [[ $BRANCH =~ ^[^-.\ /[:alnum:]]+$ ]]; then
+    echo "$ERROR_MSG: invalid parameter '$BRANCH'" >&2
+    return 1
+  fi
+
   push_workspace "$THIS_BRANCH"
 
   if [[ -z "$WORKSPACE_ROOT_DIR" ]]; then
@@ -197,7 +202,7 @@ else
       case "$OPERATION" in
       "clean")
         eval BRANCH="\${$i}"
-        if [[ "$BRANCH" != "+" && "$BRANCH" != "*" ]]; then # ignore branch markers from `git branch`
+        if [[ $BRANCH =~ ^[-.\ /[:alnum:]]+$ ]]; then
           if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null; then
             echo "$INFO_MSG: can't remove branch '$BRANCH'" >&2
           else
