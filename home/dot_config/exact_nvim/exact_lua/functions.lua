@@ -83,10 +83,11 @@ function fn.refresh_git_info(tabpageOrPath)
     local dir = run_git_command(tabpageOrPath, "rev-parse --show-toplevel")
     set_git_info(tabpageOrPath, { dir = dir })
     fn.refresh_git_diff_info(tabpageOrPath)
-    local is_ok, gitsigns = pcall(require, 'gitsigns.actions')
-    if is_ok then
-      fn.vim_defer(gitsigns.refresh)()
-    end
+    fn.vim_defer(function()
+      for _, win in ipairs(vim.api.nvim_list_wins()) do
+        vim.fn.win_execute(win, [[edit]])
+      end
+    end)
   else
     set_git_info(tabpageOrPath, nil)
   end
