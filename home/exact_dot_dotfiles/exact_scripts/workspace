@@ -196,27 +196,27 @@ else
     for (( i=1; i <= $#; i++ )); do
       case "$OPERATION" in
       "clean")
-        if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null; then
-          echo "$INFO_MSG: can't remove branch '$BRANCH'" >&2
-        else
-          echo -n "Clean up workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'? [Y/n] "
-          read -r DO_CLEAN_WORKSPACE
-          if [[ -n "${DO_CLEAN_WORKSPACE#[Yy]}" ]]; then
-            break
+        eval BRANCH="\${$i}"
+        if [[ "$BRANCH" != "+" && "$BRANCH" != "*" ]]; then # ignore branch markers from `git branch`
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null; then
+            echo "$INFO_MSG: can't remove branch '$BRANCH'" >&2
+          else
+            echo -n "Clean up workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'? [Y/n] "
+            read -r DO_CLEAN_WORKSPACE
+            if [[ -z "${DO_CLEAN_WORKSPACE#[Yy]}" ]]; then
+              cd "$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH" >/dev/null || return 1
+              rm -rf "$WORKSPACE_ROOT_DIR/${BRANCH:?}"
+              git worktree prune
+              git branch --delete "$BRANCH" >/dev/null
+              echo "$INFO_MSG: removed workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'" >&2
+            fi
           fi
-          cd "$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH" >/dev/null || return 1
-          rm -rf "$WORKSPACE_ROOT_DIR/${BRANCH:?}"
-          git worktree prune
-          git branch --delete "$BRANCH" >/dev/null
-          echo "$INFO_MSG: removed workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'" >&2
         fi
         [[ $i == 1 ]] && return 0
-        eval BRANCH="\${$i}"
         ;;
       "--")
         OPERATION="$1"
         shift
-        BRANCH="$2"
         ;;
       *)
         echo "$ERROR_MSG: unknown operation '$OPERATION'"
