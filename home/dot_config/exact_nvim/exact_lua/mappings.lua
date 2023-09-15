@@ -33,10 +33,6 @@ local function search_and_replace()
   require'search'.prompt()
 end
 
-local function search_and_replace_selection()
-  require'search'.prompt([[]], vim.fn.expand[[<cword>]])
-end
-
 local function show_buffer_list()
   require'telescope.builtin'.loclist { prompt_title = "Window Buffers" }
 end
@@ -191,7 +187,7 @@ my_mappings {
     ["<leader>ad"]      = { "<cmd>ChatGPTRun docstring<CR>", desc = "Generate docstring" },
     ["<leader>at"]      = { "<cmd>ChatGPTRun add_tests<CR>", desc = "Generate tests" },
     ["<leader>go"]      = { open_file_in_github, desc = "Open in Github" },
-    ["<leader>s"]       = { search_and_replace_selection, desc = "Search & replace" },
+    ["<leader>s"]       = { ":<C-u>call v:lua.require('search').prompt('', v:lua.fn.get_visual_selection())<CR>", desc = "Search & replace" },
     ["<S-Tab>"]         = { "<gv" },
     ["<Tab>"]           = { ">gv" },
     c                   = { '"_c' },
