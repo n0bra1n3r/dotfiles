@@ -85,7 +85,7 @@ function fn.refresh_git_info(tabpageOrPath)
     fn.refresh_git_diff_info(tabpageOrPath)
     local is_ok, gitsigns = pcall(require, 'gitsigns.actions')
     if is_ok then
-      pcall(gitsigns.refresh)
+      fn.vim_defer(gitsigns.refresh)()
     end
   else
     set_git_info(tabpageOrPath, nil)
