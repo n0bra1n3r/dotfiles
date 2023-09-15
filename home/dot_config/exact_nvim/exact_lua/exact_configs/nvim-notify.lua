@@ -101,7 +101,8 @@ function plug.config()
     end
 
     if not dismissed_notifs[opts.replace and opts.replace.id] then
-      return require'notify'(lines, notify_level[level], opts)
+      local _, res = pcall(require'notify', lines, notify_level[level], opts)
+      return res
     end
   end
 end
