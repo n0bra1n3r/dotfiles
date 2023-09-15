@@ -654,6 +654,7 @@ local function header_icon()
       if vim.bo.readonly then return '󰈈' end
       return vim.bo.modified and '' or self.icon
     end,
+    update = { 'BufEnter', 'BufModifiedSet', 'TermLeave' },
   }
 end
 
@@ -668,12 +669,11 @@ local function header_label()
         end
         return { fg = fg, bold = is_active, italic = is_active }
       end,
-      {
-        provider = function(self)
-          local filename = vim.fn.fnamemodify(self.filename, ':~:.')
-          return #filename == 0 and '[No Name]' or filename
-        end,
-      },
+      provider = function(self)
+        local filename = vim.fn.fnamemodify(self.filename, ':~:.')
+        return #filename == 0 and '[No Name]' or filename
+      end,
+      update = { 'BufEnter', 'BufModifiedSet', 'TermLeave' },
     },
   }
 end
@@ -700,7 +700,6 @@ local function header()
       self.filename = vim.api.nvim_buf_get_name(0)
       self.win = vim.api.nvim_get_current_win()
     end,
-    update = { 'BufEnter', 'BufModifiedSet' },
     border'',
     {
       hl = { bg = 'background' },
@@ -799,7 +798,7 @@ local function diagnostics_bar()
       init = function(self)
         self.child_index = { value = 0 }
       end,
-      update = { 'DiagnosticChanged', 'BufEnter' },
+      update = { 'BufEnter', 'DiagnosticChanged', 'TermLeave' },
       diagnostic_label(s.ERROR),
       diagnostic_label(s.WARN),
       diagnostic_label(s.INFO),
