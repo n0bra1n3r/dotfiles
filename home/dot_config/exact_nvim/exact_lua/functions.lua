@@ -293,22 +293,29 @@ function fn.open_explorer()
   end
 end
 
-function fn.open_file_folder()
+function fn.open_folder(path)
   local shellslash
-  if vim.fn.has("win32") == 1 then
+  if vim.fn.has('win32') == 1 then
     shellslash = vim.o.shellslash
     vim.o.shellslash = false
+    path = path and path:gsub('/', '\\')
   end
-  local folder = vim.fn.expand"%:p:h"
-  if vim.fn.has("win32") == 1 then
+  local folder = path or vim.fn.getcwd()
+  if vim.fn.has('win32') == 1 then
     vim.o.shellslash = shellslash
   end
-  local job = require'plenary.job':new {
+  require'plenary.job':new{
     args = { folder },
-    command = vim.fn.has("win32") == 1 and "explorer" or "open",
+    command = vim.fn.has('win32') == 1 and 'explorer' or 'open',
     detached = true,
-  }
-  job:start()
+  }:start()
+end
+
+function fn.open_file_folder(path)
+  local folder = path
+    and vim.fn.fnamemodify(path, ':p:h')
+    or vim.fn.expand'%:p:h'
+  fn.open_folder(folder)
 end
 --}}}
 --{{{ Tasks

@@ -266,6 +266,13 @@ local function workspace_label()
       space(),
       {
         hl = { fg = 'workspace', bold = true },
+        on_click = {
+          callback = function(self)
+            local root = fn.get_git_worktree_root(self.cwd)
+            fn.open_folder(root)
+          end,
+          name = 'workspace_click_callback',
+        },
         provider = function(self)
           local root = fn.get_git_worktree_root(self.cwd)
           return vim.fn.fnamemodify(root, ':~:.')
