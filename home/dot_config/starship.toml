@@ -2,6 +2,9 @@
 
 palette = "catppuccin_frappe"
 
+[cmd_duration]
+  disabled = true
+
 [nim]
   symbol = '󰆥 '
 
