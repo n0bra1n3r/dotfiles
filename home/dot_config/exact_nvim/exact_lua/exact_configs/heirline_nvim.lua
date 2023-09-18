@@ -810,6 +810,9 @@ end
 
 local function window_bar()
   return {
+    condition = function()
+      return fn.is_file_buffer()
+    end,
     border'',
     {
       hl = { bg = 'background' },
