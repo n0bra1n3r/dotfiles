@@ -13,6 +13,7 @@ function plug.config()
       b = { name = "Bookmarks" },
       f = { name = "File" },
       g = { name = "Git" },
+      i = { name = "Issues" },
       p = { name = "Packages" },
     },
   }, { mode = "n" })
