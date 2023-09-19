@@ -225,8 +225,10 @@ function gc() {
         git cm "$prefix: $message"
       fi
     fi
-  else
+  elif [[ -n "$tick" ]]; then
     git cm "chore($tick): " -e
+  else
+    git cm "chore: " -e
   fi
 }
 
