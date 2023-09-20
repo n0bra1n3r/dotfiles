@@ -810,16 +810,16 @@ end
 
 local function window_bar()
   return {
-    condition = function()
-      return fn.is_file_buffer()
-    end,
     border'',
     {
       hl = { bg = 'background' },
       {
         on_click = {
           callback = function(_, minwid)
-            vim.fn.win_execute(minwid, [[split]])
+            local cmd = fn.is_file_buffer()
+              and [[split]]
+              or [[new]]
+            vim.fn.win_execute(minwid, cmd)
           end,
           name = 'window_split_callback',
           minwid = function()
@@ -835,7 +835,10 @@ local function window_bar()
       {
         on_click = {
           callback = function(_, minwid)
-            vim.fn.win_execute(minwid, [[vsplit]])
+            local cmd = fn.is_file_buffer()
+              and [[vsplit]]
+              or [[vnew]]
+            vim.fn.win_execute(minwid, cmd)
           end,
           name = 'window_vsplit_callback',
           minwid = function()
