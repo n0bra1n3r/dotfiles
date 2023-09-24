@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # chezmoi:template:left-delimiter="#{" right-delimiter="}#"
 
+if [[ -n "$_ENVRC_SOURCED" ]]; then
+  return
+fi
+
+export _ENVRC_SOURCED=1
+
 if [ -n "$ZSH_VERSION" ]; then
   setopt +o nomatch
 else
