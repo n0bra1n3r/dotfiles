@@ -128,19 +128,6 @@ else
   }
 fi
 
-function git_ticket() {
-  local branch
-  branch="$(git branch --show-current)"
-  if [[ -z "$branch" ]]; then
-    printf ''
-  else
-    printf '%s' "$branch" | \
-      grep -Eo '^(\w+/)?(\w+[-_])?[0-9]+' | \
-      grep -Eo '(\w+[-])?[0-9]+' | \
-      tr "[:lower:]" "[:upper:]"
-  fi
-}
-
 # General aliases
 
 alias c='cd'
@@ -183,55 +170,7 @@ function ga() {
 }
 
 alias gb='git branch'
-
-function gc() {
-  local tick
-  local type
-  tick="$(git_ticket)"
-  type="$1"
-
-  if [[ -n "$type" ]]; then
-    local bad_type=false
-    case "$1" in
-    b|bu|bui|buil|build) type="build" ;;
-    ch|cho|chor|chore) type="chore" ;;
-    ci) type="ci" ;;
-    d|do|doc|docs) type="docs" ;;
-    fe|fea|feat) type="feat" ;;
-    fi|fix) type="fix" ;;
-    p|pe|per|perf) type="perf" ;;
-    ref|refa|refac|refact|refacto|refactor) type="refactor" ;;
-    rev|reve|rever|revert) type="revert" ;;
-    s|st|sty|styl|style) type="style" ;;
-    t|te|tes|test) type="test" ;;
-    *) bad_type=true ;;
-    esac
-    shift
-
-    local message="$*"
-
-    if [[ $bad_type == true ]]; then
-      git cm "$type $message" || return $?
-      if [[ -n "$tick" ]]; then
-        local info_msg="\n* types: build chore docs feat fix perf refactor revert style test"
-        echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m unknown commit type '$type'$info_msg\e[0m"
-      fi
-    else
-      local prefix="$type($tick)"
-
-      if [[ -z "$tick" || "$type" == "$prefix" ]]; then
-        git cm "$type: $message"
-      else
-        git cm "$prefix: $message"
-      fi
-    fi
-  elif [[ -n "$tick" ]]; then
-    git cm "chore($tick): " -e
-  else
-    git cm "chore: " -e
-  fi
-}
-
+alias gc='git-commit-message'
 alias gl='tig'
 alias go='git cf'
 alias gp='git pu'

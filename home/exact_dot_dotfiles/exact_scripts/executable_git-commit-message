@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+set -e
+
+TYPE="$1"
+BRANCH="$(git branch --show-current)"
+
+TICK=""
+if [[ -n "$BRANCH" ]]; then
+  TICK="$(printf '%s' "$BRANCH" | \
+    grep -Eo '^(\w+/)?(\w+[-_])?[0-9]+' | \
+    grep -Eo '(\w+[-])?[0-9]+' | \
+    tr "[:lower:]" "[:upper:]")"
+fi
+
+if [[ -n "$TYPE" ]]; then
+  BAD_TYPE=false
+  case "$1" in
+  b|bu|bui|buil|build) TYPE="build" ;;
+  ch|cho|chor|chore) TYPE="chore" ;;
+  ci) TYPE="ci" ;;
+  d|do|doc|docs) TYPE="docs" ;;
+  fe|fea|feat) TYPE="feat" ;;
+  fi|fix) TYPE="fix" ;;
+  p|pe|per|perf) TYPE="perf" ;;
+  ref|refa|refac|refact|refacto|refactor) TYPE="refactor" ;;
+  rev|reve|rever|revert) TYPE="revert" ;;
+  s|st|sty|styl|style) TYPE="style" ;;
+  t|te|tes|test) TYPE="test" ;;
+  *) BAD_TYPE=true ;;
+  esac
+  shift
+
+  MESSAGE="$*"
+
+  if [[ $BAD_TYPE == true ]]; then
+    git cm "$TYPE $MESSAGE" || return $?
+    if [[ -n "$TICK" ]]; then
+      INFO_MSG="\n* types: build chore docs feat fix perf refactor revert style test"
+      echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m unknown commit type '$TYPE'$INFO_MSG\e[0m"
+    fi
+  else
+    PREFIX="$TYPE($TICK)"
+
+    if [[ -z "$TICK" || "$TYPE" == "$PREFIX" ]]; then
+      git cm "$TYPE: $MESSAGE"
+    else
+      git cm "$PREFIX: $MESSAGE"
+    fi
+  fi
+elif [[ -n "$TICK" ]]; then
+  git cm "chore($TICK): " -e
+else
+  git cm "chore: " -e
+fi
