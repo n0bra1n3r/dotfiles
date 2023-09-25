@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
-set -e
+function __git-commit-message_main__() {
 
-TYPE="$1"
+local TYPE="$1"
+local TICK=""
+local BRANCH
+
 BRANCH="$(git branch --show-current)"
 
-TICK=""
 if [[ -n "$BRANCH" ]]; then
   TICK="$(printf '%s' "$BRANCH" | \
     grep -Eo '^(\w+/)?(\w+[-_])?[0-9]+' | \
@@ -14,7 +16,7 @@ if [[ -n "$BRANCH" ]]; then
 fi
 
 if [[ -n "$TYPE" ]]; then
-  BAD_TYPE=false
+  local BAD_TYPE=false
   case "$1" in
   b|bu|bui|buil|build) TYPE="build" ;;
   ch|cho|chor|chore) TYPE="chore" ;;
@@ -31,16 +33,16 @@ if [[ -n "$TYPE" ]]; then
   esac
   shift
 
-  MESSAGE="$*"
+  local MESSAGE="$*"
 
   if [[ $BAD_TYPE == true ]]; then
     git cm "$TYPE $MESSAGE" || return $?
     if [[ -n "$TICK" ]]; then
-      INFO_MSG="\n* types: build chore docs feat fix perf refactor revert style test"
+      local INFO_MSG="\n* types: build chore docs feat fix perf refactor revert style test"
       echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m unknown commit type '$TYPE'$INFO_MSG\e[0m"
     fi
   else
-    PREFIX="$TYPE($TICK)"
+    local PREFIX="$TYPE($TICK)"
 
     if [[ -z "$TICK" || "$TYPE" == "$PREFIX" ]]; then
       git cm "$TYPE: $MESSAGE"
@@ -53,3 +55,7 @@ elif [[ -n "$TICK" ]]; then
 else
   git cm "chore: " -e
 fi
+
+}
+
+__git-commit-message_main__ "$@"
