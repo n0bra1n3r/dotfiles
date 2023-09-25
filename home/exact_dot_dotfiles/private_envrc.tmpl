@@ -7,8 +7,8 @@ fi
 
 export _ENVRC_SOURCED=1
 
-if [ -n "$ZSH_VERSION" ]; then
-  setopt +o nomatch
+if [[ -n "$ZSH_VERSION" ]]; then
+  setopt null_glob
 else
   shopt -u nullglob
 fi
