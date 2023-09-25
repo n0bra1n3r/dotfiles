@@ -111,11 +111,11 @@
   type = "archive"
   stripComponents = 1
 
-{{ template "dep" "gh/.local/bin" }}
+{{ template "dep" "gh/.local" }}
   {{- if $isWindows }}
-  url = "https://github.com/cli/cli/releases/download/v2.32.1/gh_2.32.1_windows_amd64.zip"
+  url = "https://github.com/cli/cli/releases/download/v2.35.0/gh_2.35.0_windows_amd64.zip"
   {{- else if $isDarwin }}
-  url = "https://github.com/cli/cli/releases/download/v2.32.1/gh_2.32.1_macOS_arm64.zip"
+  url = "https://github.com/cli/cli/releases/download/v2.35.0/gh_2.35.0_macOS_arm64.zip"
   {{- end }}
   exact = true
   type = "archive"
