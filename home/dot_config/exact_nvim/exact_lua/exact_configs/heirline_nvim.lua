@@ -206,51 +206,62 @@ end
 
 local function git_repo_status()
   return {
-    hl = function(self)
-      local hl = fn.has_git_remote(self.cwd)
-        and 'git_branch_synced'
-        or 'git_branch'
-      return { fg = hl, italic = true }
+    init = function(self)
+      self.cwd = fn.get_tab_cwd()
     end,
-    provider = function(self)
-      local icon = fn.has_git_remote(self.cwd) and '󱓎' or '󰘬'
-      return icon..' '..fn.get_git_branch(self.cwd)
-    end,
-  },
-  {
-    condition = function(self)
-      return fn.git_stash_count(self.cwd) > 0
-    end,
-    space(),
+    on_click = {
+      callback = function(self)
+        fn.open_git_repo(self.cwd)
+      end,
+      name = 'repo_click_callback',
+    },
     {
-      hl = { fg = 'git_stash' },
+      hl = function(self)
+        local hl = fn.has_git_remote(self.cwd)
+          and 'git_branch_synced'
+          or 'git_branch'
+        return { fg = hl, italic = true }
+      end,
       provider = function(self)
-        return '󰇙'..fn.git_stash_count(self.cwd)
+        local icon = fn.has_git_remote(self.cwd) and '󱓎' or '󰘬'
+        return icon..' '..fn.get_git_branch(self.cwd)
       end,
     },
-  },
-  {
-    condition = function(self)
-      return fn.git_remote_change_count(self.cwd) > 0
-    end,
-    space(),
     {
-      hl = { fg = 'git_remote' },
-      provider = function(self)
-        return ''..fn.git_remote_change_count(self.cwd)
+      condition = function(self)
+        return fn.git_stash_count(self.cwd) > 0
       end,
+      space(),
+      {
+        hl = { fg = 'git_stash' },
+        provider = function(self)
+          return '󰇙'..fn.git_stash_count(self.cwd)
+        end,
+      },
     },
-  },
-  {
-    condition = function(self)
-      return fn.git_local_change_count(self.cwd) > 0
-    end,
-    space(),
     {
-      hl = { fg = 'git_local' },
-      provider = function(self)
-        return ''..fn.git_local_change_count(self.cwd)
+      condition = function(self)
+        return fn.git_remote_change_count(self.cwd) > 0
       end,
+      space(),
+      {
+        hl = { fg = 'git_remote' },
+        provider = function(self)
+          return ''..fn.git_remote_change_count(self.cwd)
+        end,
+      },
+    },
+    {
+      condition = function(self)
+        return fn.git_local_change_count(self.cwd) > 0
+      end,
+      space(),
+      {
+        hl = { fg = 'git_local' },
+        provider = function(self)
+          return ''..fn.git_local_change_count(self.cwd)
+        end,
+      },
     },
   }
 end

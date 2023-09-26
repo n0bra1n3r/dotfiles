@@ -143,24 +143,66 @@ function fn.get_git_worktree_root(tabpageOrPath)
 end
 
 function fn.open_in_github(path)
-  local remote = run_git_command(path, "remote get-url origin")
-  local repo_path = remote:sub(1, 4) == "http"
+  local remote = run_git_command(path, 'remote get-url origin')
+  local repo_path = remote:sub(1, 4) == 'http'
     and remote:match[[com/(.*)%.]]
     or remote:match[[com:(.*)%.]]
   local file_path = path or vim.api.nvim_buf_get_name(0)
   local info = get_git_info(file_path)
-  file_path = vim.fn.substitute(file_path, info.dir.."/", "", "")
-  local url = ("https://github.com/%s/blob/%s/%s")
+  file_path = vim.fn.substitute(file_path, info.dir..'/', '', '')
+  local url = ('https://github.com/%s/blob/%s/%s')
     :format(repo_path, info.branch, file_path)
-  if not path and vim.fn.mode() == "V" then
-    url = url.."#L"..vim.api.nvim_win_get_cursor(0)[1]
+  if not path and vim.fn.mode() == 'V' then
+    url = url..'#L'..vim.api.nvim_win_get_cursor(0)[1]
   end
-  local job = require'plenary.job':new {
+  require'plenary.job':new{
     args = { url },
-    command = vim.fn.has("win32") == 1 and "explorer" or "open",
+    command = vim.fn.has('win32') == 1 and 'explorer' or 'open',
     detached = true,
-  }
-  job:start()
+  }:start()
+end
+
+function fn.open_git_repo(path)
+  if fn.has_git_remote(path) then
+    local remote = run_git_command(path, 'remote get-url origin')
+    local repo_path = remote:sub(1, 4) == 'http'
+      and remote:match[[com/(.*)%.]]
+      or remote:match[[com:(.*)%.]]
+    local file_path = path or vim.api.nvim_buf_get_name(0)
+    local info = get_git_info(file_path)
+    require'plenary.job':new{
+      args = {
+        'pr',
+        'view',
+        '--web',
+        '--repo',
+        repo_path,
+        info.branch,
+      },
+      command = vim.fn.expand[[~/.dotfiles/deps/gh/.local/bin/gh]],
+      detached = true,
+      on_exit = function(_, return_val)
+        if return_val ~= 0 then
+          fn.vim_defer(function()
+            require'plenary.job':new{
+              args = {
+                'repo',
+                'view',
+                repo_path,
+                '--web',
+                '--branch',
+                info.branch,
+              },
+              command = vim.fn.expand[[~/.dotfiles/deps/gh/.local/bin/gh]],
+              detached = true,
+            }:start()
+          end)()
+        end
+      end,
+    }:start()
+  else
+    fn.open_file_folder(path)
+  end
 end
 --}}}
 --{{{ Files

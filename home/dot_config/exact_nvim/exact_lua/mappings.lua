@@ -119,6 +119,7 @@ my_mappings {
     ["<leader>fo"]      = { fn.open_file_folder, desc = "Open folder" },
     ["<leader>gb"]      = { "<cmd>Gitsigns blame_line<CR>", desc = "Blame" },
     ["<leader>gc"]      = { show_commits, desc = "Commits" },
+    ["<leader>gg"]      = { fn.open_git_repo, desc = "Open repo" },
     ["<leader>gN"]      = { "<cmd>Gitsigns prev_hunk<CR>", desc = "Prev hunk" },
     ["<leader>gn"]      = { "<cmd>Gitsigns next_hunk<CR>", desc = "Next hunk" },
     ["<leader>gp"]      = { "<cmd>Gitsigns preview_hunk<CR>", desc = "Preview hunk" },
