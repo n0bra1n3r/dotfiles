@@ -205,6 +205,7 @@ my_autocmds {
             silent = true,
           })
         end
+        fn.load_vscode_launch_json()
       end
     end,
   }, --}}}
