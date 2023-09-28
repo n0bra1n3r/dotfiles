@@ -26,6 +26,11 @@ my_autocmds {
       vim.cmd[[checktime]]
     end,
   }, --}}}
+  { "BufEnter", pattern = "*.arb", --{{{
+    callback = function()
+      vim.bo.filetype = "json"
+    end,
+  }, --}}}
   { "BufEnter", pattern = "fastlane/*", --{{{
     callback = function()
       vim.bo.filetype = "ruby"
