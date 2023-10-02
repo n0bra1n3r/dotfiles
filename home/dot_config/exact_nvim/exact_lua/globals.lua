@@ -2,12 +2,14 @@
 
 my_globals {
   grapple_testing = true, -- needed to avoid error on Windows
-  mapleader = " ",
+  mapleader = [[ ]],
   project_configs = {
-    flutter = "pubspec.yaml",
+    chezmoi = 'home/dot_config/exact_nvim/exact_lua/plugins.lua',
+    flutter = 'pubspec.yaml',
   },
   project_filetypes = {
-    flutter = "dart",
+    chezmoi = 'lua',
+    flutter = 'dart',
   },
-  workspace_file_name = ".nvim/workspace.vim",
+  workspace_file_name = '.nvim/workspace.vim',
 }

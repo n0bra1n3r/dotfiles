@@ -1,3 +1,7 @@
+my_globals {
+  project_type = 'chezmoi',
+}
+
 my_autocmds {
   { 'BufWritePost',
     pattern = '*/chezmoi/home/*',

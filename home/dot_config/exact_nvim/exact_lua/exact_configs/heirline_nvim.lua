@@ -178,6 +178,15 @@ local function mode_label()
         }
       end
     end,
+    on_click = {
+      callback = function()
+        local project_config = vim.g.project_configs[vim.g.project_type]
+        if project_config then
+          fn.open_tab(project_config)
+        end
+      end,
+      name = 'mode_click_callback',
+    },
     {
       hl = { fg = 'task_running', bold = true },
       provider = function(self)
