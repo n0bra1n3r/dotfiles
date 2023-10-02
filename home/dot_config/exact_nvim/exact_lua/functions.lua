@@ -1393,6 +1393,12 @@ function fn.get_visual_selection()
   end
   return table.concat(lines, '\n')
 end
+
+function fn.get_buffer_title(buf)
+  return fn.is_file_buffer(buf)
+    and vim.fn.pathshorten(vim.fn.expand('%:~:.'))
+    or vim.o.buftype
+end
 --}}}
 --{{{ Workspace
 local function get_workspace_file_path(tabpage)
