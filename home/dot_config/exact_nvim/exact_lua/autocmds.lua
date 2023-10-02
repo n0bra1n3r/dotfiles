@@ -145,6 +145,12 @@ my_autocmds {
       fn.apply_focused_highlight()
 
       vim.o.cursorlineopt = "number"
+
+      fn.vim_defer(function()
+        for _, mode in ipairs({ 'c', 'i', 'n', 'x' }) do
+          vim.api.nvim_del_keymap(mode, [[<LeftMouse>]])
+        end
+      end, vim.o.timeoutlen)()
     end
   }, --}}}
   { "FocusLost", --{{{
@@ -154,11 +160,10 @@ my_autocmds {
       if #vim.bo.buftype == 0 then
         vim.o.cursorlineopt = "both"
       end
+
       for _, mode in ipairs({ 'c', 'i', 'n', 'x' }) do
         vim.api.nvim_set_keymap(mode, [[<LeftMouse>]], [[]], {
-          callback = function()
-            vim.api.nvim_del_keymap(mode, [[<LeftMouse>]])
-          end,
+          callback = function() end,
           noremap = true,
         })
       end
