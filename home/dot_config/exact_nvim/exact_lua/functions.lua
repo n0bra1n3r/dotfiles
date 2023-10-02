@@ -431,9 +431,11 @@ function fn.create_task(name, config)
             name = name,
           }
         else
+          local named_args = vim.deepcopy(params)
+          named_args.args = nil
           return vim_task_def(
             name,
-            args,
+            vim.tbl_extend('keep', args, named_args),
             config.cwd,
             deps,
             config.func
@@ -445,7 +447,7 @@ function fn.create_task(name, config)
         dir = fn.get_workspace_dir(),
         filetype = config.filetype,
       },
-      params = {
+      params = vim.tbl_extend('keep', vim.deepcopy(config.params or {}), {
         args = {
           delimiter = ',',
           desc = "Task arguments",
@@ -453,7 +455,7 @@ function fn.create_task(name, config)
           subtype = { type = 'string' },
           type = 'list',
         },
-      },
+      }),
       priority = config.priority,
     }
   end
@@ -477,9 +479,19 @@ end
 function fn.run_task(name, args)
   local is_ok, overseer = pcall(require, 'overseer')
   if is_ok then
+    local params = { args = {} }
+    if args then
+      for k, v in pairs(args) do
+        if type(k) == 'number' then
+          params.args[k] = v
+        else
+          params[k] = v
+        end
+      end
+    end
     overseer.run_template {
       name = name,
-      params = { args = args },
+      params = params,
     }
   end
 end
@@ -596,14 +608,13 @@ function fn.get_is_debugging()
 end
 
 function fn.get_debug_callback(action)
-  return function()
-    local action_name = action:gsub('_', ' ')
-    local task_name_1 = ('Debug %s'):format(action_name)
-    local task_name_2 = ('Debug %s %s'):format(action_name, debug_info.state)
-    if fn.has_task(task_name_1) then
-      fn.run_task(task_name_1)
-    elseif fn.has_task(task_name_2) then
-      fn.run_task(task_name_2)
+  return function(_, _, mods)
+    local task_name = 'Debug '..action:gsub('_', ' ')
+    if fn.has_task(task_name) then
+      fn.run_task(task_name, {
+        mods = mods,
+        state = debug_info.state,
+      })
     else
       require'dap'[action]()
     end
@@ -755,8 +766,8 @@ function fn.get_debug_toolbar()
       highlight = button.icon.color,
       icon = button.icon[1],
       keymap = button[1],
-      click_cb = function()
-        btn_cb()
+      click_cb = function(click_count, mouse_button, mods)
+        btn_cb(click_count, mouse_button, mods)
       end,
       cond_cb = function()
         return vim.tbl_contains(button.states, debug_info.state)

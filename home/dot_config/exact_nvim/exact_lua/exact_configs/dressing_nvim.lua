@@ -1,18 +1,15 @@
 function plug.config()
   require'dressing'.setup {
     input = {
-      border = "single",
-      get_config = function(opts)
-        return opts.dressing
-      end,
+      border = 'single',
     },
     select = {
       builtin = {
-        border = "single",
+        border = 'single',
       },
       nui = {
         border = {
-          style = "single",
+          style = 'single',
         },
       },
     },

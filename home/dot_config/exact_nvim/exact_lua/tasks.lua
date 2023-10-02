@@ -1,17 +1,35 @@
 my_tasks {
-  ["Debug continue 1"] = {
+  ["Debug continue"] = {
     cond = function()
       return vim.g.project_type == 'flutter'
     end,
-    func = function()
-      vim.cmd[[FlutterDevices]]
-      vim.notify(
-        "Detecting devices...",
-        vim.log.levels.INFO,
-        { title = "Flutter tools" }
-      )
+    func = function(args)
+      if args.state == 1 then
+        if args.mods == [[s   ]] then
+          vim.cmd[[FlutterDevices]]
+          vim.notify(
+            "Detecting Devices...",
+            vim.log.levels.INFO,
+            { title = "Flutter tools" }
+          )
+        else
+          vim.cmd[[FlutterRun]]
+        end
+      else
+        require'dap'.continue()
+      end
     end,
     notify = false,
+    params = {
+      mods = {
+        desc = "Modifier keys",
+        type = 'string',
+      },
+      state = {
+        desc = "Current debug state",
+        type = 'number',
+      },
+    },
     priority = 98,
   },
   ["Debug restart"] = {

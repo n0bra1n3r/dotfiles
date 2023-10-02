@@ -322,8 +322,8 @@ local function debug_btn()
     },
     {
       on_click = {
-        callback = function(self)
-          self.click_cb()
+        callback = function(self, _, nclicks, button, mods)
+          self.click_cb(nclicks, button, mods)
         end,
         name = function(self)
           return 'debug_click_callback'..self.action

@@ -62,4 +62,6 @@ function plug.config()
       return config
     end,
   })
+
+  require'telescope'.load_extension('dap')
 end

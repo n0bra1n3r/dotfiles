@@ -5,7 +5,7 @@ function plug.config()
       history = false,
       mappings = {
         i = {
-          ["<Esc>"] = require'telescope.actions'.close,
+          ['<Esc>'] = require'telescope.actions'.close,
         },
       },
       preview = {
@@ -18,30 +18,28 @@ function plug.config()
         fname_width = 9999,
         mappings = {
           i = {
-            ["<Tab>"] = function(bufnr)
-              require'telescope.actions.set'.edit(bufnr, "edit")
+            ['<Tab>'] = function(bufnr)
+              require'telescope.actions.set'.edit(bufnr, 'edit')
             end,
-            ["<C-S-Tab>"] = function(bufnr)
+            ['<C-S-Tab>'] = function(bufnr)
               require'telescope.actions'.move_selection_previous(bufnr)
             end,
-            ["<S-Tab>"] = function(bufnr)
+            ['<S-Tab>'] = function(bufnr)
               require'telescope.actions'.move_selection_previous(bufnr)
             end,
-            ["<C-Tab>"] = function(bufnr)
+            ['<C-Tab>'] = function(bufnr)
               require'telescope.actions'.move_selection_next(bufnr)
             end,
           },
         },
         path_display = function(_, path)
-          return vim.fn.fnamemodify(path, ":~:.")
+          return vim.fn.fnamemodify(path, ':~:.')
         end,
-        theme = "dropdown",
+        theme = 'dropdown',
       },
       quickfix = {
-        theme = "dropdown",
+        theme = 'dropdown',
       },
     },
   }
-
-  require'telescope'.load_extension("dap")
 end
