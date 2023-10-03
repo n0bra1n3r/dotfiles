@@ -296,13 +296,14 @@ function fn.open_explorer()
   local did_open_new = false
   if terminal == nil then
     local cwd = vim.fn.getcwd()
-    local base_conf = '~/.config/broot/base.toml'
+    local base_conf = vim.fn.expand('~/.config/broot/base.toml')
     local global_conf = vim.g.project_type and
-      ('~/.config/broot/%s.toml'):format(vim.g.project_type)
+      vim.fn.expand('~/.config/broot/%s.toml'):format(vim.g.project_type)
     local local_conf = './.nvim/explorer.toml'
     local conf = (vim.fn.filereadable(local_conf) == 1 and local_conf)
-      or (global_conf and vim.fn.filereadable(global_conf) == 1 and global_conf)
+      or (vim.fn.filereadable(global_conf or '') == 1 and global_conf)
       or base_conf
+    print(vim.fn.filereadable(global_conf or '') == 1 and global_conf)
     terminal = require'toggleterm.terminal'.Terminal:new{
       id = 1,
       cmd = ("broot --conf %s -c :open_preview '%s'"):format(conf, cwd),
