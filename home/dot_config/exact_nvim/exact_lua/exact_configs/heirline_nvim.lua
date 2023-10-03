@@ -843,7 +843,7 @@ local function window_bar()
       {
         on_click = {
           callback = function(_, minwid)
-            local cmd = fn.is_file_buffer()
+            local cmd = fn.is_file_buffer(vim.api.nvim_win_get_buf(minwid))
               and [[split]]
               or [[new]]
             vim.fn.win_execute(minwid, cmd)
@@ -862,7 +862,7 @@ local function window_bar()
       {
         on_click = {
           callback = function(_, minwid)
-            local cmd = fn.is_file_buffer()
+            local cmd = fn.is_file_buffer(vim.api.nvim_win_get_buf(minwid))
               and [[vsplit]]
               or [[vnew]]
             vim.fn.win_execute(minwid, cmd)
