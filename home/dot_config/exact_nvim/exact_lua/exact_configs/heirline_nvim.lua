@@ -7,20 +7,20 @@ local mode_names = {
   ['\22s'] = '󰮐',
   ['!'] = '!',
   c = '󰘳',
-  ce = 'E',
-  cv = 'E',
+  ce = '󰘳',
+  cv = '󰘳',
   i = '󰧺',
   ic = '󰧺',
   ix = '󰧺',
-  n = '',
-  niI = '',
-  niR = '',
-  niV = '',
-  no = '',
-  nov = '',
-  noV = '',
-  ['no\22'] = '',
-  nt = '',
+  n = '',
+  niI = '',
+  niR = '',
+  niV = '',
+  no = '',
+  nov = '',
+  noV = '',
+  ['no\22'] = '',
+  nt = '',
   r = '·',
   rm = 'M',
   ['r?'] = '?',
@@ -69,7 +69,7 @@ local function colors()
     separator = hl'Normal'.bg,
     tab = hl'Title'.fg,
     tab_inactive = hl'NonText'.fg,
-    task_running = hl'String'.fg,
+    task_running = hl'WarningMsg'.fg,
     window_btn = hl'NonText'.fg,
     workspace = hl'Title'.fg,
   }
@@ -180,17 +180,14 @@ local function mode_label()
     end,
     on_click = {
       callback = function()
-        local project_config = vim.g.project_configs[vim.g.project_type]
-        if project_config then
-          fn.open_tab(project_config)
-        end
+        vim.cmd[[OverseerRun]]
       end,
       name = 'mode_click_callback',
     },
     {
       hl = { fg = 'task_running', bold = true },
       provider = function(self)
-        return self.task_count > 0 and '' or ' '
+        return self.task_count > 0 and '' or ' '
       end,
     },
     {
