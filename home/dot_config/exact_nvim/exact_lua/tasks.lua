@@ -5,9 +5,7 @@ my_tasks {
     end,
     func = function(args)
       if args.state == 1 then
-        local has_device =
-          require'flutter-tools.commands'.current_device() ~= nil
-        if args.mods == [[s   ]] or not has_device then
+        if args.mods == [[s   ]] or not vim.g.flutter_current_device then
           vim.cmd[[FlutterDevices]]
           vim.notify(
             "Detecting Devices...",

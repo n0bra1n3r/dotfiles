@@ -63,5 +63,12 @@ function plug.config()
     },
   }
 
+  -- FIX: Hack to fix current_device
+  local select_device_fn = require'flutter-tools.devices'.select_device
+  require'flutter-tools.devices'.select_device = function(device, args)
+    vim.g.flutter_current_device = device
+    select_device_fn(device, args)
+  end
+
   require'telescope'.load_extension('flutter')
 end
