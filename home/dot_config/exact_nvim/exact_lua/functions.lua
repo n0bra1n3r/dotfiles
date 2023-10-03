@@ -1404,6 +1404,22 @@ function fn.get_buffer_title(buf)
     and vim.fn.pathshorten(vim.fn.expand('%:~:.'))
     or vim.o.buftype
 end
+
+function fn.ui_input(opts)
+  return function()
+    return coroutine.create(function(coro)
+      vim.ui.input(vim.tbl_extend('keep', opts, {
+        dressing = {
+          relative = opts.relative or 'editor',
+        },
+      }), function(input)
+        if input then
+          coroutine.resume(coro, opts.callback and opts.callback(input) or input)
+        end
+      end)
+    end)
+  end
+end
 --}}}
 --{{{ Workspace
 local function get_workspace_file_path(tabpage)

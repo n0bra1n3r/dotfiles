@@ -39,11 +39,13 @@ function plug.config()
         config = {
           {
             name = "Launch file",
-            type = "codelldb",
-            require = "launch",
-            program = function()
-              return vim.fn.input("Path to file: ", vim.fn.getcwd().."/", "file")
-            end,
+            type = 'codelldb',
+            require = 'launch',
+            program = fn.ui_input {
+              completion = 'file',
+              default = vim.fn.getcwd()..'/',
+              prompt = " 󰈔 Path to file: ",
+            },
           },
         }
       end
@@ -51,12 +53,12 @@ function plug.config()
         local env = item.env
         item.env = function()
           local env_table
-          if type(env) == "function" then
+          if type(env) == 'function' then
             env_table = env()
           else
             env_table = env or {}
           end
-          return vim.tbl_extend("keep", env_table, { PATH = vim.env.PATH })
+          return vim.tbl_extend('keep', env_table, { PATH = vim.env.PATH })
         end
       end
       return config
