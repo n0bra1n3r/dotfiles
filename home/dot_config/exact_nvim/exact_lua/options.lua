@@ -49,6 +49,7 @@ my_options {
   numberwidth = 2,
   ruler = false,
   scrollback = 9001,
+  scrolloff = 3,
   sessionoptions = "buffers,folds,winsize,winpos",
   selection = "exclusive",
   shiftwidth = 2,
