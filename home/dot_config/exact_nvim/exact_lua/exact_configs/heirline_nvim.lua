@@ -362,32 +362,57 @@ local function debug_bar()
     border'',
     {
       hl = { bg = 'background' },
-      init = function(self)
-        self.child_index = { value = 0 }
+      {
+        hl = function()
+          local filetype = vim.g.project_filetypes[vim.g.project_type]
+          if filetype then
+            local _, fg = require'nvim-web-devicons'.get_icon_color_by_filetype(filetype)
+            return { fg = fg }
+          end
+          return { fg = mode_colors['c'] }
+        end,
+        on_click = {
+          callback = function()
+            fn.toggle_debug_repl()
+          end,
+          name = function()
+            return 'debug_click_callback'
+          end,
+        },
+        provider = function()
+          return vim.g.project_icons[vim.g.project_type] or '󰃤'
+        end,
+        static = {
+          mode_colors = mode_colors(),
+        },
+      },
+      sep'',
+      space(),
+      {
+        init = function(self)
+          self.child_index = { value = 0 }
 
-        local toolbar = fn.get_debug_toolbar()
-        for i, item in ipairs(toolbar) do
-          local child = self[i]
-          if not child or child.icon ~= item.icon then
-            self[i] = self:new({
-              hl = { bg = 'background' },
-              debug_btn(),
-            }, i)
-            child = self[i]
-            child.action = item.action
-            child.highlight = item.highlight
-            child.icon = item.icon
-            child.keymap = item.keymap
-            child.click_cb = item.click_cb
-            child.cond_cb = item.cond_cb
+          local toolbar = fn.get_debug_toolbar()
+          for i, item in ipairs(toolbar) do
+            local child = self[i]
+            if not child or child.icon ~= item.icon then
+              self[i] = self:new(debug_btn(), i)
+              child = self[i]
+              child.action = item.action
+              child.highlight = item.highlight
+              child.icon = item.icon
+              child.keymap = item.keymap
+              child.click_cb = item.click_cb
+              child.cond_cb = item.cond_cb
+            end
           end
-        end
-        if #self > #toolbar then
-          for i = #toolbar + 1, #self do
-            self[i] = nil
+          if #self > #toolbar then
+            for i = #toolbar + 1, #self do
+              self[i] = nil
+            end
           end
-        end
-      end,
+        end,
+      },
     },
     border'',
   }

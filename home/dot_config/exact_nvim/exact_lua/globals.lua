@@ -11,5 +11,8 @@ my_globals {
     chezmoi = 'lua',
     flutter = 'dart',
   },
+  project_icons = {
+    flutter = ' ',
+  },
   workspace_file_name = '.nvim/workspace.vim',
 }

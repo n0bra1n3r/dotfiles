@@ -782,6 +782,10 @@ function fn.get_debug_toolbar()
   return components
 end
 
+function fn.toggle_debug_repl()
+  require'dapui'.toggle(1)
+end
+
 function fn.load_vscode_launch_json(path)
   local is_ok, result = pcall(require'dap.ext.vscode'.load_launchjs, path)
   if not is_ok then
