@@ -58,4 +58,14 @@ my_tasks {
     notify = false,
     priority = 100,
   },
+  ["Quit"] = {
+    cond = function()
+      return fn.running_task_count() == 0
+    end,
+    func = function()
+      vim.cmd[[quitall]]
+    end,
+    notify = false,
+    priority = 101,
+  },
 }

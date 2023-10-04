@@ -500,6 +500,16 @@ function fn.run_task(name, args)
     }
   end
 end
+
+function fn.running_task_count()
+  local is_ok, overseer_task_list = pcall(require, 'overseer.task_list')
+  if is_ok then
+    return #overseer_task_list.list_tasks {
+      status = require'overseer'.STATUS.RUNNING,
+    }
+  end
+  return 0
+end
 --}}}
 --{{{ Debugging
 local debug_info = {
