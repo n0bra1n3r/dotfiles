@@ -114,6 +114,11 @@ my_plugins {
     cmd = { "TSInstall", "TSInstallSync", "TSUninstall", "TSUpdate" },
     event = "BufRead",
   },
+  {
+    'nvim-treesitter/nvim-treesitter-context',
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    event = 'BufRead',
+  },
 
   -- Language Servers --
 

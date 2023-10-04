@@ -30,6 +30,7 @@ function plug.config()
   require'nvim-treesitter.configs'.setup {
     ensure_installed = {
       "bash",
+      "dart",
       "git_config",
       "git_rebase",
       "gitattributes",
