@@ -1,7 +1,7 @@
 my_tasks {
   ["Debug continue"] = {
     cond = function()
-      return vim.g.project_type == 'flutter'
+      return fn.get_is_debugging() and vim.g.project_type == 'flutter'
     end,
     func = function(args)
       if args.state == 1 then
@@ -35,7 +35,7 @@ my_tasks {
   },
   ["Debug restart"] = {
     cond = function()
-      return vim.g.project_type == 'flutter'
+      return fn.get_is_debugging() and vim.g.project_type == 'flutter'
     end,
     func = function()
       vim.cmd[[FlutterRestart]]
@@ -50,7 +50,7 @@ my_tasks {
   },
   ["Debug terminate"] = {
     cond = function()
-      return vim.g.project_type == 'flutter'
+      return fn.get_is_debugging() and vim.g.project_type == 'flutter'
     end,
     func = function()
       vim.cmd[[FlutterQuit]]
