@@ -6,6 +6,10 @@ function plug.config()
       mappings = {
         i = {
           ['<Esc>'] = require'telescope.actions'.close,
+          ['<M-j>'] = require'telescope.actions'.move_selection_next,
+          ['<M-k>'] = require'telescope.actions'.move_selection_next,
+          ['<S-Tab>'] = require'telescope.actions'.move_selection_previous,
+          ['<Tab>'] = require'telescope.actions'.move_selection_next,
         },
       },
       preview = {
@@ -21,20 +25,25 @@ function plug.config()
             ['<Tab>'] = function(bufnr)
               require'telescope.actions.set'.edit(bufnr, 'edit')
             end,
-            ['<C-S-Tab>'] = function(bufnr)
-              require'telescope.actions'.move_selection_previous(bufnr)
-            end,
-            ['<S-Tab>'] = function(bufnr)
-              require'telescope.actions'.move_selection_previous(bufnr)
-            end,
-            ['<C-Tab>'] = function(bufnr)
-              require'telescope.actions'.move_selection_next(bufnr)
-            end,
+            ['<C-S-Tab>'] = require'telescope.actions'.move_selection_previous,
+            ['<C-Tab>'] = require'telescope.actions'.move_selection_next,
           },
         },
         path_display = function(_, path)
           return vim.fn.fnamemodify(path, ':~:.')
         end,
+        theme = 'dropdown',
+      },
+      lsp_document_symbols = {
+        symbols = {
+          'method',
+          'function',
+          'class',
+          'interface',
+          'module',
+          'enum',
+          'struct',
+        },
         theme = 'dropdown',
       },
       quickfix = {
