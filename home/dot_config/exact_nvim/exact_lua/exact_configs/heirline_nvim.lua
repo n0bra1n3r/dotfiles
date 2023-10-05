@@ -703,21 +703,31 @@ end
 
 local function header_label()
   return {
-    {
-      hl = function()
-        local fg = 'buffer_inactive'
-        local is_active = require'heirline.conditions'.is_active()
-        if is_active then
-          fg = vim.bo.modified and 'buffer_modified' or 'buffer'
+    hl = function()
+      local fg = 'buffer_inactive'
+      local is_active = require'heirline.conditions'.is_active()
+      if is_active then
+        fg = vim.bo.modified and 'buffer_modified' or 'buffer'
+      end
+      return { fg = fg, bold = is_active, italic = is_active }
+    end,
+    on_click = {
+      callback = function(_, minwid, nclicks)
+        vim.api.nvim_set_current_win(minwid)
+        if nclicks > 1 then
+          vim.cmd[[only]]
         end
-        return { fg = fg, bold = is_active, italic = is_active }
       end,
-      provider = function(self)
-        local filename = vim.fn.fnamemodify(self.filename, ':~:.')
-        return #filename == 0 and '[No Name]' or filename
+      minwid = function()
+        return vim.api.nvim_get_current_win()
       end,
-      update = { 'BufEnter', 'BufNew', 'BufModifiedSet', 'TermLeave' },
+      name = 'window_focus_callback',
     },
+    provider = function(self)
+      local filename = vim.fn.fnamemodify(self.filename, ':~:.')
+      return #filename == 0 and '[No Name]' or filename
+    end,
+    update = { 'BufEnter', 'BufNew', 'BufModifiedSet', 'TermLeave' },
   }
 end
 
