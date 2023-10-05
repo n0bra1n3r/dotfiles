@@ -11,5 +11,6 @@ function plug.config()
     task_win = {
       border = "single",
     },
+    templates = {},
   }
 end
