@@ -303,10 +303,10 @@ function fn.open_explorer()
     local conf = (vim.fn.filereadable(local_conf) == 1 and local_conf)
       or (vim.fn.filereadable(global_conf or '') == 1 and global_conf)
       or base_conf
-    print(vim.fn.filereadable(global_conf or '') == 1 and global_conf)
-    terminal = require'toggleterm.terminal'.Terminal:new{
+    terminal = require'toggleterm.terminal'.Terminal:new {
       id = 1,
-      cmd = ("broot --conf %s -c :open_preview '%s'"):format(conf, cwd),
+      cmd = ("broot --conf '%s' -c ':open_preview;:sort_by_type' '%s'")
+        :format(conf, cwd),
       direction = "float",
       float_opts = {
         border = "single",
