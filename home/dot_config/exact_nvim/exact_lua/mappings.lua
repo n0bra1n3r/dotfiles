@@ -195,6 +195,7 @@ my_mappings {
   }, --}}}
   x = { --{{{
     [";"]               = { "l" },
+    ["<F1>"]            = { ":<C-u>call v:lua.vim.cmd.help(v:lua.fn.get_visual_selection())<CR>" },
     ["<leader>ac"]      = { "<cmd>ChatGPT<CR>", desc = "Chat" },
     ["<leader>ad"]      = { "<cmd>ChatGPTRun docstring<CR>", desc = "Generate docstring" },
     ["<leader>at"]      = { "<cmd>ChatGPTRun add_tests<CR>", desc = "Generate tests" },
