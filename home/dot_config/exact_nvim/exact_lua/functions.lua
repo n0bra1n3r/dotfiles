@@ -269,10 +269,6 @@ function fn.move_file()
 end
 
 function fn.save_file()
-  if not fn.is_empty_buffer() then
-    vim.cmd[[silent update]]
-    return
-  end
   local rel_dir = vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.")
   vim.ui.input({
       completion = "dir",

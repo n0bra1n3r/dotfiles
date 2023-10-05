@@ -58,6 +58,14 @@ end
 local function del_cur_bookmark()
   fn.del_bookmark()
 end
+
+local function update_file()
+  if fn.is_empty_buffer() then
+    fn.save_file()
+  else
+    vim.cmd[[silent update]]
+  end
+end
 --}}}
 
 my_mappings {
@@ -105,7 +113,7 @@ my_mappings {
     ["<C-w>gf"]         = { "<cmd>tabe <cfile><CR>", desc = "Edit in tab" },
     ["<C-z>"]           = { fn.open_terminal },
     ["<End>"]           = { "$", noremap = false },
-    ["<Enter>"]         = { fn.save_file, silent = false },
+    ["<Enter>"]         = { update_file, silent = false },
     ["<Esc>"]           = { ":nohlsearch<CR>" },
     ["<F1>"]            = { "':help '.expand('<cword>').'<CR>'", expr = true },
     ["<Home>"]          = { "^", noremap = false },
@@ -117,6 +125,7 @@ my_mappings {
     ["<leader>fe"]      = { fn.edit_file, desc = "Edit" },
     ["<leader>fm"]      = { fn.move_file, desc = "Move" },
     ["<leader>fo"]      = { fn.open_file_folder, desc = "Open folder" },
+    ["<leader>fs"]      = { fn.save_file, desc = "Save" },
     ["<leader>gb"]      = { "<cmd>Gitsigns blame_line<CR>", desc = "Blame" },
     ["<leader>gc"]      = { show_commits, desc = "Commits" },
     ["<leader>gg"]      = { fn.open_git_repo, desc = "Open repo" },
