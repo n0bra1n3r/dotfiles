@@ -913,8 +913,7 @@ function plug.config()
   require'heirline'.setup {
     opts = {
       disable_winbar_cb = function(args)
-        return fn.is_floating() or
-          require'heirline.conditions'.buffer_matches({
+        return require'heirline.conditions'.buffer_matches({
             buftype = {
               'help',
               'search',
@@ -925,6 +924,8 @@ function plug.config()
               'toggleterm',
             },
           }, args.buf)
+          or (not fn.is_file_buffer(args.buf)
+            and fn.is_in_floating(args.buf))
       end,
     },
     statusline = {

@@ -1385,6 +1385,15 @@ function fn.is_floating(win)
   return vim.api.nvim_win_get_config(win or 0).relative ~= [[]]
 end
 
+function fn.is_in_floating(buf)
+  for _, win in ipairs(vim.fn.win_findbuf(buf or vim.api.nvim_get_current_buf())) do
+    if fn.is_floating(win) then
+      return true
+    end
+  end
+  return false
+end
+
 function fn.get_visual_selection()
   local s_start = vim.fn.getpos("'<")
   local s_end = vim.fn.getpos("'>")
