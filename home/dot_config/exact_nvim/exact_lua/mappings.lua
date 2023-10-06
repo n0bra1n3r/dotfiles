@@ -115,7 +115,7 @@ my_mappings {
     ["<End>"]           = { "$", noremap = false },
     ["<Enter>"]         = { update_file, silent = false },
     ["<Esc>"]           = { ":nohlsearch<CR>" },
-    ["<F1>"]            = { "':help '.expand('<cword>').'<CR>'", expr = true },
+    ["<F1>"]            = { ":lua fn.ui_try(vim.cmd.help, vim.fn.expand('<cword>'))<CR>" },
     ["<Home>"]          = { "^", noremap = false },
     ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up><End><Right>':'<Left>'", expr = true },
     ["<leader><Space>"] = { fn.open_explorer, desc = "Explorer" },
@@ -195,12 +195,12 @@ my_mappings {
   }, --}}}
   x = { --{{{
     [";"]               = { "l" },
-    ["<F1>"]            = { ":<C-u>call v:lua.vim.cmd.help(v:lua.fn.get_visual_selection())<CR>" },
+    ["<F1>"]            = { ":<C-u>lua fn.ui_try(vim.cmd.help,fn.get_visual_selection())<CR>" },
     ["<leader>ac"]      = { "<cmd>ChatGPT<CR>", desc = "Chat" },
     ["<leader>ad"]      = { "<cmd>ChatGPTRun docstring<CR>", desc = "Generate docstring" },
     ["<leader>at"]      = { "<cmd>ChatGPTRun add_tests<CR>", desc = "Generate tests" },
     ["<leader>go"]      = { open_file_in_github, desc = "Open in Github" },
-    ["<leader>s"]       = { ":<C-u>call v:lua.require('search').prompt('', v:lua.fn.get_visual_selection())<CR>", desc = "Search & replace" },
+    ["<leader>s"]       = { ":<C-u>lua require'search'.prompt('', fn.get_visual_selection())<CR>", desc = "Search & replace" },
     ["<S-Tab>"]         = { "<gv" },
     ["<Tab>"]           = { ">gv" },
     c                   = { '"_c' },

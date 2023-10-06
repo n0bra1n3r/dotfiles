@@ -1420,6 +1420,14 @@ function fn.ui_input(opts)
     end)
   end
 end
+
+function fn.ui_try(callback, ...)
+  local is_ok, result = pcall(callback, ...)
+  if is_ok then
+    return result
+  end
+  vim.notify(result, vim.log.levels.ERROR, { title = 'help' })
+end
 --}}}
 --{{{ Workspace
 local function get_workspace_file_path(tabpage)
