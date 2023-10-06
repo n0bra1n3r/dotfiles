@@ -174,7 +174,7 @@ local function mode_label()
     end,
     on_click = {
       callback = function()
-        vim.cmd[[OverseerRun]]
+        vim.cmd[[WhichKey <leader>]]
       end,
       name = 'mode_click_callback',
     },

@@ -140,6 +140,7 @@ my_mappings {
     ["<leader>l"]       = { "<cmd>Telescope lsp_document_symbols<CR>", desc = "LSP symbols" },
     ["<leader>pa"]      = { "<cmd>Mason<CR>", desc = "Packages" },
     ["<leader>pl"]      = { "<cmd>Lazy<CR>", desc = "Plugins" },
+    ["<leader>q"]       = { '<cmd>quitall<CR>', desc = "Quit" },
     ["<leader>s"]       = { search_and_replace, desc = "Search & replace" },
     ["<leader>t"]       = { "<cmd>OverseerRun<CR>", desc = "Tasks" },
     ["<leader>w"]       = { fn.choose_window, desc = "Switch window" },
