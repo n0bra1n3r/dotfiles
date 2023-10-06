@@ -155,8 +155,6 @@ my_mappings {
     ["<M-l>"]           = { "v:lua.fn.is_floating()?'h':'<C-w>h'", expr = true },
     ["<PageDown>"]      = { "L<Down>", noremap = false },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
-    ["<S-Tab><S-Tab>"]  = { show_forward_jumps, desc = "Forward jumps" },
-    ["<S-Tab><Tab>"]    = { show_backward_jumps, desc = "Backward jumps" },
     ["<Tab>1"]          = { goto_bookmark(1), desc = "Bookmark 1" },
     ["<Tab>2"]          = { goto_bookmark(2), desc = "Bookmark 2" },
     ["<Tab>3"]          = { goto_bookmark(3), desc = "Bookmark 3" },
@@ -172,9 +170,9 @@ my_mappings {
     h                   = { ";" },
     l                   = { "col('.')==1&&col([line('.')-1,'$'])>1?'k$l':'h'", expr = true },
     x                   = { "col('$')==col('.')?'gJ':'\"_x'", expr = true },
-    yD                  = { "D" },
-    yd                  = { "dd" },
-    yx                  = { "col('$')==col('.')?'gJ':'x'", expr = true },
+    yD                  = { 'D', desc = "Cut text after cursor" },
+    yd                  = { 'dd', desc = "Cut line" },
+    yx                  = { "col('$')==col('.')?'gJ':'x'", expr = true, desc = "Cut character under cursor" },
     zq                  = { "foldclosed('.')!=-1?'zMzO[z':'zM'", expr = true, noremap = false, desc = "Toggle all folds" },
   }, --}}}
   t = { --{{{
