@@ -1177,6 +1177,7 @@ function fn.sync_terminal()
 end
 
 function fn.is_terminal_buf(buf)
+  buf = buf or vim.api.nvim_get_current_buf()
   for _, term in ipairs(require'toggleterm.terminal'.get_all(true)) do
     if term.bufnr == buf then
       return true

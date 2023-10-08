@@ -415,8 +415,7 @@ end
 local function location_label()
   return {
     condition = function()
-      local win = vim.api.nvim_get_current_win()
-      return not fn.is_terminal_buf(vim.api.nvim_win_get_buf(win))
+      return not fn.is_terminal_buf()
     end,
     border'',
     {
@@ -863,16 +862,16 @@ end
 
 local function window_bar()
   return {
+    condition = function()
+      return fn.is_file_buffer() or fn.is_empty_buffer()
+    end,
     border'',
     {
       hl = { bg = 'background' },
       {
         on_click = {
           callback = function(_, minwid)
-            local cmd = fn.is_file_buffer(vim.api.nvim_win_get_buf(minwid))
-              and [[split]]
-              or [[new]]
-            vim.fn.win_execute(minwid, cmd)
+            vim.fn.win_execute(minwid, [[split]])
           end,
           name = 'window_split_callback',
           minwid = function()
@@ -888,10 +887,7 @@ local function window_bar()
       {
         on_click = {
           callback = function(_, minwid)
-            local cmd = fn.is_file_buffer(vim.api.nvim_win_get_buf(minwid))
-              and [[vsplit]]
-              or [[vnew]]
-            vim.fn.win_execute(minwid, cmd)
+            vim.fn.win_execute(minwid, [[vsplit]])
           end,
           name = 'window_vsplit_callback',
           minwid = function()
