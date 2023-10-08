@@ -880,7 +880,8 @@ function fn.show_lsp_progress(client_id, token, info)
     })
 
     update_spinner(client_id, token)
-  elseif info.kind == "report" and notif_data and notif_data.index ~= nil then
+  elseif notif_data and notif_data.notification and notif_data.index then
+    if info.kind == "report"  then
     local message
     if notif_data.index <= 1 then
       message = format_message(info.message, info.percentage)
@@ -896,33 +897,34 @@ function fn.show_lsp_progress(client_id, token, info)
         replace = notif_data.notification,
       }
     )
-  elseif info.kind == "end" and notif_data and notif_data.index ~= nil then
-    notif_data.index = notif_data.index - 1
+    elseif info.kind == "end" then
+      notif_data.index = notif_data.index - 1
 
-    local icon, message
-    if notif_data.index < 1 then
-      notif_data.index = 0
-      notif_data.count = 0
-      notif_data.spinner = nil
+      local icon, message
+      if notif_data.index < 1 then
+        notif_data.index = 0
+        notif_data.count = 0
+        notif_data.spinner = nil
 
-      icon = ''
-      message = info.message and format_message(info.message) or "Done"
-    else
-      message = format_message(info.message, notif_data.index, notif_data.count)
+        icon = ''
+        message = info.message and format_message(info.message) or "Done"
+      else
+        message = format_message(info.message, notif_data.index, notif_data.count)
+      end
+
+      notif_data.notification = vim.notify(
+        message,
+        vim.log.levels.INFO,
+        {
+          hide_from_history = notif_data.index > 0,
+          icon = icon,
+          on_close = function()
+            notif_data.notification = nil
+          end,
+          replace = notif_data.notification,
+        }
+      )
     end
-
-    notif_data.notification = vim.notify(
-      message,
-      vim.log.levels.INFO,
-      {
-        hide_from_history = notif_data.index > 0,
-        icon = icon,
-        on_close = function()
-          notif_data.notification = nil
-        end,
-        replace = notif_data.notification,
-      }
-    )
   end
 end
 

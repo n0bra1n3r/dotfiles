@@ -1,4 +1,13 @@
 function plug.config()
+  local notify_level = {
+    [vim.log.levels.DEBUG] = 'DEBUG',
+    [vim.log.levels.ERROR] = 'ERROR',
+    [vim.log.levels.INFO] = 'INFO',
+    [vim.log.levels.TRACE] = 'TRACE',
+    [vim.log.levels.WARN] = 'WARN',
+    [vim.log.levels.OFF] = 'OFF',
+  }
+
   local dismissed_notifs = {}
 
   require'notify'.setup {
@@ -54,14 +63,9 @@ function plug.config()
   }
 
   vim.notify = function(msg, level, opts)
-    local notify_level = {
-      [vim.log.levels.DEBUG] = 'DEBUG',
-      [vim.log.levels.ERROR] = 'ERROR',
-      [vim.log.levels.INFO] = 'INFO',
-      [vim.log.levels.TRACE] = 'TRACE',
-      [vim.log.levels.WARN] = 'WARN',
-      [vim.log.levels.OFF] = 'OFF',
-    }
+    if msg == "No matching notification found to replace" then
+      return nil
+    end
 
     if not opts then
       opts = {}
@@ -101,8 +105,8 @@ function plug.config()
     end
 
     if not dismissed_notifs[opts.replace and opts.replace.id] then
-      local _, res = pcall(require'notify', lines, notify_level[level], opts)
-      return res
+      local is_ok, res = pcall(require'notify', lines, notify_level[level], opts)
+      return is_ok and res
     end
   end
 end
