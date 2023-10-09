@@ -1,6 +1,6 @@
 function plug.config()
   require'telescope'.setup {
-    defaults = {
+    defaults = require'telescope.themes'.get_dropdown {
       borderchars = { '─', '│', '─', '│', '┌', '┐', '┘', '└' },
       history = false,
       mappings = {
@@ -32,7 +32,6 @@ function plug.config()
         path_display = function(_, path)
           return vim.fn.fnamemodify(path, ':~:.')
         end,
-        theme = 'dropdown',
       },
       lsp_document_symbols = {
         symbols = {
@@ -44,10 +43,6 @@ function plug.config()
           'enum',
           'struct',
         },
-        theme = 'dropdown',
-      },
-      quickfix = {
-        theme = 'dropdown',
       },
     },
   }
