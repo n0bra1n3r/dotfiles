@@ -1317,26 +1317,32 @@ function fn.get_highlight_color_fg(name)
 end
 
 function fn.apply_unfocused_highlight()
-  local focused_hl_ns = vim.api.nvim_create_namespace("focused_highlights")
-  local normal_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = "Normal" })
+  local focused_hl_ns = vim.api.nvim_create_namespace('focused_highlights')
+  local normal_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'Normal' })
   if normal_hl.bg == nil then
-    normal_hl = vim.api.nvim_get_hl(0, { name = "Normal" })
-    local normalnc_hl = vim.api.nvim_get_hl(0, { name = "NormalNC" })
-    vim.api.nvim_set_hl(focused_hl_ns, "Normal", normal_hl)
-    vim.api.nvim_set_hl(focused_hl_ns, "NormalNC", normalnc_hl)
+    normal_hl = vim.api.nvim_get_hl(0, { name = 'Normal' })
+    local normalnc_hl = vim.api.nvim_get_hl(0, { name = 'NormalNC' })
+    local winsep_hl = vim.api.nvim_get_hl(0, { name = 'WinSeparator' })
+    vim.api.nvim_set_hl(focused_hl_ns, 'Normal', normal_hl)
+    vim.api.nvim_set_hl(focused_hl_ns, 'NormalNC', normalnc_hl)
+    vim.api.nvim_set_hl(focused_hl_ns, 'WinSeparator', winsep_hl)
   end
-  local unfocused_bg = require'catppuccin.palettes'.get_palette("macchiato").base
-  vim.api.nvim_set_hl(0, "Normal", { bg = unfocused_bg })
-  vim.api.nvim_set_hl(0, "NormalNC", { bg = unfocused_bg })
+  local unfocused_bg = require'catppuccin.palettes'.get_palette('macchiato').base
+  local unfocused_sep = require'catppuccin.palettes'.get_palette('macchiato').crust
+  vim.api.nvim_set_hl(0, 'Normal', { bg = unfocused_bg })
+  vim.api.nvim_set_hl(0, 'NormalNC', { bg = unfocused_bg })
+  vim.api.nvim_set_hl(0, 'WinSeparator', { fg = unfocused_sep })
 end
 
 function fn.apply_focused_highlight()
-  local focused_hl_ns = vim.api.nvim_create_namespace("focused_highlights")
-  local normal_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = "Normal" })
-  local normalnc_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = "NormalNC" })
+  local focused_hl_ns = vim.api.nvim_create_namespace('focused_highlights')
+  local normal_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'Normal' })
+  local normalnc_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'NormalNC' })
+  local winsep_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'WinSeparator' })
   if normal_hl.bg ~= nil then
-    vim.api.nvim_set_hl(0, "Normal", normal_hl)
-    vim.api.nvim_set_hl(0, "NormalNC", normalnc_hl)
+    vim.api.nvim_set_hl(0, 'Normal', normal_hl)
+    vim.api.nvim_set_hl(0, 'NormalNC', normalnc_hl)
+    vim.api.nvim_set_hl(0, 'WinSeparator', winsep_hl)
   end
 end
 
