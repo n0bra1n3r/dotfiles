@@ -48,7 +48,6 @@ function plug.config()
   require'mason-lspconfig'.setup({
     ensure_installed = {
       'bashls',
-      'json-lsp',
       'lua_ls',
       'pyright',
     },

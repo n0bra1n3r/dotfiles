@@ -29,16 +29,17 @@ function plug.config()
 
   require'nvim-treesitter.configs'.setup {
     ensure_installed = {
-      "bash",
-      "dart",
-      "git_config",
-      "git_rebase",
-      "gitattributes",
-      "gitcommit",
-      "gitignore",
-      "lua",
-      "nim",
-      "python",
+      'bash',
+      'dart',
+      'git_config',
+      'git_rebase',
+      'gitattributes',
+      'gitcommit',
+      'gitignore',
+      'graphql',
+      'lua',
+      'nim',
+      'python',
     },
     highlight = {
       enable = true,

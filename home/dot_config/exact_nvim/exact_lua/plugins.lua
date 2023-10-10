@@ -95,14 +95,16 @@ my_plugins {
   -- Package Management --
 
   {
-    "williamboman/mason.nvim",
+    'williamboman/mason.nvim',
     build = {
-      ":MasonUpdate",
-      ":MasonInstall actionlint",
-      ":MasonInstall codelldb",
-      ":MasonInstall dart-debug-adapter",
-      ":MasonInstall nimlangserver",
-      ":MasonInstall shellcheck",
+      ':MasonUpdate',
+      ':MasonInstall actionlint',
+      ':MasonInstall codelldb',
+      ':MasonInstall dart-debug-adapter',
+      ':MasonInstall graphql-language-service-cli',
+      ':MasonInstall json-lsp',
+      ':MasonInstall nimlangserver',
+      ':MasonInstall shellcheck',
     },
   },
 
