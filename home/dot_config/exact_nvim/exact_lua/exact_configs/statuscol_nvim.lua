@@ -20,25 +20,25 @@ function plug.config()
     },
     relculright = true,
     segments = {
-      { text = { " " } },
+      { text = { ' ' } },
       {
-        sign = { name = { "Dap" } },
+        sign = { name = { 'Dap' } },
         condition = { fn.get_is_debugging },
-        click = "v:lua.ScLa",
+        click = 'v:lua.ScLa',
       },
       {
         text = { require'statuscol.builtin'.lnumfunc },
-        click = "v:lua.ScLa",
+        click = 'v:lua.ScLa',
       },
       {
-        sign = { name = { "GitSigns" }, colwidth = 1 },
-        click = "v:lua.ScSa",
+        sign = { namespace = { 'gitsign' }, colwidth = 1 },
+        click = 'v:lua.ScSa',
       },
       {
         text = { fn.foldfunc('󰐕', '┯', '┿', '│', '├', '└') },
         click = "v:lua.ScFa",
       },
-      { text = { " " } },
+      { text = { ' ' } },
     },
   }
 end

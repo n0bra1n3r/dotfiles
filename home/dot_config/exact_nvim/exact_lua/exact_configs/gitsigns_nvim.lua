@@ -1,10 +1,11 @@
 function plug.config()
-  require"gitsigns".setup {
+  require'gitsigns'.setup {
+    _signs_staged_enable = true,
     current_line_blame = true,
-    current_line_blame_formatter = " <author_time:%R> - <summary>",
+    current_line_blame_formatter = "  <author_time:%R> - <summary>",
     current_line_blame_opts = {
       ignore_whitespace = true,
-      virt_text_pos = "eol",
+      virt_text_pos = 'eol',
     },
     signs = {
       add = { text = '┃' },
@@ -15,5 +16,5 @@ function plug.config()
     },
   }
 
-  vim.api.nvim_set_hl(0, "GitSignsChangedelete", { link = "GitsignsDelete" })
+  vim.api.nvim_set_hl(0, 'GitSignsChangedelete', { link = 'GitsignsDelete' })
 end
