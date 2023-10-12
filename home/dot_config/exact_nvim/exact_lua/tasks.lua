@@ -1,4 +1,27 @@
 my_tasks {
+  ["Run profiler"] = {
+    cond = function()
+      return fn.get_is_debugging() and vim.g.project_type == 'flutter'
+    end,
+    func = function()
+      local url = require'flutter-tools.dev_tools'.get_profiler_url()
+      if url then
+        fn.open_in_os(url)
+      end
+    end,
+    notify = false,
+    priority = 96,
+  },
+  ["Hot reload"] = {
+    cond = function()
+      return fn.get_is_debugging() and vim.g.project_type == 'flutter'
+    end,
+    func = function()
+      vim.cmd[[FlutterReload]]
+    end,
+    notify = false,
+    priority = 97,
+  },
   ["Debug continue"] = {
     cond = function()
       return fn.get_is_debugging() and vim.g.project_type == 'flutter'

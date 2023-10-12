@@ -142,6 +142,14 @@ function fn.get_git_worktree_root(tabpageOrPath)
   end
 end
 
+function fn.open_in_os(item)
+  require'plenary.job':new{
+    args = { item },
+    command = vim.fn.has('win32') == 1 and 'explorer' or 'open',
+    detached = true,
+  }:start()
+end
+
 function fn.open_in_github(path)
   local remote = run_git_command(path, 'remote get-url origin')
   local repo_path = remote:sub(1, 4) == 'http'
@@ -155,11 +163,7 @@ function fn.open_in_github(path)
   if not path and vim.fn.mode() == 'V' then
     url = url..'#L'..vim.api.nvim_win_get_cursor(0)[1]
   end
-  require'plenary.job':new{
-    args = { url },
-    command = vim.fn.has('win32') == 1 and 'explorer' or 'open',
-    detached = true,
-  }:start()
+  fn.open_in_os(url)
 end
 
 function fn.open_git_repo(path)
