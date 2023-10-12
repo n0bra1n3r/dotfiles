@@ -121,6 +121,7 @@ my_autocmds {
   { "DirChanged", --{{{
     callback = function()
       fn.refresh_git_info()
+      pcall(vim.api.nvim_del_keymap, 'n', [[<leader>pr]])
     end,
   }, --}}}
   { "FileType", pattern = { "diff", "gitcommit", "gitrebase" }, --{{{
