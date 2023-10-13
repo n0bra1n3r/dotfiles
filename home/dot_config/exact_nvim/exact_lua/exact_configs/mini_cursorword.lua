@@ -9,7 +9,4 @@ function plug.config()
   })
 
   require'mini.cursorword'.setup()
-
-  vim.api.nvim_set_hl(0, "MiniCursorWord", { link = "illuminatedWord" })
-  vim.api.nvim_set_hl(0, "MiniCursorWordCurrent", { link = "illuminatedCurWord" })
 end

@@ -16,7 +16,19 @@ my_highlights {
   DiagnosticVirtualTextWarn = {
     link = "DiagnosticWarn",
   },
+  GitSignsChangedelete = {
+    link = 'GitsignsDelete'
+  },
+  MiniCursorWord = {
+    link = 'illuminatedWord'
+  },
+  MiniCursorWordCurrent = {
+    link = 'illuminatedCurWord',
+  },
   OverLength = {
     link = "ColorColumn",
+  },
+  TreesitterContext = {
+    link = 'Normal',
   },
 }
