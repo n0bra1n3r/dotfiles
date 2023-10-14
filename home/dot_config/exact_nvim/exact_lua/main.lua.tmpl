@@ -40,6 +40,12 @@ end
 
 require "options"
 --}}}
+--{{{ Load Functions
+my_config.functions = {}
+_G.fn = my_config.functions
+
+require 'functions'
+--}}}
 --{{{ Load Highlights
 _G.my_highlights = function(highlights)
   my_config.highlights = vim.tbl_extend('force',
@@ -63,12 +69,6 @@ _G.my_signs = function(signs)
 end
 
 require "signs"
---}}}
---{{{ Load Functions
-my_config.functions = {}
-_G.fn = my_config.functions
-
-require 'functions'
 --}}}
 --{{{ Load Autocmds
 _G.my_autocmds = function(autocmds)

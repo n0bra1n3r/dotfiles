@@ -2,14 +2,15 @@ function plug.config()
   local dap = require'dap'
 
   dap.defaults.auto_continue_if_many_stopped = false
-  dap.defaults.fallback.exception_breakpoints = { "uncaught" }
+  dap.defaults.fallback.exception_breakpoints = { 'uncaught' }
+  dap.defaults.fallback.switchbuf = 'useopen,uselast'
 
   local codelldb = {
-    type = "server",
-    port = "${port}",
+    type = 'server',
+    port = '${port}',
     executable = {
-      args = { "--port", "${port}" },
-      command = "codelldb.cmd",
+      args = { '--port', '${port}' },
+      command = 'codelldb.cmd',
       detached = false,
     },
     options = {

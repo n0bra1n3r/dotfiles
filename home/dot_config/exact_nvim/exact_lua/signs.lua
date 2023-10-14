@@ -3,24 +3,23 @@
 my_signs {
   DapBreakpoint = { --{{{
     text = '',
-    texthl = "DiagnosticSignError",
+    texthl = 'DiagnosticSignError',
   }, --}}}
   DapBreakpointCondition = { --{{{
     text = '',
-    texthl = "DiagnosticSignError",
+    texthl = 'DiagnosticSignError',
   }, --}}}
   DapBreakpointRejected = { --{{{
     text = '',
-    texthl = "DiagnosticSignWarn",
+    texthl = 'DiagnosticSignWarn',
   }, --}}}
   DapLogPoint = { --{{{
     text = '',
-    texthl = "DiagnosticSignInfo",
+    texthl = 'DiagnosticSignInfo',
   }, --}}}
   DapStopped = { --{{{
     text = '',
-    texthl = "DiagnosticSignWarn",
-    numhl = "DiagnosticSignWarn",
+    texthl = 'Todo',
   }, --}}}
   DiagnosticSignError = { --{{{
     text = '',
