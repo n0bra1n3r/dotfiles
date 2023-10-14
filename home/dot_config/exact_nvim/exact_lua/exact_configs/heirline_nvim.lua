@@ -357,13 +357,13 @@ local function debug_bar()
     {
       hl = { bg = 'background' },
       {
-        hl = function()
+        hl = function(self)
           local filetype = vim.g.project_filetypes[vim.g.project_type]
           if filetype then
             local _, fg = require'nvim-web-devicons'.get_icon_color_by_filetype(filetype)
             return { fg = fg }
           end
-          return { fg = mode_colors['c'] }
+          return { fg = self.mode_colors['c'] }
         end,
         on_click = {
           callback = function()
