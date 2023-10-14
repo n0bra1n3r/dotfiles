@@ -68,7 +68,7 @@ my_options {
   termguicolors = true,
   timeoutlen = 400,
   title = true,
-  titlestring = [[%{fnamemodify(v:lua.fn.get_workspace_dir(), ":t")} (%{v:lua.fn.get_buffer_title()}) - %{v:progname}]],
+  titlestring = [[%{fnamemodify(v:lua.fn.get_workspace_dir(), ":t")} - %{v:lua.fn.get_buffer_title()}]],
   undofile = true,
   updatetime = 500,
   virtualedit = "onemore",

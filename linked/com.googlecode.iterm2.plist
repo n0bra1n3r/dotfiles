@@ -818,6 +818,8 @@
 			<string>7166D5AA-9232-464B-AC46-D77AFE01056E</string>
 			<key>Horizontal Spacing</key>
 			<real>1</real>
+			<key>Icon</key>
+			<integer>0</integer>
 			<key>Idle Code</key>
 			<integer>0</integer>
 			<key>Jobs to Ignore</key>
@@ -1255,7 +1257,7 @@
 	<key>SoundForEsc</key>
 	<false/>
 	<key>StretchTabsToFillBar</key>
-	<false/>
+	<true/>
 	<key>VisualIndicatorForEsc</key>
 	<false/>
 	<key>WindowNumber</key>
