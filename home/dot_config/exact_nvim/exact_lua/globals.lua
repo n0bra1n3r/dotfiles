@@ -12,7 +12,8 @@ my_globals {
     flutter = 'dart',
   },
   project_icons = {
-    flutter = ' ',
+    flutter = '',
+    nim = '󰆥',
   },
   workspace_file_name = '.nvim/workspace.vim',
 }

@@ -374,7 +374,7 @@ local function debug_bar()
           end,
         },
         provider = function()
-          return vim.g.project_icons[vim.g.project_type] or '󰃤'
+          return (vim.g.project_icons[vim.g.project_type] or '󰃤')..' '
         end,
         static = {
           mode_colors = mode_colors(),
