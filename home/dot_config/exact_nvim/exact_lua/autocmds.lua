@@ -32,7 +32,6 @@ my_autocmds {
 
         vim.wo.foldcolumn = '1'
         vim.wo.number = true
-        vim.wo.signcolumn = 'yes'
       else
         vim.cmd.match[[OverLength //]]
 
@@ -48,7 +47,6 @@ my_autocmds {
 
         vim.wo.foldcolumn = '0'
         vim.wo.number = false
-        vim.wo.signcolumn = 'no'
       end
     end,
   }, --}}}
