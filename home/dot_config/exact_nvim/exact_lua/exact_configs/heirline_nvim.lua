@@ -66,6 +66,7 @@ local function colors()
     git_remote = hl'DiagnosticWarn'.fg,
     git_stash = hl'DiagnosticInfo'.fg,
     location = hl'String'.fg,
+    macro_recording = hl'Error'.fg,
     separator = hl'Normal'.bg,
     tab = hl'Title'.fg,
     tab_inactive = hl'NonText'.fg,
@@ -171,6 +172,7 @@ local function mode_label()
   return {
     init = function(self)
       self.task_count = fn.running_task_count()
+      self.is_recording = vim.fn.reg_recording() ~= ''
     end,
     on_click = {
       callback = function()
@@ -179,9 +181,15 @@ local function mode_label()
       name = 'mode_click_callback',
     },
     {
-      hl = { fg = 'task_running', bold = true },
+      hl = function(self)
+        local fg = self.is_recording
+          and 'macro_recording'
+          or 'task_running'
+        return { fg = fg, bold = true }
+      end,
       provider = function(self)
-        return self.task_count > 0 and '' or ' '
+        return self.task_count > 0 and '󱐋'
+          or (self.is_recording and '·' or ' ')
       end,
     },
     {
