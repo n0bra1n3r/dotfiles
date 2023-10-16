@@ -1,4 +1,4 @@
--- vim: foldmethod=marker foldlevel=0 foldenable
+-- vim: fcl=all fdm=marker fdl=0 fen
 
 --{{{ Helpers
 local function edit_in_split()
@@ -64,6 +64,12 @@ local function update_file()
     fn.save_file()
   else
     vim.cmd[[silent update]]
+  end
+end
+
+local function close_folds_at(level)
+  return function()
+    fn.close_folds_at(level or vim.fn.foldlevel('.'))
   end
 end
 --}}}
@@ -177,7 +183,10 @@ my_mappings {
     yD                  = { 'D', desc = "Cut text after cursor" },
     yd                  = { 'dd', desc = "Cut line" },
     yx                  = { "col('$')==col('.')?'gJ':'x'", expr = true, desc = "Cut character under cursor" },
-    zq                  = { "foldclosed('.')!=-1?'zMzO[z':'zM'", expr = true, noremap = false, desc = "Toggle all folds" },
+    ['z.']              = { close_folds_at(), desc = "Close all folds at current level" },
+    z1                  = { close_folds_at(1), desc = "Close all level 1 folds" },
+    z2                  = { close_folds_at(2), desc = "Close all level 2 folds" },
+    z3                  = { close_folds_at(3), desc = "Close all level 3 folds" },
   }, --}}}
   t = { --{{{
     ["<C-`>"]           = { fn.toggle_terminal },

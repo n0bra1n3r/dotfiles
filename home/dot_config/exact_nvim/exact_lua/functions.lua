@@ -1,4 +1,4 @@
--- vim: foldmethod=marker foldlevel=0 foldenable
+-- vim: fcl=all fdm=marker fdl=0 fen
 
 --{{{ Helpers
 local function resolve_path(tabpageOrPath)
@@ -1453,6 +1453,21 @@ function fn.ui_try(callback, ...)
     return result
   end
   vim.notify(result, vim.log.levels.ERROR, { title = 'help' })
+end
+
+function fn.close_folds_at(level)
+  local line = 1
+  local last = vim.fn.line('$')
+  while line < last do
+    if vim.fn.foldclosed(line) ~= -1 then
+      line = vim.fn.foldclosedend(line) + 1
+    elseif vim.fn.foldlevel(line) == level then
+      vim.cmd(''..line..'foldclose')
+      line = vim.fn.foldclosedend(line) + 1
+    else
+      line = line + 1
+    end
+  end
 end
 --}}}
 --{{{ Workspace

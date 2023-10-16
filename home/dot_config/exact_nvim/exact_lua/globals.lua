@@ -1,4 +1,4 @@
--- vim: foldmethod=marker foldlevel=0 foldenable
+-- vim: fcl=all fdm=marker fdl=0 fen
 
 my_globals {
   grapple_testing = true, -- needed to avoid error on Windows
