@@ -1,28 +1,8 @@
 -- vim: foldmethod=marker foldlevel=0 foldenable
 
 my_autocmds {
-  { "BufEnter", --{{{
+  { 'BufEnter', --{{{
     callback = function()
-      vim.cmd[[match OverLength //]]
-
-      if vim.bo.filetype == "help" then
-        if #vim.api.nvim_tabpage_list_wins(0) > 1 then
-          vim.cmd.wincmd[[T]]
-        end
-      elseif vim.bo.filetype == "qf" then
-        vim.bo.buflisted = false
-      else
-        if fn.is_file_buffer() then
-          if vim.bo.filetype == "gitcommit" then
-            vim.cmd[[match OverLength /\%>50v.\+/]]
-          else
-            vim.cmd[[match OverLength /\%>80v.\+/]]
-          end
-          vim.wo.number = true
-        else
-          vim.wo.number = false
-        end
-      end
       vim.cmd[[checktime]]
     end,
   }, --}}}
@@ -58,12 +38,38 @@ my_autocmds {
       end
     end,
   }, --}}}
-  { "BufWinEnter", --{{{
+  { 'BufWinEnter', --{{{
     callback = function()
-      if fn.is_file_buffer() then
-        if fn.has_workspace_file() then
+      vim.cmd.match[[OverLength //]]
+
+      if #vim.bo.buftype == 0 then
+        if vim.bo.filetype == 'gitcommit' then
+          vim.cmd.match[[OverLength /\%>50v.\+/]]
+        else
+          vim.cmd.match[[OverLength /\%>80v.\+/]]
+        end
+
+        vim.wo.foldcolumn = '1'
+        vim.wo.number = true
+        vim.wo.signcolumn = 'yes'
+
+        if not fn.is_empty_buffer() and fn.has_workspace_file() then
           fn.save_workspace()
         end
+      else
+        if vim.bo.filetype == 'help' then
+          if #vim.api.nvim_tabpage_list_wins(0) > 1 then
+            vim.cmd.wincmd[[T]]
+          end
+        elseif vim.bo.filetype == 'qf' then
+          if #vim.api.nvim_tabpage_list_wins(0) > 1 then
+            vim.cmd.wincmd[[J]]
+          end
+        end
+
+        vim.wo.foldcolumn = '0'
+        vim.wo.number = false
+        vim.wo.signcolumn = 'no'
       end
     end,
   }, --}}}
