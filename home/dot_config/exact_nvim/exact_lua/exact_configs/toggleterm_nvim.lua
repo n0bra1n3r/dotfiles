@@ -1,9 +1,13 @@
 function plug.config()
   require'toggleterm'.setup {
     autochdir = false,
-    hide_numbers = true,
     direction = 'float',
+    on_create = function(t)
+      vim.wo[t.window].foldcolumn = '0'
+      vim.wo[t.window].signcolumn = 'no'
+    end,
     open_mapping = nil,
+    persist_mode = false,
     shade_terminals = false,
     -- required to avoid '\r\n' for `chansend` in git bash
     shell = 'powershell',

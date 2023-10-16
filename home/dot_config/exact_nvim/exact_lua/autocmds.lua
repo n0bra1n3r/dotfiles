@@ -21,6 +21,37 @@ my_autocmds {
       vim.bo.filetype = "ruby"
     end,
   }, --}}}
+  { { 'BufEnter', 'BufWinEnter' }, --{{{
+    callback = function()
+      if #vim.bo.buftype == 0 then
+        if vim.bo.filetype == 'gitcommit' then
+          vim.cmd.match[[OverLength /\%>50v.\+/]]
+        else
+          vim.cmd.match[[OverLength /\%>80v.\+/]]
+        end
+
+        vim.wo.foldcolumn = '1'
+        vim.wo.number = true
+        vim.wo.signcolumn = 'yes'
+      else
+        vim.cmd.match[[OverLength //]]
+
+        if vim.bo.filetype == 'help' then
+          if #vim.api.nvim_tabpage_list_wins(0) > 1 then
+            vim.cmd.wincmd[[T]]
+          end
+        elseif vim.bo.filetype == 'qf' then
+          if #vim.api.nvim_tabpage_list_wins(0) > 1 then
+            vim.cmd.wincmd[[J]]
+          end
+        end
+
+        vim.wo.foldcolumn = '0'
+        vim.wo.number = false
+        vim.wo.signcolumn = 'no'
+      end
+    end,
+  }, --}}}
   { "BufHidden", --{{{
     callback = function()
       if fn.is_empty_buffer() then
@@ -38,41 +69,6 @@ my_autocmds {
       end
     end,
   }, --}}}
-  { 'BufWinEnter', --{{{
-    callback = function()
-      vim.cmd.match[[OverLength //]]
-
-      if #vim.bo.buftype == 0 then
-        if vim.bo.filetype == 'gitcommit' then
-          vim.cmd.match[[OverLength /\%>50v.\+/]]
-        else
-          vim.cmd.match[[OverLength /\%>80v.\+/]]
-        end
-
-        vim.wo.foldcolumn = '1'
-        vim.wo.number = true
-        vim.wo.signcolumn = 'yes'
-
-        if not fn.is_empty_buffer() and fn.has_workspace_file() then
-          fn.save_workspace()
-        end
-      else
-        if vim.bo.filetype == 'help' then
-          if #vim.api.nvim_tabpage_list_wins(0) > 1 then
-            vim.cmd.wincmd[[T]]
-          end
-        elseif vim.bo.filetype == 'qf' then
-          if #vim.api.nvim_tabpage_list_wins(0) > 1 then
-            vim.cmd.wincmd[[J]]
-          end
-        end
-
-        vim.wo.foldcolumn = '0'
-        vim.wo.number = false
-        vim.wo.signcolumn = 'no'
-      end
-    end,
-  }, --}}}
   { "BufWinLeave", --{{{
     callback = function(args)
       fn.add_buf_to_loclist(args.buf)
@@ -80,6 +76,13 @@ my_autocmds {
         if fn.has_workspace_file() then
           fn.save_workspace()
         end
+      end
+    end,
+  }, --}}}
+  { 'BufWinEnter', --{{{
+    callback = function()
+      if not fn.is_empty_buffer() and fn.has_workspace_file() then
+        fn.save_workspace()
       end
     end,
   }, --}}}
@@ -197,9 +200,8 @@ my_autocmds {
       fn.show_workspace(nil, false)
     end,
   }, --}}}
-  { "TermEnter", --{{{
+  { 'TermEnter', --{{{
     callback = fn.vim_defer(function()
-      vim.wo.number = false
       vim.cmd[[nohlsearch]]
     end),
   }, --}}}

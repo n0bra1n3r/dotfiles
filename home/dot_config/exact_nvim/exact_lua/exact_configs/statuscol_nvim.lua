@@ -16,6 +16,9 @@ function plug.config()
         end
       end,
     },
+    ft_ignore = {
+      'toggleterm',
+    },
     relculright = true,
     segments = {
       { text = { ' ' } },
