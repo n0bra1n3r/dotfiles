@@ -877,7 +877,7 @@ function fn.show_lsp_progress(client_id, token, info)
 
     notif_data.spinner = 1
     notif_data.notification = vim.notify(message, vim.log.levels.INFO, {
-      hide_from_history = notif_data.index > 1,
+      hide_from_history = true,
       icon = lsp_info.spinner_frames[1],
       replace = notif_data.notification,
       title = format_title(info.title, vim.lsp.get_client_by_id(client_id)),
