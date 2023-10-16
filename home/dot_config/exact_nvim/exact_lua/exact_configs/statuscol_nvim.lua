@@ -1,22 +1,20 @@
 function plug.config()
   require'statuscol'.setup {
     bt_ignore = {
-      "help",
-      "quickfix",
-      "terminal",
+      'acwrite',
+      'help',
+      'nofile',
+      'nowrite',
+      'prompt',
+      'quickfix',
+      'terminal',
     },
     clickhandlers = {
       Lnum = function(args)
-        if args.button ~= "l" or fn.get_is_debugging() then
+        if args.button ~= 'l' or fn.get_is_debugging() then
           require'statuscol.builtin'.lnum_click(args)
         end
       end,
-    },
-    ft_ignore = {
-      "dapui_scopes",
-      "dapui_stacks",
-      "dapui_breakpoints",
-      "toggleterm"
     },
     relculright = true,
     segments = {
