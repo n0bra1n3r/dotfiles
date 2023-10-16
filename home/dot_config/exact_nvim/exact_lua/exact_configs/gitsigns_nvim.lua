@@ -13,6 +13,7 @@ function plug.config()
       delete = { text = '_' },
       topdelete = { text = '‾' },
       changedelete = { text = '┃' },
+      untracked = { text = '┃' },
     },
   }
 end

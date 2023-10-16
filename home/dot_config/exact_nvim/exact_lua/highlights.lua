@@ -17,7 +17,10 @@ my_highlights {
     link = "DiagnosticWarn",
   },
   GitSignsChangedelete = {
-    link = 'GitsignsDelete'
+    link = 'GitsignsDelete',
+  },
+  GitSignsUntracked = {
+    link = 'SignColumn',
   },
   MiniCursorWord = {
     link = 'illuminatedWord'
