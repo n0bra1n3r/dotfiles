@@ -693,7 +693,7 @@ local function header_icon()
       return { fg = fg }
     end,
     init = function(self)
-      local filename = self.filename
+      local filename = vim.api.nvim_buf_get_name(0)
       local extension = vim.fn.fnamemodify(filename, ':e')
       self.icon, self.icon_color = require'nvim-web-devicons'.get_icon_color(
         filename,
@@ -718,6 +718,10 @@ local function header_label()
       end
       return { fg = fg, bold = is_active, italic = is_active }
     end,
+    init = function(self)
+      self.filename = vim.fn.expand('%:~:.')
+      self.is_no_name = fn.is_filename_empty()
+    end,
     on_click = {
       callback = function(_, minwid, nclicks)
         vim.api.nvim_set_current_win(minwid)
@@ -731,8 +735,7 @@ local function header_label()
       name = 'window_focus_callback',
     },
     provider = function(self)
-      local filename = vim.fn.fnamemodify(self.filename, ':~:.')
-      return #filename == 0 and '[No Name]' or filename
+      return self.is_no_name and '[No Name]' or self.filename
     end,
     update = { 'BufEnter', 'BufNew', 'BufModifiedSet', 'TermLeave' },
   }
@@ -756,10 +759,6 @@ end
 
 local function header()
   return {
-    init = function(self)
-      self.filename = vim.api.nvim_buf_get_name(0)
-      self.win = vim.api.nvim_get_current_win()
-    end,
     border'',
     {
       hl = { bg = 'background' },
@@ -842,7 +841,6 @@ local function diagnostics_bar()
   return {
     condition = require'heirline.conditions'.has_diagnostics,
     init = function(self)
-      self.win = vim.api.nvim_get_current_win()
       self.counts = {}
       for severity, _ in pairs(self.severities) do
         self.counts[severity] = #vim.diagnostic.get(0, { severity = severity })
@@ -919,12 +917,13 @@ function plug.config()
       disable_winbar_cb = function(args)
         return require'heirline.conditions'.buffer_matches({
             buftype = {
+              'acwrite',
               'help',
-              'search',
-              'qf',
+              'nowrite',
+              'quickfix',
+              'terminal',
             },
             filetype = {
-              'search',
               'toggleterm',
             },
           }, args.buf)

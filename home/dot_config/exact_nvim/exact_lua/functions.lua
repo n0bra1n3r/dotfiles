@@ -1233,12 +1233,16 @@ function fn.is_empty_buffer(buf)
   return #lines == 0 or (#lines == 1 and #lines[1] == 0)
 end
 
+function fn.is_filename_empty(buf)
+  local name = vim.api.nvim_buf_get_name(buf or 0)
+  return #name == 0 or vim.fn.fnamemodify(name, ':t') == 'new'
+end
+
 function fn.is_file_buffer(buf)
   if #vim.bo[buf or 0].buftype > 0 then
     return false
   end
-  local name = vim.api.nvim_buf_get_name(buf or 0)
-  return #name > 0 and vim.fn.fnamemodify(name, ":t") ~= "new"
+  return not fn.is_filename_empty(buf)
 end
 
 function fn.get_wins_for_buf_type(buf_type)
