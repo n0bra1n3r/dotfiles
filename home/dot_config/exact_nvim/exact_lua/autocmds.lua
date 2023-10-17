@@ -151,7 +151,7 @@ my_autocmds {
         { noremap = true, silent = true })
     end,
   }, --}}}
-  { "FocusGained", --{{{
+  { 'FocusGained', --{{{
     callback = function()
       fn.apply_focused_highlight()
 
@@ -159,7 +159,9 @@ my_autocmds {
 
       fn.vim_defer(function()
         for _, mode in ipairs({ 'c', 'i', 'n', 'x' }) do
-          vim.api.nvim_del_keymap(mode, [[<LeftMouse>]])
+          if vim.fn.maparg([[<LeftMouse>]], mode, 0, 1).rhs ~= nil then
+            vim.api.nvim_del_keymap(mode, [[<LeftMouse>]])
+          end
         end
       end, vim.o.timeoutlen)()
     end
