@@ -194,6 +194,13 @@ my_autocmds {
     callback = function()
       fn.save_tabpage()
       fn.show_workspace(nil, false)
+
+      if vim.fn.reg_recording() ~= '' then
+        vim.cmd[[normal q]]
+        fn.vim_defer(function()
+          vim.notify("Stopped macro recording")
+        end)()
+      end
     end,
   }, --}}}
   { 'TermEnter', --{{{

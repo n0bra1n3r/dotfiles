@@ -189,7 +189,7 @@ local function mode_label()
       end,
       provider = function(self)
         return self.task_count > 0 and '󱐋'
-          or (self.is_recording and '⊙' or ' ')
+          or (self.is_recording and '•' or ' ')
       end,
     },
     {
