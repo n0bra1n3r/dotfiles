@@ -423,7 +423,11 @@ function fn.create_task(name, config)
             and { 'on_complete_notify', statuses = {} }
             or 'on_complete_notify',
           { 'run_after', task_names = config.deps or {} },
-          'on_output_quickfix',
+          {
+            'on_output_quickfix',
+            errorformat = config.errorformat,
+            set_diagnostics = true,
+          },
           'default',
         }
         if not config.func then
