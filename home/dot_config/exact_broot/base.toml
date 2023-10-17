@@ -28,7 +28,7 @@ syntax_theme = "OceanDark"
   apply_to = "file"
 
 [[verbs]]
-  key = "alt-backspace"
+  key = "alt-space"
   internal = "input_clear"
   leave_broot = false
 
