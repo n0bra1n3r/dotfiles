@@ -129,9 +129,7 @@ my_autocmds {
     callback = function()
       fn.refresh_git_info()
 
-      if vim.fn.maparg([[<leader>pr>]], 'n', 0, 1).rhs ~= nil then
-        vim.api.nvim_del_keymap('n', [[<leader>pr]])
-      end
+      pcall(vim.api.nvim_del_keymap, 'n', [[<leader>pr]])
     end,
   }, --}}}
   { "FileType", pattern = { "diff", "gitcommit", "gitrebase" }, --{{{
@@ -159,9 +157,7 @@ my_autocmds {
 
       fn.vim_defer(function()
         for _, mode in ipairs({ 'c', 'i', 'n', 'x' }) do
-          if vim.fn.maparg([[<LeftMouse>]], mode, 0, 1).rhs ~= nil then
-            vim.api.nvim_del_keymap(mode, [[<LeftMouse>]])
-          end
+          pcall(vim.api.nvim_del_keymap, mode, [[<LeftMouse>]])
         end
       end, vim.o.timeoutlen)()
     end
