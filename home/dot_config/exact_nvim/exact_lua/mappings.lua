@@ -142,7 +142,7 @@ my_mappings {
     ["<leader>gr"]      = { ":Gitsigns reset_hunk<CR>", desc = "Reset hunk" },
     ["<leader>gs"]      = { ":Gitsigns stage_hunk<CR>", desc = "Stage hunk" },
     ["<leader>id"]      = { "<cmd>Telescope diagnostics bufnr=0<CR>", desc = "Document issues" },
-    ["<leader>iq"]      = { '<cmd>cwindow<CR>', desc = "Quickfix issues" },
+    ["<leader>iq"]      = { '<cmd>copen<CR>', desc = "Quickfix issues" },
     ["<leader>iw"]      = { "<cmd>Telescope diagnostics<CR>", desc = "Workspace issues" },
     ["<leader>l"]       = { "<cmd>Telescope lsp_document_symbols<CR>", desc = "LSP symbols" },
     ["<leader>pa"]      = { "<cmd>Mason<CR>", desc = "Packages" },
