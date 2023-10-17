@@ -79,7 +79,9 @@ my_autocmds {
   }, --}}}
   { 'BufWinEnter', --{{{
     callback = function()
-      if not fn.is_empty_buffer() and fn.has_workspace_file() then
+      if fn.is_file_buffer()
+          and not fn.is_empty_buffer()
+          and fn.has_workspace_file() then
         fn.save_workspace()
       end
     end,
