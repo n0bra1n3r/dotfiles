@@ -5,12 +5,12 @@ my_snippets {
       body = [[
       import 'package:flutter/material.dart';
 
-      class ${TM_FILENAME_BASE/([a-z]*)_*([a-z]*)/${1:/capitalize}${2:/capitalize}/g} extends StatelessWidget {
-        const ${TM_FILENAME_BASE/([a-z]*)_*([a-z]*)/${1:/capitalize}${2:/capitalize}/g}({super.key});
+      class ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} extends StatelessWidget {
+        const ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}({super.key});
 
         @override
         Widget build(BuildContext context) {
-          return ${1:child}(${2:args});
+          return $0;
         }
       }
       ]]
@@ -20,17 +20,17 @@ my_snippets {
       body = [[
       import 'package:flutter/material.dart';
 
-      class ${TM_FILENAME_BASE/([a-z]*)_*([a-z]*)/${1:/capitalize}${2:/capitalize}/g} extends StatefulWidget {
-        const ${TM_FILENAME_BASE/([a-z]*)_*([a-z]*)/${1:/capitalize}${2:/capitalize}/g}({super.key});
+      class ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} extends StatefulWidget {
+        const ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}({super.key});
 
         @override
-        State<${TM_FILENAME_BASE/([a-z]*)_*([a-z]*)/${1:/capitalize}${2:/capitalize}/g}> createState() => _${TM_FILENAME_BASE/([a-z]*)_*([a-z]*)/${1:/capitalize}${2:/capitalize}/g}State();
+        State<${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}> createState() => _${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}State();
       }
 
-      class _${TM_FILENAME_BASE/([a-z]*)_*([a-z]*)/${1:/capitalize}${2:/capitalize}/g}State extends State<${TM_FILENAME_BASE/([a-z]*)_*([a-z]*)/${1:/capitalize}${2:/capitalize}/g}> {
+      class _${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}State extends State<${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}> {
         @override
         Widget build(BuildContext context) {
-          return ${1:child}(${2:args});
+          return $0;
         }
       }
       ]]
@@ -44,7 +44,7 @@ my_snippets {
         prefix = "${2:prefix}",
         description = "${3:description}",
         body = [[
-        ${4:body}
+        $0
         ]],
       },
       ]=],
