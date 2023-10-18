@@ -12,7 +12,10 @@
 [includeif "gitdir:~/n0bra1n3r/"]
   path = ~/.dotfiles/gitconfig/n0bra1n3r
 
-[includeif "gitdir:src/"]
+[includeif "gitdir:~/src/"]
+  path = ~/.dotfiles/gitconfig/n0bra1n3r
+
+[includeif "gitdir:/src/"]
   path = ~/.dotfiles/gitconfig/n0bra1n3r
 
 [include]
@@ -25,8 +28,6 @@
   ae = add --edit
   ap = add --patch
   au = add --update
-  bd = !git branch -r | awk '{print $1}' | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk '{print $1}'
-  bl = !git for-each-ref --sort=-committerdate refs/heads/ --format='%(committerdate:short) %(refname:short)' | less
   ca = commit --amend
   ce = commit --allow-empty --message
   cf = config --file ~/.gitconfig
