@@ -1,3 +1,5 @@
-function plug.config()
-  require'mini.bufremove'.setup()
-end
+return {
+  config = function()
+    require'mini.bufremove'.setup()
+  end,
+}

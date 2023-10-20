@@ -1,5 +1,7 @@
-function plug.config()
-  require'mini.splitjoin'.setup {
-    separator = "[,;|]",
-  }
-end
+return {
+  config = function()
+    require'mini.splitjoin'.setup {
+      separator = "[,;|]",
+    }
+  end,
+}

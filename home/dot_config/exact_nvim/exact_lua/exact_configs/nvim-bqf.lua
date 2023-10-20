@@ -1,3 +1,5 @@
-function plug.config()
-  require'bqf'.setup()
-end
+return {
+  config = function()
+    require'bqf'.setup()
+  end,
+}

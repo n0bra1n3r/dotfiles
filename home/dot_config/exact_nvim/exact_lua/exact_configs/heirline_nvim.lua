@@ -39,7 +39,6 @@ local mode_names = {
   Vs = '󰮐',
 }
 --}}}
-
 --{{{ Colors
 local function colors()
   local hl = require'heirline.utils'.get_highlight
@@ -110,7 +109,6 @@ local function mode_colors()
   }
 end
 --}}}
-
 --{{{ Helpers
 local function space(count)
   local width = count or 1
@@ -551,7 +549,6 @@ local function tabs_bar()
   }
 end
 --}}}
-
 --{{{ Tabline
 local function bookmark_label()
   return {
@@ -645,7 +642,6 @@ local function bookmarks_bar()
   }
 end
 --}}}
-
 --{{{ Winbar
 local function bookmark_btn()
   return {
@@ -909,68 +905,70 @@ local function window_bar()
 end
 --}}}
 
-function plug.config()
-  require'heirline'.load_colors(colors())
+return {
+  config = function()
+    require'heirline'.load_colors(colors())
 
-  require'heirline'.setup {
-    opts = {
-      disable_winbar_cb = function(args)
-        return require'heirline.conditions'.buffer_matches({
-            buftype = {
-              'acwrite',
-              'help',
-              'nowrite',
-              'quickfix',
-              'terminal',
-            },
-            filetype = {
-              'toggleterm',
-            },
-          }, args.buf)
-          or (not fn.is_file_buffer(args.buf)
-            and fn.is_in_floating(args.buf))
+    require'heirline'.setup {
+      opts = {
+        disable_winbar_cb = function(args)
+          return require'heirline.conditions'.buffer_matches({
+              buftype = {
+                'acwrite',
+                'help',
+                'nowrite',
+                'quickfix',
+                'terminal',
+              },
+              filetype = {
+                'toggleterm',
+              },
+            }, args.buf)
+            or (not fn.is_file_buffer(args.buf)
+              and fn.is_in_floating(args.buf))
+        end,
+      },
+      statusline = {
+        hl = { bg = 'default' },
+        space(),
+        mode_label(),
+        space(),
+        workspace_label(),
+        space(math.huge),
+        debug_bar(),
+        space(math.huge),
+        location_label(),
+        space(),
+        tabs_bar(),
+      },
+      tabline = {
+        hl = { bg = 'default' },
+        space(math.huge),
+        bookmarks_bar(),
+      },
+      winbar = {
+        hl = { bg = 'default' },
+        space(-3),
+        header(),
+        space(),
+        diagnostics_bar(),
+        space(math.huge),
+        window_bar(),
+      },
+    }
+
+    vim.api.nvim_create_autocmd({
+      'ColorScheme',
+      'FocusLost',
+      'FocusGained',
+      'WinEnter',
+    }, {
+      group = vim.api.nvim_create_augroup('conf_heirline', { clear = true }),
+      callback = function()
+        require'heirline.utils'.on_colorscheme(colors)
       end,
-    },
-    statusline = {
-      hl = { bg = 'default' },
-      space(),
-      mode_label(),
-      space(),
-      workspace_label(),
-      space(math.huge),
-      debug_bar(),
-      space(math.huge),
-      location_label(),
-      space(),
-      tabs_bar(),
-    },
-    tabline = {
-      hl = { bg = 'default' },
-      space(math.huge),
-      bookmarks_bar(),
-    },
-    winbar = {
-      hl = { bg = 'default' },
-      space(-3),
-      header(),
-      space(),
-      diagnostics_bar(),
-      space(math.huge),
-      window_bar(),
-    },
-  }
+    })
 
-  vim.api.nvim_create_autocmd({
-    'ColorScheme',
-    'FocusLost',
-    'FocusGained',
-    'WinEnter',
-  }, {
-    group = vim.api.nvim_create_augroup('conf_heirline', { clear = true }),
-    callback = function()
-      require'heirline.utils'.on_colorscheme(colors)
-    end,
-  })
-
-  refresh_bookmark_list()
-end
+    refresh_bookmark_list()
+  end,
+}

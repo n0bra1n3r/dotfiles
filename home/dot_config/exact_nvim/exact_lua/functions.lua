@@ -1,5 +1,7 @@
 -- vim: fcl=all fdm=marker fdl=0 fen
 
+local fn = {}
+
 --{{{ Helpers
 local function resolve_path(tabpageOrPath)
   return type(tabpageOrPath) == "string"
@@ -7,6 +9,7 @@ local function resolve_path(tabpageOrPath)
     or fn.get_tab_cwd(tabpageOrPath)
 end
 --}}}
+
 --{{{ Git
 local dir_git_info = {}
 
@@ -366,29 +369,30 @@ function fn.open_file_folder(path)
 end
 --}}}
 --{{{ Tasks
-local function vim_task_def(name, args, cwd, deps, func)
-  if not _G.task_cb_id then
-    _G.task_cb_id = 0
-    _G.task_cb_reg = {}
-    _G.task_cb_runner = function(id)
-      local cb = _G.task_cb_reg[id]
-      local old_cwd = vim.fn.getcwd()
-      if cb.cwd then
-        vim.api.nvim_set_current_dir(cb.cwd)
-      end
-      local is_ok, out = pcall(cb.func, cb.args)
-      if cb.cwd then
-        vim.api.nvim_set_current_dir(old_cwd)
-      end
-      _G.task_cb_reg[id] = nil
-      if not is_ok then
-        error(out)
-      end
-      return out or ''
-    end
+function fn._task_cb_runner(id)
+  local cb = _G._task_cb_reg[id]
+  local old_cwd = vim.fn.getcwd()
+  if cb.cwd then
+    vim.api.nvim_set_current_dir(cb.cwd)
   end
-  _G.task_cb_id = _G.task_cb_id + 1
-  _G.task_cb_reg[_G.task_cb_id] = {
+  local is_ok, out = pcall(cb.func, cb.args)
+  if cb.cwd then
+    vim.api.nvim_set_current_dir(old_cwd)
+  end
+  _G._task_cb_reg[id] = nil
+  if not is_ok then
+    error(out)
+  end
+  return out or ''
+end
+
+local function vim_task_def(name, args, cwd, deps, func)
+  if not _G._task_cb_id then
+    _G._task_cb_id = 0
+    _G._task_cb_reg = {}
+  end
+  _G._task_cb_id = _G._task_cb_id + 1
+  _G._task_cb_reg[_G._task_cb_id] = {
     args = args,
     cwd = cwd,
     func = func,
@@ -401,7 +405,7 @@ local function vim_task_def(name, args, cwd, deps, func)
       '--server',
       vim.v.servername,
       '--remote-expr',
-      'v:lua.task_cb_runner('.._G.task_cb_id..')',
+      'v:lua.fn._task_cb_runner('.._G._task_cb_id..')',
     },
     cmd = { vim.v.progpath },
     components = deps,
@@ -1125,14 +1129,14 @@ function fn.get_wins_for_buf_type(buf_type)
     ("getwinvar(v:val, '&bt') == '%s'"):format(buf_type))
 end
 
-function fn.vim_defer(fn, timer)
+function fn.vim_defer(cb, timer)
   return function()
-    if fn ~= nil then
-      if type(fn) == "function" then
-        vim.defer_fn(fn, timer or 0)
+    if cb ~= nil then
+      if type(cb) == "function" then
+        vim.defer_fn(cb, timer or 0)
       else
         vim.defer_fn(function()
-          vim.cmd(fn)
+          vim.cmd(cb)
         end, timer or 0)
       end
     end
@@ -1434,3 +1438,5 @@ function fn.open_workspace(path)
   end
 end
 --}}}
+
+return fn

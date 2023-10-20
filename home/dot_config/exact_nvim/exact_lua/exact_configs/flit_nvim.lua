@@ -1,5 +1,7 @@
-function plug.config()
-  require'flit'.setup {
-    multiline = false,
-  }
-end
+return {
+  config = function()
+    require'flit'.setup {
+      multiline = false,
+    }
+  end,
+}

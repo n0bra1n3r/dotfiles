@@ -15,6 +15,7 @@ end
 --}}}
 
 --{{{ Load Globals
+---@diagnostic disable-next-line: duplicate-set-field
 _G.my_globals = function(globals)
   my_config.globals = vim.tbl_extend('force',
     my_config.globals or {},
@@ -27,6 +28,7 @@ end
 require 'globals'
 --}}}
 --{{{ Load Options
+---@diagnostic disable-next-line: duplicate-set-field
 _G.my_options = function(options)
   my_config.options = vim.tbl_extend('force',
     my_config.options or {},
@@ -43,12 +45,11 @@ end
 require "options"
 --}}}
 --{{{ Load Functions
-my_config.functions = {}
-_G.fn = my_config.functions
-
-require 'functions'
+_G.fn = require'functions'
+my_config.functions = vim.deepcopy(_G.fn)
 --}}}
 --{{{ Load Highlights
+---@diagnostic disable-next-line: duplicate-set-field
 _G.my_highlights = function(highlights)
   my_config.highlights = vim.tbl_extend('force',
     my_config.highlights or {},
@@ -61,6 +62,7 @@ end
 require "highlights"
 --}}}
 --{{{ Load Signs
+---@diagnostic disable-next-line: duplicate-set-field
 _G.my_signs = function(signs)
   my_config.signs = vim.tbl_extend('force',
     my_config.signs or {},
@@ -73,6 +75,7 @@ end
 require "signs"
 --}}}
 --{{{ Load Autocmds
+---@diagnostic disable-next-line: duplicate-set-field
 _G.my_autocmds = function(autocmds)
   local conf_id = debug.getinfo(2, 'S').source:sub(2):match'(.*/)'
   set_proj_config(conf_id, 'autocmds', autocmds)
@@ -119,6 +122,7 @@ local function get_plugin_config_name(plugin)
   return vim.fn.fnamemodify(plugin, ':t'):gsub('%.', '_')
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
 _G.my_plugins = function(plugins)
   my_config.plugins = vim.tbl_extend('force',
     my_config.plugins or {},
@@ -126,9 +130,7 @@ _G.my_plugins = function(plugins)
   for _, spec in ipairs(plugins) do
     local plugin = spec.name or spec[1]
     local config = get_plugin_config_name(plugin)
-    local module = {}
-    _G.plug = module
-    local has_config, _ = pcall(require, 'configs.'..config)
+    local has_config, module = pcall(require, 'configs.'..config)
     if has_config then
       if module.init ~= nil then
         if spec.init == nil then
@@ -155,7 +157,6 @@ _G.my_plugins = function(plugins)
         end
       end
     end
-    _G.plug = nil
   end
 
   require'lazy'.setup(plugins, {
@@ -246,6 +247,7 @@ vim.api.nvim_create_autocmd('BufEnter', {
 require 'plugins'
 --}}}
 --{{{ Load Commands
+---@diagnostic disable-next-line: duplicate-set-field
 _G.my_commands = function(commands)
   my_config.commands = vim.tbl_extend('force',
     my_config.commands or {},
@@ -264,6 +266,7 @@ end
 require 'commands'
 --}}}
 --{{{ Load Mappings
+---@diagnostic disable-next-line: duplicate-set-field
 _G.my_mappings = function(mappings)
   my_config.mappings = vim.tbl_extend('force',
     my_config.mappings or {},
@@ -291,6 +294,7 @@ end
 require "mappings"
 --}}}
 --{{{ Load Env
+---@diagnostic disable-next-line: duplicate-set-field
 _G.my_env = function(env)
   my_config.env = vim.tbl_extend('force',
     my_config.env or {},
@@ -305,6 +309,7 @@ _G.my_env = function(env)
 end
 --}}}
 --{{{ Load Debuggers
+---@diagnostic disable-next-line: duplicate-set-field
 _G.my_debuggers = function(debuggers)
   my_config.debuggers = vim.tbl_extend('force',
     my_config.debuggers or {},
@@ -312,6 +317,7 @@ _G.my_debuggers = function(debuggers)
 end
 --}}}
 --{{{ Load Tasks
+---@diagnostic disable-next-line: duplicate-set-field
 _G.my_tasks = function(tasks)
   my_config.tasks = vim.tbl_extend('force',
     my_config.tasks or {},
@@ -325,6 +331,7 @@ end
 require 'tasks'
 --}}}
 --{{{ Load Launchers
+---@diagnostic disable-next-line: duplicate-set-field
 _G.my_launchers = function(launchers)
   my_config.launchers = vim.tbl_extend('force',
     my_config.launchers or {},
@@ -332,6 +339,7 @@ _G.my_launchers = function(launchers)
 end
 --}}}
 --{{{ Load Snippets
+---@diagnostic disable-next-line: duplicate-set-field
 _G.my_snippets = function(new_snippets)
   my_config.snippets = vim.tbl_extend('force',
     my_config.snippets or {},
@@ -377,6 +385,7 @@ end
 require 'snippets'
 --}}}
 --{{{ Load LSP Handlers
+---@diagnostic disable-next-line: duplicate-set-field
 _G.my_lsp_handlers = function(handlers)
   my_config.lsp_handlers = vim.tbl_extend('force',
     my_config.lsp_handlers or {},

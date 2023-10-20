@@ -75,11 +75,13 @@ local function nim_diagnostics()
   }
 end
 
-function plug.config()
-  require'null-ls'.setup {
-    sources = {
-      require'null-ls'.builtins.diagnostics.actionlint,
-      --nim_diagnostics(),
-    },
-  }
-end
+return {
+  config = function()
+    require'null-ls'.setup {
+      sources = {
+        require'null-ls'.builtins.diagnostics.actionlint,
+        --nim_diagnostics(),
+      },
+    }
+  end,
+}

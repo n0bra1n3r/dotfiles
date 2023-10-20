@@ -1,5 +1,7 @@
-function plug.config()
-  require'lsp-zero.settings'.preset {
-    float_border = "single",
-  }
-end
+return {
+  config = function()
+    require'lsp-zero.settings'.preset {
+      float_border = "single",
+    }
+  end,
+}

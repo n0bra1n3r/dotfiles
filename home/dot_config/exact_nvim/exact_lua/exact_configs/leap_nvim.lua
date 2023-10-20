@@ -1,3 +1,5 @@
-function plug.config()
-  require'leap'.add_default_mappings(true)
-end
+return {
+  config = function()
+    require'leap'.add_default_mappings(true)
+  end,
+}
