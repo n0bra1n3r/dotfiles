@@ -3,6 +3,7 @@
 
 _G.my_config = {}
 
+--{{{ Helpers
 local function set_proj_config(id, key, value)
   local conf_table = _G.my_config[key]
   if not conf_table then
@@ -11,6 +12,7 @@ local function set_proj_config(id, key, value)
   end
   conf_table[id] = value
 end
+--}}}
 
 --{{{ Load Globals
 _G.my_globals = function(globals)
