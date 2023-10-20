@@ -14,6 +14,7 @@ function plug.config()
         enabled = true,
         enable_ui = true,
       },
+      --fidget = true,
       gitsigns = true,
       leap = true,
       markdown = true,

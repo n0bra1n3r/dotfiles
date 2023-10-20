@@ -23,6 +23,8 @@ my_plugins {
 
   { "MunifTanjim/nui.nvim" },
 
+  { 'j-hui/fidget.nvim', tag = 'legacy', event = 'LspAttach' },
+
   -- Key Mappings --
 
   { "folke/which-key.nvim", event = "VeryLazy" },

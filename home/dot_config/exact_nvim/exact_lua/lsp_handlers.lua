@@ -14,9 +14,4 @@ my_lsp_handlers {
       })
     end,
   }, --}}}
-  ['$/progress'] = { --{{{
-    callback = function(_, result, ctx)
-      fn.show_lsp_progress(ctx.client_id, result.token, result.value)
-    end
-  }, --}}}
 }

@@ -33,13 +33,14 @@ function plug.config()
         local next_row = require'notify.stages.util'.available_slot(
           state.open_windows,
           next_height,
-          require'notify.stages.util'.DIRECTION.BOTTOM_UP
+          require'notify.stages.util'.DIRECTION.TOP_DOWN
         )
         if not next_row then
           return nil
         end
-        local row = next_row == vim.o.lines - next_height
-          and next_row - 1
+        local is_tabline_visible = vim.o.showtabline ~= 0 and #vim.o.tabline ~= 0
+        local row = next_row == 0
+          and next_row + (is_tabline_visible and 2 or 1)
           or next_row
         return {
           anchor = 'NE',
@@ -59,7 +60,6 @@ function plug.config()
         }
       end,
     },
-    top_down = false,
   }
 
   vim.notify = function(msg, level, opts)
