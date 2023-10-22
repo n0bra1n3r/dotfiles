@@ -183,7 +183,7 @@ my_mappings {
     yD                  = { 'D', desc = "Cut text after cursor" },
     yd                  = { 'dd', desc = "Cut line" },
     yx                  = { "col('$')==col('.')?'gJ':'x'", expr = true, desc = "Cut character under cursor" },
-    ['z.']              = { close_folds_at(), desc = "Close all folds at current level" },
+    z0                  = { close_folds_at(), desc = "Close all folds at current level" },
     z1                  = { close_folds_at(1), desc = "Close all level 1 folds" },
     z2                  = { close_folds_at(2), desc = "Close all level 2 folds" },
     z3                  = { close_folds_at(3), desc = "Close all level 3 folds" },
