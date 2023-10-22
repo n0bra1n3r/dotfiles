@@ -155,7 +155,7 @@ my_mappings {
     ["<leader>z"]       = { "<cmd>only<CR>", desc = "Zoom" },
     ["<M-\\>"]          = { "<cmd>vsplit<CR>" },
     ["<M-->"]           = { "<cmd>split<CR>" },
-    ["<M-=>"]           = { fn.float_window },
+    ["<M-=>"]           = { "<cmd>tabe %<CR>" },
     ["<M-;>"]           = { "v:lua.fn.is_floating()?'l':'<C-w>l'", expr = true },
     ["<M-1>"]           = { execute_last_terminal_command },
     ["<M-j>"]           = { "v:lua.fn.is_floating()?'j':'<C-w>j'", expr = true },
