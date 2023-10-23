@@ -167,12 +167,11 @@ local function maybe_create_search_buffer()
         break
       end
       vim.cmd.tabedit("#"..bufnr)
-      set_search_window_options()
-    else
-      vim.cmd[[tabnew]]
-      set_search_window_options()
-      return vim.api.nvim_get_current_buf()
+      return nil
     end
+
+    vim.cmd[[tabnew]]
+    return vim.api.nvim_get_current_buf()
   end
 end
 
@@ -216,6 +215,8 @@ local function initialize_search(search_term, search_args)
     new_info.search_args)
 
   vim.bo.buftype = "nowrite"
+
+  set_search_window_options()
 
   return new_info
 end
@@ -544,6 +545,8 @@ local function finalize_search()
   vim.fn.setreg("/", info.search_term, vim.fn.getregtype"/")
   vim.o.hlsearch = true
 
+  set_search_window_options()
+
   watch_modifications()
 end
 
@@ -670,7 +673,7 @@ local function open_search_buffer()
         on_buf_delete(...)
       end,
     })
-    vim.api.nvim_create_autocmd("BufEnter", {
+    vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWinEnter' }, {
       group = group,
       buffer = bufnr,
       callback = on_buf_enter,
@@ -698,6 +701,10 @@ local function open_search_buffer()
 end
 
 local function parse_result(result_line)
+  if not result_line then
+    return nil
+  end
+
   local format = vim.o.grepformat
   local part_index = {}
   local index = 0
@@ -794,23 +801,25 @@ function M.run(search_args, search_term)
     on_stdout = vim.schedule_wrap(function(_, result_line)
       if get_is_current_search(info.search_id) then
         local result = parse_result(result_line)
-        local next_line = push_result(line, result)
+        if result then
+          local next_line = push_result(line, result)
 
-        line = next_line
+          line = next_line
 
-        local win_height = vim.api.nvim_win_get_height(0)
-        local res_height = #info.line_array + vim.tbl_count(info.file_table) * 2
+          local win_height = vim.api.nvim_win_get_height(0)
+          local res_height = #info.line_array + vim.tbl_count(info.file_table) * 2
 
-        if res_height <= win_height then
-          render_result(line, result)
-        end
+          if res_height <= win_height then
+            render_result(line, result)
+          end
 
-        render_statistics()
+          render_statistics()
 
-        if line > redraw_threshold then
-          vim.cmd[[redraw]]
+          if line > redraw_threshold then
+            vim.cmd[[redraw]]
 
-          redraw_threshold = line + line / 3
+            redraw_threshold = line + line / 3
+          end
         end
       end
     end),
