@@ -525,15 +525,6 @@ local debug_info = {
   state = 0,
   toolbar = {
     {
-      [[<Ins>]],
-      action = [[toggle_breakpoint]],
-      icon = {
-        '',
-        color = "Function",
-      },
-      states = { 1, 2, 3 },
-    },
-    {
       [[<F10>]],
       action = [[continue]],
       icon = {
@@ -880,7 +871,6 @@ end
 
 function fn.open_tab(filename)
   vim.cmd.tabe(vim.fn.fnameescape(filename))
-  fn.freeze_workspace()
 end
 
 function fn.close_buffer()
@@ -994,7 +984,6 @@ function fn.open_terminal()
   local terminal = require'toggleterm.terminal'.get(0, true)
   if terminal == nil then
     get_terminal():open()
-    fn.freeze_workspace()
   else
     local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
     if vim.api.nvim_get_current_tabpage() ~= tabpage then
@@ -1354,16 +1343,14 @@ local function get_workspace_file_path(tabpage)
 end
 
 local function load_workspace(tabpage)
-  if not fn.is_workspace_frozen(tabpage) then
-    local workspace_file = io.open(get_workspace_file_path(tabpage), "r")
-    if workspace_file ~= nil then
-      fn.freeze_workspace(tabpage, false)
-      local workspace_path = fn.get_workspace_dir(tabpage)
-      local workspace_conf = workspace_file:read("*a")
-      vim.api.nvim_exec2(workspace_conf, { output = false })
-      io.close(workspace_file)
-      fn.set_tab_cwd(tabpage, workspace_path)
-    end
+  local workspace_file = io.open(get_workspace_file_path(tabpage), "r")
+  if workspace_file ~= nil then
+    fn.freeze_workspace(tabpage, false)
+    local workspace_path = fn.get_workspace_dir(tabpage)
+    local workspace_conf = workspace_file:read("*a")
+    vim.api.nvim_exec2(workspace_conf, { output = false })
+    io.close(workspace_file)
+    fn.set_tab_cwd(tabpage, workspace_path)
   end
 end
 
@@ -1384,7 +1371,7 @@ function fn.is_workspace_frozen(tabpage)
     tabpage or vim.api.nvim_get_current_tabpage(),
     "is_workspace_frozen"
   )
-  return has_var and is_workspace_frozen
+  return not has_var or is_workspace_frozen
 end
 
 function fn.freeze_workspace(tabpage, value)
@@ -1434,7 +1421,7 @@ function fn.open_workspace(path)
   if vim.fn.isdirectory(workspace_path) then
     vim.cmd[[tabnew]]
     fn.set_tab_cwd(nil, workspace_path)
-    load_workspace(nil)
+    load_workspace()
   end
 end
 --}}}

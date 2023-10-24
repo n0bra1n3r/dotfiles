@@ -354,70 +354,6 @@ local function debug_btn()
   }
 end
 
-local function debug_bar()
-  return {
-    condition = function()
-      return fn.get_is_debugging()
-    end,
-    border'',
-    {
-      hl = { bg = 'background' },
-      {
-        hl = function(self)
-          local filetype = vim.g.project_filetypes[vim.g.project_type]
-          if filetype then
-            local _, fg = require'nvim-web-devicons'.get_icon_color_by_filetype(filetype)
-            return { fg = fg }
-          end
-          return { fg = self.mode_colors['c'] }
-        end,
-        on_click = {
-          callback = function()
-            fn.toggle_debug_repl()
-          end,
-          name = function()
-            return 'debug_click_callback'
-          end,
-        },
-        provider = function()
-          return (vim.g.project_icons[vim.g.project_type] or '󰃤')..' '
-        end,
-        static = {
-          mode_colors = mode_colors(),
-        },
-      },
-      sep'',
-      space(),
-      {
-        init = function(self)
-          self.child_index = { value = 0 }
-
-          local toolbar = fn.get_debug_toolbar()
-          for i, item in ipairs(toolbar) do
-            local child = self[i]
-            if not child or child.icon ~= item.icon then
-              self[i] = self:new(debug_btn(), i)
-              child = self[i]
-              child.action = item.action
-              child.highlight = item.highlight
-              child.icon = item.icon
-              child.keymap = item.keymap
-              child.click_cb = item.click_cb
-              child.cond_cb = item.cond_cb
-            end
-          end
-          if #self > #toolbar then
-            for i = #toolbar + 1, #self do
-              self[i] = nil
-            end
-          end
-        end,
-      },
-    },
-    border'',
-  }
-end
-
 local function location_label()
   return {
     condition = function()
@@ -455,6 +391,38 @@ local function location_label()
   }
 end
 
+local function debug_bar()
+  return {
+    condition = function()
+      return fn.get_is_debugging()
+    end,
+    hl = { bg = 'background' },
+    init = function(self)
+      self.child_index = { value = 0 }
+
+      local toolbar = fn.get_debug_toolbar()
+      for i, item in ipairs(toolbar) do
+        local child = self[i]
+        if not child or child.icon ~= item.icon then
+          self[i] = self:new(debug_btn(), i)
+          child = self[i]
+          child.action = item.action
+          child.highlight = item.highlight
+          child.icon = item.icon
+          child.keymap = item.keymap
+          child.click_cb = item.click_cb
+          child.cond_cb = item.cond_cb
+        end
+      end
+      if #self > #toolbar then
+        for i = #toolbar + 1, #self do
+          self[i] = nil
+        end
+      end
+    end,
+  }
+end
+
 local function tab_btn()
   return {
     init = function(self)
@@ -463,10 +431,10 @@ local function tab_btn()
       self.name = vim.api.nvim_buf_get_name(cur_buf)
     end,
     {
-      space(),
       condition = function(self)
         return vim.api.nvim_tabpage_get_number(self.tab) > 1
       end,
+      space(),
       sep'│',
       space(),
     },
@@ -478,7 +446,16 @@ local function tab_btn()
       end,
       on_click = {
         callback = function(self)
-          vim.api.nvim_set_current_tabpage(self.tab)
+          local is_cur = self.tab == vim.api.nvim_get_current_tabpage()
+          if is_cur then
+            if fn.get_is_debugging() then
+              fn.toggle_debug_repl()
+            else
+              fn.resume_debugging()
+            end
+          else
+            vim.api.nvim_set_current_tabpage(self.tab)
+          end
         end,
         name = function(self)
           return 'tab_click_callback'..self.tab
@@ -486,14 +463,14 @@ local function tab_btn()
       },
       provider = function(self)
         local icon = ''
-        local label = [[]]
+        local label
 
         local cur_path = fn.get_workspace_dir()
         local tab_path = fn.get_workspace_dir(self.tab)
         if cur_path ~= tab_path then
           local tab_root = fn.get_git_worktree_root(self.tab)
           if tab_path == tab_root then
-            label = vim.fn.pathshorten(vim.fn.fnamemodify(tab_path, ":~:."))
+            label = vim.fn.pathshorten(vim.fn.fnamemodify(tab_path, ':~:.'))
           elseif fn.is_subpath(tab_path, tab_root) then
             label = tab_path:sub(#tab_root + 2, -1)
           else
@@ -501,21 +478,44 @@ local function tab_btn()
           end
         end
 
-        local types = get_visible_buf_type_counts(self.tab)
-        if vim.tbl_count(types) == 1 then
-          if types.help then
-            icon = '󰋖'
-          elseif types.terminal and not fn.get_shell_active() then
-            icon = ''
-          elseif types.terminal and fn.get_shell_active() then
-            icon = '%#String#󱆃%*'
-          elseif fn.is_workspace_frozen(self.tab) then
-            icon = require'nvim-web-devicons'.get_icon(vim.tbl_keys(types)[1])
+        if not fn.is_workspace_frozen(self.tab) and vim.g.project_type then
+          local proj_icon = vim.g.project_icons[vim.g.project_type]
+          if fn.get_is_debugging() then
+            icon = proj_icon or '󰃤'
+            icon = '%#Constant#'..icon..'%*'
+          else
+            icon = proj_icon or ''
+          end
+          icon = icon..' '
+        else
+          local types = get_visible_buf_type_counts(self.tab)
+          if vim.tbl_count(types) == 1 then
+            if types.help then
+              icon = '󰋖'
+            elseif types.terminal then
+              icon = '󱆃'
+              if fn.get_shell_active() then
+                icon = '%#String#'..icon..'%*'
+              end
+            else
+              local type = vim.tbl_keys(types)[1]
+              icon = require'nvim-web-devicons'.get_icon(type)
+            end
           end
         end
 
-        return vim.trim(icon..' '..label)
+        return label and icon..' '..label or icon
       end,
+      {
+        condition = function(self)
+          return fn.get_is_debugging()
+            and not fn.is_workspace_frozen(self.tab)
+            and self.tab == vim.api.nvim_get_current_tabpage()
+        end,
+        sep'',
+        space(),
+        debug_bar(),
+      },
     },
   }
 end
@@ -934,8 +934,6 @@ return {
         mode_label(),
         space(),
         workspace_label(),
-        space(math.huge),
-        debug_bar(),
         space(math.huge),
         location_label(),
         space(),
