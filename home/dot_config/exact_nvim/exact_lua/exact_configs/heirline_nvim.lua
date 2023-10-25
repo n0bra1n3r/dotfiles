@@ -70,6 +70,7 @@ local function colors()
     tab = hl'Title'.fg,
     tab_inactive = hl'NonText'.fg,
     task_running = hl'WarningMsg'.fg,
+    task_running_focused = hl'Constant'.fg,
     window_btn = hl'NonText'.fg,
     workspace = hl'Title'.fg,
   }
@@ -201,10 +202,6 @@ local function mode_label()
       provider = function(self)
         return self.mode_names[self.mode]..' '
       end,
-      static = {
-        mode_colors = mode_colors(),
-        mode_names = mode_names,
-      },
       update = { 'ModeChanged' },
     },
   }
@@ -212,9 +209,6 @@ end
 
 local function git_repo_status()
   return {
-    init = function(self)
-      self.cwd = fn.get_tab_cwd()
-    end,
     on_click = {
       callback = function(self)
         fn.open_git_repo(self.cwd)
@@ -277,9 +271,6 @@ local function workspace_label()
     border'',
     {
       hl = { bg = 'background' },
-      init = function(self)
-        self.cwd = fn.get_tab_cwd()
-      end,
       space(),
       {
         hl = { fg = 'workspace', bold = true },
@@ -303,6 +294,43 @@ local function workspace_label()
         sep'╱',
         space(),
         git_repo_status(),
+      },
+      space(),
+    },
+    border'',
+  }
+end
+
+local function location_label()
+  return {
+    condition = function()
+      return not fn.is_terminal_buf()
+    end,
+    border'',
+    {
+      hl = { bg = 'background' },
+      init = function(self)
+        local win = vim.api.nvim_get_current_win()
+        self.cursor = vim.api.nvim_win_get_cursor(win)
+      end,
+      update = { 'CursorMoved','CursorMovedI' },
+      space(),
+      {
+        hl = { fg = 'location', italic = true },
+        provider = function(self)
+          local line_num = tostring(self.cursor[1])
+          return (' '):rep(3 - #line_num)..'L'..line_num
+        end,
+      },
+      space(),
+      sep'╱',
+      space(),
+      {
+        hl = { fg = 'location', italic = true },
+        provider = function(self)
+          local col_num = tostring(self.cursor[2])
+          return 'C'..col_num..(' '):rep(3 - #col_num)
+        end,
       },
       space(),
     },
@@ -354,48 +382,8 @@ local function debug_btn()
   }
 end
 
-local function location_label()
-  return {
-    condition = function()
-      return not fn.is_terminal_buf()
-    end,
-    border'',
-    {
-      hl = { bg = 'background' },
-      init = function(self)
-        local win = vim.api.nvim_get_current_win()
-        self.cursor = vim.api.nvim_win_get_cursor(win)
-      end,
-      update = { 'CursorMoved','CursorMovedI' },
-      space(),
-      {
-        hl = { fg = 'location', italic = true },
-        provider = function(self)
-          local line_num = tostring(self.cursor[1])
-          return (' '):rep(3 - #line_num)..'L'..line_num
-        end,
-      },
-      space(),
-      sep'╱',
-      space(),
-      {
-        hl = { fg = 'location', italic = true },
-        provider = function(self)
-          local col_num = tostring(self.cursor[2])
-          return 'C'..col_num..(' '):rep(3 - #col_num)
-        end,
-      },
-      space(),
-    },
-    border'',
-  }
-end
-
 local function debug_bar()
   return {
-    condition = function()
-      return fn.get_is_debugging()
-    end,
     hl = { bg = 'background' },
     init = function(self)
       self.child_index = { value = 0 }
@@ -428,7 +416,17 @@ local function tab_btn()
     init = function(self)
       local cur_win = vim.api.nvim_tabpage_get_win(self.tab)
       local cur_buf = vim.api.nvim_win_get_buf(cur_win)
+      self.is_cur = self.tab == vim.api.nvim_get_current_tabpage()
+      self.is_debugging = fn.get_is_debugging(self.tab)
+      self.is_project = not fn.is_workspace_frozen(self.tab)
+      self.is_shell_active = fn.get_shell_active()
       self.name = vim.api.nvim_buf_get_name(cur_buf)
+      self.tab_path = fn.get_workspace_dir(self.tab)
+      self.tab_root = fn.get_git_worktree_root(self.tab)
+      local types = get_visible_buf_type_counts(self.tab)
+      if vim.tbl_count(types) == 1 then
+        self.type = vim.tbl_keys(types)[1]
+      end
     end,
     {
       condition = function(self)
@@ -440,15 +438,26 @@ local function tab_btn()
     },
     {
       hl = function(self)
-        local is_cur = self.tab == vim.api.nvim_get_current_tabpage()
-        local hl = is_cur and 'tab' or 'tab_inactive'
-        return { fg = hl, bold = is_cur, italic = is_cur }
+        local hl
+        if self.type == 'terminal' then
+          if fn.get_shell_active() then
+            hl = self.is_cur and 'task_running_focused' or 'task_running'
+          end
+        elseif self.is_debugging then
+          hl = self.is_cur and 'task_running_focused' or 'task_running'
+        else
+          hl = self.is_cur and 'tab' or 'tab_inactive'
+        end
+        return {
+          fg = hl,
+          bold = self.is_cur,
+          italic = self.is_cur,
+        }
       end,
       on_click = {
         callback = function(self)
-          local is_cur = self.tab == vim.api.nvim_get_current_tabpage()
-          if is_cur then
-            if fn.get_is_debugging() then
+          if self.is_cur then
+            if self.is_debugging then
               fn.toggle_debug_repl()
             else
               fn.resume_debugging()
@@ -462,45 +471,32 @@ local function tab_btn()
         end,
       },
       provider = function(self)
-        local icon = ''
         local label
-
-        local cur_path = fn.get_workspace_dir()
-        local tab_path = fn.get_workspace_dir(self.tab)
-        if cur_path ~= tab_path then
-          local tab_root = fn.get_git_worktree_root(self.tab)
-          if tab_path == tab_root then
-            label = vim.fn.pathshorten(vim.fn.fnamemodify(tab_path, ':~:.'))
-          elseif fn.is_subpath(tab_path, tab_root) then
-            label = tab_path:sub(#tab_root + 2, -1)
+        if fn.get_workspace_dir() ~= self.tab_path then
+          if self.tab_path == self.tab_root then
+            label = vim.fn.pathshorten(vim.fn.fnamemodify(self.tab_path, ':~:.'))
+          elseif fn.is_subpath(self.tab_path, self.tab_root) then
+            label = self.tab_path:sub(#self.tab_root + 2, -1)
           else
             label = self.name
           end
         end
 
-        if not fn.is_workspace_frozen(self.tab) and vim.g.project_type then
+        local icon = ''
+        if self.is_project and vim.g.project_type then
           local proj_icon = vim.g.project_icons[vim.g.project_type]
-          if fn.get_is_debugging() then
+          if self.is_debugging then
             icon = proj_icon or '󰃤'
-            icon = '%#Constant#'..icon..'%*'
           else
             icon = proj_icon or ''
           end
-          icon = icon..' '
-        else
-          local types = get_visible_buf_type_counts(self.tab)
-          if vim.tbl_count(types) == 1 then
-            if types.help then
-              icon = '󰋖'
-            elseif types.terminal then
-              icon = '󱆃'
-              if fn.get_shell_active() then
-                icon = '%#String#'..icon..'%*'
-              end
-            else
-              local type = vim.tbl_keys(types)[1]
-              icon = require'nvim-web-devicons'.get_icon(type)
-            end
+        elseif self.type then
+          if self.type == 'help' then
+            icon = '󰋖'
+          elseif self.type == 'terminal' then
+            icon = '󱆃'
+          else
+            icon = require'nvim-web-devicons'.get_icon(self.type)
           end
         end
 
@@ -508,10 +504,9 @@ local function tab_btn()
       end,
       {
         condition = function(self)
-          return fn.get_is_debugging()
-            and not fn.is_workspace_frozen(self.tab)
-            and self.tab == vim.api.nvim_get_current_tabpage()
+          return self.is_debugging and self.is_cur
         end,
+        space(),
         sep'',
         space(),
         debug_bar(),
@@ -525,25 +520,30 @@ local function tabs_bar()
     border'',
     {
       hl = { bg = 'background' },
-      init = function(self)
-        local tabs = vim.api.nvim_list_tabpages()
-        for i, tab in ipairs(tabs) do
-          local child = self[i]
-          if not child or child.tab ~= tab then
-            self[i] = self:new({
-              hl = { bg = 'background' },
-              tab_btn(),
-            }, i)
-            child = self[i]
-            child.tab = tab
+      space(),
+      {
+        init = function(self)
+          local tabs = vim.api.nvim_list_tabpages()
+          for i, tab in ipairs(tabs) do
+            local child = self[i]
+            if not child or child.tab ~= tab then
+              self[i] = self:new({
+                hl = { bg = 'background' },
+                tab_btn(),
+              }, i)
+              child = self[i]
+              child.tab = tab
+              child.cwd = fn.get_tab_cwd(tab)
+            end
           end
-        end
-        if #self > #tabs then
-          for i = #tabs + 1, #self do
-            self[i] = nil
+          if #self > #tabs then
+            for i = #tabs + 1, #self do
+              self[i] = nil
+            end
           end
-        end
-      end,
+        end,
+      },
+      space(),
     },
     border'',
   }
@@ -646,9 +646,6 @@ end
 local function bookmark_btn()
   return {
     hl = { fg = 'bookmark_btn' },
-    init = function(self)
-      self.buf = vim.api.nvim_get_current_buf()
-    end,
     on_click = {
       callback = function(_, minwid)
         local tags = require'grapple'.tags()
@@ -930,6 +927,10 @@ return {
       },
       statusline = {
         hl = { bg = 'default' },
+        static = {
+          mode_colors = mode_colors(),
+          mode_names = mode_names,
+        },
         space(),
         mode_label(),
         space(),
@@ -946,6 +947,9 @@ return {
       },
       winbar = {
         hl = { bg = 'default' },
+        init = function(self)
+          self.buf = vim.api.nvim_get_current_buf()
+        end,
         space(-3),
         header(),
         space(),

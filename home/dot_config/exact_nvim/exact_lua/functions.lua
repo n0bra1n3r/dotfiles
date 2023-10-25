@@ -522,7 +522,7 @@ end
 --{{{ Debugging
 local debug_info = {
   keymaps = {},
-  state = 0,
+  state = {},
   toolbar = {
     {
       [[<F10>]],
@@ -617,17 +617,22 @@ local debug_info = {
   },
 }
 
-function fn.get_is_debugging()
-  return debug_info.state ~= 0
+local function get_debug_state(tabpage)
+  return debug_info.state[tabpage or vim.api.nvim_get_current_tabpage()] or 0
 end
 
-function fn.get_debug_callback(action)
+local function set_debug_state(tabpage, state)
+  debug_info.state[tabpage or vim.api.nvim_get_current_tabpage()] = state
+end
+
+local function get_debug_callback(action, tabpage)
+  local state = get_debug_state(tabpage)
   return function(_, _, mods)
     local task_name = 'Debug '..action:gsub('_', ' ')
     if fn.has_task(task_name) then
       fn.run_task(task_name, {
         mods = mods,
-        state = debug_info.state,
+        state = state,
       })
     else
       require'dap'[action]()
@@ -635,9 +640,9 @@ function fn.get_debug_callback(action)
   end
 end
 
-local function get_debug_button_callback(button)
+local function get_debug_button_callback(button, tabpage)
   if type(button.action) == 'string' then
-    return fn.get_debug_callback(button.action)
+    return get_debug_callback(button.action, tabpage)
   end
   return button.action
 end
@@ -686,11 +691,15 @@ local function unset_debugging_keymaps()
   end
 end
 
-function fn.stop_debugging()
-  if debug_info.state ~= 0 then
-    unset_debugging_keymaps()
+function fn.get_is_debugging(tabpage)
+  return get_debug_state(tabpage) ~= 0
+end
 
-    debug_info.state = 0
+function fn.stop_debugging(tabpage)
+  if get_debug_state(tabpage) ~= 0 then
+    unset_debugging_keymaps()
+    set_debug_state(tabpage, 0)
+
     debug_info.keymaps = {}
   end
 
@@ -714,10 +723,9 @@ function fn.stop_debugging()
   end
 end
 
-local function update_debugging_state(state)
+local function update_debugging_state(state, tabpage)
   if state > 0 then
-    debug_info.state = state
-
+    set_debug_state(tabpage, state)
     unset_debugging_keymaps()
 
     for _, button in ipairs(debug_info.toolbar) do
@@ -734,8 +742,10 @@ local function update_debugging_state(state)
   end
 end
 
-function fn.resume_debugging()
-  if debug_info.state == 0 then
+function fn.resume_debugging(tabpage)
+  local state = get_debug_state(tabpage)
+
+  if state == 0 then
     require'dapui'.open(1)
 
     update_debugging_state(1)
@@ -770,11 +780,16 @@ function fn.resume_debugging()
     require'dap'.listeners.after.event_terminated.my_debug_event
 end
 
-function fn.get_debug_toolbar()
+function fn.get_debug_toolbar(tabpage)
+  local state = get_debug_state(tabpage)
+  local def_btn_cb = function()
+    fn.stop_debugging(tabpage)
+  end
+
   local components = {}
   for i, button in ipairs(debug_info.toolbar) do
-    local btn_cb = get_debug_button_callback(button)
-      or fn.stop_debugging
+    local btn_cb = get_debug_button_callback(button, state)
+      or def_btn_cb
     table.insert(components, {
       action = button.action or ('action_'..i),
       highlight = button.icon.color,
@@ -784,7 +799,7 @@ function fn.get_debug_toolbar()
         btn_cb(click_count, mouse_button, mods)
       end,
       cond_cb = function()
-        return vim.tbl_contains(button.states, debug_info.state)
+        return vim.tbl_contains(button.states, state)
       end,
     })
   end
