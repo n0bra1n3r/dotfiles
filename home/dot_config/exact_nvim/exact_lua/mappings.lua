@@ -106,6 +106,7 @@ my_mappings {
   }, --}}}
   n = { --{{{
     ["<C-`>"]           = { fn.toggle_terminal },
+    ["<C-1>"]           = { execute_last_terminal_command },
     ["<C-c>"]           = { "<cmd>tabclose<CR>" },
     ["<C-Down>"]        = { "<C-w>j" },
     ['<C-i>']           = { '<Nop>' },
@@ -157,7 +158,6 @@ my_mappings {
     ["<M-->"]           = { "<cmd>split<CR>" },
     ["<M-=>"]           = { "<cmd>tabe %<CR>" },
     ["<M-;>"]           = { "v:lua.fn.is_floating()?'l':'<C-w>l'", expr = true },
-    ["<M-1>"]           = { execute_last_terminal_command },
     ["<M-j>"]           = { "v:lua.fn.is_floating()?'j':'<C-w>j'", expr = true },
     ["<M-k>"]           = { "v:lua.fn.is_floating()?'k':'<C-w>k'", expr = true },
     ["<M-l>"]           = { "v:lua.fn.is_floating()?'h':'<C-w>h'", expr = true },
@@ -191,13 +191,13 @@ my_mappings {
   t = { --{{{
     ["<C-`>"]           = { fn.toggle_terminal },
     ["<C-;>"]           = { "<End>" },
+    ["<C-1>"]           = { execute_last_terminal_command },
     ["<C-Left>"]        = { "<Home>" },
     ["<C-l>"]           = { "<Home>" },
     ["<C-Right>"]       = { "<End>" },
     ["<Esc>"]           = { "!v:lua.fn.is_floating()?'<Esc>':'<C-\\><C-n>'", expr = true },
     ["<LeftMouse>"]     = { "<nop>" },
     ["<M-;>"]           = { "<Right>" },
-    ["<M-1>"]           = { execute_last_terminal_command },
     ["<M-j>"]           = { "<C-\\><C-n>j" },
     ["<M-k>"]           = { "<C-\\><C-n>k" },
     ["<M-l>"]           = { "<Left>" },
