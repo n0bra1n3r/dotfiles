@@ -65,7 +65,7 @@ local function colors()
     git_local = hl'DiagnosticHint'.fg,
     git_remote = hl'DiagnosticWarn'.fg,
     git_stash = hl'DiagnosticInfo'.fg,
-    location = hl'String'.fg,
+    location = hl'NonText'.fg,
     macro_recording = hl'Error'.fg,
     separator = hl'Normal'.bg,
     tab = hl'Title'.fg,
@@ -317,6 +317,17 @@ local function location_label()
       space(),
       {
         hl = { fg = 'location', italic = true },
+        on_click = {
+          callback = function(self, minwid)
+            local filename = vim.api.nvim_buf_get_name(minwid)
+            local location = filename..':'..self.cursor[1]
+            vim.fn.setreg('+', location)
+          end,
+          minwid = function()
+            return vim.api.nvim_get_current_buf()
+          end,
+          name = 'location_line_click_callback',
+        },
         provider = function(self)
           local line_num = tostring(self.cursor[1])
           return (' '):rep(3 - #line_num)..'L'..line_num
@@ -327,6 +338,19 @@ local function location_label()
       space(),
       {
         hl = { fg = 'location', italic = true },
+        on_click = {
+          callback = function(self, minwid)
+            local filename = vim.api.nvim_buf_get_name(minwid)
+            local location = filename..':'
+              ..self.cursor[1]..':'
+              ..self.cursor[2]
+            vim.fn.setreg('+', location)
+          end,
+          minwid = function()
+            return vim.api.nvim_get_current_buf()
+          end,
+          name = 'location_col_click_callback',
+        },
         provider = function(self)
           local col_num = tostring(self.cursor[2])
           return 'C'..col_num..(' '):rep(3 - #col_num)
