@@ -1368,6 +1368,14 @@ function fn.close_folds_at(level)
     end
   end
 end
+
+function fn.copy_line_info(format, win)
+  local file_win = win or vim.api.nvim_get_current_win()
+  local buf = vim.api.nvim_win_get_buf(file_win)
+  local filename = vim.api.nvim_buf_get_name(buf)
+  local cursor = vim.api.nvim_win_get_cursor(file_win)
+  vim.fn.setreg('+', format:format(filename, cursor[1], cursor[2]))
+end
 --}}}
 --{{{ Workspace
 local function get_workspace_file_path(tabpage)

@@ -318,13 +318,11 @@ local function location_label()
       {
         hl = { fg = 'location', italic = true },
         on_click = {
-          callback = function(self, minwid)
-            local filename = vim.api.nvim_buf_get_name(minwid)
-            local location = filename..':'..self.cursor[1]
-            vim.fn.setreg('+', location)
+          callback = function(_, minwid)
+            fn.copy_line_info('%s:%d', minwid)
           end,
           minwid = function()
-            return vim.api.nvim_get_current_buf()
+            return vim.api.nvim_get_current_win()
           end,
           name = 'location_line_click_callback',
         },
@@ -339,15 +337,11 @@ local function location_label()
       {
         hl = { fg = 'location', italic = true },
         on_click = {
-          callback = function(self, minwid)
-            local filename = vim.api.nvim_buf_get_name(minwid)
-            local location = filename..':'
-              ..self.cursor[1]..':'
-              ..self.cursor[2]
-            vim.fn.setreg('+', location)
+          callback = function(_, minwid)
+            fn.copy_line_info('%s:%d:%d', minwid)
           end,
           minwid = function()
-            return vim.api.nvim_get_current_buf()
+            return vim.api.nvim_get_current_win()
           end,
           name = 'location_col_click_callback',
         },

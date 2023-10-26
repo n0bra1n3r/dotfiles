@@ -80,6 +80,10 @@ end
 local function show_breakpoints()
   require'telescope'.extensions.dap.list_breakpoints{}
 end
+
+local function copy_cursor_location()
+  fn.copy_line_info('%s:%d:%d')
+end
 --}}}
 
 my_mappings {
@@ -190,6 +194,7 @@ my_mappings {
     h                   = { ";" },
     l                   = { "col('.')==1&&col([line('.')-1,'$'])>1?'k$l':'h'", expr = true },
     x                   = { "col('$')==col('.')?'gJ':'\"_x'", expr = true },
+    ['y.']              = { copy_cursor_location, desc = "Copy cursor location" },
     yD                  = { 'D', desc = "Cut text after cursor" },
     yd                  = { 'dd', desc = "Cut line" },
     yx                  = { "col('$')==col('.')?'gJ':'x'", expr = true, desc = "Cut character under cursor" },
