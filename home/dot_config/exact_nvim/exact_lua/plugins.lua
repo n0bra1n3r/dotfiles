@@ -59,7 +59,8 @@ my_plugins {
 
   { "tpope/vim-repeat", event = "BufModifiedSet" },
   { "tpope/vim-surround", event = { "BufRead", "BufModifiedSet" } },
-  { 'chrisgrieser/nvim-spider', event = { "BufRead", "BufModifiedSet" } },
+  { 'chrisgrieser/nvim-spider', event = { "bufread", "bufmodifiedset" } },
+  { 'chrisgrieser/nvim-various-textobjs', event = { "BufRead", "BufModifiedSet" } },
 
   -- Navigation --
 
