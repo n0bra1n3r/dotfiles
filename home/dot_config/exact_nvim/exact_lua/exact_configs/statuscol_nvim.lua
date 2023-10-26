@@ -12,7 +12,7 @@ return {
       },
       clickhandlers = {
         Lnum = function(args)
-          if args.button ~= 'l' or fn.get_is_debugging() then
+          if args.button ~= 'l' or fn.is_debug_mode() then
             require'statuscol.builtin'.lnum_click(args)
           end
         end,
@@ -25,7 +25,11 @@ return {
         { text = { ' ' } },
         {
           sign = { name = { 'Dap' } },
-          condition = { fn.get_is_debugging },
+          condition = {
+            function()
+              return fn.is_debug_mode()
+            end,
+          },
           click = 'v:lua.ScLa',
         },
         {

@@ -1,7 +1,7 @@
 my_tasks {
   ["Run profiler"] = {
     cond = function()
-      return fn.get_is_debugging() and vim.g.project_type == 'flutter'
+      return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
     func = function()
       local url = require'flutter-tools.dev_tools'.get_profiler_url()
@@ -14,7 +14,7 @@ my_tasks {
   },
   ["Hot reload"] = {
     cond = function()
-      return fn.get_is_debugging() and vim.g.project_type == 'flutter'
+      return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
     func = function()
       vim.cmd[[FlutterReload]]
@@ -24,7 +24,7 @@ my_tasks {
   },
   ["Debug continue"] = {
     cond = function()
-      return fn.get_is_debugging() and vim.g.project_type == 'flutter'
+      return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
     func = function(args)
       if args.state == 1 then
@@ -58,7 +58,7 @@ my_tasks {
   },
   ["Debug restart"] = {
     cond = function()
-      return fn.get_is_debugging() and vim.g.project_type == 'flutter'
+      return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
     func = function()
       vim.cmd[[FlutterRestart]]
@@ -73,7 +73,7 @@ my_tasks {
   },
   ["Debug terminate"] = {
     cond = function()
-      return fn.get_is_debugging() and vim.g.project_type == 'flutter'
+      return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
     func = function()
       vim.cmd[[FlutterQuit]]

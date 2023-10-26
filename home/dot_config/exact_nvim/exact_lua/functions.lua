@@ -525,74 +525,82 @@ local debug_info = {
   state = {},
   toolbar = {
     {
-      [[<F10>]],
+      [[<F9>]],
+      action = [[toggle_breakpoint]],
+      states = { 1, 2, 3 },
+    },
+    {
+      [[<F5>]],
       action = [[continue]],
       icon = {
         '',
-        color = "Operator",
+        color = 'Operator',
       },
       states = { 1 },
     },
     {
-      [[<F10>]],
+      [[<F5>]],
       action = [[continue]],
       icon = {
         '',
-        color = "Function",
+        color = 'Function',
       },
       states = { 2 },
     },
     {
-      [[<F10>]],
+      [[<F6>]],
       action = [[pause]],
       icon = {
         '',
-        color = "Function",
+        color = 'Function',
       },
       states = { 3 },
     },
     {
-      [[<F6>]],
+      [[<F10>]],
       action = [[step_over]],
       icon = {
         '',
-        color = "Function",
-      },
-      states = { 2 },
-    },
-    {
-      [[<F7>]],
-      action = [[step_into]],
-      icon = {
-        '',
-        color = "Function",
-      },
-      states = { 2 },
-    },
-    {
-      [[<F8>]],
-      action = [[step_out]],
-      icon = {
-        '',
-        color = "Function",
-      },
-      states = { 2 },
-    },
-    {
-      [[<F9>]],
-      action = [[run_to_cursor]],
-      icon = {
-        '',
-        color = "Operator",
+        color = 'Function',
       },
       states = { 2 },
     },
     {
       [[<F11>]],
+      action = [[step_into]],
+      icon = {
+        '',
+        color = 'Function',
+      },
+      states = { 2 },
+    },
+    {
+      [[<F23>]],
+      action = [[step_out]],
+      hint = '<S-F11>',
+      icon = {
+        '',
+        color = 'Function',
+      },
+      states = { 2 },
+    },
+    {
+      [[<F35>]],
+      action = [[run_to_cursor]],
+      hint = '<C-F11>',
+      icon = {
+        '',
+        color = 'Operator',
+      },
+      states = { 2 },
+    },
+    {
+      [[<F29>]],
       action = [[restart]],
+      hint = '<C-F5>',
       icon = {
         '',
-        color = "Function",
+        color = 'Function',
       },
       states = { 2, 3 },
     },
@@ -601,16 +609,17 @@ local debug_info = {
       action = nil,
       icon = {
         '󰗼',
-        color = "Special",
+        color = 'Special',
       },
       states = { 1 },
     },
     {
-      [[<F12>]],
+      [[<F17>]],
       action = [[terminate]],
+      hint = '<S-F5>',
       icon = {
         '',
-        color = "Error",
+        color = 'Error',
       },
       states = { 2, 3 },
     },
@@ -657,7 +666,7 @@ local function set_debugging_keymap(lhs, callback, desc)
 
   keymap.is_overridden = true
 
-  vim.api.nvim_set_keymap("n", lhs, [[]], {
+  vim.api.nvim_set_keymap('n', lhs, [[]], {
     callback = function()
       callback()
     end,
@@ -670,7 +679,7 @@ local function unset_debugging_keymap(lhs)
   local keymap = debug_info.keymaps[lhs]
   if keymap and keymap.is_overridden then
     if keymap.rhs or keymap.callback then
-      vim.api.nvim_set_keymap("n", keymap.lhs, keymap.rhs or [[]], {
+      vim.api.nvim_set_keymap('n', keymap.lhs, keymap.rhs or [[]], {
         callback = keymap.callback,
         expr = keymap.expr,
         noremap = keymap.noremap,
@@ -679,7 +688,7 @@ local function unset_debugging_keymap(lhs)
         script = keymap.script,
       })
     else
-      vim.api.nvim_del_keymap("n", keymap.lhs)
+      vim.api.nvim_del_keymap('n', keymap.lhs)
     end
     keymap.is_overridden = false
   end
@@ -691,8 +700,12 @@ local function unset_debugging_keymaps()
   end
 end
 
-function fn.get_is_debugging(tabpage)
+function fn.is_debug_mode(tabpage)
   return get_debug_state(tabpage) ~= 0
+end
+
+function fn.is_debugging(tabpage)
+  return get_debug_state(tabpage) == 3
 end
 
 function fn.stop_debugging(tabpage)
@@ -718,8 +731,8 @@ function fn.stop_debugging(tabpage)
   require'dapui'.close()
 
   for _, win in ipairs(vim.api.nvim_list_wins()) do
-    vim.api.nvim_win_set_option(win, "numberwidth",
-      vim.api.nvim_win_get_option(win, "numberwidth"))
+    vim.api.nvim_win_set_option(win, 'numberwidth',
+      vim.api.nvim_win_get_option(win, 'numberwidth'))
   end
 end
 
@@ -730,15 +743,11 @@ local function update_debugging_state(state, tabpage)
 
     for _, button in ipairs(debug_info.toolbar) do
       if vim.tbl_contains(button.states, state) then
-        local callback = get_debug_button_callback(button)
+        local callback = get_debug_button_callback(button, tabpage)
           or fn.stop_debugging
         set_debugging_keymap(button[1], callback)
       end
     end
-
-    set_debugging_keymap([[<leader>b]], function()
-      require'telescope'.extensions.dap.list_breakpoints{}
-    end, "List breakpoints")
   end
 end
 
@@ -781,27 +790,28 @@ function fn.resume_debugging(tabpage)
 end
 
 function fn.get_debug_toolbar(tabpage)
-  local state = get_debug_state(tabpage)
   local def_btn_cb = function()
     fn.stop_debugging(tabpage)
   end
 
   local components = {}
   for i, button in ipairs(debug_info.toolbar) do
-    local btn_cb = get_debug_button_callback(button, state)
-      or def_btn_cb
-    table.insert(components, {
-      action = button.action or ('action_'..i),
-      highlight = button.icon.color,
-      icon = button.icon[1],
-      keymap = button[1],
-      click_cb = function(click_count, mouse_button, mods)
-        btn_cb(click_count, mouse_button, mods)
-      end,
-      cond_cb = function()
-        return vim.tbl_contains(button.states, state)
-      end,
-    })
+    if button.icon then
+      local btn_cb = get_debug_button_callback(button, tabpage)
+        or def_btn_cb
+      table.insert(components, {
+        action = button.action or ('action_'..i),
+        highlight = button.icon.color,
+        icon = button.icon[1],
+        keymap = button.hint or button[1],
+        click_cb = function(click_count, mouse_button, mods)
+          btn_cb(click_count, mouse_button, mods)
+        end,
+        cond_cb = function()
+          return vim.tbl_contains(button.states, get_debug_state(tabpage))
+        end,
+      })
+    end
   end
   return components
 end
@@ -982,38 +992,39 @@ function fn.del_buf_from_loclist(bufnr)
 end
 --}}}
 --{{{ Terminal
-local term_info = {}
+local term_info = {
+  is_shell_active = false,
+}
+
+local function get_terminal_tabpage()
+  local terminal = require'toggleterm.terminal'.get(0, true)
+  return terminal and vim.api.nvim_win_get_tabpage(terminal.window)
+end
 
 local function get_terminal()
   return require'toggleterm.terminal'.Terminal:new {
     id = 0,
-    cmd = "zsh --login",
-    direction = "tab",
+    cmd = 'zsh --login',
+    direction = 'tab',
     env = {
-      STARSHIP_CONFIG = "~/.dotfiles/starship.minimal.toml",
+      STARSHIP_CONFIG = '~/.dotfiles/starship.minimal.toml',
     },
   }
 end
 
 function fn.open_terminal()
-  local terminal = require'toggleterm.terminal'.get(0, true)
-  if terminal == nil then
+  local tabpage = get_terminal_tabpage()
+  if not tabpage then
     get_terminal():open()
-  else
-    local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
-    if vim.api.nvim_get_current_tabpage() ~= tabpage then
-      vim.api.nvim_set_current_tabpage(tabpage)
-    end
+  elseif vim.api.nvim_get_current_tabpage() ~= tabpage then
+    vim.api.nvim_set_current_tabpage(tabpage)
   end
 end
 
 function fn.dismiss_terminal()
-  local terminal = require'toggleterm.terminal'.get(0, true)
-  if terminal ~= nil then
-    local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
-    if vim.api.nvim_get_current_tabpage() == tabpage then
-      vim.api.nvim_set_current_tabpage(fn.get_prior_tabpage())
-    end
+  local tabpage = get_terminal_tabpage()
+  if vim.api.nvim_get_current_tabpage() == tabpage then
+    vim.api.nvim_set_current_tabpage(fn.get_prior_tabpage())
   end
 end
 
@@ -1038,7 +1049,10 @@ end
 
 function fn.set_shell_active(is_active, cmd, exit_code)
   term_info.is_shell_active = is_active
-  if not is_active and not get_terminal():is_focused() and cmd:sub(1, 1) ~= " " then
+  if not is_active and not
+      get_terminal():is_focused() and
+      cmd:sub(1, 1) ~= ' '
+  then
     vim.notify(
       "exited with code "..exit_code,
       vim.log.levels.INFO,
@@ -1047,13 +1061,16 @@ function fn.set_shell_active(is_active, cmd, exit_code)
   end
 end
 
-function fn.get_shell_active()
+function fn.is_shell_active(tabpage)
+  if tabpage and tabpage ~= get_terminal_tabpage() then
+    return nil
+  end
   return term_info.is_shell_active
 end
 
 function fn.sync_terminal()
   local terminal = get_terminal()
-  if terminal.window ~= nil then
+  if terminal.window then
     local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
     if vim.api.nvim_get_current_tabpage() == tabpage then
       local cwd = fn.get_tab_cwd(fn.get_prior_tabpage())
