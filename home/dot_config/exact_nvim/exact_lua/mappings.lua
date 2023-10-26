@@ -34,11 +34,15 @@ local function search_and_replace()
 end
 
 local function show_buffer_list()
-  require'telescope.builtin'.loclist { prompt_title = "Window Buffers" }
+  require'telescope.builtin'.loclist{ prompt_title = "Window Buffers" }
 end
 
 local function show_commits()
   require'telescope.builtin'.git_commits()
+end
+
+local function show_file_commits()
+  require'telescope.builtin'.git_bcommits()
 end
 
 local function show_backward_jumps()
@@ -71,6 +75,10 @@ local function close_folds_at(level)
   return function()
     fn.close_folds_at(level or vim.fn.foldlevel('.'))
   end
+end
+
+local function show_breakpoints()
+  require'telescope'.extensions.dap.list_breakpoints{}
 end
 --}}}
 
@@ -127,7 +135,8 @@ my_mappings {
     ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up><End><Right>':'<Left>'", expr = true },
     ["<leader><Space>"] = { fn.open_explorer, desc = "Explorer" },
     ["<leader>ac"]      = { "<cmd>ChatGPT<CR>", desc = "Chat" },
-    ["<leader>d"]       = { fn.resume_debugging, desc = "Debug" },
+    ['<leader>db']      = { show_breakpoints, desc = "Breakpoints" },
+    ['<leader>de']      = { fn.resume_debugging, desc = "Enter Mode" },
     ["<leader>fd"]      = { fn.delete_file, desc = "Delete" },
     ["<leader>fe"]      = { fn.edit_file, desc = "Edit" },
     ["<leader>fm"]      = { fn.move_file, desc = "Move" },
@@ -135,6 +144,7 @@ my_mappings {
     ["<leader>fs"]      = { fn.save_file, desc = "Save" },
     ["<leader>gb"]      = { "<cmd>Gitsigns blame_line<CR>", desc = "Blame" },
     ["<leader>gc"]      = { show_commits, desc = "Commits" },
+    ["<leader>gf"]      = { show_file_commits, desc = "File commits" },
     ["<leader>gg"]      = { fn.open_git_repo, desc = "Open repo" },
     ["<leader>gN"]      = { "<cmd>Gitsigns prev_hunk<CR>", desc = "Prev hunk" },
     ["<leader>gn"]      = { "<cmd>Gitsigns next_hunk<CR>", desc = "Next hunk" },

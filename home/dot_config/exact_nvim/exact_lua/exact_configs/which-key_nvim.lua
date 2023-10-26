@@ -12,6 +12,7 @@ return {
       ["<leader>"] = {
         a = { name = "AI" },
         b = { name = "Bookmarks" },
+        d = { name = "Debug" },
         f = { name = "File" },
         g = { name = "Git" },
         i = { name = "Issues" },
