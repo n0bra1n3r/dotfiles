@@ -438,15 +438,13 @@ local function tab_btn()
     },
     {
       hl = function(self)
-        local hl
+        local hl = self.is_cur and 'tab' or 'tab_inactive'
         if self.type == 'terminal' then
           if fn.get_shell_active() then
             hl = self.is_cur and 'task_running_focused' or 'task_running'
           end
         elseif self.is_debugging then
           hl = self.is_cur and 'task_running_focused' or 'task_running'
-        else
-          hl = self.is_cur and 'tab' or 'tab_inactive'
         end
         return {
           fg = hl,
