@@ -71,6 +71,8 @@ return {
       -- },
     }
 
+    config.sourcekit.setup{}
+
     lsp.setup()
   end,
 }

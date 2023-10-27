@@ -41,6 +41,7 @@ return {
         'lua',
         'nim',
         'python',
+        'swift',
       },
       highlight = {
         enable = true,
