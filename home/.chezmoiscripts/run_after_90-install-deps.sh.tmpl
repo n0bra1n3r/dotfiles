@@ -20,6 +20,20 @@ for zip in ~/.dotfiles/deps/*/*.zip; do
   fi
 done
 
+for gz in ~/.dotfiles/deps/*/.local/bin/*.exe.gz; do
+  dir="$(dirname "$gz")"
+  if [[ -d "$dir" ]]; then
+    file="${gz%.gz}"
+#{- if eq .chezmoi.os "darwin" }#
+    file="${file%.exe}"
+#{- end }#
+    gunzip "$gz" > "$file" && \
+    chmod +x "$file" && \
+    rm "$gz" && \
+    echo "> unarchived $(basename "$gz")"
+  fi
+done
+
 #{- if eq .chezmoi.os "windows" }#
 for pkg in ~/.dotfiles/deps/*/.local/*.zst; do
   dir="$(dirname "$pkg")"
@@ -36,7 +50,7 @@ for pkg in ~/.dotfiles/deps/*/.local/*.zst; do
 done
 #{- else if eq .chezmoi.os "darwin" }#
 for app in ~/.dotfiles/deps/*/Applications/*.app; do
-  cp -rf "$app" /Applications && echo "> installed $(basename $app)"
+  cp -rf "$app" /Applications && echo "> installed $(basename "$app")"
 done
 #{- end }#
 
