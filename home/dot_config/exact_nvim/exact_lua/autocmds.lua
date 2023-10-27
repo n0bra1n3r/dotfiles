@@ -207,6 +207,7 @@ my_autocmds {
   }, --}}}
   { 'TermEnter', --{{{
     callback = fn.vim_defer(function()
+      vim.cmd.match[[OverLength //]]
       vim.cmd[[nohlsearch]]
     end),
   }, --}}}
