@@ -37,14 +37,6 @@ local function show_buffer_list()
   require'telescope.builtin'.loclist{ prompt_title = "Window Buffers" }
 end
 
-local function show_commits()
-  require'telescope.builtin'.git_commits()
-end
-
-local function show_file_commits()
-  require'telescope.builtin'.git_bcommits()
-end
-
 local function show_backward_jumps()
   fn.show_buffer_jump_picker[[backward]]
 end
@@ -150,8 +142,8 @@ my_mappings {
     ["<leader>fo"]      = { fn.open_file_folder, desc = "Open folder" },
     ["<leader>fs"]      = { fn.save_file, desc = "Save" },
     ["<leader>gb"]      = { "<cmd>Gitsigns blame_line<CR>", desc = "Blame" },
-    ["<leader>gc"]      = { show_commits, desc = "Commits" },
-    ["<leader>gf"]      = { show_file_commits, desc = "File commits" },
+    ["<leader>gc"]      = { [[<cmd>Telescope git_commits<CR>]], desc = "Commits" },
+    ["<leader>gf"]      = { [[<cmd>Telescope git_bcommits<CR>]], desc = "File commits" },
     ["<leader>gg"]      = { fn.open_git_repo, desc = "Open repo" },
     ["<leader>gN"]      = { "<cmd>Gitsigns prev_hunk<CR>", desc = "Prev hunk" },
     ["<leader>gn"]      = { "<cmd>Gitsigns next_hunk<CR>", desc = "Next hunk" },
