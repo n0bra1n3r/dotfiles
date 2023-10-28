@@ -15,28 +15,23 @@
   stripComponents = 1
 {{- end }}
 
-[".local/share/fonts"]
+{{ template "dep" "nerd-font/contents" }}
   url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
   type = "archive"
+  exact = true
 
-[".dotfiles/logs/nerd-font.txt"]
+{{ template "dep" "nerd-font/release.json" }}
   url = "https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
   type = "file"
 
-{{ template "dep" "tree-sitter-nim/.dotfiles" }}
+{{ template "dep" "tree-sitter-nim/contents" }}
   url = "https://github.com/aMOPel/tree-sitter-nim/archive/refs/heads/main.zip"
   type = "archive"
   stripComponents = 1
 
-[".dotfiles/logs/tree-sitter-nim.txt"]
+{{ template "dep" "tree-sitter-nim/release.json" }}
   url = "https://api.github.com/repos/aMOPel/tree-sitter-nim/commits"
   type = "file"
-
-{{ template "dep" "tree-sitter-norg/.dotfiles" }}
-  url = "https://github.com/nvim-neorg/tree-sitter-norg/archive/refs/heads/main.zip"
-  exact = true
-  type = "archive"
-  stripComponents = 1
 
 {{ template "dep" "neovim/.local" }}
   {{- if $isWindows }}

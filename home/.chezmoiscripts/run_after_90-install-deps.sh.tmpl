@@ -27,9 +27,9 @@ for gz in ~/.dotfiles/deps/*/.local/bin/*.exe.gz; do
 #{- if eq .chezmoi.os "darwin" }#
     file="${file%.exe}"
 #{- end }#
-    gunzip "$gz" > "$file" && \
+    gunzip -f "$gz" > "$file" && \
     chmod +x "$file" && \
-    rm "$gz" && \
+    rm -f "$gz" && \
     echo "> unarchived $(basename "$gz")"
   fi
 done

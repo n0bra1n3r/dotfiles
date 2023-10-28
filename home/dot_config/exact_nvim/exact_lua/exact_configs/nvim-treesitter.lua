@@ -7,7 +7,7 @@ return {
 
     configs.nim = {
       install_info = {
-        url = "~/.dotfiles/deps/tree-sitter-nim/.dotfiles",
+        url = "~/.dotfiles/deps/tree-sitter-nim/contents",
         files = {
           "src/parser.c",
           "src/scanner.cc",
@@ -17,16 +17,6 @@ return {
 
     -- install nim treesitter queries
     vim.opt.rtp:append(vim.fn.expand(configs.nim.install_info.url))
-
-    configs.norg = {
-      install_info = {
-        url = "~/.dotfiles/deps/tree-sitter-norg/.dotfiles",
-        files = {
-          "src/parser.c",
-          "src/scanner.cc",
-        },
-      },
-    }
 
     require'nvim-treesitter.configs'.setup {
       ensure_installed = {
@@ -40,6 +30,7 @@ return {
         'graphql',
         'lua',
         'nim',
+        'norg',
         'python',
         'swift',
       },

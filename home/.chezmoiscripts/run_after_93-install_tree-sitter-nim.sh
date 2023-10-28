@@ -2,12 +2,12 @@
 
 set -e
 
-NIM_QUERIES_PATH=~/.dotfiles/deps/tree-sitter-nim/.dotfiles/queries
-
 DEP_NAME="tree-sitter-nim"
 
-REL_PATH="$HOME/.dotfiles/logs/$DEP_NAME.txt"
-SHA_PATH="$HOME/.dotfiles/logs/$DEP_NAME.sha256"
+NIM_QUERIES_PATH="$HOME/.dotfiles/deps/$DEP_NAME/contents/queries"
+
+REL_PATH="$HOME/.dotfiles/deps/$DEP_NAME/release.json"
+SHA_PATH="$HOME/.dotfiles/deps/$DEP_NAME/release.sha256"
 
 if [[ -f "$REL_PATH" ]]; then
   CUR_SHA=$(sha256sum < "$REL_PATH")

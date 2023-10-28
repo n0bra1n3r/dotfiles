@@ -514,7 +514,7 @@ local function tab_btn()
           if self.type == 'help' then
             icon = '󰋖'
           elseif self.type == 'terminal' then
-            icon = ''
+            icon = ''
           else
             icon = require'nvim-web-devicons'.get_icon(self.type)
           end

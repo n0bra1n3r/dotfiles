@@ -3,12 +3,12 @@
 
 set -e
 
-FONT_DIR="$HOME/.local/share/fonts"
-
 DEP_NAME="nerd-font"
 
-REL_PATH="$HOME/.dotfiles/logs/$DEP_NAME.txt"
-SHA_PATH="$HOME/.dotfiles/logs/$DEP_NAME.sha256"
+NERD_FONT_PATH="$HOME/.dotfiles/deps/$DEP_NAME/contents"
+
+REL_PATH="$HOME/.dotfiles/deps/$DEP_NAME/release.json"
+SHA_PATH="$HOME/.dotfiles/deps/$DEP_NAME/release.sha256"
 
 if [[ -f "$REL_PATH" ]]; then
   CUR_SHA=$(cat "$REL_PATH" | sha256sum)
@@ -19,10 +19,10 @@ if [[ -f "$SHA_PATH" ]]; then
 fi
 
 if [[ -z "$CUR_SHA" || "$CUR_SHA" != "$OLD_SHA" ]]; then
-  if [[ -d "$FONT_DIR" ]]; then
-  #{- if eq .chezmoi.os "windows" }#
+  if [[ -d "$NERD_FONT_PATH" ]]; then
+#{- if eq .chezmoi.os "windows" }#
     printf "> registering fonts "
-    for font_file in "$FONT_DIR"/*.?tf; do
+    for font_file in "$NERD_FONT_PATH"/*.?tf; do
       font_path="$(cygpath -m "$font_file")"
       powershell \
         -ExecutionPolicy Bypass \
@@ -30,9 +30,9 @@ if [[ -z "$CUR_SHA" || "$CUR_SHA" != "$OLD_SHA" ]]; then
         printf "."
     done
     echo
-  #{- else if eq .chezmoi.os "darwin" }#
-  cp "$FONT_DIR"/* ~/Library/Fonts/ && echo "> registered fonts"
-  #{- end }#
+#{- else if eq .chezmoi.os "darwin" }#
+  cp "$NERD_FONT_PATH"/* ~/Library/Fonts/ && echo "> registered fonts"
+#{- end }#
   fi
   printf "$CUR_SHA" > "$SHA_PATH"
 fi
