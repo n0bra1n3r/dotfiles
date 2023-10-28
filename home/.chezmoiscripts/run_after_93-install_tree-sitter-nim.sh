@@ -20,17 +20,21 @@ fi
 if [[ -z "$CUR_SHA" || "$CUR_SHA" != "$OLD_SHA" ]]; then
   mkdir -p "$NIM_QUERIES_PATH/nim"
 
-  cp "$NIM_QUERIES_PATH/nvim/highlights.scm" \
+  cp "$NIM_QUERIES_PATH/highlights.scm" \
     "$NIM_QUERIES_PATH/nim/highlights.scm" && \
   echo "> installed nim/highlights.scm"
 
-  cp $NIM_QUERIES_PATH/nvim/indents.scm \
-    $NIM_QUERIES_PATH/nim/indents.scm && \
-  echo "> installed nim/indents.scm"
+  if [[ -f "$NIM_QUERIES_PATH/indents.scm" ]]; then
+    cp "$NIM_QUERIES_PATH/indents.scm" \
+      "$NIM_QUERIES_PATH/nim/indents.scm" && \
+    echo "> installed nim/indents.scm"
+  fi
 
-  cp $NIM_QUERIES_PATH/nvim/untested_locals.scm \
-    $NIM_QUERIES_PATH/nim/locals.scm && \
-  echo "> installed nim/locals.scm"
+  if [[ -f "$NIM_QUERIES_PATH/locals.scm" ]]; then
+    cp "$NIM_QUERIES_PATH/locals.scm" \
+      "$NIM_QUERIES_PATH/nim/locals.scm" && \
+    echo "> installed nim/locals.scm"
+  fi
 
   printf '%s' "$CUR_SHA" > "$SHA_PATH"
 fi

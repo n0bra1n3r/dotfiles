@@ -10,7 +10,7 @@ return {
         url = "~/.dotfiles/deps/tree-sitter-nim/contents",
         files = {
           "src/parser.c",
-          "src/scanner.cc",
+          "src/scanner.c",
         },
       },
     }
