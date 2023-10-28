@@ -77,7 +77,6 @@ my_plugins {
     dependencies = { "ggandor/leap.nvim" },
   },
 
-  { "kevinhwang91/nvim-hlslens", event = { "BufRead", "BufModifiedSet" } },
   { "haya14busa/vim-asterisk", event = { "BufRead", "BufModifiedSet" } },
 
   { "nvim-telescope/telescope.nvim", event = "VeryLazy" },
