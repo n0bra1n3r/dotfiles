@@ -3,11 +3,6 @@
 {{ $isDarwin := eq .chezmoi.os "darwin" }}
 {{ $isWindows := eq .chezmoi.os "windows" }}
 
-{{- define "dep" }}
-{{- $path := . }}
-[{{ printf ".dotfiles/deps/%s" $path | quote }}]
-{{- end }}
-
 {{- if index . "gitlab" }}
 [".ssh/keys"]
   url = "https://gitlab.com/n0brain3r/dotfiles-ssh-keys/-/archive/master/dotfiles-ssh-keys-master.zip?private_token={{ .gitlab.token }}"
@@ -15,62 +10,10 @@
   stripComponents = 1
 {{- end }}
 
-{{ template "dep" "nerd-font/contents" }}
-  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
-  type = "archive"
-  exact = true
-
-{{ template "dep" "nerd-font/release.json" }}
-  url = "https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
-  type = "file"
-
-{{ template "dep" "tree-sitter-nim/contents" }}
-  url = "https://github.com/alaviss/tree-sitter-nim/archive/refs/heads/main.zip"
-  type = "archive"
-  stripComponents = 1
-
-{{ template "dep" "tree-sitter-nim/release.json" }}
-  url = "https://api.github.com/repos/alaviss/tree-sitter-nim/releases/latest"
-  type = "file"
-
-{{ template "dep" "neovim/.local" }}
-  {{- if $isWindows }}
-  url = "https://github.com/neovim/neovim/releases/download/stable/nvim-win64.zip"
-  {{- else if $isDarwin }}
-  url = "https://github.com/neovim/neovim/releases/download/stable/nvim-macos.tar.gz"
-  {{- end}}
-  exact = true
-  type = "archive"
-  stripComponents = 1
-
-{{ template "dep" "starship/.local/bin" }}
-  {{- if $isWindows }}
-  url = "https://github.com/starship/starship/releases/latest/download/starship-x86_64-pc-windows-msvc.zip"
-  {{- else if $isDarwin }}
-  url = "https://github.com/starship/starship/releases/latest/download/starship-aarch64-apple-darwin.tar.gz"
-  {{- end }}
-  exact = true
-  type = "archive"
-
-{{ template "dep" "fd/.local/bin" }}
-  {{- if $isWindows }}
-  url = "https://github.com/sharkdp/fd/releases/download/v8.7.0/fd-v8.7.0-x86_64-pc-windows-msvc.zip"
-  {{- else if $isDarwin }}
-  url = "https://github.com/sharkdp/fd/releases/download/v8.7.0/fd-v8.7.0-x86_64-apple-darwin.tar.gz"
-  {{- end }}
-  exact = true
-  type = "archive"
-  stripComponents = 1
-
-{{ template "dep" "ripgrep/.local/bin" }}
-  {{- if $isWindows }}
-  url = "https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-pc-windows-msvc.zip"
-  {{- else if $isDarwin }}
-  url = "https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-apple-darwin.tar.gz"
-  {{- end }}
-  exact = true
-  type = "archive"
-  stripComponents = 1
+{{- define "dep" }}
+{{- $path := . }}
+[{{ printf ".dotfiles/deps/%s" $path | quote }}]
+{{- end }}
 
 {{ template "dep" "act/.local/bin" }}
   {{- if $isWindows }}
@@ -81,16 +24,21 @@
   exact = true
   type = "archive"
 
-{{ template "dep" "zsh-autosuggestions/.dotfiles" }}
-  url = "https://github.com/zsh-users/zsh-autosuggestions/archive/refs/heads/master.zip"
-  exact = true
-  type = "archive"
-
 {{ template "dep" "bat/.local/bin" }}
   {{- if $isWindows }}
-  url = "https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-v0.23.0-x86_64-pc-windows-msvc.zip"
+  url = "https://github.com/sharkdp/bat/releases/download/v0.24.0/bat-v0.24.0-x86_64-pc-windows-msvc.zip"
   {{- else if $isDarwin }}
-  url = "https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-v0.23.0-x86_64-apple-darwin.tar.gz"
+  url = "https://github.com/sharkdp/bat/releases/download/v0.24.0/bat-v0.24.0-x86_64-apple-darwin.tar.gz"
+  {{- end }}
+  exact = true
+  type = "archive"
+  stripComponents = 1
+
+{{ template "dep" "fd/.local/bin" }}
+  {{- if $isWindows }}
+  url = "https://github.com/sharkdp/fd/releases/download/v8.7.1/fd-v8.7.1-x86_64-pc-windows-msvc.zip"
+  {{- else if $isDarwin }}
+  url = "https://github.com/sharkdp/fd/releases/download/v8.7.1/fd-v8.7.1-x86_64-apple-darwin.tar.gz"
   {{- end }}
   exact = true
   type = "archive"
@@ -116,6 +64,44 @@
   type = "archive"
   stripComponents = 1
 
+{{ template "dep" "neovim/.local" }}
+  {{- if $isWindows }}
+  url = "https://github.com/neovim/neovim/releases/download/stable/nvim-win64.zip"
+  {{- else if $isDarwin }}
+  url = "https://github.com/neovim/neovim/releases/download/stable/nvim-macos.tar.gz"
+  {{- end}}
+  exact = true
+  type = "archive"
+  stripComponents = 1
+
+{{ template "dep" "nerd-font/contents" }}
+  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
+  type = "archive"
+  exact = true
+
+{{ template "dep" "nerd-font/release.json" }}
+  url = "https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
+  type = "file"
+
+{{ template "dep" "ripgrep/.local/bin" }}
+  {{- if $isWindows }}
+  url = "https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-pc-windows-msvc.zip"
+  {{- else if $isDarwin }}
+  url = "https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-apple-darwin.tar.gz"
+  {{- end }}
+  exact = true
+  type = "archive"
+  stripComponents = 1
+
+{{ template "dep" "starship/.local/bin" }}
+  {{- if $isWindows }}
+  url = "https://github.com/starship/starship/releases/latest/download/starship-x86_64-pc-windows-msvc.zip"
+  {{- else if $isDarwin }}
+  url = "https://github.com/starship/starship/releases/latest/download/starship-aarch64-apple-darwin.tar.gz"
+  {{- end }}
+  exact = true
+  type = "archive"
+
 {{ template "dep" "tree-sitter/.local/bin/tree-sitter.exe.gz" }}
   {{- if $isWindows }}
   url = "https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-windows-x64.gz"
@@ -125,9 +111,24 @@
   exact = true
   type = "file"
 
+{{ template "dep" "tree-sitter-nim/contents" }}
+  url = "https://github.com/alaviss/tree-sitter-nim/archive/refs/heads/main.zip"
+  type = "archive"
+  stripComponents = 1
+
+{{ template "dep" "tree-sitter-nim/release.json" }}
+  url = "https://api.github.com/repos/alaviss/tree-sitter-nim/releases/latest"
+  type = "file"
+
+{{ template "dep" "zsh-autosuggestions/.dotfiles" }}
+  url = "https://github.com/zsh-users/zsh-autosuggestions/archive/refs/heads/master.zip"
+  exact = true
+  type = "archive"
+
 {{- if $isWindows }}
+# broot is installed via `brew` in mac os
 {{ template "dep" "broot/.local/bin" }}
-  url = "https://github.com/Canop/broot/releases/download/v1.21.2/broot_1.21.2.zip"
+  url = "https://github.com/Canop/broot/releases/download/v1.27.0/broot_1.27.0.zip"
   exact = true
   include = [ "x86_64-pc-windows-gnu/broot.exe" ]
   type = "archive"
@@ -137,6 +138,11 @@
   url = "https://github.com/jqlang/jq/releases/latest/download/jq-win64.exe"
   exact = true
   type = "file"
+
+{{ template "dep" "silicon/.local/bin" }}
+  url = "https://github.com/Aloxaf/silicon/releases/download/v0.5.1/silicon-v0.5.1-x86_64-pc-windows-msvc.tar.gz"
+  exact = true
+  type = "archive"
 
 {{ template "dep" "yq/.local/bin/yq.exe" }}
   url = "https://github.com/mikefarah/yq/releases/latest/download/yq_windows_amd64.exe"
