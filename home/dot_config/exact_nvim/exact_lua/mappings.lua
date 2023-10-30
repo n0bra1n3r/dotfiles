@@ -221,6 +221,7 @@ my_mappings {
     ["<leader>ad"]      = { "<cmd>ChatGPTRun docstring<CR>", desc = "Generate docstring" },
     ["<leader>at"]      = { "<cmd>ChatGPTRun add_tests<CR>", desc = "Generate tests" },
     ["<leader>go"]      = { open_file_in_github, desc = "Open in Github" },
+    ['<leader>S']       = { [[:<C-u>lua fn.copy_visual_selection();fn.run_task('Screenshot clipboard',{'-l',vim.bo.filetype})<CR>]], desc = "Screenshot selection" },
     ["<leader>s"]       = { ":<C-u>lua require'search'.prompt('', fn.get_visual_selection())<CR>", desc = "Search & replace" },
     ["<S-Tab>"]         = { "<gv" },
     ["<Tab>"]           = { ">gv" },

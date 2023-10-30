@@ -1324,6 +1324,10 @@ function fn.get_visual_selection()
   return table.concat(lines, '\n')
 end
 
+function fn.copy_visual_selection()
+  vim.fn.setreg('+', fn.get_visual_selection())
+end
+
 function fn.get_buffer_title(buf)
   return fn.is_file_buffer(buf)
     and vim.fn.pathshorten(vim.fn.expand('%:~:.'))
@@ -1369,12 +1373,21 @@ function fn.close_folds_at(level)
   end
 end
 
-function fn.copy_line_info(format, win)
+function fn.get_line_info(format, win)
   local file_win = win or vim.api.nvim_get_current_win()
   local buf = vim.api.nvim_win_get_buf(file_win)
   local filename = vim.api.nvim_buf_get_name(buf)
-  local cursor = vim.api.nvim_win_get_cursor(file_win)
-  vim.fn.setreg('+', format:format(filename, cursor[1], cursor[2]))
+  local cursor
+  if win and vim.fn.get_mode():lower() == 'v' then
+    cursor = { vim.fn.getpos("'<"), vim.fn.getpos("'>") }
+  else
+    cursor = vim.api.nvim_win_get_cursor(file_win)
+  end
+  return format:format(filename, cursor[1], cursor[2])
+end
+
+function fn.copy_line_info(format, win)
+  vim.fn.setreg('+', fn.get_line_info(format, win))
 end
 --}}}
 --{{{ Workspace

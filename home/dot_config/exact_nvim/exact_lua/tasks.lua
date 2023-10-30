@@ -10,7 +10,7 @@ my_tasks {
       end
     end,
     notify = false,
-    priority = 96,
+    priority = 95,
   },
   ["Hot reload"] = {
     cond = function()
@@ -20,6 +20,14 @@ my_tasks {
       vim.cmd[[FlutterReload]]
     end,
     notify = false,
+    priority = 96,
+  },
+  ["Screenshot clipboard"] = {
+    cmd = 'silicon',
+    args = {
+      '--from-clipboard',
+      '--to-clipboard',
+    },
     priority = 97,
   },
   ["Debug continue"] = {
