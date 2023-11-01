@@ -755,13 +755,12 @@ function fn.resume_debugging(tabpage)
   local state = get_debug_state(tabpage)
 
   if state == 0 then
-    require'dapui'.open(1)
-
     update_debugging_state(1)
   end
 
   require'dap'.listeners.after.event_continued.my_debug_event = function()
     require'dapui'.close(2)
+    require'dapui'.open(1)
 
     update_debugging_state(3)
   end
@@ -790,21 +789,17 @@ function fn.resume_debugging(tabpage)
 end
 
 function fn.get_debug_toolbar(tabpage)
-  local def_btn_cb = function()
-    fn.stop_debugging(tabpage)
-  end
-
   local components = {}
   for i, button in ipairs(debug_info.toolbar) do
     if button.icon then
-      local btn_cb = get_debug_button_callback(button, tabpage)
-        or def_btn_cb
       table.insert(components, {
         action = button.action or ('action_'..i),
         highlight = button.icon.color,
         icon = button.icon[1],
         keymap = button.hint or button[1],
         click_cb = function(click_count, mouse_button, mods)
+          local btn_cb = get_debug_button_callback(button, tabpage)
+            or function() fn.stop_debugging(tabpage) end
           btn_cb(click_count, mouse_button, mods)
         end,
         cond_cb = function()
