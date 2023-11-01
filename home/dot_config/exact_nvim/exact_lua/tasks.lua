@@ -12,14 +12,6 @@ my_tasks {
     notify = false,
     priority = 95,
   },
-  ["Screenshot clipboard"] = {
-    cmd = 'silicon',
-    args = {
-      '--from-clipboard',
-      '--to-clipboard',
-    },
-    priority = 96,
-  },
   ["Hot reload"] = {
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'

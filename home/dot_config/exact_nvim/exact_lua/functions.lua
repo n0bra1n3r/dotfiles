@@ -518,6 +518,21 @@ function fn.running_task_count()
   end
   return 0
 end
+
+function fn.exec_task(cmd, args, name)
+  local is_ok, overseer = pcall(require, 'overseer')
+  if is_ok then
+    overseer.new_task{
+      args = args,
+      cmd = cmd,
+      components = {
+        'on_output_quickfix',
+        'default',
+      },
+      name = name,
+    }:start()
+  end
+end
 --}}}
 --{{{ Debugging
 local debug_info = {
@@ -1383,6 +1398,19 @@ end
 
 function fn.copy_line_info(format, win)
   vim.fn.setreg('+', fn.get_line_info(format, win))
+end
+
+function fn.screenshot_selected_code()
+  fn.copy_visual_selection()
+  fn.exec_task(
+    'silicon',
+    {
+      '--from-clipboard',
+      '--to-clipboard',
+      '--language',
+      vim.bo.filetype,
+    },
+    "Screenshot selected code")
 end
 --}}}
 --{{{ Workspace
