@@ -1408,10 +1408,6 @@ function fn.screenshot_selected_code()
       '--from-clipboard',
       '--language',
       vim.bo.filetype,
-      '--tab-width',
-      tostring(vim.bo.tabstop),
-      '--theme',
-      vim.fn.expand('~/.config/bat/themes/Catppuccin-frappe.tmTheme'),
       '--to-clipboard',
     },
     "Screenshot selected code")
