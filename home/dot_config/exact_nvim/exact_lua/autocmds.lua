@@ -234,27 +234,6 @@ my_autocmds {
           })
         end
         fn.load_vscode_launch_json()
-
-        if vim.g.project_type == 'flutter' then
-          vim.api.nvim_set_keymap("n", [[<leader>fa]], [[]], {
-            callback = function()
-              fn.open_in_os('./android')
-              vim.notify("Opening Android project...", { title = "Flutter tools" })
-            end,
-            desc = "Open Android project",
-            noremap = true,
-            silent = true,
-          })
-          vim.api.nvim_set_keymap("n", [[<leader>fi]], [[]], {
-            callback = function()
-              fn.open_in_os('./ios/Runner.xcworkspace')
-              vim.notify("Opening iOS project...", { title = "Flutter tools" })
-            end,
-            desc = "Open iOS project",
-            noremap = true,
-            silent = true,
-          })
-        end
       end
     end,
   }, --}}}

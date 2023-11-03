@@ -6,7 +6,7 @@ my_tasks {
     func = function()
       local url = require'flutter-tools.dev_tools'.get_profiler_url()
       if url then
-        fn.open_in_os(url)
+        fn.open_in_os{ url }
       end
     end,
     notify = false,
