@@ -137,7 +137,7 @@ my_mappings {
     ["<leader><Space>"] = { fn.open_explorer, desc = "Explorer" },
     ["<leader>ac"]      = { "<cmd>ChatGPT<CR>", desc = "Chat" },
     ['<leader>db']      = { show_breakpoints, desc = "Breakpoints" },
-    ['<leader>de']      = { fn.resume_debugging, desc = "Enter Mode" },
+    ['<leader>de']      = { fn.resume_debugging, desc = "Enter Debugger" },
     ["<leader>fd"]      = { fn.delete_file, desc = "Delete" },
     ["<leader>fe"]      = { fn.edit_file, desc = "Edit" },
     ["<leader>fm"]      = { fn.move_file, desc = "Move" },
