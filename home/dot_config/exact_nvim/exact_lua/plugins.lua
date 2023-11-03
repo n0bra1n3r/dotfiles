@@ -130,11 +130,6 @@ my_plugins {
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
     event = 'BufRead',
   },
-  {
-    'nvim-treesitter/nvim-treesitter-textobjects',
-    dependencies = { 'nvim-treesitter/nvim-treesitter' },
-    event = 'BufRead',
-  },
 
   -- Language Servers --
 

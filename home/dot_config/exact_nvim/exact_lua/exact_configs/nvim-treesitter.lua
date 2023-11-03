@@ -46,49 +46,6 @@ return {
           enable = false,
         },
       },
-      textobjects = {
-        lsp_interop = {
-          enable = true,
-          border = 'single',
-          floating_preview_opts = {},
-          peek_definition_code = {
-            ['gp'] = '@function.outer',
-            ['gP'] = '@class.outer',
-          },
-        },
-        move = {
-          enable = true,
-          set_jumps = true,
-          goto_next_start = {
-            [']a'] = '@parameter.inner',
-            [']m'] = '@function.outer',
-          },
-          goto_next_end = {
-            [']M'] = '@function.outer',
-          },
-          goto_previous_start = {
-            ['[a'] = '@parameter.inner',
-            ['[m'] = '@function.outer',
-          },
-          goto_previous_end = {
-            ['[M'] = '@function.outer',
-          },
-        },
-        select = {
-          enable = true,
-          lookahead = true,
-          keymaps = {
-            ['aa'] = '@parameter.outer',
-            ['af'] = '@function.outer',
-            ['ia'] = '@parameter.inner',
-            ['if'] = '@function.inner',
-          },
-          selection_modes = {
-            ['@parameter.outer'] = 'v',
-            ['@function.outer'] = 'V',
-          },
-        },
-      },
     }
   end,
 }
