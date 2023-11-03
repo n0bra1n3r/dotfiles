@@ -34,16 +34,6 @@
   type = "archive"
   stripComponents = 1
 
-{{ template "dep" "fd/.local/bin" }}
-  {{- if $isWindows }}
-  url = "https://github.com/sharkdp/fd/releases/download/v8.7.1/fd-v8.7.1-x86_64-pc-windows-msvc.zip"
-  {{- else if $isDarwin }}
-  url = "https://github.com/sharkdp/fd/releases/download/v8.7.1/fd-v8.7.1-x86_64-apple-darwin.tar.gz"
-  {{- end }}
-  exact = true
-  type = "archive"
-  stripComponents = 1
-
 {{ template "dep" "fvm/.local/bin" }}
   {{- if $isWindows }}
   url = "https://github.com/fluttertools/fvm/releases/download/2.4.1/fvm-2.4.1-windows-x64.zip"
