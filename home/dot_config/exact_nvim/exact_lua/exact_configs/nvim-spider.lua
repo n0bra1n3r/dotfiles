@@ -1,6 +1,6 @@
 return {
   config = function()
-    require'spider'.setup()
+    require'spider'.setup{}
 
     vim.api.nvim_set_keymap('', 'w', [[<cmd>lua require'spider'.motion('w')<CR>]], {})
     vim.api.nvim_set_keymap('', 'e', [[<cmd>lua require'spider'.motion('e')<CR>]], {})
