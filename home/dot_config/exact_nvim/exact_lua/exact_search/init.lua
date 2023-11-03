@@ -312,11 +312,9 @@ local function render_statistics()
       -1,
       { details = true })
     if #extmarks > 0 then
-      local padding = (" "):rep(#tostring(info.max_line_number))
       local progress_icon = get_progress_icon()
       local stats = {
         { " " },
-        { padding },
         {
           (" %s  Matched %d lines in %d files%s "):format(
             progress_icon or get_search_icon(),
@@ -353,6 +351,7 @@ local function render_statistics()
     vim.api.nvim_buf_set_extmark(0, namespace, 0, 0, {
       id = 1,
       virt_lines = {{
+        { " " },
         {
           (" %s  No matches found%s "):format(
             progress_icon or get_search_icon(),
