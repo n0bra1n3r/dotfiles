@@ -59,8 +59,9 @@ my_plugins {
 
   { "tpope/vim-repeat", event = "BufModifiedSet" },
   { "tpope/vim-surround", event = { "BufRead", "BufModifiedSet" } },
-  { 'chrisgrieser/nvim-spider', event = { "bufread", "bufmodifiedset" } },
-  { 'chrisgrieser/nvim-various-textobjs', event = { "BufRead", "BufModifiedSet" } },
+  { 'chrisgrieser/nvim-spider', event = { 'BufRead', 'BufModifiedSet' } },
+  { 'chrisgrieser/nvim-various-textobjs', event = { 'BufRead', 'BufModifiedSet' } },
+  { 'andymass/vim-matchup', lazy = false },
 
   -- Navigation --
 
@@ -121,6 +122,16 @@ my_plugins {
   },
   {
     'nvim-treesitter/nvim-treesitter-context',
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    event = 'BufRead',
+  },
+  {
+    'nvim-treesitter/nvim-treesitter-refactor',
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    event = 'BufRead',
+  },
+  {
+    'nvim-treesitter/nvim-treesitter-textobjects',
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
     event = 'BufRead',
   },
@@ -197,7 +208,6 @@ my_plugins {
   -- Editor --
 
   { "numToStr/Comment.nvim", event = { "BufRead", "BufModifiedSet" } },
-  { "echasnovski/mini.cursorword", event = { "BufRead", "BufModifiedSet" } },
   {
     "echasnovski/mini.trailspace",
     event = {

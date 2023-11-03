@@ -14,20 +14,16 @@ return {
         },
       })
 
-      local function map(m, lhs, rhs)
+      local function map(m, lhs, rhs, desc)
         vim.api.nvim_buf_set_keymap(bufnr, m, lhs, [[]], {
           callback = rhs,
+          desc = desc,
           noremap = true,
         })
       end
 
       map('n', 'K', vim.lsp.buf.hover)
-      map('n', 'gd', vim.lsp.buf.definition)
-      map('n', 'gD', vim.lsp.buf.declaration)
-      map('n', 'gi', vim.lsp.buf.implementation)
-      map('n', 'go', vim.lsp.buf.type_definition)
-      map('n', 'gr', vim.lsp.buf.references)
-      map('n', 'gs', vim.lsp.buf.signature_help)
+      map('n', 'gR', vim.lsp.buf.references, "List symbol references")
       map('n', '<F2>', vim.lsp.buf.rename)
       map('n', '<F3>', function() vim.lsp.buf.format{ async = true } end)
       map('x', '<F3>', function() vim.lsp.buf.format{ async = true } end)
@@ -39,9 +35,8 @@ return {
         map('x', '<F4>', vim.lsp.buf.code_action)
       end
 
-      map('n', 'gl', vim.diagnostic.open_float)
-      map('n', '[d', vim.diagnostic.goto_prev)
-      map('n', ']d', vim.diagnostic.goto_next)
+      map('n', '[s', vim.diagnostic.goto_prev, "Go to next diagnostic")
+      map('n', ']s', vim.diagnostic.goto_next, "Go to previous diagnostic")
     end)
 
     local config = require'lspconfig'
