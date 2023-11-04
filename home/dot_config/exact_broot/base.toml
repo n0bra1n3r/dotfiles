@@ -7,7 +7,7 @@ syntax_theme = "OceanDark"
 [[verbs]]
   invocation = "edit"
   key = "enter"
-  external = 'nvim --server $NVIM --remote-send "<C-\><C-N>:e {file}<CR>"'
+  execution = 'nvim --server $NVIM --remote-send "<C-\><C-N>:e {file}<CR>"'
   apply_to = "file"
 
 [[verbs]]
@@ -18,13 +18,13 @@ syntax_theme = "OceanDark"
 [[verbs]]
   invocation = "vsplit"
   key = "alt-\\"
-  external = 'nvim --server $NVIM --remote-send "<C-\><C-N>:vs {file}<CR>"'
+  execution = 'nvim --server $NVIM --remote-send "<C-\><C-N>:vs {file}<CR>"'
   apply_to = "file"
 
 [[verbs]]
   invocation = "split"
   key = "alt-="
-  external = 'nvim --server $NVIM --remote-send "<C-\><C-N>:sp {file}<CR>"'
+  execution = 'nvim --server $NVIM --remote-send "<C-\><C-N>:sp {file}<CR>"'
   apply_to = "file"
 
 [[verbs]]
