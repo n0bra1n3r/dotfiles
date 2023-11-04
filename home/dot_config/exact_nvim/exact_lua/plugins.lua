@@ -138,11 +138,7 @@ my_plugins {
     dependencies = { "williamboman/mason.nvim" },
   },
 
-  {
-    "jose-elias-alvarez/null-ls.nvim",
-    event = "BufRead",
-    dependencies = { "nvim-lua/plenary.nvim" },
-  },
+  { 'nvimtools/none-ls.nvim', event = 'BufRead' },
 
   { "L3MON4D3/LuaSnip" },
   { "rafamadriz/friendly-snippets" },
