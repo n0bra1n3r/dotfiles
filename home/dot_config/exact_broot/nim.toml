@@ -1,0 +1,4 @@
+imports = [ "~/.config/broot/base.toml" ]
+
+[special-paths]
+  "**/nimcache" = "no-enter"
