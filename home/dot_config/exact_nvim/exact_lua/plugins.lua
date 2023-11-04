@@ -186,16 +186,6 @@ my_plugins {
     dependencies = { "hrsh7th/nvim-cmp" },
   },
 
-  {
-    "jackMort/ChatGPT.nvim",
-    event = "VeryLazy",
-    dependencies = {
-      "MunifTanjim/nui.nvim",
-      "nvim-lua/plenary.nvim",
-      "nvim-telescope/telescope.nvim",
-    },
-  },
-
   -- Editor --
 
   { "numToStr/Comment.nvim", event = { "BufRead", "BufModifiedSet" } },

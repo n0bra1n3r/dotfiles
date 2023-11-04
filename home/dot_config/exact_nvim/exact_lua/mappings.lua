@@ -135,7 +135,6 @@ my_mappings {
     ["<Home>"]          = { "^", noremap = false },
     ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up><End><Right>':'<Left>'", expr = true },
     ["<leader><Space>"] = { fn.open_explorer, desc = "Explorer" },
-    ["<leader>ac"]      = { "<cmd>ChatGPT<CR>", desc = "Chat" },
     ['<leader>db']      = { show_breakpoints, desc = "Breakpoints" },
     ['<leader>de']      = { fn.resume_debugging, desc = "Enter Debugger" },
     ["<leader>fd"]      = { fn.delete_file, desc = "Delete" },

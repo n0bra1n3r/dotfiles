@@ -10,7 +10,6 @@ return {
     }
     require'which-key'.register({
       ["<leader>"] = {
-        a = { name = "AI" },
         b = { name = "Bookmarks" },
         d = { name = "Debug" },
         f = { name = "File" },
@@ -19,10 +18,5 @@ return {
         p = { name = "Packages" },
       },
     }, { mode = "n" })
-    require'which-key'.register({
-      ["<leader>"] = {
-        a = { name = "AI" },
-      },
-    }, { mode = "x" })
   end,
 }
