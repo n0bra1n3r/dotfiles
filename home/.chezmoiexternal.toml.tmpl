@@ -16,6 +16,12 @@
   exact = true
 {{- end }}
 
+{{- define "dep*" }}
+{{- $path := . }}
+[{{ printf ".dotfiles/deps/%s" $path | quote }}]
+  exact = false
+{{- end }}
+
 {{ template "dep" "act/.local/bin" }}
   {{- if $isWindows }}
   url = "https://github.com/nektos/act/releases/latest/download/act_Windows_x86_64.zip"
@@ -127,7 +133,7 @@
   type = "archive"
   stripComponents = 1
 {{- else if $isDarwin }}
-{{ template "dep" "homebrew/.local" }}
+{{ template "dep*" "homebrew/.local" }}
   url = "https://github.com/Homebrew/brew/archive/refs/heads/master.zip"
   type = "archive"
   stripComponents = 1
