@@ -86,6 +86,7 @@ my_plugins {
   -- VCS --
 
   { "lewis6991/gitsigns.nvim", event = "BufRead" },
+  { 'akinsho/git-conflict.nvim', event = 'VeryLazy' },
 
   -- Package Management --
 
