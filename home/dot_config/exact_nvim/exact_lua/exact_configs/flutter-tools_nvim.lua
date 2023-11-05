@@ -48,6 +48,9 @@ return {
       },
       fvm = true,
       lsp = {
+        color = {
+          enabled = true,
+        },
         settings = {
           renameFilesWithClasses = 'always',
           analysisExcludedFolders = {
