@@ -51,6 +51,9 @@ return {
         color = {
           enabled = true,
         },
+        on_attach = function(client)
+          client.server_capabilities.semanticTokensProvider = nil
+        end,
         settings = {
           renameFilesWithClasses = 'always',
           analysisExcludedFolders = {
