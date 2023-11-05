@@ -67,16 +67,7 @@ my_plugins {
 
   { "echasnovski/mini.bufremove" },
 
-  {
-    "ggandor/leap.nvim",
-    keys = { "S", "s" },
-    dependencies = { "tpope/vim-repeat" },
-  },
-  {
-    "ggandor/flit.nvim",
-    keys = { "F", "T", "f", "t" },
-    dependencies = { "ggandor/leap.nvim" },
-  },
+  { 'folke/flash.nvim', event = 'VeryLazy' },
 
   { "haya14busa/vim-asterisk", event = { "BufRead", "BufModifiedSet" } },
 
