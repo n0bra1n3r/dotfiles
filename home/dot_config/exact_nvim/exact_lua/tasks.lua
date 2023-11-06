@@ -36,7 +36,7 @@ my_tasks {
             { title = "Flutter tools" }
           )
         else
-          vim.cmd[[FlutterRun]]
+          vim.cmd('FlutterRun --device-id '..vim.g.flutter_current_device.id)
         end
       else
         require'dap'.continue()
