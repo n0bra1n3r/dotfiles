@@ -57,15 +57,6 @@ return {
       }
     })
 
-    config.nim_langserver.setup {
-      -- settings = {
-      --   nim = {
-      --     autoCheckFile = false,
-      --     autoCheckProject = false,
-      --   },
-      -- },
-    }
-
     config.sourcekit.setup{}
 
     lsp.setup()

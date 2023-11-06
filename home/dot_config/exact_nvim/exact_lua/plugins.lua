@@ -99,7 +99,6 @@ my_plugins {
       ':MasonInstall dart-debug-adapter',
       ':MasonInstall graphql-language-service-cli',
       ':MasonInstall json-lsp',
-      ':MasonInstall nimlangserver',
       ':MasonInstall shellcheck',
     },
   },

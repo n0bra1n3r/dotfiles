@@ -1,87 +1,98 @@
-local function nim_diagnostics()
-  local ls = require'null-ls'
-  local severities = require'null-ls.helpers'.diagnostics.severities
+local function nim_diagnostics(severities)
   return {
-    name = "nim",
-    method = ls.methods.DIAGNOSTICS,
-    filetypes = { "nim" },
-    generator = ls.generator {
-      args = function(params)
-        local file_name = vim.api.nvim_buf_get_name(params.bufnr)
-        local file_dir = vim.fn.fnamemodify(file_name, ":h")
-        local cache_dir = "/null-ls/"..fn.url_encode(file_name)
-        return {
-          "compile",
-          "--assertions:off",
-          "--checks:off",
-          "--define:diagnose",
-          "--errorMax:100",
-          "--nimcache:$nimcache/"..cache_dir,
-          "--noMain:on",
-          "--noLinking:on",
-          "--opt:none",
-          "--path:"..vim.fn.escape(file_dir, " "),
-          "--stackTrace:off",
-          "--stdout:on",
-          "--eval:$TEXT",
-        }
-      end,
-      check_exit_code = function(code)
-        return code <= 1
-      end,
-      command = "nim",
-      format = "line",
-      on_output = function(line, params)
-        local row, column, type, code, message =
-          line:match[[%w+%.nims?%((%d+), ?(%d+)%):? (%w+) ?(%w*): (.+)$]]
-
-        if row == nil or column == nil or type == nil or message == nil then
+    require'null-ls'.builtins.diagnostics.actionlint,
+    {
+      name = 'nim',
+      method = require'null-ls'.methods.DIAGNOSTICS,
+      filetypes = { 'nim' },
+      generator = require'null-ls'.generator {
+        args = {
+          'check',
+          '--errorMax:100',
+          '--stdout',
+          '--eval:$TEXT',
+        },
+        check_exit_code = function()
+          return true
+        end,
+        cwd = function()
           return nil
-        end
-
-        if code ~= nil and #code == 0 then
-          code = nil
-        end
-
-        if code == nil then
-          local message1, code1 =
-            message:match[[^(.+) %[(%w+)%]$]]
-
-          if message1 ~= nil and code1 ~= nil then
-            code = code1
-            message = message1
+        end,
+        dynamic_command = function()
+          return 'nim'
+        end,
+        format = 'raw',
+        multiple_files = true,
+        on_output = function(params, done)
+          if not params.output then
+            return done({})
           end
-        end
 
-        local severity = severities.information
+          local cur_filename = vim.api.nvim_buf_get_name(params.bufnr)
 
-        if type:lower() == "error" then
-          severity = severities.error
-        elseif type:lower() == "hint" then
-          severity = severities.hint
-        elseif vim.startswith(type:lower(), "warn") then
-          severity = severities.warning
-        end
-        return {
-          col = column,
-          code = code or type,
-          filename = vim.api.nvim_buf_get_name(params.bufnr),
-          message = message or "???",
-          row = row,
-          severity = severity,
-        }
-      end,
+          local diagnostics = {}
+
+          for line in vim.gsplit(
+            params.output,
+            '\n',
+            {
+              plain = true,
+              trimempty = true,
+            }
+          )
+          do
+            local filename, row, column, type, message =
+              line:match[[(.+)%((%d+), (%d+)%) (%a+): (.+)]]
+
+            if filename ~= nil and
+                row ~= nil and
+                column ~= nil and
+                type ~= nil and
+                message ~= nil
+            then
+              if filename == 'cmdfile.nim' then
+                filename = cur_filename
+              end
+
+              local severity = severities.information
+
+              if type == 'Error' then
+                severity = severities.error
+              elseif type == 'Hint' then
+                severity = severities.hint
+              elseif type == 'Warning' then
+                severity = severities.warning
+              end
+
+              local token = params.content[tonumber(row)]
+                :sub(tonumber(column))
+                :match('[%w_]+')
+
+              table.insert(diagnostics, {
+                col = column,
+                end_col = column + (token and #token or 0),
+                filename = filename,
+                message = message,
+                row = row,
+                severity = severity,
+                source = 'nim',
+              })
+            end
+          end
+
+          return done(diagnostics)
+        end,
+      },
     },
   }
 end
 
 return {
   config = function()
+    local severities = require'null-ls.helpers'.diagnostics.severities
     require'null-ls'.setup {
-      sources = {
-        require'null-ls'.builtins.diagnostics.actionlint,
-        --nim_diagnostics(),
-      },
+      log_level = 'off',
+      sources = nim_diagnostics(severities),
     }
   end,
 }
