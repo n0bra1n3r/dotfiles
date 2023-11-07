@@ -216,19 +216,21 @@ my_autocmds {
   }, --}}}
   { "User", pattern = "ConfigLocalFinished", --{{{
     callback = function()
-      if vim.g.project_type then
-        local project_config = vim.g.project_configs[vim.g.project_type]
-        if project_config then
-          vim.api.nvim_set_keymap("n", [[<leader>pr]], [[]], {
-            callback = function()
-              fn.open_tab(project_config)
-            end,
-            desc = "Project",
-            noremap = true,
-            silent = true,
-          })
+      if fn.has_local_config() then
+        if vim.g.project_type then
+          local project_config = vim.g.project_configs[vim.g.project_type]
+          if project_config then
+            vim.api.nvim_set_keymap("n", [[<leader>pr]], [[]], {
+              callback = function()
+                fn.open_tab(project_config)
+              end,
+              desc = "Project",
+              noremap = true,
+              silent = true,
+            })
+          end
+          fn.load_vscode_launch_json()
         end
-        fn.load_vscode_launch_json()
       end
     end,
   }, --}}}

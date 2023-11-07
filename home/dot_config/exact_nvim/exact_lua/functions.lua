@@ -1414,6 +1414,14 @@ function fn.screenshot_selected_code()
     },
     "Screenshot selected code")
 end
+
+function fn.has_local_config()
+  local is_ok, config_local = pcall(require, 'config-local')
+  if is_ok then
+    return config_local.lookup() ~= ''
+  end
+  return false
+end
 --}}}
 --{{{ Workspace
 local function get_workspace_file_path(tabpage)
