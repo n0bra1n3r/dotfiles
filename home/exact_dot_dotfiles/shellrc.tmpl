@@ -10,6 +10,19 @@ if [[ -n "$STARSHIP_CONFIG" ]]; then
   export STARSHIP_CONFIG
 fi
 
+# Overrides
+
+alias cat='bat'
+alias ls='eza'
+
+#{- if eq .chezmoi.os "windows" }#
+alias npm="cmd -c npm.cmd"
+#{- else if eq .chezmoi.os "darwin" }#
+alias pip="pip3"
+alias python="python3"
+alias studio="open -a /Applications/Android\ Studio.app"
+#{- end }#
+
 function cygpath() {
   if [[ "$OS" == *_NT* ]]; then
     command cygpath "$@"
@@ -57,7 +70,7 @@ if [[ -n "$NVIM" ]]; then
 
   function cd() {
     local dir
-    builtin cd "$@" || return $?
+    builtin cd "$@" && ls -a "$PWD" || return $?
     dir="$(cygpath -m "$PWD")"
     _silent_background _nvim_remote --remote-expr \
       "v:lua.fn.set_terminal_dir(\"$dir\")"
@@ -111,6 +124,10 @@ if [[ -n "$NVIM" ]]; then
 else
   export EDITOR="nvim"
 
+  function cd() {
+    builtin cd "$@" && ls -a "$PWD"
+  }
+
   function git() {
     _git_override "$@"
   }
@@ -131,26 +148,11 @@ fi
 # General aliases
 
 alias c='cd'
-alias cat='bat'
 alias e='nvim'
 alias g='git'
-alias ls='eza'
 alias l='ls'
-alias vim='nvim'
 alias w='workspace'
 alias ws='workspace'
-
-#{- if eq .chezmoi.os "windows" }#
-alias npm="cmd -c npm.cmd"
-#{- else if eq .chezmoi.os "darwin" }#
-alias pip="pip3"
-alias python="python3"
-alias studio="open -a /Applications/Android\ Studio.app"
-#{- end }#
-
-function cd() {
-  builtin cd "$@" && ls "$(pwd)" --tree --level 1
-}
 
 function dart() {
   if [[ ! -f "$PWD/.fvm/fvm_config.json" ]]; then
