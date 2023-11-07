@@ -30,7 +30,7 @@ my_commands {
   TerminalModeStart = { --{{{
     function(opts)
       fn.refresh_git_info()
-      fn.open_terminal()
+      fn.set_terminal_dir()
       vim.cmd[[tabonly]]
       if opts.args and #opts.args > 0 then
         fn.send_terminal(opts.args.." && clear")

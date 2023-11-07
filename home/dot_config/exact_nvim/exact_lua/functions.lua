@@ -1048,8 +1048,10 @@ end
 
 function fn.set_terminal_dir(cwd)
   fn.open_terminal()
-  get_terminal().dir = cwd
-  fn.set_tab_cwd(nil, cwd)
+  local terminal = get_terminal()
+  local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
+  fn.set_tab_cwd(tabpage, cwd)
+  terminal.dir = fn.get_tab_cwd(tabpage)
 end
 
 function fn.send_terminal(command, is_hist, should_focus)
@@ -1496,7 +1498,8 @@ function fn.open_workspace(path)
   end
   if vim.fn.isdirectory(workspace_path) then
     vim.cmd[[tabnew]]
-    fn.set_tab_cwd(nil, workspace_path)
+    local tabpage = vim.api.nvim_get_current_tabpage()
+    fn.set_tab_cwd(tabpage, workspace_path)
     load_workspace()
   end
 end
