@@ -189,7 +189,7 @@ if [[ "$OPERATION" != "--" && ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]]; then
     [[ -f "$init_script" ]] && sh "$init_script"
   done
 
-  cd "$WORKSPACE_ROOT_DIR/$BRANCH" || return 1
+  builtin cd "$WORKSPACE_ROOT_DIR/$BRANCH" || return 1
 
   for init_script in ~/.dotfiles/scripts/workspace-init-*.sh; do
     [[ -f "$init_script" ]] && sh "$init_script"
@@ -209,7 +209,7 @@ else
             echo -n "Clean up workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'? [Y/n] "
             read -r DO_CLEAN_WORKSPACE
             if [[ -z "${DO_CLEAN_WORKSPACE#[Yy]}" ]]; then
-              cd "$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH" >/dev/null || return 1
+              builtin cd "$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH" >/dev/null || return 1
               rm -rf "$WORKSPACE_ROOT_DIR/${BRANCH:?}"
               git worktree prune
               git branch --delete "$BRANCH" >/dev/null
@@ -236,7 +236,7 @@ else
 
     echo "$INFO_MSG: found workspace at '$WORKSPACE_ROOT_DIR/$BRANCH'" >&2
 
-    cd "$WORKSPACE_ROOT_DIR/$BRANCH" || return 1
+    builtin cd "$WORKSPACE_ROOT_DIR/$BRANCH" || return 1
     git worktree repair
   fi
 fi
