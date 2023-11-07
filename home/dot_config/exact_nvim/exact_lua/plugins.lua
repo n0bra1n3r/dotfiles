@@ -130,6 +130,7 @@ my_plugins {
   },
 
   { 'nvimtools/none-ls.nvim', event = 'BufRead' },
+  { 'alaviss/nim.nvim', ft = 'nim' },
 
   { "L3MON4D3/LuaSnip" },
   { "rafamadriz/friendly-snippets" },
