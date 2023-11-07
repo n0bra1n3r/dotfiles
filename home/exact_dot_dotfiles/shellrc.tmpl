@@ -130,6 +130,28 @@ fi
 
 # General aliases
 
+alias c='cd'
+alias cat='bat'
+alias e='nvim'
+alias g='git'
+alias ls='eza'
+alias l='ls'
+alias vim='nvim'
+alias w='workspace'
+alias ws='workspace'
+
+#{- if eq .chezmoi.os "windows" }#
+alias npm="cmd -c npm.cmd"
+#{- else if eq .chezmoi.os "darwin" }#
+alias pip="pip3"
+alias python="python3"
+alias studio="open -a /Applications/Android\ Studio.app"
+#{- end }#
+
+function cd() {
+  builtin cd "$@" && ls "$(pwd)" --tree --level 1
+}
+
 function dart() {
   if [[ ! -f "$PWD/.fvm/fvm_config.json" ]]; then
     command dart "$@" || return $?
@@ -157,33 +179,26 @@ function onepub() {
   fi
 }
 
-alias c='cd'
-alias cat='bat'
-alias e='nvim'
-alias g='git'
-alias l='ls'
-alias vim='nvim'
-alias w='workspace'
-alias ws='workspace'
-
 # Config aliases
 
 alias ce='cd ~/.local/share/chezmoi && nvim'
 
 # Git aliases
 
+alias gb='git branch'
+alias go='git cf'
+alias gp='git pu'
+alias gs='git st'
+alias gu='git pull'
+alias gw='git sw'
+
 function ga() {
   git add -N "*$**" && git ap "*$**"
 }
 
-alias gb='git branch'
-
 function gc() {
   source "$HOME/.dotfiles/scripts/git-commit-message"
 }
-
-alias go='git cf'
-alias gp='git pu'
 
 function gr() {
   git rs "*$**"
@@ -192,17 +207,5 @@ function gr() {
 function grs() {
   git rss "*$**"
 }
-
-alias gs='git st'
-alias gu='git pull'
-alias gw='git sw'
-
-#{- if eq .chezmoi.os "windows" }#
-alias npm="cmd -c npm.cmd"
-#{- else if eq .chezmoi.os "darwin" }#
-alias pip="pip3"
-alias python="python3"
-alias studio="open -a /Applications/Android\ Studio.app"
-#{- end }#
 
 # vim: filetype=sh

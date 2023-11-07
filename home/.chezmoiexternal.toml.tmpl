@@ -111,6 +111,10 @@
   type = "archive"
   stripComponents = 1
 
+{{ template "dep" "eza/.local/bin" }}
+  url = "https://github.com/eza-community/eza/releases/latest/download/eza.exe_x86_64-pc-windows-gnu.zip"
+  type = "archive"
+
 {{ template "dep" "jq/.local/bin/jq.exe" }}
   url = "https://github.com/jqlang/jq/releases/latest/download/jq-win64.exe"
   type = "file"
