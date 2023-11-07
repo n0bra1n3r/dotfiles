@@ -48,7 +48,7 @@
   type = "archive"
   stripComponents = 1
 
-{{ template "dep" "gh/.local" }}
+{{ template "dep" "gh/.local/bin" }}
   {{- if $isWindows }}
   url = "https://github.com/cli/cli/releases/download/v2.35.0/gh_2.35.0_windows_amd64.zip"
   {{- else if $isDarwin }}
