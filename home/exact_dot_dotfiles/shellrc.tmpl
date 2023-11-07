@@ -172,6 +172,14 @@ function flutter() {
   fi
 }
 
+function gh() {
+  if ! command gh extension list | grep gh-dash >/dev/null; then
+    command gh extension install dlvhdr/gh-dash
+  fi
+
+  command gh "$@"
+}
+
 function onepub() {
   if [[ ! -f "$PWD/.fvm/fvm_config.json" ]]; then
     command onepub "$@" || return $?
