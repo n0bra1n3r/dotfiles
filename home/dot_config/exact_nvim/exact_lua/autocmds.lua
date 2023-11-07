@@ -11,14 +11,9 @@ my_autocmds {
       vim.bo.filetype = "json"
     end,
   }, --}}}
-  { "BufEnter", pattern = "fastlane/*", --{{{
+  { "BufEnter", pattern = { '*.podspec', 'fastlane/*', 'Podfile' }, --{{{
     callback = function()
-      vim.bo.filetype = "ruby"
-    end,
-  }, --}}}
-  { "BufEnter", pattern = "Podfile", --{{{
-    callback = function()
-      vim.bo.filetype = "ruby"
+      vim.bo.filetype = 'ruby'
     end,
   }, --}}}
   { { 'BufEnter', 'BufWinEnter' }, --{{{
