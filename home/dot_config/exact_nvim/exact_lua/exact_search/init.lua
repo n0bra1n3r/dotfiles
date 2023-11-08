@@ -1,6 +1,7 @@
 local M = {}
 
 local search_icon = '󱉶'
+local replace_icon = '󰛔'
 local search_filetype = "search"
 local search_namespace = "Search"
 local search_scrolloff = 3
@@ -112,6 +113,17 @@ local function get_search_results_at(line)
   return {}
 end
 
+local function replace_search_results_at(line, text)
+  local info = get_search_info()
+  if #info.line_array > 0 then
+    local line_info = info.line_array[line + 1]
+    local line_index = info.file_table[line_info.file_name][line_info.line_number]
+    for _, result in ipairs(info.result_array[line_index]) do
+      result.line_text = text
+    end
+  end
+end
+
 local function get_is_current_search(id)
   return M.info and M.info.search_id == id
 end
@@ -178,7 +190,7 @@ end
 local function clear_search_buffer_undo_tree()
   local undo_levels = vim.bo.undolevels
   vim.bo.undolevels = -1
-  vim.cmd[[exec "normal! a \<BS>\<Esc>"]]
+  vim.cmd[[exec "normal! a‎\<BS>\<Esc>"]]
   vim.bo.undolevels = undo_levels
   vim.bo.modified = false
 end
@@ -197,11 +209,6 @@ local function initialize_search(search_term, search_args)
       info.job = nil
     end
 
-    if #info.line_array > 0 then
-      vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
-      vim.api.nvim_buf_set_lines(0, 0, -1, true, { " " })
-    end
-
     new_info.search_id = info.search_id + 1
     new_info.search_term = search_term or info.search_term
     new_info.search_args = search_args or info.search_args
@@ -214,20 +221,30 @@ local function initialize_search(search_term, search_args)
     new_info.search_term,
     new_info.search_args)
 
-  vim.bo.buftype = "nowrite"
+  vim.bo.buftype = 'nowrite'
 
   set_search_window_options()
+
+  vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
+  vim.api.nvim_buf_set_lines(0, 0, -1, true, { '', '' })
+  vim.api.nvim_win_set_cursor(0, { 1, 0 })
 
   return new_info
 end
 
 local function render_line_text(line, line_text)
+  local cursor = vim.api.nvim_win_get_cursor(0)
+
   vim.api.nvim_buf_set_lines(
     0,
     line,
     line > 0 and line or line + 1,
     true,
     { line_text })
+
+  if vim.deep_equal(cursor, { 1, 0 }) then
+    vim.api.nvim_win_set_cursor(0, { 1, 0 })
+  end
 end
 
 local function render_file_name(line, file_name)
@@ -300,7 +317,7 @@ local function clear_progress_timer()
   end
 end
 
-local function render_statistics()
+local function render_statistics(is_modified)
   local info = get_search_info()
   if #info.line_array > 0 then
     local file_name = info.line_array[1].file_name
@@ -313,15 +330,28 @@ local function render_statistics()
       { details = true })
     if #extmarks > 0 then
       local progress_icon = get_progress_icon()
+      local finished_icon = is_modified and replace_icon or get_search_icon()
+      local finished_hl = is_modified and 'Substitute' or 'IncSearch'
+
+      local change_count = 0
+      local change_files = {}
+      for _, change in pairs(info.change_table) do
+        change_count = change_count + 1
+        change_files[change.file_name] = 1
+      end
+
+      local replace_msg = is_modified and (" Replacing %s lines in %s files.")
+        :format(change_count, vim.tbl_count(change_files)) or ''
+
       local stats = {
-        { " " },
+        { ' ' },
         {
           (" %s  Matched %d lines in %d files%s "):format(
-            progress_icon or get_search_icon(),
+            progress_icon or finished_icon,
             #info.line_array,
             vim.tbl_count(info.file_table),
-            progress_icon and "..." or "."),
-          "MatchParen",
+            progress_icon and "..." or "."..replace_msg),
+            progress_icon and 'CurSearch' or finished_hl,
         },
       }
 
@@ -330,6 +360,7 @@ local function render_statistics()
 
       local line = extmarks[1][2]
       local col = extmarks[1][3]
+
       local extmark = extmarks[1][4]
       extmark.ns_id = nil
       extmark.id = extmarks[1][1]
@@ -343,25 +374,30 @@ local function render_statistics()
       end
 
       vim.api.nvim_buf_set_extmark(0, namespace, line, col, extmark)
-      vim.api.nvim_win_set_cursor(0, { 1, 0 })
     end
   else
     local namespace = get_search_file_namespace()
+
+    vim.api.nvim_buf_clear_namespace(0, namespace, 0, -1)
+
     local progress_icon = get_progress_icon()
+
     vim.api.nvim_buf_set_extmark(0, namespace, 0, 0, {
       id = 1,
       virt_lines = {{
-        { " " },
+        { ' ' },
         {
           (" %s  No matches found%s "):format(
             progress_icon or get_search_icon(),
             progress_icon and "..." or "."),
-          "MatchParen",
+          'Search',
         },
       }},
       virt_lines_above = true,
       virt_lines_leftcol = true,
     })
+
+    vim.fn.winrestview{ topfill = 3 + search_scrolloff }
   end
 end
 
@@ -404,6 +440,8 @@ local function save_modification(line)
       line_text = text,
     }
   end
+
+  render_statistics(vim.tbl_count(info.change_table) > 0)
 end
 
 local function watch_modifications()
@@ -521,6 +559,13 @@ end
 
 local function finalize_search()
   local info = get_search_info()
+
+  if #info.line_array == 0 then
+    vim.api.nvim_buf_delete(0, { force = true })
+    vim.cmd[[redraw]]
+    return
+  end
+
   local start_line = vim.api.nvim_buf_line_count(0)
   local end_line = #info.result_array - 1
 
@@ -530,18 +575,14 @@ local function finalize_search()
     end
   end
 
-  local first_result = info.result_array[1][1]
-  local first_col = tonumber(first_result.col_number) - 1
-
-  vim.api.nvim_win_set_cursor(0, { 1, first_col })
   clear_search_buffer_undo_tree()
 
-  vim.bo.buftype = "acwrite"
+  vim.bo.buftype = 'acwrite'
 
   local namespace = get_search_match_namespace()
   vim.api.nvim_buf_clear_namespace(0, namespace, 0, -1)
 
-  vim.fn.setreg("/", info.search_term, vim.fn.getregtype"/")
+  vim.fn.setreg('/', info.search_term, vim.fn.getregtype('/'))
   vim.o.hlsearch = true
 
   set_search_window_options()
@@ -549,23 +590,21 @@ local function finalize_search()
   watch_modifications()
 end
 
-local function on_buf_delete(_)
+local function on_buf_delete()
   M.info = nil
 end
 
-local function on_buf_enter(_)
+local function on_cmdline_enter()
   local info = get_search_info()
   info.is_editing = true
-  set_search_window_options()
 end
 
-local function on_buf_leave(_)
+local function on_cmdline_leave()
   local info = get_search_info()
   info.is_editing = false
-  unset_search_window_options()
 end
 
-local function on_cursor_moved(_)
+local function on_cursor_moved()
   local info = get_search_info()
   local line = vim.fn.line"." - 1
   if info.cursor_line ~= line then
@@ -577,7 +616,7 @@ local function on_cursor_moved(_)
   end
 end
 
-local function on_buf_write_cmd(_)
+local function on_buf_write_cmd()
   local info = get_search_info()
 
   local change_keys = {}
@@ -585,7 +624,7 @@ local function on_buf_write_cmd(_)
     table.insert(change_keys, key)
   end
 
-  local file_name, file_open
+  local file_name, is_file_open
   for _, key in ipairs(change_keys) do
     local change_info = info.change_table[key]
     local change_line = tonumber(change_info.line_number) - 1
@@ -593,16 +632,18 @@ local function on_buf_write_cmd(_)
     if change_info.file_name ~= file_name then
       if file_name ~= nil then
         vim.cmd.write(file_name)
-        if not file_open then
+        if not is_file_open then
           vim.cmd[[bwipe]]
         end
       end
 
       file_name = change_info.file_name
-      file_open = vim.fn.bufnr(file_name) ~= -1
+      is_file_open = vim.fn.bufnr(file_name) ~= -1
 
-      vim.cmd("keepjumps edit "..file_name)
+      vim.cmd('keepjumps edit '..file_name)
     end
+
+    replace_search_results_at(key - 1, change_info.line_text)
 
     vim.api.nvim_buf_set_lines(
       vim.fn.bufnr(file_name),
@@ -614,17 +655,20 @@ local function on_buf_write_cmd(_)
 
   if file_name ~= nil then
     vim.cmd.write(file_name)
-    if not file_open then
+    if not is_file_open then
       vim.cmd[[bwipe]]
     end
 
-    vim.cmd("keepjumps buffer "..info.bufnr)
+    vim.cmd('keepjumps buffer '..info.bufnr)
   end
 
   vim.bo.modified = false
+  info.change_table = {}
+
+  render_statistics(false)
 end
 
-local function on_exit(_)
+local function on_exit()
   local bufnr = get_current_search_buffer()
   if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
     vim.api.nvim_buf_delete(bufnr, { force = false })
@@ -667,22 +711,32 @@ local function open_search_buffer()
     vim.api.nvim_create_autocmd("BufDelete", {
       group = group,
       buffer = bufnr,
-      callback = function(...)
+      callback = function()
         vim.api.nvim_del_augroup_by_name(augroup_open_search_buffer)
-        on_buf_delete(...)
+        on_buf_delete()
       end,
     })
-    vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWinEnter' }, {
+    vim.api.nvim_create_autocmd('BufEnter', {
       group = group,
       buffer = bufnr,
-      callback = on_buf_enter,
+      callback = set_search_window_options,
     })
-    vim.api.nvim_create_autocmd("BufLeave", {
+    vim.api.nvim_create_autocmd('BufLeave', {
       group = group,
       buffer = bufnr,
-      callback = on_buf_leave,
+      callback = unset_search_window_options,
     })
-    vim.api.nvim_create_autocmd("BufWriteCmd", {
+    vim.api.nvim_create_autocmd('CmdlineLeave', {
+      group = group,
+      buffer = bufnr,
+      callback = on_cmdline_enter,
+    })
+    vim.api.nvim_create_autocmd('CmdlineEnter', {
+      group = group,
+      buffer = bufnr,
+      callback = on_cmdline_leave,
+    })
+    vim.api.nvim_create_autocmd('BufWriteCmd', {
       group = group,
       buffer = bufnr,
       callback = on_buf_write_cmd,
@@ -959,9 +1013,16 @@ function M.prompt(search_args, search_term)
       vim.cmd[[redraw]]
     else
       local info = get_search_info()
+
       if not info.is_searching then
         finalize_search()
-        process_search_input()
+      end
+
+      if vim.deep_equal(vim.api.nvim_win_get_cursor(0), { 1, 0 }) then
+        local first_result = info.result_array[1][1]
+        local first_col = tonumber(first_result.col_number) - 1
+
+        vim.api.nvim_win_set_cursor(0, { 1, first_col })
       end
     end
   end
