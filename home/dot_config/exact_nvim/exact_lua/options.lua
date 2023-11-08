@@ -34,6 +34,7 @@ my_options {
     "o:hor20-blinkwait0-blinkon400-blinkoff250",
   }, --}}}
   hidden = true,
+  hlsearch = false,
   ignorecase = true,
   isfname = "@,48-57,/,\\,.,-,_,+,,,#,$,%,~,=",
   isident = "@,48-57,_,192-255",
