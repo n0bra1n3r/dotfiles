@@ -566,7 +566,7 @@ local function finalize_search()
     return
   end
 
-  local start_line = vim.api.nvim_buf_line_count(0)
+  local start_line = vim.api.nvim_buf_line_count(0) - 1
   local end_line = #info.result_array - 1
 
   for line = start_line, end_line do
@@ -821,8 +821,14 @@ local function push_result(line, result)
     table.insert(results, result)
   end
 
+  local prev_line = info.line_array[line]
+  if prev_line then
+    prev_line.is_last_line = result.file_name ~= prev_line.file_name
+  end
+
   info.line_array[line + 1] = {
     file_name = result.file_name,
+    is_last_line = true,
     line_number = result.line_number,
   }
 
@@ -1037,20 +1043,24 @@ function _G.search_statuscol_expr()
       if line_info then
         local lnum = line_info.line_number
         local lmax = info.max_line_number
+
         if vim.v.virtnum == 0 then
-          local padding = (" "):rep(#tostring(lmax) - #tostring(lnum))
-          local hasLhl = vim.wo.cursorlineopt == "number"
-            or vim.wo.cursorlineopt == "both"
-          local lhl = hasLhl and vim.fn.line'.' == line
-            and "CursorLineNr"
-            or "LineNr"
-          return (" %%#LineNr#│%s%%#%s#%d "):format(
+          local padding = (' '):rep(#tostring(lmax) - #tostring(lnum))
+          local has_lhl = vim.wo.cursorlineopt == 'number'
+            or vim.wo.cursorlineopt == 'both'
+          local lhl = has_lhl and vim.fn.line('.') == line
+            and 'CursorLineNr'
+            or 'LineNr'
+          return (' %%#LineNr#%s%s%%#%s#%d '):format(
+            line_info.is_last_line and '└' or '│',
             padding,
             lhl,
             line_info.line_number)
         else
-          local padding = (" "):rep(#tostring(lmax))
-          return (" %%#LineNr#│%s "):format(padding)
+          local padding = (' '):rep(#tostring(lmax))
+          return (' %%#LineNr#%s%s '):format(
+            line_info.is_last_line and '└' or '│',
+            padding)
         end
       end
     end
