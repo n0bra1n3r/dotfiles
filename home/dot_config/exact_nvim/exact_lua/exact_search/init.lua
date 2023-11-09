@@ -254,28 +254,28 @@ local function render_file_name(line, file_name)
   vim.api.nvim_buf_clear_namespace(0, namespace, 0, -1)
 
   if line >= 0 then
-    local name = vim.fn.fnamemodify(file_name, ":t")
-    local ext = vim.fn.fnamemodify(name, ":e")
+    local name = vim.fn.fnamemodify(file_name, ':t')
+    local ext = vim.fn.fnamemodify(name, ':e')
     local icon, hl = require'nvim-web-devicons'.get_icon(name, ext)
     vim.api.nvim_buf_set_extmark(0, namespace, line, 0, {
       id = line + 1,
       virt_lines = {
-        {{ "" }},
+        {{ '' }},
         {
-          { " " },
+          { ' ' },
           {
-            "┌",
-            "LineNr",
+            '┌',
+            'LineNr',
           },
-          { " " },
+          { ' ' },
           {
             icon,
             hl,
           },
-          { " " },
+          { ' ' },
           {
-            ("%s:"):format(file_name),
-            "Directory",
+            ('%s:'):format(file_name),
+            'Directory',
           }
         },
       },
@@ -821,14 +821,9 @@ local function push_result(line, result)
     table.insert(results, result)
   end
 
-  local prev_line = info.line_array[line]
-  if prev_line then
-    prev_line.is_last_line = result.file_name ~= prev_line.file_name
-  end
-
   info.line_array[line + 1] = {
     file_name = result.file_name,
-    is_last_line = true,
+    is_first_line = result.is_first_line,
     line_number = result.line_number,
   }
 
@@ -1051,16 +1046,13 @@ function _G.search_statuscol_expr()
           local lhl = has_lhl and vim.fn.line('.') == line
             and 'CursorLineNr'
             or 'LineNr'
+          local next_line_info = info.line_array[line + 1]
+          local is_last_line = not next_line_info or next_line_info.is_first_line
           return (' %%#LineNr#%s%s%%#%s#%d '):format(
-            line_info.is_last_line and '└' or '│',
+            is_last_line and '└' or '│',
             padding,
             lhl,
             line_info.line_number)
-        else
-          local padding = (' '):rep(#tostring(lmax))
-          return (' %%#LineNr#%s%s '):format(
-            line_info.is_last_line and '└' or '│',
-            padding)
         end
       end
     end
