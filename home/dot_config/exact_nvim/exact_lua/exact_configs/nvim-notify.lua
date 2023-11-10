@@ -9,8 +9,6 @@ return {
       [vim.log.levels.OFF] = 'OFF',
     }
 
-    local dismissed_notifs = {}
-
     require'notify'.setup {
       icons = {
         DEBUG = '󰉄',
@@ -23,7 +21,6 @@ return {
         vim.api.nvim_create_autocmd('WinEnter', {
           buffer = vim.api.nvim_win_get_buf(win),
           callback = function()
-            dismissed_notifs[record.id] = true
             vim.api.nvim_win_close(win, true)
           end,
         })
@@ -63,20 +60,33 @@ return {
       },
     }
 
-    vim.notify = function(msg, level, opts)
-      if msg == "No matching notification found to replace" then
-        return nil
-      end
+    _G.fallback_print = _G.print
 
+    local is_notifying = false
+
+    _G.vim.notify = function(msg, level, opts)
       if not opts then
         opts = {}
       end
 
-      opts.animate = false
+      if not opts.title or #opts.title == 0 then
+        if not msg or #msg == 0 then
+          return
+        end
 
-      if (not opts.title or #opts.title == 0) and not opts.replace then
-        opts.title = "neovim"
+        if not opts.replace then
+          opts.title = "neovim"
+        end
       end
+
+      if is_notifying then
+        fallback_print(('[%s] %s: %s'):format(opts.title, level, msg))
+        return
+      end
+
+      is_notifying = true
+
+      opts.animate = false
 
       local max_len = 50
 
@@ -105,10 +115,43 @@ return {
         job:start()
       end
 
-      if not dismissed_notifs[opts.replace and opts.replace.id] then
-        local is_ok, res = pcall(require'notify', lines, notify_level[level], opts)
-        return is_ok and res
+      local is_ok, res = pcall(require'notify', lines, notify_level[level], opts)
+
+      is_notifying = false
+
+      return is_ok and res
+    end
+
+    _G.print = function(...)
+      local args = { ... }
+
+      local print_safe_args = {}
+      for i = 1, #args do
+        table.insert(print_safe_args, tostring(args[i]))
       end
+
+      local message = table.concat(print_safe_args, ' ')
+      local title
+
+      while #message > 0 do
+        local tag = message:match('^(%b[])')
+        if not tag or #tag == 0 then
+          break
+        end
+
+        if not title then
+          title = tag:sub(2, -2)
+        else
+          title = title..' '..tag
+        end
+        message = vim.trim(message:sub(#tag + 1))
+      end
+
+      vim.notify(
+        #message > 0 and message or 'nil',
+        vim.log.levels.INFO,
+        { title = title }
+      )
     end
   end,
 }

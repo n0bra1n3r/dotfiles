@@ -88,7 +88,11 @@ return {
             vim.api.nvim_set_keymap('n', [[<leader>fa]], [[]], {
               callback = function()
                 fn.open_in_os{ './android', '-a', '/Applications/Android Studio.app' }
-                vim.notify("Opening Android project...", { title = "Flutter tools" })
+                vim.notify(
+                  "Opening Android project...",
+                  vim.log.levels.INFO,
+                  { title = "Flutter tools" }
+                )
               end,
               desc = "Open Android project",
               noremap = true,
@@ -97,7 +101,11 @@ return {
             vim.api.nvim_set_keymap('n', [[<leader>fi]], [[]], {
               callback = function()
                 fn.open_in_os{ './ios/Runner.xcworkspace' }
-                vim.notify("Opening iOS project...", { title = "Flutter tools" })
+                vim.notify(
+                  "Opening iOS project...",
+                  vim.log.levels.INFO,
+                  { title = "Flutter tools" }
+                )
               end,
               desc = "Open iOS project",
               noremap = true,

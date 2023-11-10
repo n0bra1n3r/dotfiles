@@ -54,7 +54,7 @@ my_options {
   sessionoptions = "buffers,folds,winsize,winpos",
   selection = "exclusive",
   shiftwidth = 2,
-  opt.shortmess + "sFISW",
+  opt.shortmess + "acsCFISW",
   showbreak = "↪",
   showcmd = false,
   showmode = false,
