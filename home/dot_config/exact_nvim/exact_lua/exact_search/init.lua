@@ -6,6 +6,7 @@ local search_filetype = "search"
 local search_namespace = "Search"
 local search_scrolloff = 3
 local search_statuscol = "%!v:lua.search_statuscol_expr()"
+local fold_threshold = 3
 
 local augroup_live_search = "search_live_search"
 local augroup_open_search_buffer = "search_open_search_buffer"
@@ -107,8 +108,8 @@ local function get_search_results_at(line)
   local info = get_search_info()
   if #info.line_array > 0 then
     local line_info = info.line_array[line + 1]
-    local line_index = info.file_table[line_info.file_name][line_info.line_number]
-    return info.result_array[line_index]
+    local row = info.file_table[line_info.file_name][line_info.line_number]
+    return info.result_array[row]
   end
   return {}
 end
@@ -117,8 +118,8 @@ local function replace_search_results_at(line, text)
   local info = get_search_info()
   if #info.line_array > 0 then
     local line_info = info.line_array[line + 1]
-    local line_index = info.file_table[line_info.file_name][line_info.line_number]
-    for _, result in ipairs(info.result_array[line_index]) do
+    local row = info.file_table[line_info.file_name][line_info.line_number]
+    for _, result in ipairs(info.result_array[row]) do
       result.line_text = text
     end
   end
@@ -142,19 +143,25 @@ local function load_opt(store, name)
 end
 
 local function set_search_window_options()
-  save_opt(vim.wo, "colorcolumn")
-  save_opt(vim.wo, "scrolloff")
-  save_opt(vim.wo, "statuscolumn")
+  save_opt(vim.wo, 'colorcolumn')
+  save_opt(vim.wo, 'foldmethod')
+  save_opt(vim.wo, 'foldtext')
+  save_opt(vim.wo, 'scrolloff')
+  save_opt(vim.wo, 'statuscolumn')
 
   vim.wo.colorcolumn = nil
+  vim.wo.foldmethod = 'manual'
+  vim.wo.foldtext = 'v:lua.search_fold_text()'
   vim.wo.scrolloff = search_scrolloff
   vim.wo.statuscolumn = search_statuscol
 end
 
 local function unset_search_window_options()
-  load_opt(vim.wo, "colorcolumn")
-  load_opt(vim.wo, "scrolloff")
-  load_opt(vim.wo, "statuscolumn")
+  load_opt(vim.wo, 'colorcolumn')
+  load_opt(vim.wo, 'foldmethod')
+  load_opt(vim.wo, 'foldtext')
+  load_opt(vim.wo, 'scrolloff')
+  load_opt(vim.wo, 'statuscolumn')
 end
 
 local function show_current_search_result(cmd)
@@ -233,7 +240,7 @@ local function initialize_search(search_term, search_args)
 end
 
 local function render_line_text(line, line_text)
-  local cursor = vim.api.nvim_win_get_cursor(0)
+  local pos = vim.api.nvim_win_get_cursor(0)
 
   vim.api.nvim_buf_set_lines(
     0,
@@ -242,7 +249,7 @@ local function render_line_text(line, line_text)
     true,
     { line_text })
 
-  if vim.deep_equal(cursor, { 1, 0 }) then
+  if vim.deep_equal(pos, { 1, 0 }) then
     vim.api.nvim_win_set_cursor(0, { 1, 0 })
   end
 end
@@ -423,6 +430,47 @@ local function render_result(line, result)
 
   if result.is_first_line then
     render_file_name(line, result.file_name)
+  end
+end
+
+local function fold_results(line, should_fold)
+  local info = get_search_info()
+  if #info.line_array > 0 then
+    if line then
+      local line_info = info.line_array[line + 1]
+      local file_info = info.file_table[line_info.file_name]
+
+      local first_row, last_row
+      for _, row in pairs(file_info) do
+        local file_line_info = info.line_array[row]
+        if file_line_info.is_first_line then
+          first_row = row
+        end
+        last_row = last_row and math.max(row, last_row) or row
+      end
+
+      local fold_start = first_row + 1
+      local fold_end = last_row - 1
+
+      if vim.fn.foldclosed(fold_start) == -1 then
+        if should_fold == nil or should_fold then
+          if last_row - first_row >= fold_threshold then
+            vim.cmd(''..fold_start..','..fold_end..'fold')
+          end
+        end
+      else
+        if should_fold == nil or not should_fold then
+          vim.cmd(''..fold_start..','..fold_end..'foldopen')
+        end
+      end
+    else
+      for _, line_info in pairs(info.file_table) do
+        for _, row in pairs(line_info) do
+          fold_results(row - 1, should_fold)
+          break
+        end
+      end
+    end
   end
 end
 
@@ -619,14 +667,14 @@ end
 local function on_buf_write_cmd()
   local info = get_search_info()
 
-  local change_keys = {}
-  for key in pairs(info.change_table) do
-    table.insert(change_keys, key)
+  local change_rows = {}
+  for row, _ in pairs(info.change_table) do
+    table.insert(change_rows, row)
   end
 
   local file_name, is_file_open
-  for _, key in ipairs(change_keys) do
-    local change_info = info.change_table[key]
+  for _, row in ipairs(change_rows) do
+    local change_info = info.change_table[row]
     local change_line = tonumber(change_info.line_number) - 1
 
     if change_info.file_name ~= file_name then
@@ -643,7 +691,7 @@ local function on_buf_write_cmd()
       vim.cmd('keepjumps edit '..file_name)
     end
 
-    replace_search_results_at(key - 1, change_info.line_text)
+    replace_search_results_at(row - 1, change_info.line_text)
 
     vim.api.nvim_buf_set_lines(
       vim.fn.bufnr(file_name),
@@ -680,26 +728,53 @@ local function open_search_buffer()
   if bufnr then
     -- options
     vim.api.nvim_buf_set_name(bufnr, search_namespace)
-    vim.bo.buftype = "nowrite"
+    vim.bo.buftype = 'nowrite'
     vim.bo.filetype = search_filetype
     vim.bo.swapfile = false
 
     -- keybindings
-    vim.api.nvim_buf_set_keymap(bufnr, "n", "<Enter>", [[]], {
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', [[<Enter>]], [[]], {
       callback = function()
-        show_current_search_result("edit")
+        show_current_search_result('edit')
       end,
       noremap = true,
     })
-    vim.api.nvim_buf_set_keymap(bufnr, "n", "<M-\\>", [[]], {
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', [[<M-\\>]], [[]], {
       callback = function()
-        show_current_search_result("vsplit")
+        show_current_search_result('vsplit')
       end,
       noremap = true,
     })
-    vim.api.nvim_buf_set_keymap(bufnr, "n", "<M-->", [[]], {
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', [[<M-->]], [[]], {
       callback = function()
-        show_current_search_result("split")
+        show_current_search_result('split')
+      end,
+      noremap = true,
+    })
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', [[za]], [[]], {
+      callback = function()
+        local row = vim.api.nvim_win_get_cursor(0)[1]
+        fold_results(row - 1)
+      end,
+      noremap = true,
+    })
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', [[zc]], [[]], {
+      callback = function()
+        local row = vim.api.nvim_win_get_cursor(0)[1]
+        fold_results(row - 1, true)
+      end,
+      noremap = true,
+    })
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', [[zo]], [[]], {
+      callback = function()
+        local row = vim.api.nvim_win_get_cursor(0)[1]
+        fold_results(row - 1, false)
+      end,
+      noremap = true,
+    })
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', [[zM]], [[]], {
+      callback = function()
+        fold_results()
       end,
       noremap = true,
     })
@@ -818,6 +893,9 @@ local function push_result(line, result)
   if not results then
     info.result_array[line + 1] = { result }
   else
+    local first_result = results[1]
+    result.is_first_line = first_result.is_first_line
+
     table.insert(results, result)
   end
 
@@ -1029,30 +1107,55 @@ function M.prompt(search_args, search_term)
   end
 end
 
+function _G.search_fold_text()
+  local line_text = vim.fn.getline(vim.v.foldstart)
+  local folded_line_count = vim.v.foldend - vim.v.foldstart
+  return line_text..'  󰁂 '..folded_line_count
+end
+
+function _G.search_fold_click_cb()
+  local pos = vim.fn.getmousepos()
+  if pos and pos.line then
+    fold_results(pos.line - 1)
+  end
+end
+
 function _G.search_statuscol_expr()
-  local line = vim.v.lnum
-  if line then
+  local row = vim.v.lnum
+  if row then
     local info = get_search_info()
     if #info.line_array > 0 then
-      local line_info = info.line_array[line]
+      local line_info = info.line_array[row]
       if line_info then
-        local lnum = line_info.line_number
-        local lmax = info.max_line_number
-
-        if vim.v.virtnum == 0 then
+        if vim.fn.foldclosed(row) ~= -1 then
+          local lnum = line_info.line_number
+          local lmax = info.max_line_number
+          local padding = (' '):rep(#tostring(lmax) - #tostring(lnum))
+          return (' %%@v:lua.search_fold_click_cb@%%#LineNr#%s %s%%#Folded#%s '):format(
+            '·',
+            padding,
+            ('·'):rep(#tostring(lnum)))
+        elseif vim.v.virtnum == 0 then
+          local lnum = line_info.line_number
+          local lmax = info.max_line_number
           local padding = (' '):rep(#tostring(lmax) - #tostring(lnum))
           local has_lhl = vim.wo.cursorlineopt == 'number'
             or vim.wo.cursorlineopt == 'both'
-          local lhl = has_lhl and vim.fn.line('.') == line
+          local lhl = has_lhl and vim.fn.line('.') == row
             and 'CursorLineNr'
             or 'LineNr'
-          local next_line_info = info.line_array[line + 1]
+          local next_line_info = info.line_array[row + 1]
           local is_last_line = not next_line_info or next_line_info.is_first_line
-          return (' %%#LineNr#%s%s%%#%s#%d '):format(
+          return (' %%@v:lua.search_fold_click_cb@%%#LineNr#%s %s%%#%s#%d '):format(
             is_last_line and '└' or '│',
             padding,
             lhl,
             line_info.line_number)
+        elseif vim.v.virtnum > 0 then
+          local next_line_info = info.line_array[row + 1]
+          local is_last_line = not next_line_info or next_line_info.is_first_line
+          return (' %%@v:lua.search_fold_click_cb@%%#LineNr#%s '):format(
+            is_last_line and '└' or '│')
         end
       end
     end

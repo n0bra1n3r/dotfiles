@@ -146,6 +146,11 @@ my_autocmds {
         { noremap = true, silent = true })
     end,
   }, --}}}
+  { 'FileType', pattern = 'search', --{{{
+    callback = function()
+      require'ufo'.detach()
+    end,
+  }, --}}}
   { 'FocusGained', --{{{
     callback = function()
       fn.apply_focused_highlight()
