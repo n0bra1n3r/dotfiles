@@ -178,6 +178,8 @@ my_plugins {
     dependencies = { "hrsh7th/nvim-cmp" },
   },
 
+  { 'Robitx/gp.nvim', event = { 'BufRead' } },
+
   -- Editor --
 
   { "numToStr/Comment.nvim", event = { "BufRead", "BufModifiedSet" } },
