@@ -254,7 +254,7 @@ local function render_line_text(line, line_text)
   end
 end
 
-local function render_file_name(line, file_name)
+local function render_file_name(line, file_name, is_changed)
   local namespace = get_search_file_namespace(file_name)
 
   vim.api.nvim_buf_clear_namespace(0, get_search_file_namespace(), 0, -1)
@@ -276,13 +276,13 @@ local function render_file_name(line, file_name)
           },
           { ' ' },
           {
-            icon,
-            hl,
+            is_changed and '' or icon,
+            is_changed and 'String' or hl,
           },
           { ' ' },
           {
             ('%s:'):format(file_name),
-            'Directory',
+            is_changed and 'String' or 'Title',
           }
         },
       },
@@ -440,14 +440,8 @@ local function fold_results(line, should_fold)
       local line_info = info.line_array[line + 1]
       local file_info = info.file_table[line_info.file_name]
 
-      local first_row, last_row
-      for _, row in pairs(file_info) do
-        local file_line_info = info.line_array[row]
-        if file_line_info.is_first_line then
-          first_row = row
-        end
-        last_row = last_row and math.max(row, last_row) or row
-      end
+      local first_row = math.min(unpack(vim.tbl_values(file_info)))
+      local last_row = math.max(unpack(vim.tbl_values(file_info)))
 
       local fold_start = first_row + 1
       local fold_end = last_row - 1
@@ -479,17 +473,24 @@ local function save_modification(line)
   local text = vim.api.nvim_buf_get_lines(0, line, line + 1, {})[1]
   local result = get_search_results_at(line)[1]
 
-  if text == result.line_text then
-    info.change_table[line + 1] = nil
-  else
+  local did_change = text ~= result.line_text
+
+  if did_change then
     info.change_table[line + 1] = {
       file_name = result.file_name,
       line_number = result.line_number,
       line_text = text,
     }
+  else
+    info.change_table[line + 1] = nil
   end
 
-  render_statistics(vim.tbl_count(info.change_table) > 0)
+  local file_info = info.file_table[result.file_name]
+  local first_row = math.min(unpack(vim.tbl_values(file_info)))
+  local change_count = vim.tbl_count(info.change_table)
+
+  render_file_name(first_row - 1, result.file_name, did_change)
+  render_statistics(change_count > 0)
 end
 
 local function watch_modifications()
