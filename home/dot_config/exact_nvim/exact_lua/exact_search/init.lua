@@ -774,7 +774,7 @@ local function open_search_buffer()
     })
     vim.api.nvim_buf_set_keymap(bufnr, 'n', [[zM]], [[]], {
       callback = function()
-        fold_results()
+        fold_results(nil, true)
       end,
       noremap = true,
     })
