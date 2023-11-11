@@ -1,9 +1,8 @@
 {
   "lspconfig": {
     "lua_ls": {
-      "Lua.diagnostics.globals": [
-        "fn",
-        "plug"
+      "Lua.workspace.library": [
+        "exact_lua/main.lua.tmpl"
       ]
     }
   }
