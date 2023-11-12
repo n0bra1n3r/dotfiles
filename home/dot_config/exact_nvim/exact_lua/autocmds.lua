@@ -30,16 +30,6 @@ my_autocmds {
       else
         vim.cmd.match[[OverLength //]]
 
-        if vim.bo.filetype == 'help' then
-          if #vim.api.nvim_tabpage_list_wins(0) > 1 then
-            vim.cmd.wincmd[[T]]
-          end
-        elseif vim.bo.filetype == 'qf' then
-          if #vim.api.nvim_tabpage_list_wins(0) > 1 then
-            vim.cmd.wincmd[[J]]
-          end
-        end
-
         vim.wo.foldcolumn = '0'
         vim.wo.number = false
       end
@@ -78,6 +68,16 @@ my_autocmds {
           and not fn.is_empty_buffer()
           and fn.has_workspace_file() then
         fn.save_workspace()
+      else
+        if vim.bo.filetype == 'help' then
+          if #vim.api.nvim_tabpage_list_wins(0) > 1 then
+            vim.cmd.wincmd[[T]]
+          end
+        elseif vim.bo.filetype == 'qf' then
+          if #vim.api.nvim_tabpage_list_wins(0) > 1 then
+            vim.cmd.wincmd[[J]]
+          end
+        end
       end
     end,
   }, --}}}
