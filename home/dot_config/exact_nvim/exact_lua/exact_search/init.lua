@@ -5,7 +5,6 @@ local replace_icon = '󰛔'
 local search_filetype = "search"
 local search_namespace = "Search"
 local search_scrolloff = 3
-local search_statuscol = "%!v:lua.search_statuscol_expr()"
 local fold_threshold = 3
 
 local augroup_live_search = "search_live_search"
@@ -143,21 +142,18 @@ local function load_opt(store, name)
 end
 
 local function set_search_window_options()
-  save_opt(vim.wo, 'colorcolumn')
   save_opt(vim.wo, 'foldmethod')
   save_opt(vim.wo, 'foldtext')
   save_opt(vim.wo, 'scrolloff')
   save_opt(vim.wo, 'statuscolumn')
 
-  vim.wo.colorcolumn = nil
   vim.wo.foldmethod = 'manual'
   vim.wo.foldtext = 'v:lua.search_fold_text()'
   vim.wo.scrolloff = search_scrolloff
-  vim.wo.statuscolumn = search_statuscol
+  vim.wo.statuscolumn = '%!v:lua.search_statuscol_expr()'
 end
 
 local function unset_search_window_options()
-  load_opt(vim.wo, 'colorcolumn')
   load_opt(vim.wo, 'foldmethod')
   load_opt(vim.wo, 'foldtext')
   load_opt(vim.wo, 'scrolloff')
@@ -1128,11 +1124,17 @@ function _G.search_statuscol_expr()
     if #info.line_array > 0 then
       local line_info = info.line_array[row]
       if line_info then
-        if vim.fn.foldclosed(row) ~= -1 then
+        local fold_start = vim.fn.foldclosed(row)
+        if fold_start ~= -1 then
+          local fold_end = vim.fn.foldclosedend(row)
           local lnum = line_info.line_number
           local lmax = info.max_line_number
           local padding = (' '):rep(#tostring(lmax) - #tostring(lnum))
-          return (' %%@v:lua.search_fold_click_cb@%%#LineNr#%s %s%%#Folded#%s '):format(
+          local is_changed = #vim.tbl_filter(function(e)
+            return e >= fold_start and e <= fold_end
+          end, vim.tbl_keys(info.change_table)) > 0
+          return (' %%@v:lua.search_fold_click_cb@%%#%s#%s %s%%#Folded#%s '):format(
+            is_changed and 'String' or 'LineNr',
             '·',
             padding,
             ('·'):rep(#tostring(lnum)))
@@ -1145,17 +1147,21 @@ function _G.search_statuscol_expr()
           local lhl = has_lhl and vim.fn.line('.') == row
             and 'CursorLineNr'
             or 'LineNr'
+          local is_changed = info.change_table[row] ~= nil
           local next_line_info = info.line_array[row + 1]
           local is_last_line = not next_line_info or next_line_info.is_first_line
-          return (' %%@v:lua.search_fold_click_cb@%%#LineNr#%s %s%%#%s#%d '):format(
+          return (' %%@v:lua.search_fold_click_cb@%%#%s#%s %s%%#%s#%d '):format(
+            is_changed and 'String' or 'LineNr',
             is_last_line and '└' or '│',
             padding,
             lhl,
             line_info.line_number)
         elseif vim.v.virtnum > 0 then
+          local is_changed = info.change_table[row] ~= nil
           local next_line_info = info.line_array[row + 1]
           local is_last_line = not next_line_info or next_line_info.is_first_line
-          return (' %%@v:lua.search_fold_click_cb@%%#LineNr#%s '):format(
+          return (' %%@v:lua.search_fold_click_cb@%%#%s#%s '):format(
+            is_changed and 'String' or 'LineNr',
             is_last_line and '└' or '│')
         end
       end
