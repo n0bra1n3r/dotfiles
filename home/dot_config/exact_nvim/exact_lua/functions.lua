@@ -231,8 +231,19 @@ function fn.get_open_files()
 end
 
 function fn.delete_file()
-  vim.fn.delete(tostring(vim.fn.expand('%:p')))
-  require'mini.bufremove'.wipeout()
+  local rel_file = vim.fn.expand('%:~:.')
+
+  vim.ui.select({ 'No', 'Yes' }, {
+    prompt = " 󰆴 Delete "..rel_file.."?",
+    dressing = {
+      relative = 'win',
+    },
+  }, function(choice)
+    if choice == 'Yes' then
+      vim.fn.delete(tostring(vim.fn.expand('%:p')))
+      require'mini.bufremove'.wipeout()
+    end
+  end)
 end
 
 function fn.edit_file()
@@ -276,13 +287,13 @@ function fn.move_file()
 end
 
 function fn.save_file()
-  local rel_dir = vim.fn.fnamemodify(vim.fn.getcwd(), ":~:.")
+  local rel_dir = vim.fn.expand('%:~:.:h')
   vim.ui.input({
-      completion = "dir",
-      default = rel_dir.."/",
+      completion = 'dir',
+      default = rel_dir..'/',
       prompt = " 󰈔 Save to: ",
       dressing = {
-        relative = "win",
+        relative = 'win',
       },
     },
     function(path)
