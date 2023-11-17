@@ -1,4 +1,29 @@
 my_tasks {
+  ["Select emulator"] = {
+    cond = function()
+      return fn.is_debug_mode() and vim.g.project_type == 'flutter'
+    end,
+    func = function()
+      vim.cmd[[FlutterEmulators]]
+    end,
+    notify = false,
+    priority = 93,
+  },
+  ["Select device"] = {
+    cond = function()
+      return fn.is_debug_mode() and vim.g.project_type == 'flutter'
+    end,
+    func = function()
+      vim.cmd[[FlutterDevices]]
+      vim.notify(
+        "Detecting Devices...",
+        vim.log.levels.INFO,
+        { title = "Flutter tools" }
+      )
+    end,
+    notify = false,
+    priority = 94,
+  },
   ["Run profiler"] = {
     cond = function()
       return fn.is_debugging() and vim.g.project_type == 'flutter'
@@ -28,13 +53,8 @@ my_tasks {
     end,
     func = function(args)
       if args.state == 1 then
-        if args.mods == [[s   ]] or not vim.g.flutter_current_device then
-          vim.cmd[[FlutterDevices]]
-          vim.notify(
-            "Detecting Devices...",
-            vim.log.levels.INFO,
-            { title = "Flutter tools" }
-          )
+        if not vim.g.flutter_current_device then
+          vim.cmd[[FlutterRun]]
         else
           vim.cmd('FlutterRun --device-id '..vim.g.flutter_current_device.id)
         end
