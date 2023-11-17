@@ -163,7 +163,7 @@ function fn.open_in_github(path)
   file_path = vim.fn.substitute(file_path, info.dir..'/', '', '')
   local url = ('https://github.com/%s/blob/%s/%s')
     :format(repo_path, info.branch, file_path)
-  if not path and vim.fn.mode() == 'V' then
+  if not path and vim.fn.mode():sub(1, 1):lower() == 'v' then
     url = url..'#L'..vim.api.nvim_win_get_cursor(0)[1]
   end
   fn.open_in_os{ url }
@@ -1392,7 +1392,7 @@ function fn.get_line_info(format, win)
   local buf = vim.api.nvim_win_get_buf(file_win)
   local filename = vim.api.nvim_buf_get_name(buf)
   local cursor
-  if win and vim.fn.get_mode():lower() == 'v' then
+  if win and vim.fn.mode():sub(1, 1):lower() == 'v' then
     cursor = { vim.fn.getpos("'<"), vim.fn.getpos("'>") }
   else
     cursor = vim.api.nvim_win_get_cursor(file_win)
@@ -1423,6 +1423,32 @@ function fn.has_local_config()
     return config_local.lookup() ~= ''
   end
   return false
+end
+--}}}
+--{{{ AI
+function fn.ai_gen(cmd, text)
+  local filetype = vim.bo.filetype
+
+  local lines = text
+    and vim.split(text, '\n')
+    or vim.api.nvim_buf_get_lines(0, 0, -1, false)
+
+  vim.cmd[[tabe]]
+
+  vim.bo.filetype = 'markdown'
+  vim.bo.bufhidden = 'wipe'
+
+  vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+
+  vim.cmd('%Gp'..cmd)
+
+  vim.api.nvim_create_autocmd('User', {
+    once = true,
+    pattern = 'GpDone',
+    callback = function(event)
+      vim.bo[event.buf].filetype = filetype
+    end,
+  })
 end
 --}}}
 --{{{ Workspace
