@@ -1,8 +1,7 @@
 return {
   config = function()
     require'gitsigns'.setup {
-      _signs_staged_enable = true,
-      current_line_blame = true,
+      current_line_blame = false,
       current_line_blame_formatter = "  <author_time:%R> - <summary>",
       current_line_blame_opts = {
         ignore_whitespace = true,
