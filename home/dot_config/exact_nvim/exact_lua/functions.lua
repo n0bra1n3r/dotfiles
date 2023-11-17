@@ -785,8 +785,10 @@ function fn.resume_debugging(tabpage)
   end
 
   require'dap'.listeners.after.event_continued.my_debug_event = function()
+    vim.cmd[[set noequalalways]]
     require'dapui'.close(2)
     require'dapui'.open(1)
+    vim.cmd[[set equalalways]]
 
     update_debugging_state(3)
   end
@@ -801,12 +803,16 @@ function fn.resume_debugging(tabpage)
   require'dap'.listeners.after.launch.my_debug_event =
     require'dap'.listeners.after.event_continued.my_debug_event
   require'dap'.listeners.after.event_stopped.my_debug_event = function()
+    vim.cmd[[set noequalalways]]
     require'dapui'.open(2)
+    vim.cmd[[set equalalways]]
 
     update_debugging_state(2)
   end
   require'dap'.listeners.after.event_terminated.my_debug_event = function()
+    vim.cmd[[set noequalalways]]
     require'dapui'.close(2)
+    vim.cmd[[set equalalways]]
 
     update_debugging_state(1)
   end
@@ -840,7 +846,9 @@ function fn.get_debug_toolbar(tabpage)
 end
 
 function fn.toggle_debug_repl()
+  vim.cmd[[set noequalalways]]
   require'dapui'.toggle(1)
+  vim.cmd[[set equalalways]]
 end
 
 function fn.load_vscode_launch_json(path)
