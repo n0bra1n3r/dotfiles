@@ -77,6 +77,19 @@ my_autocmds {
           if #vim.api.nvim_tabpage_list_wins(0) > 1 then
             vim.cmd.wincmd[[J]]
           end
+        elseif vim.bo.filetype == 'dap-repl' then
+          vim.api.nvim_buf_attach(0, false, {
+            on_lines = function()
+              local last_line = vim.fn.line('$')
+              if vim.fn.line('w$') >= last_line - 1 then
+                local buf = vim.api.nvim_get_current_buf()
+                local win = vim.fn.bufwinid(buf)
+                vim.api.nvim_win_call(win, function()
+                  vim.api.nvim_win_set_cursor(win, { last_line, 0 })
+                end)
+              end
+            end
+          })
         end
       end
     end,
