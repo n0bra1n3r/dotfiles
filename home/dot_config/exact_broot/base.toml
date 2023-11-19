@@ -35,6 +35,8 @@ syntax_theme = "OceanDark"
 [special-paths]
   "**/.git" = "no-enter"
   "**/.DS_Store" = "hide"
+  "**/.nvim/**" = "hide"
+  "**/.nvim/init.lua" = "no-hide"
   "**/*.bin" = "hide"
   "**/*.db*" = "hide"
   "**/*.dll" = "hide"
