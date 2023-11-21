@@ -76,6 +76,10 @@ my_plugins {
     "nvim-telescope/telescope-dap.nvim",
     dependencies = { "nvim-telescope/telescope.nvim" },
   },
+  {
+    'ibhagwan/fzf-lua',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+  },
 
   { "s1n7ax/nvim-window-picker", event = "WinEnter" },
 

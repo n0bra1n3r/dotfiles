@@ -1,28 +1,38 @@
 -- vim: fcl=all fdm=marker fdl=0 fen
 
 --{{{ Helpers
-local function edit_in_split()
-  fn.edit_buffer("split", vim.fn.expand("<cfile>"))
+local function close_folds_at(level)
+  return function()
+    fn.close_folds_at(level or vim.fn.foldlevel('.'))
+  end
 end
 
-local function edit_in_vert_split()
-  fn.edit_buffer("vsplit", vim.fn.expand("<cfile>"))
+local function copy_cursor_location()
+  fn.copy_line_info('%s:%d:%d')
 end
 
-local function edit_in_buf()
-  fn.edit_buffer("edit", vim.fn.expand("<cfile>"))
+local function del_cur_bookmark()
+  fn.del_bookmark()
 end
 
-local function execute_last_terminal_command()
-  fn.send_terminal("!!", true)
+local function edit(view)
+  return function()
+    fn.edit_buffer(view, vim.fn.expand('<cfile>'))
+  end
 end
 
 local function get_map_expr(key)
-  return ("(v:count!=0||mode(1)[0:1]=='no'?'%s':'g%s')"):format(key, key)
+  return ([[(v:count!=0||mode(1)[0:1]=='no'?'%s':'g%s')]]):format(key, key)
 end
 
 local function get_map_expr_i(key)
-  return ("(v:count!=0||mode(1)[0:1]=='no'?'%s':'<C-o>g%s')"):format(key, key)
+  return ([[(v:count!=0||mode(1)[0:1]=='no'?'%s':'<C-o>g%s')]]):format(key, key)
+end
+
+local function goto_bookmark(tag)
+  return function()
+    fn.goto_bookmark(tag)
+  end
 end
 
 local function open_file_in_github()
@@ -33,26 +43,28 @@ local function search_and_replace()
   require'search'.prompt()
 end
 
+local function send_term(cmd)
+  return function()
+    fn.send_terminal(cmd, true)
+  end
+end
+
+local function show_breakpoints()
+  require'telescope'.extensions.dap.list_breakpoints{}
+end
+
+local function show_files()
+  require'fzf-lua'.files()
+end
+
 local function show_buffer_list()
   require'telescope.builtin'.loclist{ prompt_title = "Window Buffers" }
 end
 
-local function show_backward_jumps()
-  fn.show_buffer_jump_picker[[backward]]
-end
-
-local function show_forward_jumps()
-  fn.show_buffer_jump_picker[[forward]]
-end
-
-local function goto_bookmark(tag)
+local function show_jumps(dir)
   return function()
-    fn.goto_bookmark(tag)
+    fn.show_buffer_jump_picker(dir)
   end
-end
-
-local function del_cur_bookmark()
-  fn.del_bookmark()
 end
 
 local function update_file()
@@ -61,20 +73,6 @@ local function update_file()
   else
     vim.cmd[[silent update]]
   end
-end
-
-local function close_folds_at(level)
-  return function()
-    fn.close_folds_at(level or vim.fn.foldlevel('.'))
-  end
-end
-
-local function show_breakpoints()
-  require'telescope'.extensions.dap.list_breakpoints{}
-end
-
-local function copy_cursor_location()
-  fn.copy_line_info('%s:%d:%d')
 end
 --}}}
 
@@ -113,7 +111,7 @@ my_mappings {
   }, --}}}
   n = { --{{{
     ["<C-`>"]           = { fn.toggle_terminal },
-    ["<C-1>"]           = { execute_last_terminal_command },
+    ["<C-1>"]           = { send_term'!!' },
     ["<C-c>"]           = { "<cmd>tabclose<CR>" },
     ['<C-d>']           = { [[<C-d>zz]] },
     ["<C-Down>"]        = { "<C-w>j" },
@@ -124,8 +122,8 @@ my_mappings {
     ["<C-Tab>"]         = { show_buffer_list },
     ['<C-u>']           = { [[<C-u>zz]] },
     ["<C-Up>"]          = { "<C-w>k" },
-    ["<C-w><C-f>"]      = { edit_in_vert_split, desc = "Edit in vert split" },
-    ["<C-w>f"]          = { edit_in_split, desc = "Edit in split" },
+    ["<C-w><C-f>"]      = { edit'vsplit', desc = "Edit in vert split" },
+    ["<C-w>f"]          = { edit'split', desc = "Edit in split" },
     ["<C-w>gf"]         = { "<cmd>tabe <cfile><CR>", desc = "Edit in tab" },
     ["<C-z>"]           = { fn.open_terminal },
     ["<End>"]           = { "$", noremap = false },
@@ -133,7 +131,7 @@ my_mappings {
     ["<F1>"]            = { ":lua fn.ui_try(vim.cmd.help, vim.fn.expand('<cword>'))<CR>" },
     ["<Home>"]          = { "^", noremap = false },
     ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up><End><Right>':'<Left>'", expr = true },
-    ["<leader><Space>"] = { fn.open_explorer, desc = "Explorer" },
+    ["<leader><Space>"] = { show_files, desc = "Show files" },
     ['<leader>ad']      = { [[<cmd>lua fn.ai_gen('ApiDoc')<CR>]], desc = "AI Documentation" },
     ['<leader>db']      = { show_breakpoints, desc = "Breakpoints" },
     ['<leader>de']      = { fn.resume_debugging, desc = "Enter Debugger" },
@@ -173,8 +171,8 @@ my_mappings {
     ["<M-l>"]           = { "v:lua.fn.is_floating()?'h':'<C-w>h'", expr = true },
     ["<PageDown>"]      = { "L<Down>", noremap = false },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
-    ['<S-Tab><S-Tab>']  = { show_forward_jumps, desc = "Forward jumps" },
-    ['<Tab><Tab>']      = { show_backward_jumps, desc = "Backward jumps" },
+    ['<S-Tab><S-Tab>']  = { show_jumps'forward', desc = "Forward jumps" },
+    ['<Tab><Tab>']      = { show_jumps'backward', desc = "Backward jumps" },
     ["<Tab>1"]          = { goto_bookmark(1), desc = "Bookmark 1" },
     ["<Tab>2"]          = { goto_bookmark(2), desc = "Bookmark 2" },
     ["<Tab>3"]          = { goto_bookmark(3), desc = "Bookmark 3" },
@@ -187,7 +185,7 @@ my_mappings {
     c                   = { '"_c' },
     D                   = { '"_D' },
     d                   = { '"_d' },
-    gf                  = { edit_in_buf, desc = "Edit" },
+    gf                  = { edit'edit', desc = "Edit" },
     h                   = { ";" },
     l                   = { "col('.')==1&&col([line('.')-1,'$'])>1?'k$l':'h'", expr = true },
     x                   = { "col('$')==col('.')?'gJ':'\"_x'", expr = true },
@@ -203,7 +201,7 @@ my_mappings {
   t = { --{{{
     ["<C-`>"]           = { fn.toggle_terminal },
     ["<C-;>"]           = { "<End>" },
-    ["<C-1>"]           = { execute_last_terminal_command },
+    ["<C-1>"]           = { send_term'!!' },
     ["<C-Left>"]        = { "<Home>" },
     ["<C-l>"]           = { "<Home>" },
     ["<C-Right>"]       = { "<End>" },
