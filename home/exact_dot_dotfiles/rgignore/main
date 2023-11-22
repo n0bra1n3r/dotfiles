@@ -11,7 +11,7 @@
 *.lock
 
 # Config
-/.nvim/**/*.*
+/.nvim/**
 !/.nvim/init.lua
 
 # IDE
