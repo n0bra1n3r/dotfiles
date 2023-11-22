@@ -39,6 +39,12 @@
   type = "archive"
   stripComponents = 1
 
+[".config/bat/themes"]
+  exact = true
+  url = "https://github.com/catppuccin/bat/archive/refs/heads/main.zip"
+  type = "archive"
+  stripComponents = 1
+
 {{ template "dep" "fvm/.local/bin" }}
   {{- if $isWindows }}
   url = "https://github.com/fluttertools/fvm/releases/download/2.4.1/fvm-2.4.1-windows-x64.zip"
