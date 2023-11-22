@@ -17,47 +17,7 @@ return {
         TRACE = '󰎈',
         WARN = ''
       },
-      on_open = function(win, record)
-        vim.api.nvim_create_autocmd('WinEnter', {
-          buffer = vim.api.nvim_win_get_buf(win),
-          callback = function()
-            vim.api.nvim_win_close(win, true)
-          end,
-        })
-      end,
-      stages = {
-        function(state)
-          local next_height = state.message.height + 2
-          local next_row = require'notify.stages.util'.available_slot(
-            state.open_windows,
-            next_height,
-            require'notify.stages.util'.DIRECTION.TOP_DOWN
-          )
-          if not next_row then
-            return nil
-          end
-          local is_tabline_visible = vim.o.showtabline ~= 0 and #vim.o.tabline ~= 0
-          local row = next_row == 0
-            and next_row + (is_tabline_visible and 2 or 1)
-            or next_row
-          return {
-            anchor = 'NE',
-            border = 'single',
-            col = vim.o.columns,
-            height = state.message.height,
-            relative = 'editor',
-            row = row,
-            style = 'minimal',
-            width = state.message.width,
-          }
-        end,
-        function()
-          return {
-            col = { vim.o.columns },
-            time = true,
-          }
-        end,
-      },
+      stages = 'static',
     }
 
     _G.fallback_print = _G.print
