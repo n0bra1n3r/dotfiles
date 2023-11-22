@@ -43,22 +43,29 @@ local function search_and_replace()
   require'search'.prompt()
 end
 
+local function search_git_history()
+  return require'fzf-lua'.fzf_live(
+    [[git rev-list --all | xargs git grep --line-number --column --color=always <query>]],
+    {
+      fzf_opts = {
+        ['--delimiter'] = ':',
+        ['--preview-window'] = 'nohidden,down,60%,border-top,+{3}+3/3,~3',
+      },
+      preview = [[git show {1}:{2} | bat --style=default --color=always --file-name={2} --highlight-line={3}]],
+    }
+)
+end
+
 local function send_term(cmd)
   return function()
     fn.send_terminal(cmd, true)
   end
 end
 
-local function show_breakpoints()
-  require'telescope'.extensions.dap.list_breakpoints{}
-end
-
-local function show_files()
-  require'fzf-lua'.files()
-end
-
-local function show_buffer_list()
-  require'telescope.builtin'.loclist{ prompt_title = "Window Buffers" }
+local function show(fn)
+  return function()
+    require'fzf-lua'[fn]()
+  end
 end
 
 local function show_jumps(dir)
@@ -119,7 +126,7 @@ my_mappings {
     ["<C-Left>"]        = { "<C-w>h" },
     ['<C-o>']           = { '<Nop>' },
     ["<C-Right>"]       = { "<C-w>l" },
-    ["<C-Tab>"]         = { show_buffer_list },
+    ["<C-Tab>"]         = { show'loclist' },
     ['<C-u>']           = { [[<C-u>zz]] },
     ["<C-Up>"]          = { "<C-w>k" },
     ["<C-w><C-f>"]      = { edit'vsplit', desc = "Edit in vert split" },
@@ -131,29 +138,29 @@ my_mappings {
     ["<F1>"]            = { ":lua fn.ui_try(vim.cmd.help, vim.fn.expand('<cword>'))<CR>" },
     ["<Home>"]          = { "^", noremap = false },
     ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up><End><Right>':'<Left>'", expr = true },
-    ["<leader><Space>"] = { show_files, desc = "Show files" },
-    ['<leader>ad']      = { [[<cmd>lua fn.ai_gen('ApiDoc')<CR>]], desc = "AI Documentation" },
-    ['<leader>db']      = { show_breakpoints, desc = "Breakpoints" },
+    ["<leader><Space>"] = { show'files', desc = "Files" },
+    ['<leader>ad']      = { [[<cmd>lua fn.ai_gen('ApiDoc')<CR>]], desc = "Doc gen" },
+    ["<leader>c"]       = { [[<cmd>copen<CR>]], desc = "Open quickfix" },
+    ['<leader>db']      = { show'dap_breakpoints', desc = "Breakpoints" },
     ['<leader>de']      = { fn.resume_debugging, desc = "Enter Debugger" },
     ["<leader>fd"]      = { fn.delete_file, desc = "Delete" },
     ["<leader>fe"]      = { fn.edit_file, desc = "Edit" },
     ["<leader>fm"]      = { fn.move_file, desc = "Move" },
     ["<leader>fo"]      = { fn.open_file_folder, desc = "Open folder" },
     ["<leader>fs"]      = { fn.save_file, desc = "Save" },
-    ["<leader>gb"]      = { "<cmd>Gitsigns blame_line<CR>", desc = "Blame" },
-    ["<leader>gc"]      = { [[<cmd>Telescope git_commits<CR>]], desc = "Commits" },
-    ["<leader>gf"]      = { [[<cmd>Telescope git_bcommits<CR>]], desc = "File commits" },
-    ["<leader>gg"]      = { fn.open_git_repo, desc = "Open repo" },
+    ["<leader>gb"]      = { "<cmd>Gitsigns blame_line<CR>", desc = "Blame line" },
+    ["<leader>gc"]      = { show'git_commits', desc = "Commits" },
+    ["<leader>gf"]      = { show'git_bcommits', desc = "File commits" },
+    ["<leader>gg"]      = { fn.open_git_repo, desc = "Open repo in github" },
     ["<leader>gN"]      = { "<cmd>Gitsigns prev_hunk<CR>", desc = "Prev hunk" },
     ["<leader>gn"]      = { "<cmd>Gitsigns next_hunk<CR>", desc = "Next hunk" },
     ["<leader>gp"]      = { "<cmd>Gitsigns preview_hunk<CR>", desc = "Preview hunk" },
-    ["<leader>go"]      = { open_file_in_github, desc = "Open in Github" },
+    ["<leader>go"]      = { open_file_in_github, desc = "Open file in Github" },
     ["<leader>gr"]      = { ":Gitsigns reset_hunk<CR>", desc = "Reset hunk" },
-    ["<leader>gs"]      = { ":Gitsigns stage_hunk<CR>", desc = "Stage hunk" },
-    ["<leader>id"]      = { "<cmd>Telescope diagnostics bufnr=0<CR>", desc = "Document issues" },
-    ["<leader>iq"]      = { '<cmd>copen<CR>', desc = "Quickfix issues" },
-    ["<leader>iw"]      = { "<cmd>Telescope diagnostics<CR>", desc = "Workspace issues" },
-    ["<leader>l"]       = { "<cmd>Telescope lsp_document_symbols<CR>", desc = "LSP symbols" },
+    ["<leader>gs"]      = { search_git_history, desc = "Search history" },
+    ["<leader>id"]      = { show'diagnostics_document', desc = "Document issues" },
+    ["<leader>iw"]      = { show'diagnostics_workspace', desc = "Workspace issues" },
+    ["<leader>l"]       = { show'lsp_document_symbols', desc = "LSP symbols" },
     ["<leader>pa"]      = { "<cmd>Mason<CR>", desc = "Packages" },
     ["<leader>pl"]      = { "<cmd>Lazy<CR>", desc = "Plugins" },
     ["<leader>q"]       = { '<cmd>quitall<CR>', desc = "Quit" },
@@ -205,7 +212,7 @@ my_mappings {
     ["<C-Left>"]        = { "<Home>" },
     ["<C-l>"]           = { "<Home>" },
     ["<C-Right>"]       = { "<End>" },
-    ["<Esc>"]           = { "!v:lua.fn.is_floating()?'<Esc>':'<C-\\><C-n>'", expr = true },
+    ["<Esc>"]           = { [[!v:lua.fn.is_floating()?'<Esc>':'<C-\\><C-n>']], expr = true },
     ["<LeftMouse>"]     = { "<nop>" },
     ["<M-;>"]           = { "<Right>" },
     ["<M-j>"]           = { "<C-\\><C-n>j" },

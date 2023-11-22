@@ -77,8 +77,6 @@ return {
       select_device_fn(device, args)
     end
 
-    require'telescope'.load_extension('flutter')
-
     vim.api.nvim_create_autocmd('User', {
       group = vim.api.nvim_create_augroup('conf_flutter_tools', { clear = true }),
       pattern = 'ConfigLocalFinished',

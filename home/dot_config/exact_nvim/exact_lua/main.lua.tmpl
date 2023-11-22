@@ -22,6 +22,9 @@ _G.my_globals = function(globals)
     vim.deepcopy(globals))
   for key, value in pairs(globals) do
     vim.g[key] = value
+    if key == 'project_type' then
+      vim.env['NVIM_PROJECT_TYPE'] = value
+    end
   end
 end
 

@@ -13,8 +13,6 @@ else
   shopt -u nullglob
 fi
 
-export BR_INSTALL="no"
-
 export PUB_CACHE="$HOME/.pub-cache"
 
 export PATH="$HOME/.nimble/bin:$PATH"
@@ -45,6 +43,7 @@ export GH_TOKEN="$GITHUB_ACCESS_TOKEN"
 export OPENAI_API_KEY="#{ .openAi.key }#"
 #{- end }#
 
+export RIPGREP_CONFIG_PATH="$HOME/.dotfiles/ripgreprc"
 export BAT_THEME="Catppuccin-frappe"
 
 #{- if eq .chezmoi.os "windows" }#

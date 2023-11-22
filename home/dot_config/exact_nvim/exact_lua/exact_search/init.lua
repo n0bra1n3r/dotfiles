@@ -922,8 +922,11 @@ function M.run(search_args, search_term)
   local redraw_threshold = -1
 
   info.job = require'plenary.job':new {
-    command = info.cmd,
-    args = info.args,
+    command = vim.o.shell, -- need to expand env vars in `grepprg`
+    args = {
+      vim.o.shellcmdflag,
+      info.cmd..' '..vim.fn.join(info.args, ' '),
+    },
     cwd = info.cwd,
     enable_recording = false,
     interactive = false,

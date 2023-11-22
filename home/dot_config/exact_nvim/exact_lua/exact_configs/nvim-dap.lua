@@ -66,7 +66,5 @@ return {
         return config
       end,
     })
-
-    require'telescope'.load_extension('dap')
   end,
 }

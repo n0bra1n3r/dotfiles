@@ -73,10 +73,6 @@ my_plugins {
 
   { "nvim-telescope/telescope.nvim", event = "VeryLazy" },
   {
-    "nvim-telescope/telescope-dap.nvim",
-    dependencies = { "nvim-telescope/telescope.nvim" },
-  },
-  {
     'ibhagwan/fzf-lua',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
   },

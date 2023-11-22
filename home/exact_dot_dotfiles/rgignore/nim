@@ -1,0 +1,4 @@
+# vim: filetype=gitignore
+
+# Build artifacts
+/nimcache/

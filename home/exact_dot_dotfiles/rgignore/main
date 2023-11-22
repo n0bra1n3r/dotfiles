@@ -1,0 +1,25 @@
+# vim: filetype=gitignore
+
+# File system
+.DS_Store
+
+# VCS
+.git/
+.gitkeep
+
+# Package managers
+*.lock
+
+# Config
+/.nvim/**/*.*
+!/.nvim/init.lua
+
+# IDE
+/.idea/
+*.sln
+*.vcxproj*
+*.xcodeproj
+*.xcworkspace
+
+# Build artifacts
+/build/
