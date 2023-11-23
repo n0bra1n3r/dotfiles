@@ -44,6 +44,9 @@ return {
     require'mason-lspconfig'.setup {
       ensure_installed = {
         'bashls',
+        'graphql',
+        'jsonls',
+        'kotlin_language_server',
         'lua_ls',
         'pyright',
       },

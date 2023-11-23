@@ -13,6 +13,7 @@ return {
         'gitcommit',
         'gitignore',
         'graphql',
+        'kotlin',
         'lua',
         'nim',
         'nim_format_string',

@@ -97,8 +97,6 @@ my_plugins {
       ':MasonInstall actionlint',
       ':MasonInstall codelldb',
       ':MasonInstall dart-debug-adapter',
-      ':MasonInstall graphql-language-service-cli',
-      ':MasonInstall json-lsp',
       ':MasonInstall shellcheck',
     },
   },
