@@ -23,11 +23,13 @@ done
 for gz in ~/.dotfiles/deps/*/.local/bin/*.exe.gz; do
   dir="$(dirname "$gz")"
   if [[ -d "$dir" ]]; then
-    file="${gz%.gz}"
+    out="${gz%.gz}"
+    file="$out"
 #{- if eq .chezmoi.os "darwin" }#
     file="${file%.exe}"
 #{- end }#
-    gunzip -f "$gz" > "$file" && \
+    gunzip -f "$gz" && \
+    mv "$out" "$file" && \
     chmod +x "$file" && \
     rm -f "$gz" && \
     echo "> unarchived $(basename "$gz")"
