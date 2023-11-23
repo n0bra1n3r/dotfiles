@@ -142,6 +142,7 @@ return {
       log_level = 'off',
       sources = {
         require'null-ls'.builtins.diagnostics.actionlint,
+        require'null-ls'.builtins.formatting.swift_format,
         nim_completion(itemKinds),
         nim_diagnostics(severities),
       },
