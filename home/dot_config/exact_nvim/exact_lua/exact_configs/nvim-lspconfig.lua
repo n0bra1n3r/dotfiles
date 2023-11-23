@@ -1,19 +1,15 @@
 return {
   config = function()
     local lsp = require'lsp-zero'
-    lsp.on_attach(function(_, bufnr)
-      vim.diagnostic.config(require'lsp-zero'.defaults.diagnostics {
-        severity_sort = true,
-        signs = false,
-        virtual_text = {
-          format = function()
-            return [[]]
-          end,
-          prefix = '',
-          spacing = 1,
-        },
-      })
 
+    local severities = {
+      [vim.diagnostic.severity.ERROR] = 'Error',
+      [vim.diagnostic.severity.WARN] = 'Warn',
+      [vim.diagnostic.severity.HINT] = 'Hint',
+      [vim.diagnostic.severity.INFO] = 'Info',
+    }
+
+    lsp.on_attach(function(_, bufnr)
       local function map(m, lhs, rhs, desc)
         vim.api.nvim_buf_set_keymap(bufnr, m, lhs, [[]], {
           callback = rhs,
@@ -38,6 +34,49 @@ return {
       map('n', '[s', vim.diagnostic.goto_prev, "Go to next diagnostic")
       map('n', ']s', vim.diagnostic.goto_next, "Go to previous diagnostic")
     end)
+
+    vim.diagnostic.config(lsp.defaults.diagnostics {
+      signs = false,
+      virtual_text = false,
+    })
+
+    vim.diagnostic.handlers.virtual_lines = {
+      show = function(namespace, bufnr, diagnostics)
+        local ns = vim.diagnostic.get_namespace(namespace)
+        if not ns.user_data.virt_lines_ns then
+          ns.user_data.virt_lines_ns = vim.api.nvim_create_namespace('')
+        end
+        local virt_lines_ns = ns.user_data.virt_lines_ns
+
+        vim.api.nvim_buf_clear_namespace(bufnr, virt_lines_ns, 0, -1)
+
+        for _, diagnostic in ipairs(diagnostics) do
+          local name = severities[diagnostic.severity]
+          local sign = vim.fn.sign_getdefined('DiagnosticSign'..name)[1]
+          local sign_hl = 'DiagnosticSign'..name
+          local text_hl = 'DiagnosticVirtualText'..name
+
+          vim.api.nvim_buf_set_extmark(bufnr, virt_lines_ns, diagnostic.lnum, diagnostic.col, {
+            end_col = diagnostic.end_col,
+            end_row = diagnostic.end_lnum,
+            hl_mode = "combine",
+            hl_group = text_hl,
+            virt_text = {{ sign.text, sign_hl }},
+          })
+        end
+      end,
+      hide = function(namespace, bufnr)
+        local ns = vim.diagnostic.get_namespace(namespace)
+        if ns.user_data.virt_lines_ns and vim.api.nvim_get_mode().mode ~= 'i' then
+          vim.api.nvim_buf_clear_namespace(
+            bufnr,
+            ns.user_data.virt_lines_ns,
+            0,
+            -1
+          )
+        end
+      end,
+    }
 
     local config = require'lspconfig'
 
