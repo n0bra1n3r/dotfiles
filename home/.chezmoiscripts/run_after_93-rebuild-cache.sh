@@ -4,4 +4,4 @@ source ~/.dotfiles/envrc
 
 echo "> rebuilding caches..."
 
-bat cache --build
+bat cache --source="$HOME/.dotfiles/deps/bat/.config/bat" --build

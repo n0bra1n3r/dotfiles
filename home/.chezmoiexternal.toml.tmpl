@@ -39,11 +39,11 @@
   type = "archive"
   stripComponents = 1
 
-[".config/bat/themes"]
-  exact = true
+{{ template "dep" "bat/.config/bat/themes" }}
   url = "https://github.com/catppuccin/bat/archive/refs/heads/main.zip"
   type = "archive"
   stripComponents = 1
+  include = ["*/*.tmTheme"]
 
 {{ template "dep" "fvm/.local/bin" }}
   {{- if $isWindows }}
