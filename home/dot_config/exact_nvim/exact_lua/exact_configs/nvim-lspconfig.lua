@@ -41,7 +41,7 @@ return {
 
     local config = require'lspconfig'
 
-    require'mason-lspconfig'.setup({
+    require'mason-lspconfig'.setup {
       ensure_installed = {
         'bashls',
         'lua_ls',
@@ -55,9 +55,16 @@ return {
           config.lua_ls.setup(lsp.nvim_lua_ls())
         end,
       }
-    })
+    }
 
-    config.sourcekit.setup{}
+    config.sourcekit.setup {
+      cmd = {
+        'xcrun',
+        '--toolchain',
+        'swift',
+        'sourcekit-lsp',
+      }
+    }
 
     lsp.setup()
   end,
