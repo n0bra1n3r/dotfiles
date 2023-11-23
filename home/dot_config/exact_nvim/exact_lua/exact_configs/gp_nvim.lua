@@ -21,6 +21,21 @@ return {
             gp.config.command_system_prompt
           )
         end,
+        CodeConv = function(gp, params)
+          local template = "I have the following code from {{filename}}:\n\n"
+            .. "```{{filetype}}\n{{selection}}\n```\n\n"
+            .. "Convert the code to equivalent idiomatic {{command}} code."
+            .. "\n\nRespond only with the snippet of finalized code:"
+
+          gp.Prompt(
+            params,
+            gp.Target.rewrite,
+            nil,
+            gp.config.command_model,
+            template,
+            gp.config.command_system_prompt
+          )
+        end,
       },
     }
   end,

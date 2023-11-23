@@ -1415,7 +1415,7 @@ function fn.ai_gen(cmd, text)
   vim.bo.filetype = 'markdown'
   vim.bo.bufhidden = 'wipe'
 
-  vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+  vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
 
   vim.cmd('%Gp'..cmd)
 
@@ -1426,6 +1426,37 @@ function fn.ai_gen(cmd, text)
       vim.bo[event.buf].filetype = filetype
     end,
   })
+end
+
+function fn.ai_conv(cmd, text)
+  local lines = text
+    and vim.split(text, '\n')
+    or vim.api.nvim_buf_get_lines(0, 0, -1, false)
+
+  vim.ui.input({
+      prompt = " 󰗊 Translate to: ",
+      dressing = {
+        relative = text and "cursor" or "win",
+      },
+    },
+    function(filetype)
+      vim.cmd[[tabe]]
+
+      vim.bo.filetype = 'markdown'
+      vim.bo.bufhidden = 'wipe'
+
+      vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
+
+      vim.cmd('%Gp'..cmd..' '..filetype)
+
+      vim.api.nvim_create_autocmd('User', {
+        once = true,
+        pattern = 'GpDone',
+        callback = function(event)
+          vim.bo[event.buf].filetype = filetype
+        end,
+      })
+    end)
 end
 --}}}
 --{{{ Workspace
