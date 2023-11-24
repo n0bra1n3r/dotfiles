@@ -287,17 +287,17 @@ function fn.move_file()
 end
 
 function fn.save_file()
-  local rel_dir = vim.fn.expand('%:~:.:h')
+  local rel_file = vim.fn.expand('%:~:.')
   vim.ui.input({
-      completion = 'dir',
-      default = rel_dir..'/',
+      completion = 'file',
+      default = rel_file,
       prompt = " 󰈔 Save to: ",
       dressing = {
         relative = 'win',
       },
     },
     function(path)
-      if path == nil or #path == 0 or path == rel_dir or path.."/" == rel_dir then
+      if path == nil or #path == 0 or path == rel_file then
         return
       end
       create_parent_dirs(path)
