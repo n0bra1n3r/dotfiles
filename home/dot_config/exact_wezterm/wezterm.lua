@@ -1,4 +1,4 @@
-local wezterm = require 'wezterm'
+local wezterm = require'wezterm'
 
 local config = {}
 
@@ -7,8 +7,8 @@ if wezterm.config_builder then
 end
 
 config.color_scheme = 'Catppuccin Frappe'
-config.font = wezterm.font('MonaspiceNe NF', { weight = 'Medium' })
-config.font_size = 14
+config.font = wezterm.font('JetBrainsMono NF', { weight = 'Medium' })
+config.font_size = 15
 config.initial_cols = 220
 config.initial_rows = 60
 config.scrollback_lines = 9001
