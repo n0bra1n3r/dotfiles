@@ -7,7 +7,7 @@ if wezterm.config_builder then
 end
 
 config.color_scheme = 'Catppuccin Frappe'
-config.font = wezterm.font('JetBrainsMonoNL NFP', { weight = 'Medium' })
+config.font = wezterm.font('MonaspiceNe NFP', { weight = 'Medium' })
 config.font_size = 14
 config.initial_cols = 220
 config.initial_rows = 60
