@@ -81,7 +81,7 @@
   stripComponents = 1
 
 {{ template "dep" "nerd-font/contents" }}
-  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
+  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Monaspace.tar.xz"
   type = "archive"
 
 {{ template "dep" "nerd-font/release.json" }}
@@ -149,9 +149,10 @@
   type = "archive"
   stripComponents = 1
 
-{{ template "dep" "iterm2/Applications" }}
-  url = "https://iterm2.com/downloads/stable/latest"
+{{ template "dep" "wezterm/Applications" }}
+  url = "https://github.com/wez/wezterm/releases/download/20230712-072601-f4abf8fd/WezTerm-macos-20230712-072601-f4abf8fd.zip"
   type = "archive"
+  stripComponents = 1
 
 {{ template "dep" "jq/.local/bin/jq" }}
   url = "https://github.com/jqlang/jq/releases/latest/download/jq-osx-amd64"
