@@ -70,11 +70,49 @@ return {
       },
     }
 
-    -- FIX: Hack to fix current_device
+    -- FIX: Hack to set current_device
     local select_device_fn = require'flutter-tools.devices'.select_device
     require'flutter-tools.devices'.select_device = function(device, args)
       vim.g.flutter_current_device = device
       select_device_fn(device, args)
+    end
+
+    -- FIX: Hack to set current_config
+    local pick_if_many_fn = require'dap.ui'.pick_if_many
+    local run_fn = require'dap'.run
+    require'dap.ui'.pick_if_many = function(l, p, fmt_fn, ...)
+      local config = vim.g.flutter_current_config
+      if config then
+        local device = vim.g.flutter_current_device
+        if device then
+          config.args = vim.list_extend(config.args or {}, {
+            '--device-id',
+            device.id,
+          })
+        end
+        run_fn(config)
+      else
+        pick_if_many_fn(
+          l,
+          p,
+          function(item)
+            if item.args then
+              return fmt_fn(item)
+            else
+              return ('%s : %s'):format(item.name, item.program or item.cwd)
+            end
+          end,
+          ...
+        )
+      end
+    end
+    require'dap'.run = function(config, ...)
+      if config.dartSdkPath and config.flutterSdkPath then
+        vim.g.flutter_current_config = config
+      else
+        vim.g.flutter_current_config = nil
+      end
+      run_fn(config, ...)
     end
 
     vim.api.nvim_create_autocmd('User', {

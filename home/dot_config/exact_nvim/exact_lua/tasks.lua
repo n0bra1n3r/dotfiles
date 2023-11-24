@@ -4,6 +4,9 @@ my_tasks {
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
     func = function()
+      vim.g.flutter_current_config = nil
+      vim.g.flutter_current_device = nil
+
       vim.cmd[[FlutterEmulators]]
     end,
     notify = false,
@@ -14,6 +17,9 @@ my_tasks {
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
     func = function()
+      vim.g.flutter_current_config = nil
+      vim.g.flutter_current_device = nil
+
       vim.cmd[[FlutterDevices]]
       vim.notify(
         "Detecting Devices...",
@@ -53,11 +59,7 @@ my_tasks {
     end,
     func = function(args)
       if args.state == 1 then
-        if not vim.g.flutter_current_device then
-          vim.cmd[[FlutterRun]]
-        else
-          vim.cmd('FlutterRun --device-id '..vim.g.flutter_current_device.id)
-        end
+        vim.cmd[[FlutterRun]]
       else
         require'dap'.continue()
       end
