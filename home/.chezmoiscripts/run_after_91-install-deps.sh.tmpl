@@ -50,10 +50,6 @@ for pkg in ~/.dotfiles/deps/*/.local/*.zst; do
     popd >/dev/null
   fi
 done
-#{- else if eq .chezmoi.os "darwin" }#
-for app in ~/.dotfiles/deps/*/Applications/*.app; do
-  cp -rf "$app" /Applications && echo "> installed $(basename "$app")"
-done
 #{- end }#
 
 # vim: filetype=sh

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# chezmoi:template:left-delimiter="#{" right-delimiter="}#"
+
+set -e
+
+GIT_REMOTE=git@github.com:n0bra1n3r/dotfiles.git
+
+cd "#{ .chezmoi.sourceDir }#"
+
+git remote set-url origin $GIT_REMOTE && \
+  echo "> set remote to $GIT_REMOTE"
+
+#{- if eq .chezmoi.os "darwin" }#
+for app in ~/.dotfiles/deps/*/Applications/*.app; do
+  cp -rf "$app" /Applications && echo "> installed $(basename "$app")"
+done
+#{- end }#
+
+# vim: filetype=sh
