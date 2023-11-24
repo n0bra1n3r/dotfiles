@@ -49,16 +49,6 @@ my_autocmds {
       end
     end,
   }, --}}}
-  { "BufWinLeave", --{{{
-    callback = function(args)
-      fn.add_buf_to_loclist(args.buf)
-      if fn.is_file_buffer(args.buf) then
-        if fn.has_workspace_file() then
-          fn.save_workspace()
-        end
-      end
-    end,
-  }, --}}}
   { 'BufWinEnter', --{{{
     callback = function()
       if fn.is_file_buffer()
@@ -77,18 +67,28 @@ my_autocmds {
         elseif vim.bo.filetype == 'dap-repl' then
           vim.api.nvim_buf_attach(0, false, {
             on_lines = function()
-              vim.bo.wrap = true
-
-              local last_line = vim.fn.line('$')
-              if vim.fn.line('w$') >= last_line - 1 then
-                local buf = vim.api.nvim_get_current_buf()
-                local win = vim.fn.bufwinid(buf)
-                vim.api.nvim_win_call(win, function()
-                  vim.api.nvim_win_set_cursor(win, { last_line, 0 })
-                end)
+              if not vim.wo.wrap then
+                local last_line = vim.fn.line('$')
+                if vim.fn.line('w$') >= last_line - 1 then
+                  local buf = vim.api.nvim_get_current_buf()
+                  local win = vim.fn.bufwinid(buf)
+                  vim.api.nvim_win_call(win, function()
+                    vim.api.nvim_win_set_cursor(win, { last_line, 0 })
+                  end)
+                end
               end
             end
           })
+        end
+      end
+    end,
+  }, --}}}
+  { "BufWinLeave", --{{{
+    callback = function(args)
+      fn.add_buf_to_loclist(args.buf)
+      if fn.is_file_buffer(args.buf) then
+        if fn.has_workspace_file() then
+          fn.save_workspace()
         end
       end
     end,
@@ -234,6 +234,20 @@ my_autocmds {
   { "VimLeavePre", --{{{
     callback = function()
       vim.cmd[[cclose]]
+    end,
+  }, --}}}
+  { 'WinEnter', --{{{
+    callback = function()
+      if vim.bo.filetype == 'dap-repl' then
+        vim.wo.wrap = true
+      end
+    end,
+  }, --}}}
+  { 'WinLeave', --{{{
+    callback = function()
+      if vim.bo.filetype == 'dap-repl' then
+        vim.wo.wrap = false
+      end
     end,
   }, --}}}
 }
