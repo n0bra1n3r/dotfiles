@@ -4,20 +4,7 @@ my_autocmds {
   { 'BufEnter', --{{{
     callback = function()
       vim.cmd[[checktime]]
-    end,
-  }, --}}}
-  { "BufEnter", pattern = "*.arb", --{{{
-    callback = function()
-      vim.bo.filetype = "json"
-    end,
-  }, --}}}
-  { "BufEnter", pattern = { '*.podspec', 'fastlane/*', 'Podfile' }, --{{{
-    callback = function()
-      vim.bo.filetype = 'ruby'
-    end,
-  }, --}}}
-  { { 'BufEnter', 'BufWinEnter' }, --{{{
-    callback = function()
+
       if #vim.bo.buftype == 0 then
         if vim.bo.filetype == 'gitcommit' then
           vim.cmd.match[[OverLength /\%>50v.\+/]]
@@ -33,6 +20,16 @@ my_autocmds {
         vim.wo.foldcolumn = '0'
         vim.wo.number = false
       end
+    end,
+  }, --}}}
+  { "BufEnter", pattern = "*.arb", --{{{
+    callback = function()
+      vim.bo.filetype = "json"
+    end,
+  }, --}}}
+  { "BufEnter", pattern = { '*.podspec', 'fastlane/*', 'Podfile' }, --{{{
+    callback = function()
+      vim.bo.filetype = 'ruby'
     end,
   }, --}}}
   { "BufHidden", --{{{
@@ -80,6 +77,8 @@ my_autocmds {
         elseif vim.bo.filetype == 'dap-repl' then
           vim.api.nvim_buf_attach(0, false, {
             on_lines = function()
+              vim.bo.wrap = true
+
               local last_line = vim.fn.line('$')
               if vim.fn.line('w$') >= last_line - 1 then
                 local buf = vim.api.nvim_get_current_buf()
