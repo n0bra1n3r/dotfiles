@@ -61,6 +61,7 @@ return {
             end_row = diagnostic.end_lnum,
             hl_mode = "combine",
             hl_group = text_hl,
+            strict = false,
             virt_text = {{ sign.text, sign_hl }},
           })
         end

@@ -22,19 +22,6 @@ return {
       files = {
         cmd = vim.o.grepprg..' --files',
       },
-      loclist = {
-        actions = {
-          ['tab'] = actions.file_edit,
-        },
-        winopts = {
-          height = 0.50,
-          width = 0.30,
-          preview = {
-            layout = 'vertical',
-            wrap = 'nowrap'
-          },
-        },
-      },
       keymap = {
         builtin = {},
         fzf = {

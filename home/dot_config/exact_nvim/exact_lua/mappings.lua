@@ -63,8 +63,29 @@ local function send_term(cmd)
 end
 
 local function show(fn)
+  local actions = require'fzf-lua.actions'
+
+  local opts = {}
+  if fn == 'winoldfiles' then
+    fn = 'loclist'
+    opts = {
+      actions = {
+        ['tab'] = actions.file_edit,
+      },
+      winopts = {
+        height = 0.50,
+        width = 0.30,
+        preview = {
+          layout = 'vertical',
+          wrap = 'nowrap'
+        },
+      },
+    }
+  end
+
   return function()
-    require'fzf-lua'[fn]()
+    ---@diagnostic disable-next-line: redundant-parameter
+    require'fzf-lua'[fn](opts)
   end
 end
 
@@ -126,7 +147,7 @@ my_mappings {
     ["<C-Left>"]        = { "<C-w>h" },
     ['<C-o>']           = { '<Nop>' },
     ["<C-Right>"]       = { "<C-w>l" },
-    ["<C-Tab>"]         = { show'loclist' },
+    ["<C-Tab>"]         = { show'winoldfiles' },
     ['<C-u>']           = { [[<C-u>zz]] },
     ["<C-Up>"]          = { "<C-w>k" },
     ["<C-w><C-f>"]      = { edit'vsplit', desc = "Edit in vert split" },
