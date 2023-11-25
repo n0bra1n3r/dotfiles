@@ -32,6 +32,8 @@ return {
       },
       winopts = {
         border = { '┌', '─', '┐', '│', '┘', '─', '└', '│' },
+        height = 0.85,
+        width = 0.80,
         on_create = function()
           for _, mapping in ipairs(vim.api.nvim_get_keymap('t')) do
             map(mapping.lhs, [[<nop>]])
@@ -45,6 +47,7 @@ return {
         end,
         preview = {
           default = 'bat',
+          horizontal = 'right:60%',
           layout = 'horizontal',
           vertical = 'up:60%',
           wrap = 'wrap',

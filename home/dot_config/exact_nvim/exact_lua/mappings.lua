@@ -63,29 +63,86 @@ local function send_term(cmd)
 end
 
 local function show(fn)
-  local actions = require'fzf-lua.actions'
+  local lib
+
+  if vim.fn.has('win32') == 1 then
+    lib = require'telescope.builtin'
+  else
+    lib = require'fzf-lua'
+  end
 
   local opts = {}
-  if fn == 'winoldfiles' then
-    fn = 'loclist'
-    opts = {
-      actions = {
-        ['tab'] = actions.file_edit,
-      },
-      winopts = {
-        height = 0.50,
-        width = 0.30,
-        preview = {
-          layout = 'vertical',
-          wrap = 'nowrap'
+
+  if fn == 'dap_breakpoints' then
+    if vim.fn.has('win32') == 1 then
+      lib = require'telescope'.extensions.dap
+
+      fn = 'list_breakpoints'
+    end
+  elseif fn == 'diagnostics_document' then
+    if vim.fn.has('win32') == 1 then
+      fn = 'diagnostics'
+
+      opts = {
+        bufnr = 0,
+      }
+    end
+  elseif fn == 'diagnostics_workspace' then
+    if vim.fn.has('win32') == 1 then
+      fn = 'diagnostics'
+    end
+  elseif fn == 'files' then
+    if vim.fn.has('win32') == 1 then
+      fn = 'find_files'
+
+      opts = {
+        find_command = {
+          vim.o.shell,
+          vim.o.shellcmdflag,
+          vim.o.grepprg..' --files',
         },
-      },
-    }
+      }
+    end
+  elseif fn == 'winoldfiles' then
+    fn = 'loclist'
+
+    if vim.fn.has('win32') == 1 then
+      opts = {
+        attach_mappings = function(_, map)
+          map('i', [[<Tab>]], function(bufnr)
+            require'telescope.actions.set'.edit(bufnr, 'edit')
+          end)
+          return true
+        end,
+        layout_strategy = 'vertical',
+        layout_config = {
+          height = 0.50,
+          width = 0.30,
+        },
+        path_display = function(_, path)
+          return vim.fn.fnamemodify(path, ':~:.')
+        end,
+      }
+    else
+      opts = {
+        actions = {
+          ['tab'] = require'fzf-lua.actions'.file_edit,
+        },
+        winopts = {
+          height = 0.50,
+          width = 0.30,
+          preview = {
+            layout = 'vertical',
+            wrap = 'nowrap'
+          },
+        },
+      }
+    end
   end
 
   return function()
     ---@diagnostic disable-next-line: redundant-parameter
-    require'fzf-lua'[fn](opts)
+    lib[fn](opts)
   end
 end
 
