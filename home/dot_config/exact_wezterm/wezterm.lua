@@ -9,6 +9,7 @@ end
 config.color_scheme = 'Catppuccin Frappe'
 config.font = wezterm.font('JetBrainsMono NF', { weight = 'Medium' })
 config.font_size = 15
+config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }
 config.initial_cols = 220
 config.initial_rows = 60
 config.keys = {
