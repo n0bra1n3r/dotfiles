@@ -59,16 +59,15 @@ return {
           vim.api.nvim_buf_set_extmark(bufnr, virt_lines_ns, diagnostic.lnum, diagnostic.col, {
             end_col = diagnostic.end_col,
             end_row = diagnostic.end_lnum,
-            hl_mode = "combine",
+            hl_mode = 'combine',
             hl_group = text_hl,
-            strict = false,
             virt_text = {{ sign.text, sign_hl }},
           })
         end
       end,
       hide = function(namespace, bufnr)
         local ns = vim.diagnostic.get_namespace(namespace)
-        if ns.user_data.virt_lines_ns and vim.api.nvim_get_mode().mode ~= 'i' then
+        if ns.user_data.virt_lines_ns then
           vim.api.nvim_buf_clear_namespace(
             bufnr,
             ns.user_data.virt_lines_ns,
