@@ -27,7 +27,7 @@ return {
             ['<S-Tab>'] = require'telescope.actions'.move_selection_previous,
             ['<Tab>'] = require'telescope.actions'.move_selection_next,
             ['<M-j>'] = require'telescope.actions'.move_selection_next,
-            ['<M-k>'] = require'telescope.actions'.move_selection_next,
+            ['<M-k>'] = require'telescope.actions'.move_selection_previous,
           },
         },
         path_display = function(_, path)
