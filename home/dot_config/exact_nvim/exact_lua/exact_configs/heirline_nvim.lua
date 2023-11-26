@@ -150,6 +150,12 @@ local function get_visible_buf_type_counts(tab)
         local filetype = vim.bo[buf].filetype
         local buftype = vim.bo[buf].buftype
         local type = #buftype > 0 and buftype or filetype
+        if buftype == 'nofile'
+            or buftype == 'acwrite'
+            or buftype == 'nowrite'
+        then
+          type = filetype
+        end
         types[type] = (types[type] or 0) + 1
       end
     end
