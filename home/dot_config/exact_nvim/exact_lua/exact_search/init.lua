@@ -925,7 +925,7 @@ function M.run(search_args, search_term)
     command = vim.o.shell, -- need to expand env vars in `grepprg`
     args = {
       vim.o.shellcmdflag,
-      info.cmd..' '..vim.fn.join(info.args, ' '),
+      info.cmd..' '..vim.fn.join(info.args),
     },
     cwd = info.cwd,
     enable_recording = false,
