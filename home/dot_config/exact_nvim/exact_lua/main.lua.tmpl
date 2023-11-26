@@ -1,5 +1,5 @@
 -- vim: filetype=lua fcl=all fdm=marker fdl=0 fen
--- chezmoi:template:left-delimiter="<<" right-delimiter=">>"
+-- chezmoi:template:left-delimiter="--<" right-delimiter=">--"
 
 _G.my_config = {}
 
@@ -223,7 +223,7 @@ _G.my_plugins = function(plugins)
   })
 end
 
-local config_base = '<< .chezmoi.sourceDir >>/<< .chezmoi.sourceFile | dir >>'
+local config_base = '--< .chezmoi.sourceDir >--/--< .chezmoi.sourceFile | dir >--'
 local config_dir = config_base..'/exact_configs/'
 local function set_plugins_keymap(key, method)
   vim.api.nvim_buf_set_keymap(0, 'n', key, [[]], {

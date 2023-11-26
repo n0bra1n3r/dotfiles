@@ -1,3 +1,6 @@
+-- vim: filetype=lua fcl=all fdm=marker fdl=0 fen
+-- chezmoi:template:left-delimiter="<<" right-delimiter=">>"
+
 my_plugins {
   -- Misc --
 
@@ -71,8 +74,25 @@ my_plugins {
 
   { "haya14busa/vim-asterisk", event = { "BufRead", "BufModifiedSet" } },
 
-  { 'nvim-telescope/telescope.nvim', event = 'VeryLazy' },
-  { 'nvim-telescope/telescope-dap.nvim', event = 'VeryLazy' },
+  {
+    'nvim-telescope/telescope.nvim',
+    event = 'VeryLazy',
+    dependencies = {
+      'nvim-telescope/telescope-dap.nvim',
+      'nvim-telescope/telescope-fzf-native.nvim',
+    },
+  },
+  { 'nvim-telescope/telescope-dap.nvim' },
+  {
+    'nvim-telescope/telescope-fzf-native.nvim',
+--<- if eq .chezmoi.os "windows" >--
+    ---@diagnostic disable-next-line: duplicate-index
+    build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build',
+--<- else if eq .chezmoi.os "darwin" >--
+    ---@diagnostic disable-next-line: duplicate-index
+    build = 'make',
+--<- end >--
+  },
 
   { "s1n7ax/nvim-window-picker", event = "WinEnter" },
 
