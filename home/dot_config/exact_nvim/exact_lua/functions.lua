@@ -485,16 +485,18 @@ function fn.running_task_count()
   return 0
 end
 
-function fn.exec_task(cmd, args, name)
+function fn.exec_task(cmd, args, name, env, cwd)
   local is_ok, overseer = pcall(require, 'overseer')
   if is_ok then
     overseer.new_task{
       args = args,
       cmd = cmd,
+      cwd = cwd,
       components = {
         'on_output_quickfix',
         'default',
       },
+      env = env,
       name = name,
     }:start()
   end

@@ -1,3 +1,37 @@
+-- vim: fcl=all fdm=marker fdl=0 fen
+
+--{{{ Helpers
+local function make_git_branch_action(opts)
+  return function(prompt_bufnr)
+    local cwd = require'telescope.actions.state'.get_current_picker(prompt_bufnr).cwd
+    local selection = require'telescope.actions.state'.get_selected_entry()
+    if selection == nil then
+      return
+    end
+
+    require'telescope.actions'.close(prompt_bufnr)
+
+    local cmd = opts.command(selection.value)
+
+    fn.exec_task(
+      cmd[1],
+      vim.list_slice(cmd, 2),
+      opts.action_name,
+      {
+        EDITOR=vim.fn.join {
+          'nvim',
+          '--clean',
+          '--headless',
+          '--server',
+          '"'..vim.v.servername..'"',
+          '--remote-tab',
+        },
+      },
+      cwd)
+  end
+end
+--}}}
+
 return {
   config = function()
     require'telescope'.setup {
@@ -39,6 +73,30 @@ return {
         sorting_strategy = 'ascending',
       },
       pickers = {
+        git_bcommits = {
+          mappings = {
+            i = {
+              ['<C-Enter>'] = make_git_branch_action {
+                action_name = 'Interactive git rebase',
+                command = function(branch_name)
+                  return { 'git', 'rbi', branch_name }
+                end,
+              },
+            },
+          },
+        },
+        git_commits = {
+          mappings = {
+            i = {
+              ['<C-Enter>'] = make_git_branch_action {
+                action_name = 'Interactive git rebase',
+                command = function(branch_name)
+                  return { 'git', 'rbi', branch_name }
+                end,
+              },
+            },
+          },
+        },
         loclist = {
           fname_width = 9999,
         },
