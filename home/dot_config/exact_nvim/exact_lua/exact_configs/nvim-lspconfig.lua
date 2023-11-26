@@ -56,7 +56,7 @@ return {
           local sign_hl = 'DiagnosticSign'..name
           local text_hl = 'DiagnosticVirtualText'..name
 
-          vim.api.nvim_buf_set_extmark(bufnr, virt_lines_ns, diagnostic.lnum, diagnostic.col, {
+          pcall(vim.api.nvim_buf_set_extmark, bufnr, virt_lines_ns, diagnostic.lnum, diagnostic.col, {
             end_col = diagnostic.end_col,
             end_row = diagnostic.end_lnum,
             hl_mode = 'combine',
