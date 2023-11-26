@@ -211,6 +211,10 @@ function fn.open_git_repo(path)
     fn.open_file_folder(path)
   end
 end
+
+function fn.show_file_history(range, term)
+  require'diffview'.file_history(range, term and '-G"'..term..'"')
+end
 --}}}
 --{{{ Files
 local function create_parent_dirs(path)

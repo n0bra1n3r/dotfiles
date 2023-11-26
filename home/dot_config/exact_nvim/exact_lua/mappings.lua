@@ -43,6 +43,25 @@ local function search_and_replace()
   require'search'.prompt()
 end
 
+local function search_history()
+  vim.ui.input({
+      prompt = " 󱉶 Search term: ",
+      dressing = {
+        relative = 'editor',
+      },
+    },
+    function(term)
+      if term == nil or #term == 0 then
+        return
+      end
+      fn.show_file_history(nil, term)
+    end)
+end
+
+local function show_file_history()
+  fn.show_file_history()
+end
+
 local function send_term(cmd)
   return function()
     fn.send_terminal(cmd, true)
@@ -134,11 +153,13 @@ my_mappings {
     ["<leader>gc"]      = { fn.search'git_commits', desc = "Commits" },
     ["<leader>gf"]      = { fn.search'git_bcommits', desc = "File commits" },
     ["<leader>gg"]      = { fn.open_git_repo, desc = "Open repo in github" },
+    ["<leader>gh"]      = { show_file_history, desc = "Show file history" },
     ["<leader>gN"]      = { "<cmd>Gitsigns prev_hunk<CR>", desc = "Prev hunk" },
     ["<leader>gn"]      = { "<cmd>Gitsigns next_hunk<CR>", desc = "Next hunk" },
     ["<leader>gp"]      = { "<cmd>Gitsigns preview_hunk<CR>", desc = "Preview hunk" },
     ["<leader>go"]      = { open_file_in_github, desc = "Open file in Github" },
     ["<leader>gr"]      = { ":Gitsigns reset_hunk<CR>", desc = "Reset hunk" },
+    ["<leader>gs"]      = { search_history, desc = "Search history" },
     ["<leader>id"]      = { fn.search'diagnostics_document', desc = "Document issues" },
     ["<leader>iw"]      = { fn.search'diagnostics_workspace', desc = "Workspace issues" },
     ["<leader>l"]       = { fn.search'lsp_document_symbols', desc = "LSP symbols" },
@@ -207,6 +228,7 @@ my_mappings {
     ["<F1>"]            = { ":<C-u>lua fn.ui_try(vim.cmd.help,fn.get_visual_selection())<CR>" },
     ['<leader>ac']      = { [[:<C-u>lua fn.ai_conv('CodeConv',fn.get_visual_selection())<CR>]], desc = "Code conv" },
     ['<leader>ad']      = { [[:<C-u>lua fn.ai_gen('ApiDoc',fn.get_visual_selection())<CR>]], desc = "Doc gen" },
+    ["<leader>gh"]      = { [[:<C-u>lua fn.show_file_history{vim.fn.getpos("'<")[2],vim.fn.getpos("'>")[2]}<CR>]], desc = "Show line history" },
     ["<leader>go"]      = { open_file_in_github, desc = "Open in Github" },
     ["<leader>s"]       = { ":<C-u>lua require'search'.prompt('',fn.get_visual_selection())<CR>", desc = "Search & replace" },
     ['<leader>y']       = { [[:<C-u>lua fn.screenshot_selected_code()<CR>]], desc = "Screenshot selected code" },
