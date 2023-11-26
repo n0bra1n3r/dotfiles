@@ -999,9 +999,15 @@ local function get_terminal_tabpage()
 end
 
 local function get_terminal()
+  local cmd
+  if vim.fn.has('win32') == 1 then
+    cmd = 'bash'
+  else
+    cmd = 'zsh --login'
+  end
   return require'toggleterm.terminal'.Terminal:new {
     id = 0,
-    cmd = 'zsh --login',
+    cmd = cmd,
     direction = 'tab',
     env = {
       STARSHIP_CONFIG = '~/.dotfiles/starship.minimal.toml',
