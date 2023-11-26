@@ -30,15 +30,29 @@ return {
             ['<M-k>'] = require'telescope.actions'.move_selection_next,
           },
         },
+        path_display = function(_, path)
+          return vim.fn.fnamemodify(path, ':~:.')
+        end,
         preview = {
           check_mime_type = true,
         },
-        pickers = {
-          loclist = {
-            fname_width = 9999,
+        sorting_strategy = 'ascending',
+      },
+      pickers = {
+        loclist = {
+          fname_width = 9999,
+        },
+        lsp_document_symbols = {
+          symbols = {
+            'method',
+            'function',
+            'class',
+            'interface',
+            'module',
+            'enum',
+            'struct',
           },
         },
-        sorting_strategy = 'ascending',
       },
     }
 

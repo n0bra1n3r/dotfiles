@@ -43,106 +43,9 @@ local function search_and_replace()
   require'search'.prompt()
 end
 
-local function search_git_history()
-  return require'fzf-lua'.fzf_live(
-    [[git rev-list --all | xargs git grep --line-number --column --color=always <query>]],
-    {
-      fzf_opts = {
-        ['--delimiter'] = ':',
-        ['--preview-window'] = 'nohidden,down,60%,border-top,+{3}+3/3,~3',
-      },
-      preview = [[git show {1}:{2} | bat --style=default --color=always --file-name={2} --highlight-line={3}]],
-    }
-)
-end
-
 local function send_term(cmd)
   return function()
     fn.send_terminal(cmd, true)
-  end
-end
-
-local function show(fn)
-  local lib
-
-  if vim.fn.has('win32') == 1 then
-    lib = require'telescope.builtin'
-  else
-    lib = require'fzf-lua'
-  end
-
-  local opts = {}
-
-  if fn == 'dap_breakpoints' then
-    if vim.fn.has('win32') == 1 then
-      lib = require'telescope'.extensions.dap
-
-      fn = 'list_breakpoints'
-    end
-  elseif fn == 'diagnostics_document' then
-    if vim.fn.has('win32') == 1 then
-      fn = 'diagnostics'
-
-      opts = {
-        bufnr = 0,
-      }
-    end
-  elseif fn == 'diagnostics_workspace' then
-    if vim.fn.has('win32') == 1 then
-      fn = 'diagnostics'
-    end
-  elseif fn == 'files' then
-    if vim.fn.has('win32') == 1 then
-      fn = 'find_files'
-
-      opts = {
-        find_command = {
-          vim.o.shell,
-          vim.o.shellcmdflag,
-          vim.o.grepprg..' --files',
-        },
-      }
-    end
-  elseif fn == 'winoldfiles' then
-    fn = 'loclist'
-
-    if vim.fn.has('win32') == 1 then
-      opts = {
-        attach_mappings = function(_, map)
-          map('i', [[<Tab>]], function(bufnr)
-            require'telescope.actions.set'.edit(bufnr, 'edit')
-          end)
-          return true
-        end,
-        layout_strategy = 'vertical',
-        layout_config = {
-          height = 0.50,
-          width = 0.30,
-        },
-        path_display = function(_, path)
-          return vim.fn.fnamemodify(path, ':~:.')
-        end,
-      }
-    else
-      opts = {
-        actions = {
-          ['tab'] = require'fzf-lua.actions'.file_edit,
-        },
-        winopts = {
-          height = 0.50,
-          width = 0.30,
-          preview = {
-            layout = 'vertical',
-            wrap = 'nowrap'
-          },
-        },
-      }
-    end
-  end
-
-  return function()
-    ---@diagnostic disable-next-line: redundant-parameter
-    lib[fn](opts)
   end
 end
 
@@ -204,7 +107,7 @@ my_mappings {
     ["<C-Left>"]        = { "<C-w>h" },
     ['<C-o>']           = { '<Nop>' },
     ["<C-Right>"]       = { "<C-w>l" },
-    ["<C-Tab>"]         = { show'winoldfiles' },
+    ["<C-Tab>"]         = { fn.search'loclist' },
     ['<C-u>']           = { [[<C-u>zz]] },
     ["<C-Up>"]          = { "<C-w>k" },
     ["<C-w><C-f>"]      = { edit'vsplit', desc = "Edit in vert split" },
@@ -216,11 +119,11 @@ my_mappings {
     ["<F1>"]            = { ":lua fn.ui_try(vim.cmd.help, vim.fn.expand('<cword>'))<CR>" },
     ["<Home>"]          = { "^", noremap = false },
     ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up><End><Right>':'<Left>'", expr = true },
-    ["<leader><Space>"] = { show'files', desc = "Files" },
+    ["<leader><Space>"] = { fn.search'find_files', desc = "Files" },
     ['<leader>ac']      = { [[<cmd>lua fn.ai_conv('CodeConv')<CR>]], desc = "Conv code" },
     ['<leader>ad']      = { [[<cmd>lua fn.ai_gen('ApiDoc')<CR>]], desc = "Doc gen" },
     ["<leader>c"]       = { [[<cmd>copen<CR>]], desc = "Open quickfix" },
-    ['<leader>db']      = { show'dap_breakpoints', desc = "Breakpoints" },
+    ['<leader>db']      = { fn.search'dap_breakpoints', desc = "Breakpoints" },
     ['<leader>de']      = { fn.resume_debugging, desc = "Enter Debugger" },
     ["<leader>fd"]      = { fn.delete_file, desc = "Delete" },
     ["<leader>fe"]      = { fn.edit_file, desc = "Edit" },
@@ -228,18 +131,17 @@ my_mappings {
     ["<leader>fo"]      = { fn.open_file_folder, desc = "Open folder" },
     ["<leader>fs"]      = { fn.save_file, desc = "Save" },
     ["<leader>gb"]      = { "<cmd>Gitsigns blame_line<CR>", desc = "Blame line" },
-    ["<leader>gc"]      = { show'git_commits', desc = "Commits" },
-    ["<leader>gf"]      = { show'git_bcommits', desc = "File commits" },
+    ["<leader>gc"]      = { fn.search'git_commits', desc = "Commits" },
+    ["<leader>gf"]      = { fn.search'git_bcommits', desc = "File commits" },
     ["<leader>gg"]      = { fn.open_git_repo, desc = "Open repo in github" },
     ["<leader>gN"]      = { "<cmd>Gitsigns prev_hunk<CR>", desc = "Prev hunk" },
     ["<leader>gn"]      = { "<cmd>Gitsigns next_hunk<CR>", desc = "Next hunk" },
     ["<leader>gp"]      = { "<cmd>Gitsigns preview_hunk<CR>", desc = "Preview hunk" },
     ["<leader>go"]      = { open_file_in_github, desc = "Open file in Github" },
     ["<leader>gr"]      = { ":Gitsigns reset_hunk<CR>", desc = "Reset hunk" },
-    ["<leader>gs"]      = { search_git_history, desc = "Search history" },
-    ["<leader>id"]      = { show'diagnostics_document', desc = "Document issues" },
-    ["<leader>iw"]      = { show'diagnostics_workspace', desc = "Workspace issues" },
-    ["<leader>l"]       = { show'lsp_document_symbols', desc = "LSP symbols" },
+    ["<leader>id"]      = { fn.search'diagnostics_document', desc = "Document issues" },
+    ["<leader>iw"]      = { fn.search'diagnostics_workspace', desc = "Workspace issues" },
+    ["<leader>l"]       = { fn.search'lsp_document_symbols', desc = "LSP symbols" },
     ["<leader>pa"]      = { "<cmd>Mason<CR>", desc = "Packages" },
     ["<leader>pl"]      = { "<cmd>Lazy<CR>", desc = "Plugins" },
     ["<leader>q"]       = { '<cmd>quitall<CR>', desc = "Quit" },

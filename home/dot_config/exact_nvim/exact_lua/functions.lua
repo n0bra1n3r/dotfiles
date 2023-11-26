@@ -960,13 +960,21 @@ function fn.add_buf_to_loclist(bufnr)
           end,
           vim.fn.getloclist(win)
         )
+        local name
+        if vim.fn.has('win32') == 1 then
+          local shellslash = vim.o.shellslash
+          vim.o.shellslash = false
+          name = vim.api.nvim_buf_get_name(bufnr)
+          vim.o.shellslash = shellslash
+        end
         local cur = vim.api.nvim_win_get_cursor(win)
         table.insert(list, 1, {
           bufnr = bufnr,
+          filename = name,
           col = cur[2],
           lnum = cur[1],
         })
-        vim.fn.setloclist(win, list, "r")
+        vim.fn.setloclist(win, list, 'r')
       end
     end
   end
@@ -1400,6 +1408,53 @@ function fn.has_local_config()
     return config_local.lookup() ~= ''
   end
   return false
+end
+
+function fn.search(obj)
+  local lib = require'telescope.builtin'
+
+  local opts = {}
+
+  if obj == 'dap_breakpoints' then
+    lib = require'telescope'.extensions.dap
+
+    obj = 'list_breakpoints'
+  elseif obj == 'diagnostics_document' then
+    obj = 'diagnostics'
+
+    opts = {
+      bufnr = 0,
+    }
+  elseif obj == 'diagnostics_workspace' then
+    obj = 'diagnostics'
+  elseif obj == 'find_files' then
+    opts = {
+      find_command = {
+        vim.o.shell,
+        vim.o.shellcmdflag,
+        vim.o.grepprg..' --files',
+      },
+    }
+  elseif obj == 'loclist' then
+    opts = {
+      attach_mappings = function(_, map)
+        map('i', [[<Tab>]], function(bufnr)
+          require'telescope.actions.set'.edit(bufnr, 'edit')
+        end)
+        return true
+      end,
+      layout_strategy = 'vertical',
+      layout_config = {
+        height = 0.50,
+        width = 0.30,
+      },
+    }
+  end
+
+  return function()
+    ---@diagnostic disable-next-line: redundant-parameter
+    lib[obj](opts)
+  end
 end
 --}}}
 --{{{ AI
