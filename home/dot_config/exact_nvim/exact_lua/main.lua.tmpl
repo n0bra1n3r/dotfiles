@@ -238,7 +238,7 @@ end
 
 vim.api.nvim_create_autocmd('BufEnter', {
   group = vim.api.nvim_create_augroup('plugins', { clear = true }),
-  pattern = vim.fn.expand(config_base..'/plugins.lua'),
+  pattern = vim.fn.expand(config_base..'/plugins.lua.tmpl'),
   callback = function()
     set_plugins_keymap([[gf]], 'edit')
     set_plugins_keymap([[<C-w><C-f>]], 'vsplit')
