@@ -320,11 +320,7 @@ function fn.open_folder(path)
   if vim.fn.has('win32') == 1 then
     vim.o.shellslash = shellslash
   end
-  require'plenary.job':new{
-    args = { folder },
-    command = vim.fn.has('win32') == 1 and 'explorer' or 'open',
-    detached = true,
-  }:start()
+  fn.open_in_os{ folder }
 end
 
 function fn.open_file_folder(path)
