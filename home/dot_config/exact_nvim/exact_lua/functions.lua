@@ -1422,6 +1422,50 @@ function fn.has_local_config()
   return false
 end
 
+local function make_file_switcher_entry()
+  local make_display = function(entry)
+    local filename = vim.fn.pathshorten(vim.fn.fnamemodify(entry.filename, ':~:.'))
+    local displayer = require'telescope.pickers.entry_display'.create {
+      separator = ' ',
+      items = {
+        { width = 1 },
+        { width = #filename },
+        { remaining = true },
+      },
+    }
+    local file_label = vim.fn.fnamemodify(filename, ':t')
+    local file_ext = vim.fn.fnamemodify(filename, ':e')
+    local icon, hl = require'nvim-web-devicons'.get_icon(file_label, file_ext)
+    return displayer {
+      {
+        icon,
+        hl,
+      },
+      filename,
+      {
+        entry.lnum..':'..entry.col,
+        'TelescopeResultsLineNr',
+      },
+    }
+  end
+
+  return function(entry)
+    local filename = entry.filename or vim.api.nvim_buf_get_name(entry.bufnr)
+    return {
+      col = entry.col,
+      display = make_display,
+      filename = filename,
+      finish = entry.finish,
+      lnum = entry.lnum,
+      ordinal = filename..' '..entry.text,
+      start = entry.start,
+      text = entry.text,
+      valid = true,
+      value = entry,
+    }
+  end
+end
+
 function fn.search(obj)
   local lib = require'telescope.builtin'
 
@@ -1455,6 +1499,7 @@ function fn.search(obj)
         end)
         return true
       end,
+      entry_maker = make_file_switcher_entry(),
       layout_strategy = 'vertical',
       layout_config = {
         height = 0.50,

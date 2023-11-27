@@ -97,9 +97,6 @@ return {
             },
           },
         },
-        loclist = {
-          fname_width = 9999,
-        },
         lsp_document_symbols = {
           symbols = {
             'method',
