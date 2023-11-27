@@ -1,7 +1,7 @@
 -- vim: fcl=all fdm=marker fdl=0 fen
 
 my_autocmds {
-  { 'BufEnter', --{{{
+  { { 'BufEnter', 'BufWinEnter' }, --{{{
     callback = function()
       vim.cmd[[checktime]]
 
