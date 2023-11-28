@@ -1,12 +1,10 @@
 return {
   config = function()
     require'fidget'.setup {
-      text = {
-        done = '',
-      },
-      window = {
-        blend = 0,
-        relative = 'editor',
+      progress = {
+        display = {
+          done_icon = '',
+        },
       },
     }
   end,

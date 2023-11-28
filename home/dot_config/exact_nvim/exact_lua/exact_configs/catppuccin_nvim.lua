@@ -15,7 +15,7 @@ return {
           enabled = true,
           enable_ui = true,
         },
-        --fidget = true,
+        fidget = true,
         gitsigns = true,
         leap = true,
         markdown = true,
