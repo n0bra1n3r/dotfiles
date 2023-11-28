@@ -37,7 +37,10 @@ return {
     require'telescope'.setup {
       defaults = {
         borderchars = { '─', '│', '─', '│', '┌', '┐', '┘', '└' },
-        history = false,
+        history = {
+          path = vim.fn.expand'~/.local/share/nvim/databases/telescope_history.sqlite3',
+          limit = 100,
+        },
         layout_strategy = 'horizontal',
         layout_config = {
           horizontal = {
@@ -60,8 +63,10 @@ return {
             ['<C-S-Tab>'] = require'telescope.actions'.move_selection_previous,
             ['<S-Tab>'] = require'telescope.actions'.move_selection_previous,
             ['<Tab>'] = require'telescope.actions'.move_selection_next,
+            ['<M-;>'] = require'telescope.actions'.cycle_history_next,
             ['<M-j>'] = require'telescope.actions'.move_selection_next,
             ['<M-k>'] = require'telescope.actions'.move_selection_previous,
+            ['<M-l>'] = require'telescope.actions'.cycle_history_prev,
           },
         },
         path_display = function(_, path)
@@ -113,5 +118,6 @@ return {
 
     require'telescope'.load_extension('dap')
     require'telescope'.load_extension('fzf')
+    require'telescope'.load_extension('smart_history')
   end,
 }

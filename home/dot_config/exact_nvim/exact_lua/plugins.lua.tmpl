@@ -7,6 +7,7 @@ my_plugins {
   { "nvim-lua/plenary.nvim" },
   { "kevinhwang91/promise-async" },
   { "echasnovski/mini.misc" },
+  { 'kkharji/sqlite.lua' },
 
   -- UI --
 
@@ -80,6 +81,7 @@ my_plugins {
     dependencies = {
       'nvim-telescope/telescope-dap.nvim',
       'nvim-telescope/telescope-fzf-native.nvim',
+      'nvim-telescope/telescope-smart-history.nvim',
     },
   },
   { 'nvim-telescope/telescope-dap.nvim' },
@@ -92,6 +94,10 @@ my_plugins {
     ---@diagnostic disable-next-line: duplicate-index
     build = 'make',
 --<- end >--
+  },
+  {
+    'nvim-telescope/telescope-smart-history.nvim',
+    dependencies = { 'kkharji/sqlite.lua' },
   },
 
   { "s1n7ax/nvim-window-picker", event = "WinEnter" },
