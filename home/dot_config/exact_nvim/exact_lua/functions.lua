@@ -235,7 +235,7 @@ function fn.get_open_files()
 end
 
 function fn.delete_file()
-  local rel_file = vim.fn.expand('%:~:.')
+  local rel_file = vim.fn.pathshorten(vim.fn.expand('%:~:.'))
 
   vim.ui.select({ 'No', 'Yes' }, {
     prompt = " 󰆴 Delete "..rel_file.."?",
