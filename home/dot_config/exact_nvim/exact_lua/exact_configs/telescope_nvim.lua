@@ -44,15 +44,15 @@ return {
         layout_strategy = 'horizontal',
         layout_config = {
           horizontal = {
-            height = 0.85,
-            width = 0.80,
-            preview_width = 0.60,
+            height = 0.90,
+            width = 0.90,
+            preview_width = 0.50,
             prompt_position = 'top',
           },
           vertical = {
-            height = 0.85,
-            width = 0.80,
-            preview_height = 0.60,
+            height = 0.90,
+            width = 0.90,
+            preview_height = 0.50,
             prompt_position = 'top',
           },
         },
