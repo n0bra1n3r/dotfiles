@@ -4,6 +4,7 @@ return {
       notification = {
         override_vim_notify = true,
         window = {
+          winblend = 30,
           y_padding = 1,
         },
       },
