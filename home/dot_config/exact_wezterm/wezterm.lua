@@ -27,7 +27,7 @@ config.keys = {
 }
 config.scrollback_lines = 9001
 config.window_frame = {
-  font_size = config.font_size,
+  font_size = config.font_size - 2,
   active_titlebar_bg = color_scheme.background,
   inactive_titlebar_bg = color_scheme.background,
 }
