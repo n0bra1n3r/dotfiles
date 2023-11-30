@@ -114,6 +114,11 @@ my_autocmds {
         { noremap = true })
     end,
   }, --}}}
+  { { 'CursorMoved', 'InsertEnter' }, --{{{
+    callback = function()
+      vim.wo.relativenumber = false
+    end,
+  }, --}}}
   { "DirChanged", --{{{
     callback = function()
       fn.refresh_git_info()

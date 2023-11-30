@@ -139,6 +139,7 @@ my_mappings {
     ["<Home>"]          = { "^", noremap = false },
     ["<Left>"]          = { "col('.')==1&&col([line('.')-1,'$'])>1?'<Up><End><Right>':'<Left>'", expr = true },
     ["<leader><Space>"] = { fn.search'find_files', desc = "Files" },
+    ['<leader>3']       = { [[<cmd>set invrelativenumber<CR>]], desc = "Toggle relative line numbers" },
     ['<leader>ac']      = { [[<cmd>lua fn.ai_conv('CodeConv')<CR>]], desc = "Conv code" },
     ['<leader>ad']      = { [[<cmd>lua fn.ai_gen('ApiDoc')<CR>]], desc = "Doc gen" },
     ["<leader>c"]       = { [[<cmd>copen<CR>]], desc = "Open quickfix" },
