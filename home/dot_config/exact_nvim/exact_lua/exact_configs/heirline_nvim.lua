@@ -741,8 +741,14 @@ local function header_label()
       return { fg = fg, bold = is_active, italic = is_active }
     end,
     init = function(self)
-      self.filename = vim.fn.expand('%:~:.')
-      self.is_no_name = fn.is_filename_empty()
+      local winid = vim.api.nvim_get_current_win()
+      local win_width = vim.fn.getwininfo(winid)[1].width
+      if not fn.is_filename_empty() then
+        self.filename = vim.fn.expand('%:~:.')
+        if #self.filename / win_width >= 0.6 then
+          self.filename = vim.fn.pathshorten(self.filename)
+        end
+      end
     end,
     on_click = {
       callback = function(_, minwid, nclicks)
@@ -757,9 +763,15 @@ local function header_label()
       name = 'window_focus_callback',
     },
     provider = function(self)
-      return self.is_no_name and '[No Name]' or self.filename
+      return self.filename or '[No Name]'
     end,
-    update = { 'BufEnter', 'BufNew', 'BufModifiedSet', 'TermLeave' },
+    update = {
+      'BufEnter',
+      'BufNew',
+      'BufModifiedSet',
+      'TermLeave',
+      'WinResized',
+    },
   }
 end
 
