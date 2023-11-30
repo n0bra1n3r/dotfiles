@@ -8,7 +8,7 @@ end
 
 config.color_scheme = 'Catppuccin Frappe'
 local color_scheme = wezterm.color.get_builtin_schemes()[config.color_scheme]
-config.font = wezterm.font{ family = 'JetBrainsMono Nerd Font', weight = 'Medium' }
+config.font = wezterm.font{ family = 'Hasklug Nerd Font', weight = 'Medium' }
 config.font_size = 15.0
 config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }
 config.initial_cols = 220
@@ -27,7 +27,6 @@ config.keys = {
 }
 config.scrollback_lines = 9001
 config.window_frame = {
-  font = wezterm.font{ family = 'JetBrainsMono Nerd Font', weight = 'Bold' },
   font_size = config.font_size,
   active_titlebar_bg = color_scheme.background,
   inactive_titlebar_bg = color_scheme.background,

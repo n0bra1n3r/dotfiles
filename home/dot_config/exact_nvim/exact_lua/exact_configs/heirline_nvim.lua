@@ -334,7 +334,7 @@ local function location_label()
         },
         provider = function(self)
           local line_num = tostring(self.cursor[1])
-          return (' '):rep(3 - #line_num)..'L'..line_num
+          return 'L'..('0'):rep(3 - #line_num)..line_num
         end,
       },
       space(),
@@ -353,7 +353,7 @@ local function location_label()
         },
         provider = function(self)
           local col_num = tostring(self.cursor[2])
-          return 'C'..col_num..(' '):rep(3 - #col_num)
+          return 'C'..('0'):rep(3 - #col_num)..col_num
         end,
       },
       space(),

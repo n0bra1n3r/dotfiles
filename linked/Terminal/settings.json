@@ -134,13 +134,13 @@
       "colorScheme": "Catppuccin Frappe",
       "cursorShape": "filledBox",
       "font": {
-        "face": "JetBrainsMono Nerd Font",
+        "face": "Hasklug Nerd Font",
         "features": {
           "calt": 0,
           "liga": 0
         },
         "size": 10.0,
-        "weight": "medium"
+        "weight": "normal"
       },
       "intenseTextStyle": "all",
       "padding": "0",
