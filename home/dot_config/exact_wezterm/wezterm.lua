@@ -1,5 +1,15 @@
 local wezterm = require'wezterm'
 
+wezterm.on('user-var-changed', function(window, _, name, value)
+  local overrides = window:get_config_overrides() or {}
+  if name == 'font_family' then
+    name = 'font'
+    value = wezterm.font{ family = value }
+  end
+  overrides[name] = value
+  window:set_config_overrides(overrides)
+end)
+
 local config = {}
 
 if wezterm.config_builder then
