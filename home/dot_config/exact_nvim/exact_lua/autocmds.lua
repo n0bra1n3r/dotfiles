@@ -185,7 +185,6 @@ my_autocmds {
   }, --}}}
   { "TabEnter", --{{{
     callback = function()
-      fn.sync_terminal()
       fn.show_workspace()
     end,
   }, --}}}

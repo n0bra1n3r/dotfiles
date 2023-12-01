@@ -62,12 +62,6 @@ local function show_file_history()
   fn.show_file_history()
 end
 
-local function send_term(cmd)
-  return function()
-    fn.send_terminal(cmd, true)
-  end
-end
-
 local function show_jumps(dir)
   return function()
     fn.show_buffer_jump_picker(dir)
@@ -118,7 +112,6 @@ my_mappings {
   }, --}}}
   n = { --{{{
     ["<C-`>"]           = { fn.toggle_terminal },
-    ["<C-1>"]           = { send_term'!!' },
     ["<C-c>"]           = { "<cmd>tabclose<CR>" },
     ['<C-d>']           = { [[<C-d>zz]] },
     ["<C-Down>"]        = { "<C-w>j" },
@@ -211,7 +204,6 @@ my_mappings {
   t = { --{{{
     ["<C-`>"]           = { fn.toggle_terminal },
     ["<C-;>"]           = { "<End>" },
-    ["<C-1>"]           = { send_term'!!' },
     ["<C-Left>"]        = { "<Home>" },
     ["<C-l>"]           = { "<Home>" },
     ["<C-Right>"]       = { "<End>" },

@@ -1076,19 +1076,6 @@ function fn.is_shell_active(tabpage)
   return term_info.is_shell_active
 end
 
-function fn.sync_terminal()
-  local terminal = get_terminal()
-  if terminal.window then
-    local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
-    if vim.api.nvim_get_current_tabpage() == tabpage then
-      local cwd = fn.get_tab_cwd(fn.get_prior_tabpage())
-      if terminal.dir ~= cwd then
-        fn.send_terminal("cd "..cwd)
-      end
-    end
-  end
-end
-
 function fn.is_terminal_buf(buf)
   buf = buf or vim.api.nvim_get_current_buf()
   for _, term in ipairs(require'toggleterm.terminal'.get_all(true)) do
