@@ -18,9 +18,8 @@ end
 
 config.color_scheme = 'Catppuccin Frappe'
 local color_scheme = wezterm.color.get_builtin_schemes()[config.color_scheme]
-config.font = wezterm.font{ family = 'Hasklug Nerd Font', weight = 'Medium' }
+config.font = wezterm.font{ family = 'Lilex Nerd Font', weight = 'Medium' }
 config.font_size = 15.0
-config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }
 config.initial_cols = 220
 config.initial_rows = 60
 config.keys = {

@@ -66,11 +66,6 @@ my_tasks {
     end,
     notify = false,
     params = {
-      mods = {
-        desc = "Modifier keys",
-        optional = true,
-        type = 'string',
-      },
       state = {
         desc = "Current debug state",
         type = 'number',

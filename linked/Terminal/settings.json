@@ -134,13 +134,9 @@
       "colorScheme": "Catppuccin Frappe",
       "cursorShape": "filledBox",
       "font": {
-        "face": "Hasklug Nerd Font",
-        "features": {
-          "calt": 0,
-          "liga": 0
-        },
+        "face": "Lilex Nerd Font",
         "size": 10.0,
-        "weight": "normal"
+        "weight": "medium"
       },
       "intenseTextStyle": "all",
       "padding": "0",
