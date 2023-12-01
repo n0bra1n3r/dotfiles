@@ -15,6 +15,9 @@ return {
       },
     }
 
+    _G.debug_print = _G.print
+
+    ---@diagnostic disable-next-line: duplicate-set-field
     _G.print = function(...)
       local args = { ... }
 
