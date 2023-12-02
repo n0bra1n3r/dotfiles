@@ -1001,7 +1001,7 @@ local function get_terminal_tabpage()
   return terminal and vim.api.nvim_win_get_tabpage(terminal.window)
 end
 
-local function get_terminal()
+local function get_terminal(start_command)
   local cmd
   if vim.fn.has('win32') == 1 then
     cmd = 'bash'
@@ -1013,15 +1013,16 @@ local function get_terminal()
     cmd = cmd,
     direction = 'tab',
     env = {
+      START_COMMAND = start_command,
       STARSHIP_CONFIG = '~/.dotfiles/starship.minimal.toml',
     },
   }
 end
 
-function fn.open_terminal()
+function fn.open_terminal(start_command)
   local tabpage = get_terminal_tabpage()
   if not tabpage then
-    get_terminal():open()
+    get_terminal(start_command):open()
   elseif vim.api.nvim_get_current_tabpage() ~= tabpage then
     vim.api.nvim_set_current_tabpage(tabpage)
   end
@@ -1043,7 +1044,6 @@ function fn.toggle_terminal()
 end
 
 function fn.set_terminal_dir(cwd)
-  fn.open_terminal()
   local terminal = get_terminal()
   local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
   fn.set_tab_cwd(tabpage, cwd)

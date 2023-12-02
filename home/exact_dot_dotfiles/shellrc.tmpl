@@ -220,4 +220,8 @@ function grs() {
   git rss "*$**"
 }
 
+if [[ -n "$START_COMMAND" ]]; then
+  _silent_background exec "$START_COMMAND"
+fi
+
 # vim: filetype=sh

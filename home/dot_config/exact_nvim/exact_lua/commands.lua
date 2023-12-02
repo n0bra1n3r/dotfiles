@@ -30,11 +30,11 @@ my_commands {
   TerminalModeStart = { --{{{
     function(opts)
       fn.refresh_git_info()
+      if opts.args and #opts.args > 0 then
+        fn.open_terminal(opts.args)
+      end
       fn.set_terminal_dir()
       vim.cmd[[tabonly]]
-      if opts.args and #opts.args > 0 then
-        fn.send_terminal(opts.args)
-      end
     end,
     desc = "Start terminal mode",
     nargs = "?",
