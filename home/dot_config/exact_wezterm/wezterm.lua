@@ -16,9 +16,40 @@ if wezterm.config_builder then
   config = wezterm.config_builder()
 end
 
-config.color_scheme = 'Catppuccin Frappe'
-local color_scheme = wezterm.color.get_builtin_schemes()[config.color_scheme]
-config.font = wezterm.font{ family = 'Lilex Nerd Font', weight = 'Medium' }
+local color_scheme = 'Catppuccin Frappe'
+local color_scheme_inactive = 'Catppuccin Macchiato'
+local text_font = { family = 'Lilex Nerd Font', weight = 'Medium' }
+
+local scheme = wezterm.color.get_builtin_schemes()[color_scheme]
+local scheme_inactive = wezterm.color.get_builtin_schemes()[color_scheme_inactive]
+
+config.color_scheme = color_scheme
+config.colors = {
+  tab_bar = {
+    active_tab = {
+      bg_color = scheme.background,
+      fg_color = scheme.foreground,
+    },
+    inactive_tab = {
+      bg_color = scheme_inactive.background,
+      fg_color = scheme_inactive.split,
+    },
+    inactive_tab_edge = scheme.foreground,
+    inactive_tab_hover = {
+      bg_color = scheme_inactive.background,
+      fg_color = scheme.foreground,
+    },
+    new_tab = {
+      bg_color = scheme.background,
+      fg_color = scheme_inactive.split,
+    },
+    new_tab_hover = {
+      bg_color = scheme.background,
+      fg_color = scheme.foreground,
+    },
+  },
+}
+config.font = wezterm.font(text_font)
 config.font_size = 15.0
 config.initial_cols = 220
 config.initial_rows = 60
@@ -37,8 +68,8 @@ config.keys = {
 config.scrollback_lines = 9001
 config.window_frame = {
   font_size = config.font_size - 2,
-  active_titlebar_bg = color_scheme.background,
-  inactive_titlebar_bg = color_scheme.background,
+  active_titlebar_bg = scheme_inactive.background,
+  inactive_titlebar_bg = scheme_inactive.background,
 }
 config.window_padding = {
   left = 0,
