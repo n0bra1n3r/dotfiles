@@ -846,22 +846,9 @@ function fn.edit_buffer(mode, path)
         },
       },
     }
-    target_winid = require'window-picker'.pick_window(opts)
-    if target_winid and target_winid ~= -1 then
-      vim.api.nvim_set_current_win(target_winid)
-    end
     vim.cmd[mode](path)
   else
     vim.api.nvim_set_current_win(target_winid)
-  end
-end
-
-function fn.choose_window()
-  local picked = require'window-picker'.pick_window {
-    autoselect_one = false,
-  }
-  if picked ~= nil then
-    vim.api.nvim_set_current_win(picked)
   end
 end
 

@@ -161,7 +161,6 @@ my_mappings {
     ["<leader>q"]       = { [[<cmd>copen<CR>]], desc = "Open quickfix" },
     ["<leader>s"]       = { search_and_replace, desc = "Search & replace" },
     ["<leader>t"]       = { "<cmd>OverseerRun<CR>", desc = "Tasks" },
-    ["<leader>w"]       = { fn.choose_window, desc = "Switch window" },
     ["<leader>X"]       = { '<cmd>quitall<CR>', desc = "Quit" },
     ["<leader>x"]       = { fn.close_buffer, desc = "Close" },
     ["<leader>z"]       = { "<cmd>only<CR>", desc = "Zoom" },

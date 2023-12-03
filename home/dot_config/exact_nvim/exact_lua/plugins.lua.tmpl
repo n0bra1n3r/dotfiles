@@ -2,81 +2,73 @@
 -- chezmoi:template:left-delimiter="<<" right-delimiter=">>"
 
 my_plugins {
-  -- Misc --
-
-  { "nvim-lua/plenary.nvim" },
-  { "kevinhwang91/promise-async" },
-  { "echasnovski/mini.misc" },
+  --{{{ Misc
+  { 'echasnovski/mini.bufremove' },
+  { 'echasnovski/mini.misc' },
+  { 'kyazdani42/nvim-web-devicons' },
+  { 'nvim-lua/plenary.nvim' },
+  { 'kevinhwang91/promise-async' },
   { 'kkharji/sqlite.lua' },
   { 'winter-again/wezterm-config.nvim' },
-
-  -- UI --
-
-  { "kyazdani42/nvim-web-devicons" },
-
-  { "catppuccin/nvim", name = "catppuccin.nvim", lazy = false, priority = 1000 },
-  { "luukvbaal/statuscol.nvim", lazy = false },
-  { "rebelot/heirline.nvim", lazy = false },
-  { "stevearc/dressing.nvim", lazy = false },
-  { "kevinhwang91/nvim-ufo", event = "BufRead",
-    dependencies = { "kevinhwang91/promise-async" },
+  --}}}
+  --{{{ UI
+  { 'stevearc/dressing.nvim', lazy = false },
+  { 'rebelot/heirline.nvim', lazy = false },
+  { 'catppuccin/nvim', name = 'catppuccin.nvim', lazy = false, priority = 1000 },
+  { 'kevinhwang91/nvim-ufo', event = 'BufRead',
+    dependencies = { 'kevinhwang91/promise-async' },
   },
+  { 'MunifTanjim/nui.nvim' },
+  { 'luukvbaal/statuscol.nvim', lazy = false },
 
-  { "kevinhwang91/nvim-bqf", ft = "qf" },
-  { "https://gitlab.com/yorickpeterse/nvim-pqf.git", event = "VeryLazy" },
-
-  { "MunifTanjim/nui.nvim" },
-
-  { 'j-hui/fidget.nvim', event = 'LspAttach' },
-
+  -- animations
   { 'karb94/neoscroll.nvim', event = 'BufRead' },
 
-  -- Key Mappings --
+  -- notifications
+  { 'j-hui/fidget.nvim', event = 'LspAttach' },
 
-  { "folke/which-key.nvim", event = "VeryLazy" },
-
-  -- Terminal --
-
+  -- quickfix
+  { 'kevinhwang91/nvim-bqf', ft = 'qf' },
+  { 'https://gitlab.com/yorickpeterse/nvim-pqf.git', event = 'VeryLazy' },
+  --}}}
+  --{{{ Mappings
+  { 'folke/which-key.nvim', event = 'VeryLazy' },
+  --}}}
+  --{{{ Terminal
   {
-    "akinsho/toggleterm.nvim",
+    'akinsho/toggleterm.nvim',
     cmd = {
-      "ToggleTerm",
-      "ToggleTermToggleAll",
-      "TermExec",
-      "ToggleTermSetName",
+      'ToggleTerm',
+      'ToggleTermToggleAll',
+      'TermExec',
+      'ToggleTermSetName',
     },
   },
-
-  -- Frameworks --
-
-  { "akinsho/flutter-tools.nvim", lazy = false },
-
+  --}}}
+  --{{{ Frameworks
+  { 'akinsho/flutter-tools.nvim', lazy = false },
   {
-    "nvim-neorg/neorg",
-    build = ":Neorg sync-parsers",
-    ft = "norg",
-    cmd = "Neorg",
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-    },
+    'nvim-neorg/neorg',
+    build = ':Neorg sync-parsers',
+    ft = 'norg',
+    cmd = 'Neorg',
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
   },
-
-  -- Motions --
-
-  { "tpope/vim-repeat", event = "BufModifiedSet" },
-  { "tpope/vim-surround", event = { "BufRead", "BufModifiedSet" } },
+  --}}}
+  --{{{ Motions
+  { 'numToStr/Comment.nvim', event = { 'BufRead', 'BufModifiedSet' } },
+  { 'folke/flash.nvim', event = 'VeryLazy' },
+  { 'echasnovski/mini.splitjoin', event = 'BufRead' },
   { 'chrisgrieser/nvim-spider', event = { 'BufRead', 'BufModifiedSet' } },
   { 'chrisgrieser/nvim-various-textobjs', event = { 'BufRead', 'BufModifiedSet' } },
+  { 'cbochs/portal.nvim', event = 'VeryLazy' },
+  { 'haya14busa/vim-asterisk', event = { 'BufRead', 'BufModifiedSet' } },
   { 'andymass/vim-matchup', lazy = false },
-
-  -- Navigation --
-
-  { "echasnovski/mini.bufremove" },
-
-  { 'folke/flash.nvim', event = 'VeryLazy' },
-
-  { "haya14busa/vim-asterisk", event = { "BufRead", "BufModifiedSet" } },
-
+  { 'tpope/vim-repeat', event = 'BufModifiedSet' },
+  { 'tpope/vim-surround', event = { 'BufRead', 'BufModifiedSet' } },
+  --}}}
+  --{{{ Navigation
+  { 'cbochs/grapple.nvim' },
   {
     'nvim-telescope/telescope.nvim',
     event = 'VeryLazy',
@@ -101,21 +93,13 @@ my_plugins {
     'nvim-telescope/telescope-smart-history.nvim',
     dependencies = { 'kkharji/sqlite.lua' },
   },
-
-  { "s1n7ax/nvim-window-picker", event = "WinEnter" },
-
-  { "cbochs/portal.nvim", event = "VeryLazy" },
-
-  { "cbochs/grapple.nvim" },
-
-  -- VCS --
-
-  { "lewis6991/gitsigns.nvim", event = "BufRead" },
-  { 'akinsho/git-conflict.nvim', event = 'VeryLazy' },
+  --}}}
+  --{{{ VCS
   { 'sindrets/diffview.nvim', cmd = { 'DiffviewFileHistory', 'DiffviewOpen' } },
-
-  -- Package Management --
-
+  { 'akinsho/git-conflict.nvim', event = 'VeryLazy' },
+  { 'lewis6991/gitsigns.nvim', event = 'BufRead' },
+  --}}}
+  --{{{ Package Management
   {
     'williamboman/mason.nvim',
     build = {
@@ -126,14 +110,17 @@ my_plugins {
       ':MasonInstall shellcheck',
     },
   },
-
-  -- Syntax Highlighting --
-
   {
-    "nvim-treesitter/nvim-treesitter",
-    build = { ":TSUpdate" },
-    cmd = { "TSInstall", "TSInstallSync", "TSUninstall", "TSUpdate" },
-    event = "BufRead",
+    'williamboman/mason-lspconfig.nvim',
+    dependencies = { 'williamboman/mason.nvim' },
+  },
+  --}}}
+  --{{{ Syntax Highlighting
+  {
+    'nvim-treesitter/nvim-treesitter',
+    build = { ':TSUpdate' },
+    cmd = { 'TSInstall', 'TSInstallSync', 'TSUninstall', 'TSUpdate' },
+    event = 'BufRead',
   },
   {
     'nvim-treesitter/nvim-treesitter-context',
@@ -145,48 +132,40 @@ my_plugins {
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
     event = 'BufRead',
   },
+  --}}}
+  --{{{ Language Servers
+  { 'L3MON4D3/LuaSnip' },
+  { 'rafamadriz/friendly-snippets' },
 
-  -- Language Servers --
-
-  {
-    "williamboman/mason-lspconfig.nvim",
-    dependencies = { "williamboman/mason.nvim" },
-  },
+  { 'VonHeikemen/lsp-zero.nvim' },
 
   { 'nvimtools/none-ls.nvim', event = 'BufRead' },
   { 'alaviss/nim.nvim', ft = 'nim' },
 
-  { "L3MON4D3/LuaSnip" },
-  { "rafamadriz/friendly-snippets" },
-
-  { "VonHeikemen/lsp-zero.nvim" },
-
-  { "hrsh7th/cmp-nvim-lsp-signature-help" },
-  { "hrsh7th/cmp-buffer" },
-  { "hrsh7th/cmp-cmdline" },
-  { "hrsh7th/cmp-path" },
-  { "saadparwaiz1/cmp_luasnip", dependencies = { "L3MON4D3/LuaSnip" } },
-  { "hrsh7th/cmp-nvim-lua" },
-  { "folke/neodev.nvim" },
-  { "folke/neoconf.nvim", lazy = false },
+  { 'hrsh7th/cmp-buffer' },
+  { 'hrsh7th/cmp-cmdline' },
+  { 'hrsh7th/cmp-nvim-lsp' },
+  { 'hrsh7th/cmp-nvim-lsp-signature-help' },
+  { 'hrsh7th/cmp-nvim-lua' },
+  { 'hrsh7th/cmp-path' },
+  { 'saadparwaiz1/cmp_luasnip', dependencies = { 'L3MON4D3/LuaSnip' } },
+  { 'folke/neoconf.nvim', lazy = false },
+  { 'folke/neodev.nvim' },
   {
-    "hrsh7th/nvim-cmp",
+    'hrsh7th/nvim-cmp',
     event = { 'InsertEnter', 'CmdlineEnter' },
     dependencies = {
-      "hrsh7th/cmp-nvim-lsp-signature-help",
-      "hrsh7th/cmp-buffer",
-      "hrsh7th/cmp-cmdline",
-      "hrsh7th/cmp-path",
-      "saadparwaiz1/cmp_luasnip",
-      "hrsh7th/cmp-nvim-lua",
-      "folke/neodev.nvim",
+      'hrsh7th/cmp-nvim-lsp-signature-help',
+      'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-cmdline',
+      'hrsh7th/cmp-path',
+      'saadparwaiz1/cmp_luasnip',
+      'hrsh7th/cmp-nvim-lua',
+      'folke/neodev.nvim',
     },
   },
-
-  { "hrsh7th/cmp-nvim-lsp" },
-
   {
-    "neovim/nvim-lspconfig",
+    'neovim/nvim-lspconfig',
     cmd = "LspInfo",
     event = { "BufRead", "BufNewFile" },
     dependencies = {
@@ -197,38 +176,34 @@ my_plugins {
   },
 
   {
-    "windwp/nvim-autopairs",
-    event = "InsertEnter",
-    dependencies = { "hrsh7th/nvim-cmp" },
+    'windwp/nvim-autopairs',
+    event = 'InsertEnter',
+    dependencies = { 'hrsh7th/nvim-cmp' },
   },
-
-  { 'Robitx/gp.nvim', event = { 'BufRead' } },
-
-  -- Editor --
-
-  { "numToStr/Comment.nvim", event = { "BufRead", "BufModifiedSet" } },
+  --}}}
+  --{{{ Assistants
+  { 'Robitx/gp.nvim', event = 'BufRead' },
+  --}}}
+  --{{{ Editor
   {
-    "echasnovski/mini.trailspace",
+    'echasnovski/mini.trailspace',
     event = {
-      "BufRead",
-      "BufModifiedSet",
-      "BufWritePre",
-      "FileWritePre",
+      'BufRead',
+      'BufModifiedSet',
+      'BufWritePre',
+      'FileWritePre',
     },
   },
-  { "echasnovski/mini.indentscope", event = { "BufRead", "BufModifiedSet" } },
-  { "echasnovski/mini.splitjoin", event = { "BufRead" } },
-
-  -- Command Runners --
-
-  { "stevearc/overseer.nvim" },
-
-  -- Debuggers --
-
-  { "mfussenegger/nvim-dap" },
-  { "rcarriga/nvim-dap-ui", dependencies = { "mfussenegger/nvim-dap" } },
-
-  -- Configuration --
-
-  { "klen/nvim-config-local", lazy = false },
+  { 'echasnovski/mini.indentscope', event = { 'BufRead', 'BufModifiedSet' } },
+  --}}}
+  --{{{ Tasks
+  { 'stevearc/overseer.nvim' },
+  --}}}
+  --{{{ Debuggers
+  { 'mfussenegger/nvim-dap' },
+  { 'rcarriga/nvim-dap-ui', dependencies = { 'mfussenegger/nvim-dap' } },
+  --}}}
+  --{{{ Configuration
+  { 'klen/nvim-config-local', lazy = false },
+  --}}}
 }
