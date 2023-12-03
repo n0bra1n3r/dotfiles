@@ -220,7 +220,7 @@ function grs() {
 }
 
 if [[ -n "$START_COMMAND" ]]; then
-  _silent_background exec "$START_COMMAND"
+  _silent_background "$START_COMMAND"
 fi
 
 # vim: filetype=sh
