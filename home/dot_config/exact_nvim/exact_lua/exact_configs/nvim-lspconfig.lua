@@ -37,6 +37,7 @@ return {
 
     vim.diagnostic.config(lsp.defaults.diagnostics {
       signs = false,
+      update_in_insert = false,
       virtual_text = false,
     })
 
