@@ -57,14 +57,6 @@ my_tasks {
     },
     priority = 53,
   },
-  ["Init flutter"] = {
-    cmd = 'fvm',
-    args = {
-      'use',
-      '3.10.6',
-    },
-    priority = 54,
-  },
 }
 
 my_launchers {
@@ -72,22 +64,6 @@ my_launchers {
     {
       name = "Launch app",
       request = 'launch',
-      toolArgs = {
-        '--dart-define-from-file=.env.json'
-      },
-    },
-    {
-      name = "Launch route",
-      request = 'launch',
-      toolArgs = {
-        '--dart-define-from-file=.env.json',
-        fn.ui_input {
-          callback = function(input)
-            return '--dart-define=devRoute='..input
-          end,
-          prompt = "Route name:",
-        },
-      },
     },
   },
 }
@@ -140,5 +116,3 @@ my_snippets {
     },
   },
 }
-
-fn.run_task[[Init flutter]]

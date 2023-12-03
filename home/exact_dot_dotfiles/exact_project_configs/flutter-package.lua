@@ -43,14 +43,6 @@ my_tasks {
     },
     priority = 53,
   },
-  ["Init flutter"] = {
-    cmd = 'fvm',
-    args = {
-      'use',
-      '3.10.6',
-    },
-    priority = 54,
-  },
 }
 
 my_launchers {
@@ -62,5 +54,3 @@ my_launchers {
     },
   },
 }
-
-fn.run_task[[Init flutter]]
