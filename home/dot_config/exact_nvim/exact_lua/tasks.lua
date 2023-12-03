@@ -113,11 +113,13 @@ my_tasks {
         },
         function(choice)
           if choice and #choice > 0 then
-            fn.save_workspace()
             local workspace_path = fn.get_workspace_dir()
             local workspace_conf = workspace_path..'/'..vim.g.local_config_file_name
-            vim.fn.writefile(vim.fn.readfile(choice), workspace_conf)
-            pcall(require'config-local'.trust, workspace_conf)
+            if vim.fn.filereadable(workspace_conf) == 0 then
+              fn.save_workspace()
+              vim.fn.writefile(vim.fn.readfile(choice), workspace_conf)
+              pcall(require'config-local'.trust, workspace_conf)
+            end
           end
         end)
     end,

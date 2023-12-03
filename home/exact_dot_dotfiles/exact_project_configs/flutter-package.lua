@@ -20,7 +20,7 @@ my_tasks {
       'pub',
       'get',
     },
-    deps = { [[Gen strings]], [[Run codegen]] },
+    deps = { [[Install project configuration]] },
     priority = 1,
   },
   ["Run codegen"] = {
