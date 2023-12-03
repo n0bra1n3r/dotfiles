@@ -15,7 +15,7 @@ my_plugins {
   { 'stevearc/dressing.nvim', lazy = false },
   { 'rebelot/heirline.nvim', lazy = false },
   { 'catppuccin/nvim', name = 'catppuccin.nvim', lazy = false, priority = 1000 },
-  { 'kevinhwang91/nvim-ufo', event = 'BufRead',
+  { 'kevinhwang91/nvim-ufo', lazy = false,
     dependencies = { 'kevinhwang91/promise-async' },
   },
   { 'MunifTanjim/nui.nvim' },
@@ -25,11 +25,11 @@ my_plugins {
   { 'karb94/neoscroll.nvim', event = 'BufRead' },
 
   -- notifications
-  { 'j-hui/fidget.nvim', event = 'LspAttach' },
+  { 'j-hui/fidget.nvim', lazy = false },
 
   -- quickfix
   { 'kevinhwang91/nvim-bqf', ft = 'qf' },
-  { 'https://gitlab.com/yorickpeterse/nvim-pqf.git', event = 'VeryLazy' },
+  { 'https://gitlab.com/yorickpeterse/nvim-pqf.git', ft = 'qf' },
   --}}}
   --{{{ Mappings
   { 'folke/which-key.nvim', event = 'VeryLazy' },
