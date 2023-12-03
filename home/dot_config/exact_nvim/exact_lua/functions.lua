@@ -10,7 +10,816 @@ local function resolve_path(tabpageOrPath)
 end
 --}}}
 
---{{{ Git
+--{{{ Misc
+function fn.get_my_config_json(key)
+  return vim.fn.json_encode(my_config[key])
+end
+
+function fn.get_tab_cwd(tabpage)
+  local has_var, cwd = pcall(
+    vim.api.nvim_tabpage_get_var,
+    tabpage or vim.api.nvim_get_current_tabpage(),
+    "cwd"
+  )
+  return has_var and cwd or vim.fn.getcwd(-1)
+end
+
+function fn.set_tab_cwd(tabpage, path)
+  local cwd = path or vim.fn.getcwd(-1)
+  vim.api.nvim_tabpage_set_var(
+    tabpage or vim.api.nvim_get_current_tabpage(),
+    "cwd",
+    cwd
+  )
+  vim.cmd("tcd "..vim.fn.fnameescape(cwd))
+end
+
+function fn.expand_each(list)
+  local result = {}
+  for _, item in ipairs(list) do
+    table.insert(result, vim.fn.expand(item))
+  end
+  return vim.fn.join(result)
+end
+
+function fn.is_empty_buffer(buf)
+  local name = vim.api.nvim_buf_get_name(buf or 0)
+  if #name > 0 and vim.fn.fnamemodify(name, ":t") ~= "new" then
+    return false
+  end
+  local lines = vim.api.nvim_buf_get_lines(buf or 0, 0, -1, false)
+  return #lines == 0 or (#lines == 1 and #lines[1] == 0)
+end
+
+function fn.is_filename_empty(buf)
+  local name = vim.api.nvim_buf_get_name(buf or 0)
+  return #name == 0 or vim.fn.fnamemodify(name, ':t') == 'new'
+end
+
+function fn.is_file_buffer(buf)
+  if #vim.bo[buf or 0].buftype > 0 then
+    return false
+  end
+  return not fn.is_filename_empty(buf)
+end
+
+function fn.get_wins_for_buf_type(buf_type)
+  return vim.fn.filter(
+    vim.fn.range(1, vim.fn.winnr("$")),
+    ("getwinvar(v:val, '&bt') == '%s'"):format(buf_type))
+end
+
+function fn.vim_defer(cb, timer)
+  return function()
+    if cb ~= nil then
+      if type(cb) == "function" then
+        vim.defer_fn(cb, timer or 0)
+      else
+        vim.defer_fn(function()
+          vim.cmd(cb)
+        end, timer or 0)
+      end
+    end
+  end
+end
+
+function fn.is_subpath(path, other)
+  local path_parts = vim.split(path, "/")
+  local other_parts = vim.split(other, "/")
+  local common_parts = vim.list_slice(path_parts, 1, #other_parts)
+  return vim.deep_equal(common_parts, other_parts)
+end
+
+function fn.expand_path(path)
+  if vim.fn.has("win32") == 1 then
+    local shellslash = vim.o.shellslash
+    vim.o.shellslash = false
+    local expanded_path = vim.fn.expand(path)
+    vim.o.shellslash = shellslash
+    return expanded_path
+  end
+  return vim.fn.expand(path)
+end
+
+function fn.env_str(string)
+  if vim.fn.has("win32") == 1 then
+    return vim.trim(vim.fn.system(("cygpath -w \"%s\""):format(string)))
+  end
+  return vim.trim(vim.fn.system(("echo \"%s\""):format(string)))
+end
+
+function fn.path_str(string)
+  if vim.fn.has("win32") == 1 then
+    return vim.trim(vim.fn.system(("cygpath -pw \"%s\""):format(string)))
+  end
+  return vim.trim(vim.fn.system(("echo \"%s\""):format(string)))
+end
+
+function fn.get_highlight_color_bg(name)
+  local hl = vim.api.nvim_get_hl(0, { name = name })
+  return hl.bg and ('#%06X'):format(hl.bg) or "#000000"
+end
+
+function fn.get_highlight_color_fg(name)
+  local hl = vim.api.nvim_get_hl(0, { name = name })
+  return hl.fg and ('#%06X'):format(hl.fg) or "#000000"
+end
+
+function fn.apply_unfocused_highlight()
+  local focused_hl_ns = vim.api.nvim_create_namespace('focused_highlights')
+  local normal_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'Normal' })
+  if normal_hl.bg == nil then
+    normal_hl = vim.api.nvim_get_hl(0, { name = 'Normal' })
+    local normalnc_hl = vim.api.nvim_get_hl(0, { name = 'NormalNC' })
+    local winsep_hl = vim.api.nvim_get_hl(0, { name = 'WinSeparator' })
+    vim.api.nvim_set_hl(focused_hl_ns, 'Normal', normal_hl)
+    vim.api.nvim_set_hl(focused_hl_ns, 'NormalNC', normalnc_hl)
+    vim.api.nvim_set_hl(focused_hl_ns, 'WinSeparator', winsep_hl)
+  end
+  local unfocused_bg = require'catppuccin.palettes'.get_palette('macchiato').base
+  local unfocused_sep = require'catppuccin.palettes'.get_palette('macchiato').crust
+  vim.api.nvim_set_hl(0, 'Normal', { bg = unfocused_bg })
+  vim.api.nvim_set_hl(0, 'NormalNC', { bg = unfocused_bg })
+  vim.api.nvim_set_hl(0, 'WinSeparator', { fg = unfocused_sep })
+end
+
+function fn.apply_focused_highlight()
+  local focused_hl_ns = vim.api.nvim_create_namespace('focused_highlights')
+  local normal_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'Normal' })
+  local normalnc_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'NormalNC' })
+  local winsep_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'WinSeparator' })
+  if normal_hl.bg ~= nil then
+    vim.api.nvim_set_hl(0, 'Normal', normal_hl)
+    vim.api.nvim_set_hl(0, 'NormalNC', normalnc_hl)
+    vim.api.nvim_set_hl(0, 'WinSeparator', winsep_hl)
+  end
+end
+
+function fn.foldfunc(close, start_open, open, sep, mid_sep, end_sep)
+  local C = require'ffi'.C
+  return function(args)
+    local width = C.compute_foldcolumn(args.wp, 0)
+    if C.compute_foldcolumn(args.wp, 0) == 0 then
+      return ''
+    end
+
+    local foldinfo = C.fold_info(args.wp, args.lnum)
+
+    local string = args.cul and args.relnum == 0
+      and '%#CursorLineFold#'
+      or '%#FoldColumn#'
+
+    if foldinfo.level == 0 then
+      return string..(' '):rep(width)..'%*'
+    end
+
+    if foldinfo.lines > 0 then
+      string = string..close
+    elseif foldinfo.start == args.lnum then
+      local prev_foldinfo = C.fold_info(args.wp, args.lnum - 1)
+      if prev_foldinfo.level == 0 then
+        string = string..start_open
+      else
+        string = string..open
+      end
+    else
+      local next_foldinfo = C.fold_info(args.wp, args.lnum + 1)
+      if next_foldinfo.level == 0 then
+        string = string..end_sep
+      else
+        if next_foldinfo.start ~= foldinfo.start
+          and next_foldinfo.level <= foldinfo.level then
+          string = string..mid_sep
+        else
+          string = string..sep
+        end
+      end
+    end
+    return string..'%*'
+  end
+end
+
+function fn.is_floating(win)
+  return vim.api.nvim_win_get_config(win or 0).relative ~= [[]]
+end
+
+function fn.is_in_floating(buf)
+  for _, win in ipairs(vim.fn.win_findbuf(buf or vim.api.nvim_get_current_buf())) do
+    if fn.is_floating(win) then
+      return true
+    end
+  end
+  return false
+end
+
+function fn.get_visual_selection()
+  local s_start = vim.fn.getpos("'<")
+  local s_end = vim.fn.getpos("'>")
+  local n_lines = math.abs(s_end[2] - s_start[2]) + 1
+  local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
+  lines[1] = lines[1]:sub(s_start[3], -1)
+  if n_lines == 1 then
+    lines[n_lines] = lines[n_lines]:sub(1, s_end[3] - s_start[3])
+  else
+    lines[n_lines] = lines[n_lines]:sub(1, s_end[3])
+  end
+  return table.concat(lines, '\n')
+end
+
+function fn.copy_visual_selection()
+  vim.fn.setreg('+', fn.get_visual_selection())
+end
+
+function fn.get_buffer_title(buf)
+  return fn.is_file_buffer(buf)
+    and vim.fn.pathshorten(vim.fn.expand('%:~:.'))
+    or vim.o.buftype
+end
+
+function fn.get_line_info(format, win)
+  local file_win = win or vim.api.nvim_get_current_win()
+  local buf = vim.api.nvim_win_get_buf(file_win)
+  local filename = vim.api.nvim_buf_get_name(buf)
+  local cursor
+  if win and vim.fn.mode():sub(1, 1):lower() == 'v' then
+    cursor = { vim.fn.getpos("'<"), vim.fn.getpos("'>") }
+  else
+    cursor = vim.api.nvim_win_get_cursor(file_win)
+  end
+  return format:format(filename, cursor[1], cursor[2])
+end
+
+function fn.copy_line_info(format, win)
+  vim.fn.setreg('+', fn.get_line_info(format, win))
+end
+
+function fn.screenshot_selected_code()
+  fn.copy_visual_selection()
+  fn.exec_task(
+    'silicon',
+    {
+      '--from-clipboard',
+      '--language',
+      vim.bo.filetype,
+      '--to-clipboard',
+    },
+    "Screenshot selected code")
+end
+
+function fn.has_local_config()
+  local is_ok, config_local = pcall(require, 'config-local')
+  if is_ok then
+    return config_local.lookup() ~= ''
+  end
+  return false
+end
+
+local function make_file_switcher_entry()
+  local make_display = function(entry)
+    local filename = vim.fn.pathshorten(vim.fn.fnamemodify(entry.filename, ':~:.'))
+    local displayer = require'telescope.pickers.entry_display'.create {
+      separator = ' ',
+      items = {
+        { width = 1 },
+        { width = #filename },
+        { remaining = true },
+      },
+    }
+    local file_label = vim.fn.fnamemodify(filename, ':t')
+    local file_ext = vim.fn.fnamemodify(filename, ':e')
+    local icon, hl = require'nvim-web-devicons'.get_icon(file_label, file_ext)
+    return displayer {
+      {
+        icon,
+        hl,
+      },
+      filename,
+      {
+        entry.lnum..':'..entry.col,
+        'TelescopeResultsLineNr',
+      },
+    }
+  end
+
+  return function(entry)
+    local filename = entry.filename or vim.api.nvim_buf_get_name(entry.bufnr)
+    return {
+      col = entry.col,
+      display = make_display,
+      filename = filename,
+      finish = entry.finish,
+      lnum = entry.lnum,
+      ordinal = filename..' '..entry.text,
+      start = entry.start,
+      text = entry.text,
+      valid = true,
+      value = entry,
+    }
+  end
+end
+
+function fn.search(obj)
+  local lib = require'telescope.builtin'
+
+  local opts = {}
+
+  if obj == 'dap_breakpoints' then
+    lib = require'telescope'.extensions.dap
+
+    obj = 'list_breakpoints'
+  elseif obj == 'diagnostics_document' then
+    obj = 'diagnostics'
+
+    opts = {
+      bufnr = 0,
+    }
+  elseif obj == 'diagnostics_workspace' then
+    obj = 'diagnostics'
+  elseif obj == 'find_files' then
+    opts = {
+      find_command = {
+        vim.o.shell,
+        vim.o.shellcmdflag,
+        vim.o.grepprg..' --files',
+      },
+    }
+  elseif obj == 'loclist' then
+    opts = {
+      attach_mappings = function(_, map)
+        map('i', [[<Tab>]], function(bufnr)
+          require'telescope.actions.set'.edit(bufnr, 'edit')
+        end)
+        return true
+      end,
+      entry_maker = make_file_switcher_entry(),
+      layout_strategy = 'vertical',
+      layout_config = {
+        height = 0.50,
+        width = 0.30,
+      },
+    }
+  end
+
+  return function()
+    ---@diagnostic disable-next-line: redundant-parameter
+    lib[obj](opts)
+  end
+end
+
+function fn.open_folder(path)
+  local shellslash
+  if vim.fn.has('win32') == 1 then
+    shellslash = vim.o.shellslash
+    vim.o.shellslash = false
+    path = path and path:gsub('/', '\\')
+  end
+  local folder = path or vim.fn.getcwd()
+  if vim.fn.has('win32') == 1 then
+    vim.o.shellslash = shellslash
+  end
+  fn.open_in_os{ folder }
+end
+
+function fn.open_file_folder(path)
+  local folder = path
+    and vim.fn.fnamemodify(path, ':p:h')
+    or vim.fn.expand'%:p:h'
+  fn.open_folder(folder)
+end
+--}}}
+--{{{ UI
+local function create_parent_dirs(path)
+  local dir = vim.fn.fnamemodify(path, ":h")
+  if vim.fn.isdirectory(dir) == 0 then
+    vim.fn.mkdir(dir, 'p')
+  end
+end
+
+function fn.get_open_files()
+  local files = {}
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(buf) and #vim.api.nvim_buf_get_option(buf, "buftype") == 0 then
+      table.insert(files, vim.api.nvim_buf_get_name(buf))
+    end
+  end
+  return files
+end
+
+function fn.delete_file()
+  local rel_file = vim.fn.pathshorten(vim.fn.expand('%:~:.'))
+
+  vim.ui.select({ 'No', 'Yes' }, {
+    prompt = " 󰆴 Delete "..rel_file.."?",
+    dressing = {
+      relative = 'win',
+    },
+  }, function(choice)
+    if choice == 'Yes' then
+      vim.fn.delete(tostring(vim.fn.expand('%:p')))
+      require'mini.bufremove'.wipeout()
+    end
+  end)
+end
+
+function fn.edit_file()
+  local rel_dir = vim.fn.expand("%:~:.:h")
+  vim.ui.input({
+      completion = "dir",
+      default = rel_dir.."/",
+      prompt = " 󱇧 Edit at: ",
+      dressing = {
+        relative = "win",
+      },
+    },
+    function(path)
+      if path == nil or #path == 0 or path == rel_dir or path.."/" == rel_dir then
+        return
+      end
+      create_parent_dirs(path)
+      vim.cmd.edit(vim.fn.fnameescape(path))
+    end)
+end
+
+function fn.move_file()
+  local rel_file = vim.fn.expand("%:~:.")
+  vim.ui.input({
+      completion = "file",
+      default = rel_file,
+      prompt = " 󰪹 Move to: ",
+      dressing = {
+        relative = "win",
+      },
+    },
+    function(path)
+      if path == nil or #path == 0 or path == rel_file then
+        return
+      end
+      create_parent_dirs(path)
+      vim.cmd.saveas(vim.fn.fnameescape(path))
+      vim.fn.delete(tostring(vim.fn.expand("#")))
+      vim.cmd.bwipeout("#")
+    end)
+end
+
+function fn.save_file()
+  local rel_file = vim.fn.expand('%:~:.')
+  vim.ui.input({
+      completion = 'file',
+      default = rel_file,
+      prompt = " 󰈔 Save to: ",
+      dressing = {
+        relative = 'win',
+      },
+    },
+    function(path)
+      if path == nil or #path == 0 or path == rel_file then
+        return
+      end
+      create_parent_dirs(path)
+      vim.cmd.saveas(vim.fn.fnameescape(path))
+    end)
+end
+
+function fn.ui_input(opts)
+  return function()
+    return coroutine.create(function(coro)
+      vim.ui.input(vim.tbl_extend('keep', opts, {
+        dressing = {
+          relative = opts.relative or 'editor',
+        },
+      }), function(input)
+        if input then
+          coroutine.resume(coro, opts.callback and opts.callback(input) or input)
+        end
+      end)
+    end)
+  end
+end
+
+function fn.ui_try(callback, ...)
+  local is_ok, result = pcall(callback, ...)
+  if is_ok then
+    return result
+  end
+  vim.notify(result, vim.log.levels.ERROR, { title = 'help' })
+end
+
+function fn.close_folds_at(level)
+  local line = 1
+  local last = vim.fn.line('$')
+  while line < last do
+    if vim.fn.foldclosed(line) ~= -1 then
+      line = vim.fn.foldclosedend(line) + 1
+    elseif vim.fn.foldlevel(line) == level then
+      vim.cmd(''..line..'foldclose')
+      line = vim.fn.foldclosedend(line) + 1
+    else
+      line = line + 1
+    end
+  end
+end
+
+function fn.preview_fonts()
+  require'plenary.job':new{
+    args = {
+      '-H', 'Accept: application/vnd.github+json',
+      '-H', 'Authorization: Bearer '..vim.env.GITHUB_ACCESS_TOKEN,
+      '-H', 'X-GitHub-Api-Version: 2022-11-28',
+      'https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest',
+    },
+    command = 'curl',
+    env = { PATH = vim.env.PATH },
+    on_exit = vim.schedule_wrap(function(job1, return_val1)
+      if return_val1 == 0 then
+        local json_out = vim.fn.json_decode(vim.fn.join(job1:result(), "\n"))
+        local asset_list = vim.fn.filter(json_out.assets, function(_, asset)
+          return asset.content_type == 'application/zip'
+        end)
+        vim.ui.select(
+          asset_list,
+          {
+            prompt = "󰛖 Select font:",
+            format_item = function(item)
+              return #item.label > 0
+                and item.label
+                or vim.fn.fnamemodify(item.name, ':r:r')
+            end,
+          },
+          function(choice)
+            if choice then
+              local out_file = os.tmpname()
+              require'plenary.job':new{
+                args = { '-L', choice.browser_download_url, '-o', out_file },
+                command = 'curl',
+                env = { PATH = vim.env.PATH },
+                on_exit = vim.schedule_wrap(function(_, return_val2)
+                  if return_val2 == 0 then
+                    require'plenary.job':new{
+                      args = { '-xo', out_file, '-d', vim.fn.expand'~/Library/Fonts', '*.ttf', '*.otf' },
+                      command = 'unzip',
+                      env = { PATH = vim.env.PATH },
+                      on_exit = vim.schedule_wrap(function(job2, return_val3)
+                        if return_val3 ~= 0 then
+                          local font_file = job2:result()[2]:match('inflating: (.+)')
+                          if font_file and #font_file > 0 then
+                            local font_name = vim.fn.fnamemodify(font_file, ':t:r'):match('(.-)NerdFont')
+                            require'wezterm-config'.set_wezterm_user_var('font_family', font_name..' Nerd Font')
+                          end
+                        end
+                      end),
+                    }:start()
+                  end
+
+                end),
+              }:start()
+            end
+          end)
+      end
+    end),
+  }:start()
+end
+--}}}
+--{{{ Terminal
+local term_info = {
+  is_shell_active = false,
+}
+
+local function get_terminal_tabpage()
+  local terminal = require'toggleterm.terminal'.get(0, true)
+  return terminal and vim.api.nvim_win_get_tabpage(terminal.window)
+end
+
+local function get_terminal(start_command)
+  local cmd
+  if vim.fn.has('win32') == 1 then
+    cmd = 'bash'
+  else
+    cmd = 'zsh --login'
+  end
+  return require'toggleterm.terminal'.Terminal:new {
+    id = 0,
+    cmd = cmd,
+    direction = 'tab',
+    env = {
+      START_COMMAND = start_command,
+      STARSHIP_CONFIG = '~/.dotfiles/starship.minimal.toml',
+    },
+  }
+end
+
+function fn.open_terminal(start_command)
+  local tabpage = get_terminal_tabpage()
+  if not tabpage then
+    get_terminal(start_command):open()
+  elseif vim.api.nvim_get_current_tabpage() ~= tabpage then
+    vim.api.nvim_set_current_tabpage(tabpage)
+  end
+end
+
+function fn.dismiss_terminal()
+  local tabpage = get_terminal_tabpage()
+  if vim.api.nvim_get_current_tabpage() == tabpage then
+    vim.api.nvim_set_current_tabpage(fn.get_prior_tabpage())
+  end
+end
+
+function fn.toggle_terminal()
+  if not get_terminal():is_focused() then
+    fn.open_terminal()
+  else
+    fn.dismiss_terminal()
+  end
+end
+
+function fn.set_terminal_dir(cwd)
+  local terminal = get_terminal()
+  local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
+  fn.set_tab_cwd(tabpage, cwd)
+  terminal.dir = fn.get_tab_cwd(tabpage)
+end
+
+function fn.send_terminal(command, is_hist, should_focus)
+  get_terminal():send((is_hist and '' or ' ')..command,
+    should_focus ~= nil and not should_focus)
+end
+
+function fn.set_shell_active(is_active, cmd, exit_code)
+  term_info.is_shell_active = is_active
+  if not is_active and not
+      get_terminal():is_focused() and
+      cmd:sub(1, 1) ~= ' '
+  then
+    vim.notify(
+      "exited with code "..exit_code,
+      vim.log.levels.INFO,
+      { title = cmd }
+    )
+  end
+end
+
+function fn.is_shell_active(tabpage)
+  if tabpage and tabpage ~= get_terminal_tabpage() then
+    return nil
+  end
+  return term_info.is_shell_active
+end
+
+function fn.is_terminal_buf(buf)
+  buf = buf or vim.api.nvim_get_current_buf()
+  for _, term in ipairs(require'toggleterm.terminal'.get_all(true)) do
+    if term.bufnr == buf then
+      return true
+    end
+  end
+  return false
+end
+--}}}
+--{{{ Navigation
+local nav_info = {}
+
+function fn.edit_buffer(mode, path)
+  local tabpage = vim.api.nvim_get_current_tabpage()
+  local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
+  local target_winid
+  for _, id in ipairs(win_ids) do
+    if path == vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(id)) then
+      target_winid = id
+      break
+    end
+  end
+  if target_winid == nil then
+    vim.cmd[mode](path)
+  else
+    vim.api.nvim_set_current_win(target_winid)
+  end
+end
+
+function fn.float_window()
+  local width = math.min(vim.o.columns * 0.9, vim.o.columns - 16)
+  local height = vim.o.lines * 0.9
+  require'mini.misc'.zoom(0, {
+    border = "single",
+    width = vim.fn.ceil(width),
+    height = vim.fn.ceil(height),
+    row = vim.o.lines / 2 - height / 2 - 1,
+    col = vim.o.columns / 2 - width / 2,
+  })
+end
+
+function fn.get_prior_tabpage()
+  local tabnr = vim.fn.tabpagenr[[#]]
+  for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
+    if vim.api.nvim_tabpage_get_number(tabpage) == tabnr then
+      return tabpage
+    end
+  end
+end
+
+function fn.open_tab(filename)
+  vim.cmd.tabe(vim.fn.fnameescape(filename))
+end
+
+function fn.close_buffer()
+  if #vim.api.nvim_tabpage_list_wins(0) > 0 then
+    vim.cmd[[close]]
+  else
+    require'mini.bufremove'.unshow()
+  end
+end
+
+function fn.restore_tabpage()
+  if nav_info.last_tabpage and
+      vim.api.nvim_tabpage_is_valid(nav_info.last_tabpage) then
+    pcall(vim.api.nvim_set_current_tabpage, nav_info.last_tabpage)
+    nav_info.last_tabpage = nil
+  end
+end
+
+function fn.save_tabpage()
+  local cur_tabpage = vim.api.nvim_get_current_tabpage()
+  fn.vim_defer(function()
+    nav_info.last_tabpage = cur_tabpage
+  end)()
+end
+
+function fn.show_buffer_jump_picker(dir)
+  require'portal.builtin'.jumplist.tunnel({
+    direction = dir,
+    filter = function(j)
+      return j.buffer == vim.api.nvim_get_current_buf()
+    end,
+  })
+end
+
+function fn.goto_bookmark(tag)
+  if not require'grapple'.exists{ key = tag } then
+    require'grapple'.tag{ key = tag }
+    vim.o.showtabline = 2
+  end
+  require'grapple'.select{ key = tag }
+end
+
+function fn.del_bookmark(tag)
+  require'grapple'.untag{ key = tag }
+  if #require'grapple'.tags() == 0 then
+    vim.o.showtabline = 0
+  end
+end
+
+local function foreach_buf_in_loclists(bufnr, callback)
+  bufnr = bufnr or vim.api.nvim_get_current_buf()
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    for i, entry in ipairs(vim.fn.getloclist(win)) do
+      if entry.qfbufnr == bufnr then
+        callback(i, win)
+        break
+      end
+    end
+  end
+end
+
+function fn.add_buf_to_loclist(bufnr)
+  bufnr = bufnr or vim.api.nvim_get_current_buf()
+  local infos = vim.fn.getbufinfo(bufnr)
+  if #infos > 0 and fn.is_file_buffer(bufnr) then
+    local info = infos[1]
+    if info.listed == 1 then
+      for _, win in ipairs(info.windows) do
+        local list = vim.tbl_filter(
+          function(e)
+            return e.bufnr ~= bufnr
+          end,
+          vim.fn.getloclist(win)
+        )
+        local name
+        if vim.fn.has('win32') == 1 then
+          local shellslash = vim.o.shellslash
+          vim.o.shellslash = false
+          name = vim.api.nvim_buf_get_name(bufnr)
+          vim.o.shellslash = shellslash
+        end
+        local cur = vim.api.nvim_win_get_cursor(win)
+        table.insert(list, 1, {
+          bufnr = bufnr,
+          filename = name,
+          col = cur[2],
+          lnum = cur[1],
+        })
+        vim.fn.setloclist(win, list, 'r')
+      end
+    end
+  end
+end
+
+function fn.del_buf_from_loclist(bufnr)
+  foreach_buf_in_loclists(bufnr, function(i, win)
+    local list = vim.fn.getloclist(win)
+    table.remove(list, i)
+    vim.fn.setloclist(win, list, "r")
+  end)
+end
+--}}}
+--{{{ VCS
 local dir_git_info = {}
 
 local function get_git_info(tabpageOrPath)
@@ -217,118 +1026,61 @@ function fn.show_file_history(range, term)
   require'diffview'.file_history(range, term and '-G"'..term..'"')
 end
 --}}}
---{{{ Files
-local function create_parent_dirs(path)
-  local dir = vim.fn.fnamemodify(path, ":h")
-  if vim.fn.isdirectory(dir) == 0 then
-    vim.fn.mkdir(dir, 'p')
-  end
+--{{{ Assistants
+function fn.ai_gen(cmd, text)
+  local filetype = vim.bo.filetype
+
+  local lines = text
+    and vim.split(text, '\n')
+    or vim.api.nvim_buf_get_lines(0, 0, -1, false)
+
+  vim.cmd[[tabe]]
+
+  vim.bo.filetype = 'markdown'
+  vim.bo.bufhidden = 'wipe'
+
+  vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
+
+  vim.cmd('%Gp'..cmd)
+
+  vim.api.nvim_create_autocmd('User', {
+    once = true,
+    pattern = 'GpDone',
+    callback = function(event)
+      vim.bo[event.buf].filetype = filetype
+    end,
+  })
 end
 
-function fn.get_open_files()
-  local files = {}
-  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_loaded(buf) and #vim.api.nvim_buf_get_option(buf, "buftype") == 0 then
-      table.insert(files, vim.api.nvim_buf_get_name(buf))
-    end
-  end
-  return files
-end
+function fn.ai_conv(cmd, text)
+  local lines = text
+    and vim.split(text, '\n')
+    or vim.api.nvim_buf_get_lines(0, 0, -1, false)
 
-function fn.delete_file()
-  local rel_file = vim.fn.pathshorten(vim.fn.expand('%:~:.'))
-
-  vim.ui.select({ 'No', 'Yes' }, {
-    prompt = " 󰆴 Delete "..rel_file.."?",
-    dressing = {
-      relative = 'win',
-    },
-  }, function(choice)
-    if choice == 'Yes' then
-      vim.fn.delete(tostring(vim.fn.expand('%:p')))
-      require'mini.bufremove'.wipeout()
-    end
-  end)
-end
-
-function fn.edit_file()
-  local rel_dir = vim.fn.expand("%:~:.:h")
   vim.ui.input({
-      completion = "dir",
-      default = rel_dir.."/",
-      prompt = " 󱇧 Edit at: ",
+      prompt = " 󰗊 Translate to: ",
       dressing = {
-        relative = "win",
+        relative = text and "cursor" or "win",
       },
     },
-    function(path)
-      if path == nil or #path == 0 or path == rel_dir or path.."/" == rel_dir then
-        return
-      end
-      create_parent_dirs(path)
-      vim.cmd.edit(vim.fn.fnameescape(path))
+    function(filetype)
+      vim.cmd[[tabe]]
+
+      vim.bo.filetype = 'markdown'
+      vim.bo.bufhidden = 'wipe'
+
+      vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
+
+      vim.cmd('%Gp'..cmd..' '..filetype)
+
+      vim.api.nvim_create_autocmd('User', {
+        once = true,
+        pattern = 'GpDone',
+        callback = function(event)
+          vim.bo[event.buf].filetype = filetype
+        end,
+      })
     end)
-end
-
-function fn.move_file()
-  local rel_file = vim.fn.expand("%:~:.")
-  vim.ui.input({
-      completion = "file",
-      default = rel_file,
-      prompt = " 󰪹 Move to: ",
-      dressing = {
-        relative = "win",
-      },
-    },
-    function(path)
-      if path == nil or #path == 0 or path == rel_file then
-        return
-      end
-      create_parent_dirs(path)
-      vim.cmd.saveas(vim.fn.fnameescape(path))
-      vim.fn.delete(tostring(vim.fn.expand("#")))
-      vim.cmd.bwipeout("#")
-    end)
-end
-
-function fn.save_file()
-  local rel_file = vim.fn.expand('%:~:.')
-  vim.ui.input({
-      completion = 'file',
-      default = rel_file,
-      prompt = " 󰈔 Save to: ",
-      dressing = {
-        relative = 'win',
-      },
-    },
-    function(path)
-      if path == nil or #path == 0 or path == rel_file then
-        return
-      end
-      create_parent_dirs(path)
-      vim.cmd.saveas(vim.fn.fnameescape(path))
-    end)
-end
-
-function fn.open_folder(path)
-  local shellslash
-  if vim.fn.has('win32') == 1 then
-    shellslash = vim.o.shellslash
-    vim.o.shellslash = false
-    path = path and path:gsub('/', '\\')
-  end
-  local folder = path or vim.fn.getcwd()
-  if vim.fn.has('win32') == 1 then
-    vim.o.shellslash = shellslash
-  end
-  fn.open_in_os{ folder }
-end
-
-function fn.open_file_folder(path)
-  local folder = path
-    and vim.fn.fnamemodify(path, ':p:h')
-    or vim.fn.expand'%:p:h'
-  fn.open_folder(folder)
 end
 --}}}
 --{{{ Tasks
@@ -817,789 +1569,6 @@ function fn.load_vscode_launch_json(path)
   if not is_ok then
     vim.notify(result, vim.log.levels.WARN)
   end
-end
---}}}
---{{{ Navigation
-local nav_info = {}
-
-function fn.edit_buffer(mode, path)
-  local tabpage = vim.api.nvim_get_current_tabpage()
-  local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
-  local target_winid
-  for _, id in ipairs(win_ids) do
-    if path == vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(id)) then
-      target_winid = id
-      break
-    end
-  end
-  if target_winid == nil then
-    local opts = {
-      filter_rules = {
-        bo = {
-          filetype = {
-            "lazy",
-            "qf",
-          },
-          buftype = {
-            "terminal",
-          },
-        },
-      },
-    }
-    vim.cmd[mode](path)
-  else
-    vim.api.nvim_set_current_win(target_winid)
-  end
-end
-
-function fn.float_window()
-  local width = math.min(vim.o.columns * 0.9, vim.o.columns - 16)
-  local height = vim.o.lines * 0.9
-  require'mini.misc'.zoom(0, {
-    border = "single",
-    width = vim.fn.ceil(width),
-    height = vim.fn.ceil(height),
-    row = vim.o.lines / 2 - height / 2 - 1,
-    col = vim.o.columns / 2 - width / 2,
-  })
-end
-
-function fn.get_prior_tabpage()
-  local tabnr = vim.fn.tabpagenr[[#]]
-  for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
-    if vim.api.nvim_tabpage_get_number(tabpage) == tabnr then
-      return tabpage
-    end
-  end
-end
-
-function fn.open_tab(filename)
-  vim.cmd.tabe(vim.fn.fnameescape(filename))
-end
-
-function fn.close_buffer()
-  if #vim.api.nvim_tabpage_list_wins(0) > 0 then
-    vim.cmd[[close]]
-  else
-    require'mini.bufremove'.unshow()
-  end
-end
-
-function fn.restore_tabpage()
-  if nav_info.last_tabpage and
-      vim.api.nvim_tabpage_is_valid(nav_info.last_tabpage) then
-    pcall(vim.api.nvim_set_current_tabpage, nav_info.last_tabpage)
-    nav_info.last_tabpage = nil
-  end
-end
-
-function fn.save_tabpage()
-  local cur_tabpage = vim.api.nvim_get_current_tabpage()
-  fn.vim_defer(function()
-    nav_info.last_tabpage = cur_tabpage
-  end)()
-end
-
-function fn.show_buffer_jump_picker(dir)
-  require'portal.builtin'.jumplist.tunnel({
-    direction = dir,
-    filter = function(j)
-      return j.buffer == vim.api.nvim_get_current_buf()
-    end,
-  })
-end
-
-function fn.goto_bookmark(tag)
-  if not require'grapple'.exists{ key = tag } then
-    require'grapple'.tag{ key = tag }
-    vim.o.showtabline = 2
-  end
-  require'grapple'.select{ key = tag }
-end
-
-function fn.del_bookmark(tag)
-  require'grapple'.untag{ key = tag }
-  if #require'grapple'.tags() == 0 then
-    vim.o.showtabline = 0
-  end
-end
---}}}
---{{{ Quickfix
-local function foreach_buf_in_loclists(bufnr, callback)
-  bufnr = bufnr or vim.api.nvim_get_current_buf()
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    for i, entry in ipairs(vim.fn.getloclist(win)) do
-      if entry.qfbufnr == bufnr then
-        callback(i, win)
-        break
-      end
-    end
-  end
-end
-
-function fn.add_buf_to_loclist(bufnr)
-  bufnr = bufnr or vim.api.nvim_get_current_buf()
-  local infos = vim.fn.getbufinfo(bufnr)
-  if #infos > 0 and fn.is_file_buffer(bufnr) then
-    local info = infos[1]
-    if info.listed == 1 then
-      for _, win in ipairs(info.windows) do
-        local list = vim.tbl_filter(
-          function(e)
-            return e.bufnr ~= bufnr
-          end,
-          vim.fn.getloclist(win)
-        )
-        local name
-        if vim.fn.has('win32') == 1 then
-          local shellslash = vim.o.shellslash
-          vim.o.shellslash = false
-          name = vim.api.nvim_buf_get_name(bufnr)
-          vim.o.shellslash = shellslash
-        end
-        local cur = vim.api.nvim_win_get_cursor(win)
-        table.insert(list, 1, {
-          bufnr = bufnr,
-          filename = name,
-          col = cur[2],
-          lnum = cur[1],
-        })
-        vim.fn.setloclist(win, list, 'r')
-      end
-    end
-  end
-end
-
-function fn.del_buf_from_loclist(bufnr)
-  foreach_buf_in_loclists(bufnr, function(i, win)
-    local list = vim.fn.getloclist(win)
-    table.remove(list, i)
-    vim.fn.setloclist(win, list, "r")
-  end)
-end
---}}}
---{{{ Terminal
-local term_info = {
-  is_shell_active = false,
-}
-
-local function get_terminal_tabpage()
-  local terminal = require'toggleterm.terminal'.get(0, true)
-  return terminal and vim.api.nvim_win_get_tabpage(terminal.window)
-end
-
-local function get_terminal(start_command)
-  local cmd
-  if vim.fn.has('win32') == 1 then
-    cmd = 'bash'
-  else
-    cmd = 'zsh --login'
-  end
-  return require'toggleterm.terminal'.Terminal:new {
-    id = 0,
-    cmd = cmd,
-    direction = 'tab',
-    env = {
-      START_COMMAND = start_command,
-      STARSHIP_CONFIG = '~/.dotfiles/starship.minimal.toml',
-    },
-  }
-end
-
-function fn.open_terminal(start_command)
-  local tabpage = get_terminal_tabpage()
-  if not tabpage then
-    get_terminal(start_command):open()
-  elseif vim.api.nvim_get_current_tabpage() ~= tabpage then
-    vim.api.nvim_set_current_tabpage(tabpage)
-  end
-end
-
-function fn.dismiss_terminal()
-  local tabpage = get_terminal_tabpage()
-  if vim.api.nvim_get_current_tabpage() == tabpage then
-    vim.api.nvim_set_current_tabpage(fn.get_prior_tabpage())
-  end
-end
-
-function fn.toggle_terminal()
-  if not get_terminal():is_focused() then
-    fn.open_terminal()
-  else
-    fn.dismiss_terminal()
-  end
-end
-
-function fn.set_terminal_dir(cwd)
-  local terminal = get_terminal()
-  local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
-  fn.set_tab_cwd(tabpage, cwd)
-  terminal.dir = fn.get_tab_cwd(tabpage)
-end
-
-function fn.send_terminal(command, is_hist, should_focus)
-  get_terminal():send((is_hist and '' or ' ')..command,
-    should_focus ~= nil and not should_focus)
-end
-
-function fn.set_shell_active(is_active, cmd, exit_code)
-  term_info.is_shell_active = is_active
-  if not is_active and not
-      get_terminal():is_focused() and
-      cmd:sub(1, 1) ~= ' '
-  then
-    vim.notify(
-      "exited with code "..exit_code,
-      vim.log.levels.INFO,
-      { title = cmd }
-    )
-  end
-end
-
-function fn.is_shell_active(tabpage)
-  if tabpage and tabpage ~= get_terminal_tabpage() then
-    return nil
-  end
-  return term_info.is_shell_active
-end
-
-function fn.is_terminal_buf(buf)
-  buf = buf or vim.api.nvim_get_current_buf()
-  for _, term in ipairs(require'toggleterm.terminal'.get_all(true)) do
-    if term.bufnr == buf then
-      return true
-    end
-  end
-  return false
-end
---}}}
---{{{ Utilities
-function fn.get_my_config_json(key)
-  return vim.fn.json_encode(my_config[key])
-end
-
-function fn.get_tab_cwd(tabpage)
-  local has_var, cwd = pcall(
-    vim.api.nvim_tabpage_get_var,
-    tabpage or vim.api.nvim_get_current_tabpage(),
-    "cwd"
-  )
-  return has_var and cwd or vim.fn.getcwd(-1)
-end
-
-function fn.set_tab_cwd(tabpage, path)
-  local cwd = path or vim.fn.getcwd(-1)
-  vim.api.nvim_tabpage_set_var(
-    tabpage or vim.api.nvim_get_current_tabpage(),
-    "cwd",
-    cwd
-  )
-  vim.cmd("tcd "..vim.fn.fnameescape(cwd))
-end
-
-function fn.expand_each(list)
-  local result = {}
-  for _, item in ipairs(list) do
-    table.insert(result, vim.fn.expand(item))
-  end
-  return vim.fn.join(result)
-end
-
-function fn.is_empty_buffer(buf)
-  local name = vim.api.nvim_buf_get_name(buf or 0)
-  if #name > 0 and vim.fn.fnamemodify(name, ":t") ~= "new" then
-    return false
-  end
-  local lines = vim.api.nvim_buf_get_lines(buf or 0, 0, -1, false)
-  return #lines == 0 or (#lines == 1 and #lines[1] == 0)
-end
-
-function fn.is_filename_empty(buf)
-  local name = vim.api.nvim_buf_get_name(buf or 0)
-  return #name == 0 or vim.fn.fnamemodify(name, ':t') == 'new'
-end
-
-function fn.is_file_buffer(buf)
-  if #vim.bo[buf or 0].buftype > 0 then
-    return false
-  end
-  return not fn.is_filename_empty(buf)
-end
-
-function fn.get_wins_for_buf_type(buf_type)
-  return vim.fn.filter(
-    vim.fn.range(1, vim.fn.winnr("$")),
-    ("getwinvar(v:val, '&bt') == '%s'"):format(buf_type))
-end
-
-function fn.vim_defer(cb, timer)
-  return function()
-    if cb ~= nil then
-      if type(cb) == "function" then
-        vim.defer_fn(cb, timer or 0)
-      else
-        vim.defer_fn(function()
-          vim.cmd(cb)
-        end, timer or 0)
-      end
-    end
-  end
-end
-
-function fn.is_subpath(path, other)
-  local path_parts = vim.split(path, "/")
-  local other_parts = vim.split(other, "/")
-  local common_parts = vim.list_slice(path_parts, 1, #other_parts)
-  return vim.deep_equal(common_parts, other_parts)
-end
-
-function fn.expand_path(path)
-  if vim.fn.has("win32") == 1 then
-    local shellslash = vim.o.shellslash
-    vim.o.shellslash = false
-    local expanded_path = vim.fn.expand(path)
-    vim.o.shellslash = shellslash
-    return expanded_path
-  end
-  return vim.fn.expand(path)
-end
-
-function fn.url_encode(str)
-  if not str then
-    return str
-  end
-
-  str = string.gsub(str, "\n", "\r\n")
-  str = string.gsub(str, "[^%w.%-_~]", function(c)
-    return ("%%%02X"):format(string.byte(c))
-  end)
-
-  return str
-end
-
-function fn.shell_str(string)
-  return vim.trim(vim.fn.system(("echo \"%s\""):format(string)))
-end
-
-function fn.env_str(string)
-  if vim.fn.has("win32") == 1 then
-    return vim.trim(vim.fn.system(("cygpath -w \"%s\""):format(string)))
-  end
-  return vim.trim(vim.fn.system(("echo \"%s\""):format(string)))
-end
-
-function fn.path_str(string)
-  if vim.fn.has("win32") == 1 then
-    return vim.trim(vim.fn.system(("cygpath -pw \"%s\""):format(string)))
-  end
-  return vim.trim(vim.fn.system(("echo \"%s\""):format(string)))
-end
-
-function fn.get_highlight_color_bg(name)
-  local hl = vim.api.nvim_get_hl(0, { name = name })
-  return hl.bg and ('#%06X'):format(hl.bg) or "#000000"
-end
-
-function fn.get_highlight_color_fg(name)
-  local hl = vim.api.nvim_get_hl(0, { name = name })
-  return hl.fg and ('#%06X'):format(hl.fg) or "#000000"
-end
-
-function fn.apply_unfocused_highlight()
-  local focused_hl_ns = vim.api.nvim_create_namespace('focused_highlights')
-  local normal_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'Normal' })
-  if normal_hl.bg == nil then
-    normal_hl = vim.api.nvim_get_hl(0, { name = 'Normal' })
-    local normalnc_hl = vim.api.nvim_get_hl(0, { name = 'NormalNC' })
-    local winsep_hl = vim.api.nvim_get_hl(0, { name = 'WinSeparator' })
-    vim.api.nvim_set_hl(focused_hl_ns, 'Normal', normal_hl)
-    vim.api.nvim_set_hl(focused_hl_ns, 'NormalNC', normalnc_hl)
-    vim.api.nvim_set_hl(focused_hl_ns, 'WinSeparator', winsep_hl)
-  end
-  local unfocused_bg = require'catppuccin.palettes'.get_palette('macchiato').base
-  local unfocused_sep = require'catppuccin.palettes'.get_palette('macchiato').crust
-  vim.api.nvim_set_hl(0, 'Normal', { bg = unfocused_bg })
-  vim.api.nvim_set_hl(0, 'NormalNC', { bg = unfocused_bg })
-  vim.api.nvim_set_hl(0, 'WinSeparator', { fg = unfocused_sep })
-end
-
-function fn.apply_focused_highlight()
-  local focused_hl_ns = vim.api.nvim_create_namespace('focused_highlights')
-  local normal_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'Normal' })
-  local normalnc_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'NormalNC' })
-  local winsep_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'WinSeparator' })
-  if normal_hl.bg ~= nil then
-    vim.api.nvim_set_hl(0, 'Normal', normal_hl)
-    vim.api.nvim_set_hl(0, 'NormalNC', normalnc_hl)
-    vim.api.nvim_set_hl(0, 'WinSeparator', winsep_hl)
-  end
-end
-
-function fn.foldfunc(close, start_open, open, sep, mid_sep, end_sep)
-  local C = require'ffi'.C
-  return function(args)
-    local width = C.compute_foldcolumn(args.wp, 0)
-    if C.compute_foldcolumn(args.wp, 0) == 0 then
-      return ''
-    end
-
-    local foldinfo = C.fold_info(args.wp, args.lnum)
-
-    local string = args.cul and args.relnum == 0
-      and '%#CursorLineFold#'
-      or '%#FoldColumn#'
-
-    if foldinfo.level == 0 then
-      return string..(' '):rep(width)..'%*'
-    end
-
-    if foldinfo.lines > 0 then
-      string = string..close
-    elseif foldinfo.start == args.lnum then
-      local prev_foldinfo = C.fold_info(args.wp, args.lnum - 1)
-      if prev_foldinfo.level == 0 then
-        string = string..start_open
-      else
-        string = string..open
-      end
-    else
-      local next_foldinfo = C.fold_info(args.wp, args.lnum + 1)
-      if next_foldinfo.level == 0 then
-        string = string..end_sep
-      else
-        if next_foldinfo.start ~= foldinfo.start
-          and next_foldinfo.level <= foldinfo.level then
-          string = string..mid_sep
-        else
-          string = string..sep
-        end
-      end
-    end
-    return string..'%*'
-  end
-end
-
-function fn.is_floating(win)
-  return vim.api.nvim_win_get_config(win or 0).relative ~= [[]]
-end
-
-function fn.is_in_floating(buf)
-  for _, win in ipairs(vim.fn.win_findbuf(buf or vim.api.nvim_get_current_buf())) do
-    if fn.is_floating(win) then
-      return true
-    end
-  end
-  return false
-end
-
-function fn.get_visual_selection()
-  local s_start = vim.fn.getpos("'<")
-  local s_end = vim.fn.getpos("'>")
-  local n_lines = math.abs(s_end[2] - s_start[2]) + 1
-  local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
-  lines[1] = lines[1]:sub(s_start[3], -1)
-  if n_lines == 1 then
-    lines[n_lines] = lines[n_lines]:sub(1, s_end[3] - s_start[3])
-  else
-    lines[n_lines] = lines[n_lines]:sub(1, s_end[3])
-  end
-  return table.concat(lines, '\n')
-end
-
-function fn.copy_visual_selection()
-  vim.fn.setreg('+', fn.get_visual_selection())
-end
-
-function fn.get_buffer_title(buf)
-  return fn.is_file_buffer(buf)
-    and vim.fn.pathshorten(vim.fn.expand('%:~:.'))
-    or vim.o.buftype
-end
-
-function fn.ui_input(opts)
-  return function()
-    return coroutine.create(function(coro)
-      vim.ui.input(vim.tbl_extend('keep', opts, {
-        dressing = {
-          relative = opts.relative or 'editor',
-        },
-      }), function(input)
-        if input then
-          coroutine.resume(coro, opts.callback and opts.callback(input) or input)
-        end
-      end)
-    end)
-  end
-end
-
-function fn.ui_try(callback, ...)
-  local is_ok, result = pcall(callback, ...)
-  if is_ok then
-    return result
-  end
-  vim.notify(result, vim.log.levels.ERROR, { title = 'help' })
-end
-
-function fn.close_folds_at(level)
-  local line = 1
-  local last = vim.fn.line('$')
-  while line < last do
-    if vim.fn.foldclosed(line) ~= -1 then
-      line = vim.fn.foldclosedend(line) + 1
-    elseif vim.fn.foldlevel(line) == level then
-      vim.cmd(''..line..'foldclose')
-      line = vim.fn.foldclosedend(line) + 1
-    else
-      line = line + 1
-    end
-  end
-end
-
-function fn.get_line_info(format, win)
-  local file_win = win or vim.api.nvim_get_current_win()
-  local buf = vim.api.nvim_win_get_buf(file_win)
-  local filename = vim.api.nvim_buf_get_name(buf)
-  local cursor
-  if win and vim.fn.mode():sub(1, 1):lower() == 'v' then
-    cursor = { vim.fn.getpos("'<"), vim.fn.getpos("'>") }
-  else
-    cursor = vim.api.nvim_win_get_cursor(file_win)
-  end
-  return format:format(filename, cursor[1], cursor[2])
-end
-
-function fn.copy_line_info(format, win)
-  vim.fn.setreg('+', fn.get_line_info(format, win))
-end
-
-function fn.screenshot_selected_code()
-  fn.copy_visual_selection()
-  fn.exec_task(
-    'silicon',
-    {
-      '--from-clipboard',
-      '--language',
-      vim.bo.filetype,
-      '--to-clipboard',
-    },
-    "Screenshot selected code")
-end
-
-function fn.has_local_config()
-  local is_ok, config_local = pcall(require, 'config-local')
-  if is_ok then
-    return config_local.lookup() ~= ''
-  end
-  return false
-end
-
-local function make_file_switcher_entry()
-  local make_display = function(entry)
-    local filename = vim.fn.pathshorten(vim.fn.fnamemodify(entry.filename, ':~:.'))
-    local displayer = require'telescope.pickers.entry_display'.create {
-      separator = ' ',
-      items = {
-        { width = 1 },
-        { width = #filename },
-        { remaining = true },
-      },
-    }
-    local file_label = vim.fn.fnamemodify(filename, ':t')
-    local file_ext = vim.fn.fnamemodify(filename, ':e')
-    local icon, hl = require'nvim-web-devicons'.get_icon(file_label, file_ext)
-    return displayer {
-      {
-        icon,
-        hl,
-      },
-      filename,
-      {
-        entry.lnum..':'..entry.col,
-        'TelescopeResultsLineNr',
-      },
-    }
-  end
-
-  return function(entry)
-    local filename = entry.filename or vim.api.nvim_buf_get_name(entry.bufnr)
-    return {
-      col = entry.col,
-      display = make_display,
-      filename = filename,
-      finish = entry.finish,
-      lnum = entry.lnum,
-      ordinal = filename..' '..entry.text,
-      start = entry.start,
-      text = entry.text,
-      valid = true,
-      value = entry,
-    }
-  end
-end
-
-function fn.search(obj)
-  local lib = require'telescope.builtin'
-
-  local opts = {}
-
-  if obj == 'dap_breakpoints' then
-    lib = require'telescope'.extensions.dap
-
-    obj = 'list_breakpoints'
-  elseif obj == 'diagnostics_document' then
-    obj = 'diagnostics'
-
-    opts = {
-      bufnr = 0,
-    }
-  elseif obj == 'diagnostics_workspace' then
-    obj = 'diagnostics'
-  elseif obj == 'find_files' then
-    opts = {
-      find_command = {
-        vim.o.shell,
-        vim.o.shellcmdflag,
-        vim.o.grepprg..' --files',
-      },
-    }
-  elseif obj == 'loclist' then
-    opts = {
-      attach_mappings = function(_, map)
-        map('i', [[<Tab>]], function(bufnr)
-          require'telescope.actions.set'.edit(bufnr, 'edit')
-        end)
-        return true
-      end,
-      entry_maker = make_file_switcher_entry(),
-      layout_strategy = 'vertical',
-      layout_config = {
-        height = 0.50,
-        width = 0.30,
-      },
-    }
-  end
-
-  return function()
-    ---@diagnostic disable-next-line: redundant-parameter
-    lib[obj](opts)
-  end
-end
-
-function fn.preview_fonts()
-  require'plenary.job':new{
-    args = {
-      '-H', 'Accept: application/vnd.github+json',
-      '-H', 'Authorization: Bearer '..vim.env.GITHUB_ACCESS_TOKEN,
-      '-H', 'X-GitHub-Api-Version: 2022-11-28',
-      'https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest',
-    },
-    command = 'curl',
-    env = { PATH = vim.env.PATH },
-    on_exit = vim.schedule_wrap(function(job1, return_val1)
-      if return_val1 == 0 then
-        local json_out = vim.fn.json_decode(vim.fn.join(job1:result(), "\n"))
-        local asset_list = vim.fn.filter(json_out.assets, function(_, asset)
-          return asset.content_type == 'application/zip'
-        end)
-        vim.ui.select(
-          asset_list,
-          {
-            prompt = "󰛖 Select font:",
-            format_item = function(item)
-              return #item.label > 0
-                and item.label
-                or vim.fn.fnamemodify(item.name, ':r:r')
-            end,
-          },
-          function(choice)
-            if choice then
-              local out_file = os.tmpname()
-              require'plenary.job':new{
-                args = { '-L', choice.browser_download_url, '-o', out_file },
-                command = 'curl',
-                env = { PATH = vim.env.PATH },
-                on_exit = vim.schedule_wrap(function(_, return_val2)
-                  if return_val2 == 0 then
-                    require'plenary.job':new{
-                      args = { '-xo', out_file, '-d', vim.fn.expand'~/Library/Fonts', '*.ttf', '*.otf' },
-                      command = 'unzip',
-                      env = { PATH = vim.env.PATH },
-                      on_exit = vim.schedule_wrap(function(job2, return_val3)
-                        if return_val3 ~= 0 then
-                          local font_file = job2:result()[2]:match('inflating: (.+)')
-                          if font_file and #font_file > 0 then
-                            local font_name = vim.fn.fnamemodify(font_file, ':t:r'):match('(.-)NerdFont')
-                            require'wezterm-config'.set_wezterm_user_var('font_family', font_name..' Nerd Font')
-                          end
-                        end
-                      end),
-                    }:start()
-                  end
-
-                end),
-              }:start()
-            end
-          end)
-      end
-    end),
-  }:start()
-end
---}}}
---{{{ AI
-function fn.ai_gen(cmd, text)
-  local filetype = vim.bo.filetype
-
-  local lines = text
-    and vim.split(text, '\n')
-    or vim.api.nvim_buf_get_lines(0, 0, -1, false)
-
-  vim.cmd[[tabe]]
-
-  vim.bo.filetype = 'markdown'
-  vim.bo.bufhidden = 'wipe'
-
-  vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
-
-  vim.cmd('%Gp'..cmd)
-
-  vim.api.nvim_create_autocmd('User', {
-    once = true,
-    pattern = 'GpDone',
-    callback = function(event)
-      vim.bo[event.buf].filetype = filetype
-    end,
-  })
-end
-
-function fn.ai_conv(cmd, text)
-  local lines = text
-    and vim.split(text, '\n')
-    or vim.api.nvim_buf_get_lines(0, 0, -1, false)
-
-  vim.ui.input({
-      prompt = " 󰗊 Translate to: ",
-      dressing = {
-        relative = text and "cursor" or "win",
-      },
-    },
-    function(filetype)
-      vim.cmd[[tabe]]
-
-      vim.bo.filetype = 'markdown'
-      vim.bo.bufhidden = 'wipe'
-
-      vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
-
-      vim.cmd('%Gp'..cmd..' '..filetype)
-
-      vim.api.nvim_create_autocmd('User', {
-        once = true,
-        pattern = 'GpDone',
-        callback = function(event)
-          vim.bo[event.buf].filetype = filetype
-        end,
-      })
-    end)
 end
 --}}}
 --{{{ Workspace
