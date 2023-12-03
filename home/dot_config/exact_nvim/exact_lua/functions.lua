@@ -1589,10 +1589,16 @@ local function load_workspace(tabpage)
 end
 
 function fn.get_workspace_dir(tabpageOrPath)
-  if fn.is_git_dir(tabpageOrPath) then
-    return fn.get_git_dir(tabpageOrPath)
+  local current_dir = resolve_path(tabpageOrPath)
+  local workspace_path = current_dir
+  while #workspace_path > 0 and workspace_path ~= '.' do
+    local workspace_file = workspace_path..'/'..vim.g.workspace_file_name
+    if vim.fn.filereadable(workspace_file) == 1 then
+      return workspace_path
+    end
+    workspace_path = vim.fn.fnamemodify(workspace_path, ':h')
   end
-  return resolve_path(tabpageOrPath)
+  return current_dir
 end
 
 function fn.has_workspace_file(tabpage)
@@ -1642,7 +1648,7 @@ function fn.save_workspace(tabpage, force)
 end
 
 function fn.open_workspace(path)
-  local workspace_path = fn.get_git_dir(path)
+  local workspace_path = fn.get_workspace_dir(path)
   for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
     local cwd = fn.get_tab_cwd(tabpage)
     if cwd == workspace_path then
@@ -1652,7 +1658,7 @@ function fn.open_workspace(path)
       end
     end
   end
-  if vim.fn.isdirectory(workspace_path) then
+  if vim.fn.isdirectory(workspace_path) == 1 then
     vim.cmd[[tabnew]]
     local tabpage = vim.api.nvim_get_current_tabpage()
     fn.set_tab_cwd(tabpage, workspace_path)

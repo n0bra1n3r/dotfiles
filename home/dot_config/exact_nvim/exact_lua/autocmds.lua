@@ -215,7 +215,7 @@ my_autocmds {
       }
     end,
   }, --}}}
-  { "User", pattern = "ConfigLocalFinished", --{{{
+  { 'User', pattern = 'ConfigLocalFinished', --{{{
     callback = function()
       if fn.has_local_config() then
         if vim.g.project_type then
@@ -231,6 +231,38 @@ my_autocmds {
             })
           end
           fn.load_vscode_launch_json()
+
+          if vim.g.project_type == 'flutter' then
+            vim.g.flutter_current_config = nil
+            vim.g.flutter_current_device = nil
+
+            vim.api.nvim_set_keymap('n', [[<leader>fa]], [[]], {
+              callback = function()
+                fn.open_in_os{ './android', '-a', '/Applications/Android Studio.app' }
+                vim.notify(
+                  "Opening Android project...",
+                  vim.log.levels.INFO,
+                  { title = "Flutter tools" }
+                )
+              end,
+              desc = "Open Android project",
+              noremap = true,
+              silent = true,
+            })
+            vim.api.nvim_set_keymap('n', [[<leader>fi]], [[]], {
+              callback = function()
+                fn.open_in_os{ './ios/Runner.xcworkspace' }
+                vim.notify(
+                  "Opening iOS project...",
+                  vim.log.levels.INFO,
+                  { title = "Flutter tools" }
+                )
+              end,
+              desc = "Open iOS project",
+              noremap = true,
+              silent = true,
+            })
+          end
         end
       end
     end,

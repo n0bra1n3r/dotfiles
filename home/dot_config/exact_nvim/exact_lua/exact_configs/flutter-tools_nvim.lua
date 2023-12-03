@@ -12,7 +12,7 @@ return {
             type = 'dart',
             dartSdkPath = paths.dart_sdk,
             flutterSdkPath = paths.flutter_sdk,
-            program = '${workspaceFolder}/lib/main.dart',
+            program = 'lib/main.dart',
             cwd = '${workspaceFolder}',
           }
           if my_launchers then
@@ -114,42 +114,5 @@ return {
       end
       run_fn(config, ...)
     end
-
-    vim.api.nvim_create_autocmd('User', {
-      group = vim.api.nvim_create_augroup('conf_flutter_tools', { clear = true }),
-      pattern = 'ConfigLocalFinished',
-      callback = function()
-        if fn.has_local_config() then
-          if vim.g.project_type == 'flutter' then
-            vim.api.nvim_set_keymap('n', [[<leader>fa]], [[]], {
-              callback = function()
-                fn.open_in_os{ './android', '-a', '/Applications/Android Studio.app' }
-                vim.notify(
-                  "Opening Android project...",
-                  vim.log.levels.INFO,
-                  { title = "Flutter tools" }
-                )
-              end,
-              desc = "Open Android project",
-              noremap = true,
-              silent = true,
-            })
-            vim.api.nvim_set_keymap('n', [[<leader>fi]], [[]], {
-              callback = function()
-                fn.open_in_os{ './ios/Runner.xcworkspace' }
-                vim.notify(
-                  "Opening iOS project...",
-                  vim.log.levels.INFO,
-                  { title = "Flutter tools" }
-                )
-              end,
-              desc = "Open iOS project",
-              noremap = true,
-              silent = true,
-            })
-          end
-        end
-      end,
-    })
   end,
 }
