@@ -51,7 +51,7 @@ my_tasks {
       vim.cmd[[FlutterReload]]
     end,
     notify = false,
-    priority = 97,
+    priority = 96,
   },
   ["Debug continue"] = {
     cond = function()
@@ -71,7 +71,7 @@ my_tasks {
         type = 'number',
       },
     },
-    priority = 98,
+    priority = 97,
   },
   ["Debug restart"] = {
     cond = function()
@@ -86,7 +86,7 @@ my_tasks {
       )
     end,
     notify = false,
-    priority = 99,
+    priority = 98,
   },
   ["Debug terminate"] = {
     cond = function()
@@ -94,6 +94,33 @@ my_tasks {
     end,
     func = function()
       vim.cmd[[FlutterQuit]]
+    end,
+    notify = false,
+    priority = 99,
+  },
+  ["Install project configuration"] = {
+    cond = function()
+      return fn.has_workspace_file()
+    end,
+    func = function()
+      vim.ui.select(
+        vim.fn.glob('~/.dotfiles/project_configs/*.lua', true, true),
+        {
+          prompt = " 󰆴 Select project type: ",
+          dressing = {
+            relative = 'editor',
+          },
+          format_item = function(item)
+            return vim.fn.join(vim.split(vim.fn.fnamemodify(item, ':t:r'), '-'))
+          end,
+        },
+        function(choice)
+          if choice and #choice > 0 then
+            local workspace_path = fn.get_workspace_dir()
+            local workspace_conf = workspace_path..'/'..vim.g.local_config_file_name
+            vim.fn.writefile(vim.fn.readfile(choice), workspace_conf)
+          end
+        end)
     end,
     notify = false,
     priority = 100,

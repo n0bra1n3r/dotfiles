@@ -2,6 +2,7 @@
 
 my_globals {
   grapple_testing = true, -- needed to avoid error on Windows
+  local_config_file_name = '.nvim/init.lua',
   mapleader = [[ ]],
   project_configs = {
     chezmoi = 'home/dot_config/exact_nvim/exact_lua/plugins.lua',
