@@ -154,10 +154,18 @@ alias l='ls'
 alias w='workspace'
 alias ws='workspace'
 
+function _warn_fvm_config_not_found() {
+  # shellcheck disable=SC2034
+  local errorcode=$?
+  echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m FVM configuration not found in current directory. Did you forget to run \`fvm use <version>\`?\e[0m"
+  # shellcheck disable=SC2152
+  return errorcode
+}
+
 function dart() {
   if [[ ! -f "$PWD/.fvm/fvm_config.json" ]]; then
-    command dart "$@" || return $?
-    echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m FVM configuration not found. Did you forget to run \`fvm use <version>\`?\e[0m"
+    command dart "$@"
+    _warn_fvm_config_not_found
   else
     fvm dart "$@"
   fi
@@ -165,8 +173,8 @@ function dart() {
 
 function flutter() {
   if [[ ! -f "$PWD/.fvm/fvm_config.json" ]]; then
-    command flutter "$@" || return $?
-    echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m FVM configuration not found. Did you forget to run \`fvm use <version>\`?\e[0m"
+    command flutter "$@"
+    _warn_fvm_config_not_found
   else
     fvm flutter "$@"
   fi
@@ -178,15 +186,6 @@ function gh() {
   fi
 
   command gh "$@"
-}
-
-function onepub() {
-  if [[ ! -f "$PWD/.fvm/fvm_config.json" ]]; then
-    command onepub "$@" || return $?
-    echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m FVM configuration not found. Did you forget to run \`fvm use <version>\`?\e[0m"
-  else
-    fvm onepub "$@"
-  fi
 }
 
 # Config aliases
