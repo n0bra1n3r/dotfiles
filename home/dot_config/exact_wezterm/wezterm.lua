@@ -18,7 +18,7 @@ end
 
 local color_scheme = 'Catppuccin Frappe'
 local color_scheme_inactive = 'Catppuccin Macchiato'
-local text_font = { family = 'Lilex Nerd Font', weight = 'Medium' }
+local text_font = { family = 'JetBrainsMono Nerd Font', weight = 'Medium' }
 
 local scheme = wezterm.color.get_builtin_schemes()[color_scheme]
 local scheme_inactive = wezterm.color.get_builtin_schemes()[color_scheme_inactive]
