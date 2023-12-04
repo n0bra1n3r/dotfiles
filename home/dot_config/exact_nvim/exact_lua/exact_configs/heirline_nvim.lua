@@ -277,6 +277,9 @@ local function workspace_label()
     border'',
     {
       hl = { bg = 'background' },
+      init = function(self)
+        self.cwd = fn.get_tab_cwd()
+      end,
       space(),
       {
         hl = { fg = 'workspace', bold = true },
@@ -564,7 +567,6 @@ local function tabs_bar()
             }, i)
             child = self[i]
             child.tab = tab
-            child.cwd = fn.get_tab_cwd(tab)
           end
         end
         if #self > #tabs then
@@ -573,7 +575,6 @@ local function tabs_bar()
           end
         end
       end,
-      update = { 'User', pattern = 'ConfigLocalFinished' },
     },
     border'',
   }

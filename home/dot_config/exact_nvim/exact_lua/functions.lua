@@ -1565,7 +1565,11 @@ end
 --}}}
 --{{{ Workspace
 local function get_workspace_file_path(tabpage)
-  return fn.get_workspace_dir(tabpage).."/"..vim.g.workspace_file_name
+  return fn.get_workspace_dir(tabpage)..'/'..vim.g.workspace_file_name
+end
+
+local function get_workspace_config_path(tabpage)
+  return fn.get_workspace_dir(tabpage)..'/'..vim.g.local_config_file_name
 end
 
 local function load_workspace(tabpage)
@@ -1582,24 +1586,20 @@ end
 
 function fn.get_workspace_dir(tabpageOrPath)
   local current_dir = resolve_path(tabpageOrPath)
-  local workspace_path = vim.fn.findfile(vim.g.workspace_file_name, '.;')
+  local workspace_path = vim.fn.findfile(vim.g.workspace_file_name, current_dir..';')
   if workspace_path ~= '' then
-    return vim.fn.fnamemodify(workspace_path, ':p')
+    workspace_path = vim.fn.fnamemodify(workspace_path, ':p')
+    return workspace_path:sub(1, -#vim.g.workspace_file_name - 2)
   end
   return current_dir
 end
 
 function fn.has_workspace_file(tabpage)
-  return vim.fn.filereadable(get_workspace_file_path(tabpage))
+  return vim.fn.filereadable(get_workspace_file_path(tabpage)) == 1
 end
 
-function fn.has_workspace_config()
-  local is_ok, config_local = pcall(require, 'config-local')
-  if is_ok then
-    local config_path = config_local.lookup()
-    return config_path and config_path ~= ''
-  end
-  return false
+function fn.has_workspace_config(tabpage)
+  return vim.fn.filereadable(get_workspace_config_path(tabpage)) == 1
 end
 
 function fn.save_as_workspace_config(path)
