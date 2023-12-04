@@ -1582,17 +1582,9 @@ end
 
 function fn.get_workspace_dir(tabpageOrPath)
   local current_dir = resolve_path(tabpageOrPath)
-  local workspace_path = current_dir
-  while #workspace_path > 0 do
-    local workspace_file = workspace_path..'/'..vim.g.workspace_file_name
-    if vim.fn.filereadable(workspace_file) == 1 then
-      return workspace_path
-    end
-    local parent_path = vim.fn.fnamemodify(workspace_path, ':h')
-    if parent_path == workspace_path then
-      break
-    end
-    workspace_path = parent_path
+  local workspace_path = vim.fn.findfile(vim.g.workspace_file_name, '.;')
+  if workspace_path ~= '' then
+    return vim.fn.fnamemodify(workspace_path, ':p')
   end
   return current_dir
 end
