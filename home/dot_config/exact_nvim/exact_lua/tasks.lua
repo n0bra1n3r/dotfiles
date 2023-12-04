@@ -120,6 +120,9 @@ my_tasks {
     priority = 99,
   },
   ["Install project configuration"] = {
+    cond = function()
+      return not fn.has_workspace_config()
+    end,
     func = function()
       vim.ui.select(
         vim.fn.glob('~/.dotfiles/project_configs/*.lua', true, true),
@@ -136,11 +139,9 @@ my_tasks {
           if choice and #choice > 0 then
             local workspace_path = fn.get_workspace_dir()
             local workspace_conf = workspace_path..'/'..vim.g.local_config_file_name
-            if vim.fn.filereadable(workspace_conf) == 0 then
-              fn.save_workspace()
-              vim.fn.writefile(vim.fn.readfile(choice), workspace_conf)
-              pcall(require'config-local'.trust, workspace_conf)
-            end
+            fn.save_workspace()
+            vim.fn.writefile(vim.fn.readfile(choice), workspace_conf)
+            pcall(require'config-local'.trust, workspace_conf)
           end
         end)
     end,

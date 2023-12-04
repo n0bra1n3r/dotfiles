@@ -266,14 +266,6 @@ function fn.screenshot_selected_code()
     "Screenshot selected code")
 end
 
-function fn.has_local_config()
-  local is_ok, config_local = pcall(require, 'config-local')
-  if is_ok then
-    return config_local.lookup() ~= ''
-  end
-  return false
-end
-
 local function make_file_switcher_entry()
   local make_display = function(entry)
     local filename = vim.fn.pathshorten(vim.fn.fnamemodify(entry.filename, ':~:.'))
@@ -1608,6 +1600,15 @@ end
 function fn.has_workspace_file(tabpage)
   return vim.fn.filereadable(get_workspace_file_path(tabpage))
 end
+
+function fn.has_workspace_config()
+  local is_ok, config_local = pcall(require, 'config-local')
+  if is_ok then
+    return config_local.lookup() ~= ''
+  end
+  return false
+end
+
 
 function fn.is_workspace_frozen(tabpage)
   local has_var, is_workspace_frozen = pcall(

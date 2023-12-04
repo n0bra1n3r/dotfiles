@@ -217,7 +217,7 @@ my_autocmds {
   }, --}}}
   { 'User', pattern = 'ConfigLocalFinished', --{{{
     callback = function()
-      if fn.has_local_config() then
+      if fn.has_workspace_config() then
         if vim.g.project_type then
           local project_config = vim.g.project_configs[vim.g.project_type]
           if project_config then
