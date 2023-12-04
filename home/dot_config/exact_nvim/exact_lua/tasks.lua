@@ -1,4 +1,25 @@
 my_tasks {
+  ["Generate test coverage"] = {
+    cond = function()
+      return vim.g.project_type == 'flutter'
+    end,
+    cmd = 'fvm',
+    args = {
+      'flutter',
+      'test',
+      '--coverage',
+    },
+    deps = { [[Show test coverage]] },
+    priority = 91,
+  },
+  ["Show test coverage"] = {
+    func = function()
+      require'coverage'.load()
+      require'coverage'.summary()
+    end,
+    notify = false,
+    priority = 92,
+  },
   ["Select emulator"] = {
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'

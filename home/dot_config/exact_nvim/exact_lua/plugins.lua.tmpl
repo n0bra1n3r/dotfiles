@@ -205,5 +205,16 @@ my_plugins {
   --}}}
   --{{{ Workspace
   { 'klen/nvim-config-local', lazy = false },
+
+  {
+    'andythigpen/nvim-coverage',
+    cmd = {
+      'Coverage',
+      'CoverageLoad',
+      'CoverageLoadLcov',
+      'CoverageClear',
+    },
+    dependencies = { 'nvim-lua/plenary.nvim' }
+  },
   --}}}
 }

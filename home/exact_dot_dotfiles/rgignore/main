@@ -23,3 +23,4 @@
 
 # Build artifacts
 /build/
+/coverage/

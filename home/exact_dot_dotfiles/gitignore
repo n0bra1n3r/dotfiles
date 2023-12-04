@@ -1,3 +1,4 @@
 .fvm
 .nvim
 .scripts
+coverage/
