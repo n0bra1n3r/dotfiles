@@ -135,15 +135,7 @@ my_tasks {
             return vim.fn.join(vim.split(vim.fn.fnamemodify(item, ':t:r'), '-'))
           end,
         },
-        function(choice)
-          if choice and #choice > 0 then
-            local workspace_path = fn.get_workspace_dir()
-            local workspace_conf = workspace_path..'/'..vim.g.local_config_file_name
-            fn.save_workspace()
-            vim.fn.writefile(vim.fn.readfile(choice), workspace_conf)
-            pcall(require'config-local'.trust, workspace_conf)
-          end
-        end)
+        fn.save_as_workspace_config)
     end,
     notify = false,
     priority = 100,

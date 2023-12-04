@@ -3,6 +3,13 @@
 local fn = {}
 
 --{{{ Helpers
+local function create_parent_dirs(path)
+  local dir = vim.fn.fnamemodify(path, ":h")
+  if vim.fn.isdirectory(dir) == 0 then
+    vim.fn.mkdir(dir, 'p')
+  end
+end
+
 local function resolve_path(tabpageOrPath)
   return type(tabpageOrPath) == "string"
     and tostring(vim.fn.expand(tabpageOrPath))
@@ -380,13 +387,6 @@ function fn.open_file_folder(path)
 end
 --}}}
 --{{{ UI
-local function create_parent_dirs(path)
-  local dir = vim.fn.fnamemodify(path, ":h")
-  if vim.fn.isdirectory(dir) == 0 then
-    vim.fn.mkdir(dir, 'p')
-  end
-end
-
 function fn.get_open_files()
   local files = {}
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
@@ -1602,6 +1602,15 @@ function fn.has_workspace_config()
   return false
 end
 
+function fn.save_as_workspace_config(path)
+  if path and #path > 0 and vim.fn.filereadable(path) == 1 then
+    local workspace_path = fn.get_workspace_dir()
+    local workspace_conf = workspace_path..'/'..vim.g.local_config_file_name
+    create_parent_dirs(workspace_conf)
+    vim.fn.writefile(vim.fn.readfile(path), workspace_conf)
+    pcall(require'config-local'.trust, workspace_conf)
+  end
+end
 
 function fn.is_workspace_frozen(tabpage)
   local has_var, is_workspace_frozen = pcall(
