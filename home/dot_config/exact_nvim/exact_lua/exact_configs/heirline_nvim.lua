@@ -573,6 +573,7 @@ local function tabs_bar()
           end
         end
       end,
+      update = { 'User', pattern = 'ConfigLocalFinished' },
     },
     border'',
   }
