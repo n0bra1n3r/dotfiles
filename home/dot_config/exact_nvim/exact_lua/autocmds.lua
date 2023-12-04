@@ -41,7 +41,6 @@ my_autocmds {
   }, --}}}
   { "BufUnload", --{{{
     callback = function(args)
-      fn.del_buf_from_loclist(args.buf)
       if fn.is_file_buffer(args.buf) then
         if fn.has_workspace_file() then
           fn.save_workspace()

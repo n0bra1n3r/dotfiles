@@ -664,7 +664,9 @@ function fn.is_terminal_buf(buf)
 end
 --}}}
 --{{{ Navigation
-local nav_info = {}
+local nav_info = {
+  last_tabpage = nil,
+}
 
 function fn.edit_buffer(mode, path)
   local tabpage = vim.api.nvim_get_current_tabpage()
@@ -755,18 +757,6 @@ function fn.del_bookmark(tag)
   end
 end
 
-local function foreach_buf_in_loclists(bufnr, callback)
-  bufnr = bufnr or vim.api.nvim_get_current_buf()
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    for i, entry in ipairs(vim.fn.getloclist(win)) do
-      if entry.qfbufnr == bufnr then
-        callback(i, win)
-        break
-      end
-    end
-  end
-end
-
 function fn.add_buf_to_loclist(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   local infos = vim.fn.getbufinfo(bufnr)
@@ -776,7 +766,7 @@ function fn.add_buf_to_loclist(bufnr)
       for _, win in ipairs(info.windows) do
         local list = vim.tbl_filter(
           function(e)
-            return e.bufnr ~= bufnr
+            return e.bufnr ~= 0 and e.bufnr ~= bufnr
           end,
           vim.fn.getloclist(win)
         )
@@ -798,14 +788,6 @@ function fn.add_buf_to_loclist(bufnr)
       end
     end
   end
-end
-
-function fn.del_buf_from_loclist(bufnr)
-  foreach_buf_in_loclists(bufnr, function(i, win)
-    local list = vim.fn.getloclist(win)
-    table.remove(list, i)
-    vim.fn.setloclist(win, list, "r")
-  end)
 end
 --}}}
 --{{{ VCS
