@@ -17,16 +17,7 @@ local function make_git_branch_action(opts)
       cmd[1],
       vim.list_slice(cmd, 2),
       opts.action_name,
-      {
-        EDITOR=vim.fn.join {
-          'nvim',
-          '--clean',
-          '--headless',
-          '--server',
-          '"'..vim.v.servername..'"',
-          '--remote-tab',
-        },
-      },
+      { EDITOR = vim.fn.expand'~/.dotfiles/scripts/nvim-nested' },
       cwd)
   end
 end
