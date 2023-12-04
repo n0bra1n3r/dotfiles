@@ -1604,7 +1604,8 @@ end
 function fn.has_workspace_config()
   local is_ok, config_local = pcall(require, 'config-local')
   if is_ok then
-    return config_local.lookup() ~= ''
+    local config_path = config_local.lookup()
+    return config_path and config_path ~= ''
   end
   return false
 end
