@@ -114,6 +114,7 @@ if [[ -n "$NVIM" ]]; then
   }
 
   function workspace() {
+    # shellcheck disable=1091
     source "$HOME/.dotfiles/scripts/workspace"
     nvim
   }
@@ -132,6 +133,7 @@ else
     _git_override "$@"
   }
 
+  # shellcheck disable=2120
   function nvim() {
     if [[ $# -eq 0 ]]; then
       command nvim +"TerminalModeStart nvim"
@@ -141,6 +143,7 @@ else
   }
 
   function workspace() {
+    # shellcheck disable=1091
     source "$HOME/.dotfiles/scripts/workspace"
   }
 fi
@@ -208,6 +211,7 @@ function ga() {
 }
 
 function gc() {
+  # shellcheck disable=1091
   source "$HOME/.dotfiles/scripts/git-commit-message"
 }
 
