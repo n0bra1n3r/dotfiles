@@ -372,7 +372,7 @@ function fn.open_folder(path)
     vim.o.shellslash = false
     path = path and path:gsub('/', '\\')
   end
-  local folder = path or vim.fn.getcwd()
+  local folder = path or fn.get_tab_cwd()
   if vim.fn.has('win32') == 1 then
     vim.o.shellslash = shellslash
   end

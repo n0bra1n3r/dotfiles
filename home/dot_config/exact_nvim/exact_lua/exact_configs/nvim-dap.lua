@@ -45,7 +45,7 @@ return {
               require = 'launch',
               program = fn.ui_input {
                 completion = 'file',
-                default = vim.fn.getcwd()..'/',
+                default = fn.get_tab_cwd()..'/',
                 prompt = " 󰈔 Path to file: ",
               },
             },
