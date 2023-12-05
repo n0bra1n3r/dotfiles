@@ -273,6 +273,15 @@ my_autocmds {
               noremap = true,
               silent = true,
             })
+          elseif vim.g.project_type == 'chezmoi' then
+            vim.api.nvim_set_keymap('n', [[<leader>fc]], [[]], {
+              callback = function()
+                fn.open_in_os{ vim.fn.expand'~/.config/nvim' }
+              end,
+              desc = "Open config folder",
+              noremap = true,
+              silent = true,
+            })
           end
         end
       end
