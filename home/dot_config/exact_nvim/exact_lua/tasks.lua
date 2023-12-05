@@ -79,7 +79,7 @@ my_tasks {
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
     func = function(args)
-      if args.state == 1 then
+      if not args.state or args.state == 1 then
         vim.cmd[[FlutterRun]]
       else
         require'dap'.continue()
@@ -89,6 +89,7 @@ my_tasks {
     params = {
       state = {
         desc = "Current debug state",
+        optional = true,
         type = 'number',
       },
     },

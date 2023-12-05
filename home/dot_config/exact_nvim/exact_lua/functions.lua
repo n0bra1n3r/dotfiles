@@ -1182,12 +1182,13 @@ function fn.create_task(name, config)
 end
 
 function fn.has_task(name)
-  local is_ok, overseer_template = pcall(require, 'overseer.template')
+  local is_ok, overseer = pcall(require, 'overseer')
   if not is_ok then
     return false
   end
+  overseer.preload_task_cache()
   local task_def
-  overseer_template.get_by_name(
+  require'overseer.template'.get_by_name(
     name,
     { dir = fn.get_workspace_dir() },
     function(def)
@@ -1217,10 +1218,10 @@ function fn.run_task(name, args)
 end
 
 function fn.running_task_count()
-  local is_ok, overseer_task_list = pcall(require, 'overseer.task_list')
+  local is_ok, overseer = pcall(require, 'overseer')
   if is_ok then
-    return #overseer_task_list.list_tasks {
-      status = require'overseer'.STATUS.RUNNING,
+    return #require'overseer.task_list'.list_tasks {
+      status = overseer.STATUS.RUNNING,
     }
   end
   return 0
