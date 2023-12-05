@@ -98,6 +98,12 @@ my_autocmds {
       vim.lsp.buf.format()
     end,
   }, --}}}
+  { "BufWritePost", pattern = { '.nvim/init.lua' }, --{{{
+    callback = function()
+      vim.g.flutter_current_config = nil
+      vim.g.flutter_current_device = nil
+    end,
+  }, --}}}
   { "CmdlineEnter", --{{{
     callback = function()
       vim.o.cmdheight = 1
@@ -233,9 +239,6 @@ my_autocmds {
           fn.load_vscode_launch_json()
 
           if vim.g.project_type == 'flutter' then
-            vim.g.flutter_current_config = nil
-            vim.g.flutter_current_device = nil
-
             vim.api.nvim_set_keymap('n', [[<leader>fa]], [[]], {
               callback = function()
                 fn.open_in_os{ './android', '-a', '/Applications/Android Studio.app' }
@@ -251,12 +254,20 @@ my_autocmds {
             })
             vim.api.nvim_set_keymap('n', [[<leader>fi]], [[]], {
               callback = function()
-                fn.open_in_os{ './ios/Runner.xcworkspace' }
-                vim.notify(
-                  "Opening iOS project...",
-                  vim.log.levels.INFO,
-                  { title = "Flutter tools" }
-                )
+                if vim.fn.isdirectory('./ios/Runner.xcworkspace') == 1 then
+                  fn.open_in_os{ './ios/Runner.xcworkspace' }
+                  vim.notify(
+                    "Opening iOS project...",
+                    vim.log.levels.INFO,
+                    { title = "Flutter tools" }
+                  )
+                else
+                  vim.notify(
+                    "No workspace folder found!",
+                    vim.log.levels.WARN,
+                    { title = "Flutter tools" }
+                  )
+                end
               end,
               desc = "Open iOS project",
               noremap = true,
@@ -266,6 +277,7 @@ my_autocmds {
         end
       end
     end,
+    once = true,
   }, --}}}
   { "VimLeavePre", --{{{
     callback = function()

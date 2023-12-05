@@ -1480,6 +1480,10 @@ function fn.resume_debugging(tabpage)
   local state = get_debug_state(tabpage)
 
   if state == 0 then
+    if vim.g.project_type == 'flutter' then
+      require'flutter-tools.dap'.setup(require'flutter-tools.config')
+    end
+
     update_debugging_state(1)
   end
 

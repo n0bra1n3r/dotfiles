@@ -28,7 +28,7 @@ my_tasks {
       vim.g.flutter_current_config = nil
       vim.g.flutter_current_device = nil
 
-      vim.cmd[[FlutterEmulators]]
+      require'flutter-tools.devices'.list_emulators()
     end,
     notify = false,
     priority = 93,
@@ -41,7 +41,7 @@ my_tasks {
       vim.g.flutter_current_config = nil
       vim.g.flutter_current_device = nil
 
-      vim.cmd[[FlutterDevices]]
+      require'flutter-tools.devices'.list_devices()
       vim.notify(
         "Detecting Devices...",
         vim.log.levels.INFO,
@@ -69,7 +69,7 @@ my_tasks {
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
     func = function()
-      vim.cmd[[FlutterReload]]
+      require'flutter-tools.commands'.reload()
     end,
     notify = false,
     priority = 96,
@@ -80,7 +80,7 @@ my_tasks {
     end,
     func = function(args)
       if not args.state or args.state == 1 then
-        vim.cmd[[FlutterRun]]
+        require'flutter-tools.commands'.run()
       else
         require'dap'.continue()
       end
@@ -100,7 +100,7 @@ my_tasks {
       return fn.is_debugging() and vim.g.project_type == 'flutter'
     end,
     func = function()
-      vim.cmd[[FlutterRestart]]
+      require'flutter-tools.commands'.restart()
       vim.notify(
         "Restarted application",
         vim.log.levels.INFO,
@@ -115,7 +115,7 @@ my_tasks {
       return fn.is_debugging() and vim.g.project_type == 'flutter'
     end,
     func = function()
-      vim.cmd[[FlutterQuit]]
+      require'flutter-tools.commands'.quit()
     end,
     notify = false,
     priority = 99,
