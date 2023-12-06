@@ -225,6 +225,8 @@ function grs() {
 
 if [[ -n "$START_COMMAND" ]]; then
   _silent_background "$START_COMMAND"
+
+  command cat "$HOME/.dotfiles/banner.txt"
 fi
 
 # vim: filetype=sh
