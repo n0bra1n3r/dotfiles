@@ -142,6 +142,7 @@ local function load_opt(store, name)
 end
 
 local function set_search_window_options()
+  save_opt(vim.o, 'hlsearch')
   save_opt(vim.wo, 'foldmethod')
   save_opt(vim.wo, 'foldtext')
   save_opt(vim.wo, 'scrolloff')
@@ -154,6 +155,7 @@ local function set_search_window_options()
 end
 
 local function unset_search_window_options()
+  load_opt(vim.o, 'hlsearch')
   load_opt(vim.wo, 'foldmethod')
   load_opt(vim.wo, 'foldtext')
   load_opt(vim.wo, 'scrolloff')
