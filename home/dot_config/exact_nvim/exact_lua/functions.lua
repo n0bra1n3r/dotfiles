@@ -236,7 +236,8 @@ end
 function fn.get_buffer_title(buf)
   return fn.is_file_buffer(buf)
     and vim.fn.pathshorten(vim.fn.expand('%:~:.'))
-    or vim.o.buftype
+    or vim.bo[buf or 0].filetype
+    or vim.bo[buf or 0].buftype
 end
 
 function fn.get_line_info(format, win)
