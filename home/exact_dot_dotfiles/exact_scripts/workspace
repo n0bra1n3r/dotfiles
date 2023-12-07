@@ -59,13 +59,7 @@ fi
 
 THIS_BRANCH="$(git branch --show-current)"
 
-for branch in $WORKSPACE_BRANCH staging main master; do
-  if [[ -n "$(git show-ref "refs/heads/$branch")" ]]; then
-    WORKSPACE_BRANCH="$branch"
-    break
-  fi
-  WORKSPACE_BRANCH=
-done
+WORKSPACE_BRANCH="$(basename "$(git rev-parse --abbrev-ref origin/HEAD)")"
 
 if [[ -z "$WORKSPACE_BRANCH" ]]; then
   echo "$ERROR_MSG: could not find default branch" >&2
