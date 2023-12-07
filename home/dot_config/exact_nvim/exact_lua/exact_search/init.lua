@@ -2,21 +2,22 @@ local M = {}
 
 local search_icon = '󱉶'
 local replace_icon = '󰛔'
-local search_filetype = "search"
-local search_namespace = "Search"
+local flags_icon = '󰈻'
+local search_filetype = 'search'
+local search_namespace = 'Search'
 local search_scrolloff = 3
 local fold_threshold = 3
 
-local augroup_live_search = "search_live_search"
-local augroup_open_search_buffer = "search_open_search_buffer"
+local augroup_live_search = 'search_live_search'
+local augroup_open_search_buffer = 'search_open_search_buffer'
 
 local function get_search_icon_color()
-  local _, color = require'nvim-web-devicons'.get_icon_color_by_filetype("help")
+  local _, color = require'nvim-web-devicons'.get_icon_color_by_filetype('help')
   return color
 end
 
 local function get_search_icon_cterm_color()
-  local _, color = require'nvim-web-devicons'.get_icon_cterm_color_by_filetype("help")
+  local _, color = require'nvim-web-devicons'.get_icon_cterm_color_by_filetype('help')
   return color
 end
 
@@ -30,7 +31,7 @@ require'nvim-web-devicons'.set_icon {
 }
 
 local function get_search_icon()
-  local icon, _ = require'nvim-web-devicons'.get_icon("search")
+  local icon, _ = require'nvim-web-devicons'.get_icon('search')
   return icon
 end
 
@@ -218,11 +219,13 @@ local function initialize_search(search_term, search_args)
 
     new_info.search_id = info.search_id + 1
     new_info.search_term = search_term or info.search_term
-    new_info.search_args = search_args or info.search_args
+    new_info.search_args = search_args or info.search_args or M.last_search_args
   else
     new_info.search_term = search_term
-    new_info.search_args = search_args
+    new_info.search_args = search_args or M.last_search_args
   end
+
+  M.last_search_args = new_info.search_args
 
   new_info.cmd, new_info.args = construct_search_command(
     new_info.search_term,
@@ -982,7 +985,11 @@ end
 local function process_search_input()
   local input = vim.fn.getcmdline()
   if #input > 0 then
-    M.run(nil, input)
+    if M.mode == 1 then
+      M.run(nil, input)
+    else
+      M.run(input, nil)
+    end
   end
 
   return input
@@ -1004,7 +1011,7 @@ local function on_cmdline_changed()
   M.input_timer:start(200 * delay_factor, 0, vim.schedule_wrap(function()
     clear_input_timer()
     if #process_search_input() == 0 then
-      if get_is_in_search_buffer() then
+      if M.mode == 1 and get_is_in_search_buffer() then
         vim.api.nvim_buf_delete(0, { force = true })
         vim.cmd[[redraw]]
       end
@@ -1038,29 +1045,38 @@ end
 local function dismiss_if_needed()
   if #vim.fn.getcmdline() == 0 then
     vim.api.nvim_input[[<Esc>]]
+  else
+    return vim.api.nvim_replace_termcodes('<BS>', true, true, true)
   end
-  return vim.api.nvim_replace_termcodes("<BS>", true, true, true)
+end
+
+local function toggle_modes()
+  M.mode = M.mode + 1
+  if M.mode > 2 then
+    M.mode = 1
+  end
+  vim.api.nvim_input[[<Esc>]]
 end
 
 local function set_search_prompt_mapping(lhs, callback, expr)
-  local mapping = vim.fn.maparg(lhs, "c", 0, 1)
+  local mapping = vim.fn.maparg(lhs, 'c', 0, 1)
   mapping.lhs = lhs
 
   if mapping.rhs ~= nil then
-    vim.api.nvim_del_keymap("c", lhs)
+    vim.api.nvim_del_keymap('c', lhs)
   end
 
-  vim.api.nvim_set_keymap("c", lhs, [[]],
+  vim.api.nvim_set_keymap('c', lhs, [[]],
     { callback = callback, noremap = true, expr = expr })
 
   return mapping
 end
 
 local function unset_search_prompt_mapping(mapping)
-  vim.api.nvim_del_keymap("c", mapping.lhs)
+  vim.api.nvim_del_keymap('c', mapping.lhs)
 
   if mapping.rhs ~= nil then
-    vim.api.nvim_set_keymap("c", mapping.lhs, mapping.rhs, {
+    vim.api.nvim_set_keymap('c', mapping.lhs, mapping.rhs, {
       expr = mapping.expr,
       noremap = mapping.noremap,
       nowait = mapping.nowait,
@@ -1070,29 +1086,60 @@ local function unset_search_prompt_mapping(mapping)
   end
 end
 
+local function get_input(search_args, search_term)
+  M.mode = 1
+
+  while true do
+    if get_is_search_buffer_open() then
+      search_term, search_args = get_last_search(search_term, search_args)
+    end
+
+    local modes = {
+      {
+        cancelreturn = 1,
+        default = search_term,
+        highlight = function(input)
+          return {{ 0, #input, 'CurSearch' }}
+        end,
+        prompt = ('  %s  '):format(get_search_icon()),
+      },
+      {
+        cancelreturn = 2,
+        default = search_args,
+        prompt = ('  %s  '):format(flags_icon),
+      }
+    }
+
+    local last_mode = M.mode
+    local result = vim.fn.input(modes[last_mode])
+
+    if type(result) == 'string' then
+      return result
+    end
+
+    if last_mode == M.mode then
+      if M.mode == 1 then
+        break
+      end
+
+      M.mode = 1
+    end
+  end
+end
+
 function M.prompt(search_args, search_term)
-  local bs_mapping = set_search_prompt_mapping("<BS>", dismiss_if_needed, true)
+  local bs_mapping = set_search_prompt_mapping('<BS>', dismiss_if_needed, true)
+  local tab_mapping = set_search_prompt_mapping('<Tab>', toggle_modes, false)
 
   enable_live_search()
-
-  if get_is_search_buffer_open() then
-    search_term, search_args = get_last_search(search_term, search_args)
-  end
-
-  search_term = vim.fn.input {
-    default = search_term,
-    highlight = function(input)
-      return {{ 0, #input, "CurSearch" }}
-    end,
-    prompt = ("  %s  "):format(get_search_icon()),
-  }
-
+  search_term = get_input(search_args, search_term)
   disable_live_search()
 
+  unset_search_prompt_mapping(tab_mapping)
   unset_search_prompt_mapping(bs_mapping)
 
   if get_is_in_search_buffer() then
-    if #search_term == 0 then
+    if not search_term or #search_term == 0 then
       vim.api.nvim_buf_delete(0, { force = true })
       vim.cmd[[redraw]]
     else
