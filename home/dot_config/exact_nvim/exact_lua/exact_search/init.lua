@@ -209,7 +209,9 @@ local function initialize_search(search_term, search_args)
   if info then
     vim.cmd[[echon]]
 
+    ---@diagnostic disable-next-line: undefined-field
     if info.job and not info.job.is_shutdown then
+      ---@diagnostic disable-next-line: undefined-field
       info.job:shutdown()
       info.job = nil
     end
@@ -973,6 +975,7 @@ function M.run(search_args, search_term)
     end),
   }
 
+  ---@diagnostic disable-next-line: undefined-field
   info.job:start()
 end
 
@@ -1109,12 +1112,14 @@ function M.prompt(search_args, search_term)
   end
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
 function _G.search_fold_text()
   local line_text = vim.fn.getline(vim.v.foldstart)
   local folded_line_count = vim.v.foldend - vim.v.foldstart
   return line_text..'  󰁂 '..folded_line_count
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
 function _G.search_fold_click_cb()
   local pos = vim.fn.getmousepos()
   if pos and pos.line then
@@ -1122,6 +1127,7 @@ function _G.search_fold_click_cb()
   end
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
 function _G.search_statuscol_expr()
   local row = vim.v.lnum
   if row then
