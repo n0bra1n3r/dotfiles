@@ -18,10 +18,6 @@ end
 --}}}
 
 --{{{ Misc
-function fn.get_my_config_json(key)
-  return vim.fn.json_encode(my_config[key])
-end
-
 function fn.get_tab_cwd(tabpage)
   local has_var, cwd = pcall(
     vim.api.nvim_tabpage_get_var,

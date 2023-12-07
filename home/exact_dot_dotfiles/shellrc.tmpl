@@ -52,22 +52,6 @@ if [[ -n "$NVIM" ]]; then
     command nvim --clean --headless --server "$NVIM" "$@"
   }
 
-  function _load_nvim_env() {
-    local env
-    env="$(_nvim_remote \
-      --remote_expr "v:lua.fn.get_my_config_json('env')" 2>&1)"
-    if [[ "$env" != "null" ]]; then
-      env="$(printf "%s" "$env" \
-        | jq -r "to_entries[] | \"\\(.key)='\\(.value)'\"")"
-      local old_path="$PATH"
-      eval "export $env"
-      local new_path="$PATH"
-      PATH="$old_path"
-      PATH=$(cygpath -pu "$new_path")
-      export PATH
-    fi
-  }
-
   function cd() {
     local dir
     builtin cd "$@" && ls -a "$PWD" || return $?
@@ -88,7 +72,6 @@ if [[ -n "$NVIM" ]]; then
       _nvim_remote --remote-expr \
         "v:lua.fn.open_workspace(\"$dir\")" &>/dev/null \
         || return $?
-      _load_nvim_env
     else
       local opts
       opts="$*"
@@ -109,7 +92,6 @@ if [[ -n "$NVIM" ]]; then
       done
       _nvim_remote --remote-expr "v:lua.fn.open_tab(\"$opts\")" &>/dev/null \
         || return $?
-      _load_nvim_env
     fi
   }
 
