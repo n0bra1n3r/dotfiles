@@ -39,98 +39,107 @@ local WORKSPACE_BRANCH="$WORKSPACE_BRANCH"
 local WORKSPACE_ROOT_DIR="$WORKSPACE_ROOT_DIR"
 local WORKSPACE_DEFAULT_DIR="$WORKSPACE_DEFAULT_DIR"
 
-GIT_DIR="$(git rev-parse --show-toplevel)"
+GIT_DIR="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 if [[ -z "$GIT_DIR" ]]; then
-  echo "$ERROR_MSG: this script must be run in a git directory" >&2
+  echo "$INFO_MSG: not inside a git repository" >&2
+  git clone "$BRANCH" || return 1
+
+  local REPO_NAME
+  REPO_NAME="$(basename "$BRANCH" .git)"
+  local CLONE_DIR
+  CLONED_DIR="$PWD/$REPO_NAME"
+  builtin cd "$CLONED_DIR" || return 1
+
+  BRANCH="$(git branch --show-current)"
+  GIT_DIR="$(git rev-parse --show-toplevel)"
+fi
+
+[[ -z "$MSYSTEM" ]] || GIT_DIR="$(cygpath -u "$GIT_DIR")"
+
+THIS_BRANCH="$(git branch --show-current)"
+
+for branch in $WORKSPACE_BRANCH staging main master; do
+  if [[ -n "$(git show-ref "refs/heads/$branch")" ]]; then
+    WORKSPACE_BRANCH="$branch"
+    break
+  fi
+  WORKSPACE_BRANCH=
+done
+
+if [[ -z "$WORKSPACE_BRANCH" ]]; then
+  echo "$ERROR_MSG: could not find default branch" >&2
   return 1
 else
-  [[ -z "$MSYSTEM" ]] || GIT_DIR="$(cygpath -u "$GIT_DIR")"
+  echo "$INFO_MSG: using '$WORKSPACE_BRANCH' as default branch" >&2
+fi
 
-  THIS_BRANCH="$(git branch --show-current)"
-
-  for branch in $WORKSPACE_BRANCH staging main master; do
-    if [[ -n "$(git show-ref "refs/heads/$branch")" ]]; then
-      WORKSPACE_BRANCH="$branch"
-      break
+case "$BRANCH" in
+"staging"|"main"|"master")
+  if ! git show-ref --quiet "refs/heads/$BRANCH"; then
+    echo -n "Did you mean default branch '$WORKSPACE_BRANCH'? [Y/n] "
+    read -r MEANT_WORKSPACE_BRANCH
+    if [[ -z "${MEANT_WORKSPACE_BRANCH#[Yy]}" ]]; then
+      BRANCH="$WORKSPACE_BRANCH"
     fi
-    WORKSPACE_BRANCH=
-  done
+  fi
+  ;;
+"-")
+  BRANCH="$(pop_workspace)"
+  ;;
+".")
+  BRANCH="$THIS_BRANCH"
+  ;;
+"")
+  BRANCH="$WORKSPACE_BRANCH"
+  ;;
+*)
+  ;;
+esac
 
-  if [[ -z "$WORKSPACE_BRANCH" ]]; then
-    echo "$ERROR_MSG: could not find default branch" >&2
-    return 1
+if [[ $BRANCH =~ ^[^-.\ /[:alnum:]]+$ ]]; then
+  echo "$ERROR_MSG: invalid parameter '$BRANCH'" >&2
+  return 1
+fi
+
+push_workspace "$THIS_BRANCH"
+
+if [[ -z "$WORKSPACE_ROOT_DIR" ]]; then
+  if [[ -z "$WORKSPACE_DEFAULT_DIR" ]]; then
+    WORKSPACE_DEFAULT_DIR="$(git worktree list --porcelain | \
+      grep "^worktree .*$WORKSPACE_BRANCH$" | \
+      cut -d' ' -f2)"
+  fi
+  if [[ -n "$WORKSPACE_DEFAULT_DIR" ]]; then
+      [[ -z "$MSYSTEM" ]] || WORKSPACE_DEFAULT_DIR="$(cygpath -u "$WORKSPACE_DEFAULT_DIR")"
+      WORKSPACE_ROOT_DIR="${WORKSPACE_DEFAULT_DIR%/"$WORKSPACE_BRANCH"}"
+  fi
+fi
+if [[ -z "$WORKSPACE_ROOT_DIR" || -n "$WORKSPACE_DEFAULT_DIR" && ! -d "$WORKSPACE_ROOT_DIR/$THIS_BRANCH" ]]; then
+  WORKSPACE_ROOT_DIR="$(dirname "$PWD")/ws-$(basename "$PWD")"
+else
+  echo "$INFO_MSG: found workspace root at '$WORKSPACE_ROOT_DIR'" >&2
+fi
+
+if [[ ! -d "$WORKSPACE_ROOT_DIR" ]]; then
+  if [[ -t 0 ]]; then
+    echo -n "Initialize default workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'? [Y/n] "
+    read -r DO_CREATE_WORKSPACE
+    if [[ -n "${DO_CREATE_WORKSPACE#[Yy]}" ]]; then
+      return 0
+    fi
   else
-    echo "$INFO_MSG: using '$WORKSPACE_BRANCH' as default branch" >&2
+    echo "$INFO_MSG: initializing default workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'" >&2
   fi
-
-  case "$BRANCH" in
-  "staging"|"main"|"master")
-    if ! git show-ref --quiet "refs/heads/$BRANCH"; then
-      echo -n "Did you mean default branch '$WORKSPACE_BRANCH'? [Y/n] "
-      read -r MEANT_WORKSPACE_BRANCH
-      if [[ -z "${MEANT_WORKSPACE_BRANCH#[Yy]}" ]]; then
-        BRANCH="$WORKSPACE_BRANCH"
-      fi
-    fi
-    ;;
-  "-")
-    BRANCH="$(pop_workspace)"
-    ;;
-  ".")
-    BRANCH="$THIS_BRANCH"
-    ;;
-  "")
-    BRANCH="$WORKSPACE_BRANCH"
-    ;;
-  *)
-    ;;
-  esac
-
-  if [[ $BRANCH =~ ^[^-.\ /[:alnum:]]+$ ]]; then
-    echo "$ERROR_MSG: invalid parameter '$BRANCH'" >&2
-    return 1
-  fi
-
-  push_workspace "$THIS_BRANCH"
-
-  if [[ -z "$WORKSPACE_ROOT_DIR" ]]; then
-    if [[ -z "$WORKSPACE_DEFAULT_DIR" ]]; then
-      WORKSPACE_DEFAULT_DIR="$(git worktree list --porcelain | \
-        grep "^worktree .*$WORKSPACE_BRANCH$" | \
-        cut -d' ' -f2)"
-    fi
-    if [[ -n "$WORKSPACE_DEFAULT_DIR" ]]; then
-        [[ -z "$MSYSTEM" ]] || WORKSPACE_DEFAULT_DIR="$(cygpath -u "$WORKSPACE_DEFAULT_DIR")"
-        WORKSPACE_ROOT_DIR="${WORKSPACE_DEFAULT_DIR%/"$WORKSPACE_BRANCH"}"
-    fi
-  fi
-  if [[ -z "$WORKSPACE_ROOT_DIR" || -n "$WORKSPACE_DEFAULT_DIR" && ! -d "$WORKSPACE_ROOT_DIR/$THIS_BRANCH" ]]; then
-    WORKSPACE_ROOT_DIR="$(dirname "$PWD")/ws-$(basename "$PWD")"
-  else
-    echo "$INFO_MSG: found workspace root at '$WORKSPACE_ROOT_DIR'" >&2
-  fi
-
-  if [[ ! -d "$WORKSPACE_ROOT_DIR" ]]; then
-    if [[ -t 0 ]]; then
-      echo -n "Initialize default workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'? [Y/n] "
-      read -r DO_CREATE_WORKSPACE
-      if [[ -n "${DO_CREATE_WORKSPACE#[Yy]}" ]]; then
-        return 0
-      fi
-    else
-      echo "$INFO_MSG: initializing default workspace at '$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH'" >&2
-    fi
-    mkdir -p "$WORKSPACE_ROOT_DIR/$(dirname "$WORKSPACE_BRANCH")"
-    cp -r "$GIT_DIR" "$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH"
-    pushd "$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH" >/dev/null || return 1
-    git switch "$WORKSPACE_BRANCH"
-    popd >/dev/null || return 1
-  else
-    pushd "$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH" >/dev/null || return 1
-    git worktree prune
-    popd >/dev/null || return 1
-  fi
+  mkdir -p "$WORKSPACE_ROOT_DIR/$(dirname "$WORKSPACE_BRANCH")"
+  cp -r "$GIT_DIR" "$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH"
+  pushd "$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH" >/dev/null || return 1
+  git switch "$WORKSPACE_BRANCH"
+  popd >/dev/null || return 1
+else
+  pushd "$WORKSPACE_ROOT_DIR/$WORKSPACE_BRANCH" >/dev/null || return 1
+  git worktree prune
+  popd >/dev/null || return 1
 fi
 
 if [[ "$OPERATION" != "--" && ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]]; then
@@ -239,6 +248,11 @@ else
     builtin cd "$WORKSPACE_ROOT_DIR/$BRANCH" || return 1
     git worktree repair
   fi
+fi
+
+if [[ -n "$CLONED_DIR" ]]; then
+  rm -rf "$CLONED_DIR" \
+    && echo "$INFO_MSG: cleaned up cloned repo at '$CLONED_DIR'" >&2
 fi
 
 }
