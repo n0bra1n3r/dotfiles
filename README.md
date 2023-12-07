@@ -16,6 +16,12 @@ This installation script will ask for the configuration values specified in [thi
 
 ## Tools and Commands 🧰
 
+### [neovim](home/dot_config/exact_nvim/exact_lua/main.lua.tmpl) (config file)
+
+The core of my [neovim](https://neovim.io/doc) configuration.
+
+The list of plugins can be found [here](home/dot_config/exact_nvim/exact_lua/plugins.lua.tmpl), and plugin configurations are in the [configs](home/dot_config/exact_nvim/exact_lua/exact_configs) folder.
+
 ### [workspace](home/exact_dot_dotfiles/exact_scripts/workspace) (bash script)
 
 Creates/navigates/deletes [git worktrees](https://opensource.com/article/21/4/git-worktree).
