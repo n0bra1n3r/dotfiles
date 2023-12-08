@@ -29,7 +29,7 @@ my_plugins {
 
   -- quickfix
   { 'kevinhwang91/nvim-bqf', ft = 'qf' },
-  { 'https://gitlab.com/yorickpeterse/nvim-pqf.git', ft = 'qf' },
+  { 'https://gitlab.com/yorickpeterse/nvim-pqf.git', event = 'VeryLazy' },
   --}}}
   --{{{ Mappings
   { 'folke/which-key.nvim', event = 'VeryLazy' },
@@ -166,7 +166,7 @@ my_plugins {
   {
     'neovim/nvim-lspconfig',
     cmd = "LspInfo",
-    event = { "BufRead", "BufNewFile" },
+    event = { 'BufRead', 'BufNewFile' },
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
       "williamboman/mason-lspconfig.nvim",

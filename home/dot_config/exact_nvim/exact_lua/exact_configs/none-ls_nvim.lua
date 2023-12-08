@@ -108,9 +108,11 @@ local function nim_completion(itemKinds)
     f = itemKinds.Function,
     t = itemKinds.Struct,
     v = itemKinds.Variable,
+    m = itemKinds.Field,
   }
 
   return {
+    name = 'nim',
     method = require'null-ls'.methods.COMPLETION,
     filetypes = { 'nim' },
     generator = {
@@ -133,6 +135,45 @@ local function nim_completion(itemKinds)
   }
 end
 
+local function nim_hover()
+  return {
+    name = 'nim',
+    method = require'null-ls'.methods.HOVER,
+    filetypes = { 'nim' },
+    generator = {
+      async = true,
+      fn = function(_, done)
+        local cur_win = vim.api.nvim_get_current_win()
+        local cur_pos = vim.api.nvim_win_get_cursor(cur_win)
+        vim.fn['nim#suggest#utils#Query'](
+          'def',
+          {
+            on_data = function(reply)
+              for _, item in ipairs(reply) do
+                ---@diagnostic disable-next-line: param-type-mismatch
+                local parts = vim.split(item, '\t', true)
+                if parts[1] == 'def' then
+                  local signature = parts[3]..': '..parts[4]
+                  local docs = vim.split(vim.fn.eval(parts[8]), '\n')
+
+                  table.insert(docs, 1, '-')
+                  table.insert(docs, 1, signature)
+
+                  done(docs)
+                  return
+                end
+              end
+              done{}
+            end,
+            pos = { cur_pos[1], cur_pos[2] + 1 },
+          },
+          false,
+          true)
+      end,
+    },
+  }
+end
+
 return {
   config = function()
     local severities = require'null-ls.helpers'.diagnostics.severities
@@ -144,6 +185,7 @@ return {
         require'null-ls'.builtins.formatting.swift_format,
         nim_completion(itemKinds),
         nim_diagnostics(severities),
+        nim_hover(),
       },
     }
   end,

@@ -997,6 +997,127 @@ function fn.show_file_history(range, term)
   require'diffview'.file_history(range, term and '-G"'..term..'"')
 end
 --}}}
+--{{{ Language Servers
+local lsp_info = {
+  def_id = 0,
+  def_infos = {},
+}
+
+function fn.goto_definition(win_cmd)
+  local cmd = win_cmd or 'edit'
+
+  lsp_info.def_id = lsp_info.def_id + 1
+  lsp_info.def_infos[lsp_info.def_id] = {}
+
+  local impl = ({
+    nim = function()
+      local cur_win = vim.api.nvim_get_current_win()
+      local cur_pos = vim.api.nvim_win_get_cursor(cur_win)
+      vim.fn['nim#suggest#utils#Query'](
+        'def',
+        {
+          on_data = function(reply)
+            if lsp_info.def_id ~= vim.tbl_count(lsp_info.def_infos) then
+              return
+            end
+
+            local infos = lsp_info.def_infos[lsp_info.def_id]
+
+            for _, item in ipairs(reply) do
+              ---@diagnostic disable-next-line: param-type-mismatch
+              local parts = vim.split(item, '\t', true)
+              if parts[1] == 'def' then
+                local filename = parts[5]
+                local lnum = tonumber(parts[6])
+
+                table.insert(infos, {
+                  col = tonumber(parts[7]),
+                  filename = filename,
+                  lnum = lnum,
+                  signature = parts[3],
+                  text = vim.fn['nim#suggest#utils#GetLine'](filename, lnum),
+                })
+              end
+            end
+
+            if #infos > 1 then
+              vim.fn.setqflist(infos, 'r')
+              lsp_info.def_infos[lsp_info.def_id] = {}
+              vim.cmd[[copen]]
+            end
+          end,
+          on_end = function()
+            if lsp_info.def_id ~= vim.tbl_count(lsp_info.def_infos) then
+              return
+            end
+
+            local info = lsp_info.def_infos[lsp_info.def_id][1]
+            if info then
+              vim.cmd(cmd..' '..vim.fn.fnameescape(info.filename))
+              vim.api.nvim_win_set_cursor(0, { info.lnum, info.col })
+            end
+          end,
+          pos = { cur_pos[1], cur_pos[2] + 1 },
+        },
+        false,
+        true)
+    end,
+  })[vim.bo.filetype]
+
+  if impl then
+    impl()
+  else
+    pcall(require'nvim-treesitter-refactor.navigation'.goto_definition_lsp_fallback)
+  end
+end
+
+function fn.show_references()
+  local impl = ({
+    nim = function()
+      local cur_win = vim.api.nvim_get_current_win()
+      local cur_pos = vim.api.nvim_win_get_cursor(cur_win)
+      vim.fn['nim#suggest#utils#Query'](
+        'use',
+        {
+          on_data = function(reply)
+            local infos = {}
+
+            for _, item in ipairs(reply) do
+              ---@diagnostic disable-next-line: param-type-mismatch
+              local parts = vim.split(item, '\t', true)
+              if parts[1] == 'use' then
+                local filename = parts[5]
+                local lnum = tonumber(parts[6])
+
+                table.insert(infos, {
+                  col = tonumber(parts[7]),
+                  filename = filename,
+                  lnum = lnum,
+                  signature = parts[3],
+                  text = vim.fn['nim#suggest#utils#GetLine'](filename, lnum),
+                })
+              end
+            end
+
+            if #infos > 1 then
+              vim.fn.setqflist(infos, 'r')
+              vim.cmd[[copen]]
+            end
+          end,
+          pos = { cur_pos[1], cur_pos[2] + 1 },
+        },
+        false,
+        true)
+    end,
+  })[vim.bo.filetype]
+
+  if impl then
+    impl()
+  else
+    pcall(vim.lsp.buf.references)
+  end
+end
+--}}}
 --{{{ Assistants
 function fn.ai_gen(cmd, text)
   local filetype = vim.bo.filetype

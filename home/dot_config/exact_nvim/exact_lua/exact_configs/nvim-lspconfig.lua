@@ -18,8 +18,18 @@ return {
         })
       end
 
+      local function goto_definition(win_cmd)
+        return function()
+          return fn.goto_definition(win_cmd)
+        end
+      end
+
       map('n', 'K', vim.lsp.buf.hover)
-      map('n', 'gR', vim.lsp.buf.references, "List symbol references")
+      map('n', 'gd', goto_definition('edit'), "Go to definition")
+      map('n', '<C-w><C-f>', goto_definition('vsplit'), "Go to definition in vertical split")
+      map('n', '<C-w>f', goto_definition('split'), "Go to definition in split")
+      map('n', '<C-w>gf', goto_definition('split'), "Go to definition in new tab")
+      map('n', 'gR', fn.show_references, "Show symbol references")
       map('n', '<F2>', vim.lsp.buf.rename)
       map('n', '<F3>', function() vim.lsp.buf.format{ async = true } end)
       map('x', '<F3>', function() vim.lsp.buf.format{ async = true } end)
