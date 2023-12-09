@@ -47,11 +47,16 @@ end
 
 function fn.is_empty_buffer(buf)
   local name = vim.api.nvim_buf_get_name(buf or 0)
-  if #name > 0 and vim.fn.fnamemodify(name, ":t") ~= "new" then
+  if name and #name > 0 and vim.fn.fnamemodify(name, ":t") ~= "new" then
     return false
   end
   local lines = vim.api.nvim_buf_get_lines(buf or 0, 0, -1, false)
-  return #lines == 0 or (#lines == 1 and #lines[1] == 0)
+  for _, line in ipairs(lines) do
+    if #line ~= 0 then
+      return false
+    end
+  end
+  return true
 end
 
 function fn.is_filename_empty(buf)
