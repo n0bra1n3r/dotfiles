@@ -1,19 +1,28 @@
+local function nim_get_project_file()
+  local nimsuggest_project = vim.fn['nim#suggest#FindInstance']()
+  if type(nimsuggest_project) == 'table'
+      and type(nimsuggest_project.file) == 'string'
+  then
+    return nimsuggest_project.file
+  end
+end
+
 local function nim_diagnostics(severities)
+  local project_files = {}
   return {
-    name = 'nim',
+    name = 'nim-diagnostics',
     method = require'null-ls'.methods.DIAGNOSTICS,
     filetypes = { 'nim' },
     generator = require'null-ls'.generator {
       args = function(params)
         if params.lsp_method == 'textDocument/didOpen' then
-          local nimsuggest_proj = vim.fn['nim#suggest#FindInstance']()
-          if type(nimsuggest_proj) == 'table'
-              and type(nimsuggest_proj.file) == 'string'
-          then
+          local project_file = nim_get_project_file()
+          if project_file then
+            project_files[project_file] = true
             return {
               'check',
               '--stdout',
-              nimsuggest_proj.file,
+              project_file,
             }
           end
         end
@@ -26,9 +35,6 @@ local function nim_diagnostics(severities)
       end,
       check_exit_code = function()
         return true
-      end,
-      cwd = function()
-        return nil
       end,
       dynamic_command = function()
         return 'nim'
@@ -98,6 +104,15 @@ local function nim_diagnostics(severities)
 
         return done(diagnostics)
       end,
+      runtime_condition = function(params)
+        if params.lsp_method == 'textDocument/didOpen' then
+          local project_file = nim_get_project_file()
+          if project_file then
+            return not project_files[project_file]
+          end
+        end
+        return true
+      end,
     },
   }
 end
@@ -112,7 +127,7 @@ local function nim_completion(itemKinds)
   }
 
   return {
-    name = 'nim',
+    name = 'nim-completion',
     method = require'null-ls'.methods.COMPLETION,
     filetypes = { 'nim' },
     generator = {
@@ -137,7 +152,7 @@ end
 
 local function nim_hover()
   return {
-    name = 'nim',
+    name = 'nim-hover',
     method = require'null-ls'.methods.HOVER,
     filetypes = { 'nim' },
     generator = {
