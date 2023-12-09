@@ -3,7 +3,7 @@
 my_autocmds {
   { { 'BufEnter', 'BufWinEnter' }, --{{{
     callback = function()
-      vim.cmd[[checktime]]
+      vim.cmd.checktime()
 
       if #vim.bo.buftype == 0 then
         if vim.bo.filetype == 'gitcommit' then
@@ -209,7 +209,7 @@ my_autocmds {
   { 'TermEnter', --{{{
     callback = fn.vim_defer(function()
       vim.cmd.match[[OverLength //]]
-      vim.cmd[[nohlsearch]]
+      vim.cmd.nohlsearch()
     end),
   }, --}}}
   { "TextYankPost", --{{{
@@ -289,7 +289,7 @@ my_autocmds {
   }, --}}}
   { "VimLeavePre", --{{{
     callback = function()
-      vim.cmd[[cclose]]
+      vim.cmd.cclose()
     end,
   }, --}}}
   { 'WinEnter', --{{{

@@ -34,7 +34,7 @@ my_commands {
         fn.open_terminal(opts.args)
       end
       fn.set_terminal_dir()
-      vim.cmd[[tabonly]]
+      vim.cmd.tabonly()
     end,
     desc = "Start terminal mode",
     nargs = "?",

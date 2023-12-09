@@ -72,7 +72,7 @@ local function update_file()
   if fn.is_empty_buffer() then
     fn.save_file()
   else
-    vim.cmd[[silent update]]
+    vim.cmd{ cmd = 'update', mods = { silent = true } }
   end
 end
 --}}}

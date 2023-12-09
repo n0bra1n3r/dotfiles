@@ -181,7 +181,7 @@ local function mode_label()
     end,
     on_click = {
       callback = function()
-        vim.cmd[[WhichKey <leader>]]
+        vim.cmd.WhichKey[[<leader>]]
       end,
       name = 'mode_click_callback',
     },
@@ -756,7 +756,7 @@ local function header_label()
       callback = function(_, minwid, nclicks)
         vim.api.nvim_set_current_win(minwid)
         if nclicks > 1 then
-          vim.cmd[[only]]
+          vim.cmd.only()
         end
       end,
       minwid = function()

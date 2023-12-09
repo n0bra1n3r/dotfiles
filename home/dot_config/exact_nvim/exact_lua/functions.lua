@@ -34,7 +34,7 @@ function fn.set_tab_cwd(tabpage, path)
     "cwd",
     cwd
   )
-  vim.cmd("tcd "..vim.fn.fnameescape(cwd))
+  vim.cmd.tcd(cwd)
 end
 
 function fn.expand_each(list)
@@ -425,7 +425,7 @@ function fn.edit_file()
         return
       end
       create_parent_dirs(path)
-      vim.cmd.edit(vim.fn.fnameescape(path))
+      vim.cmd.edit(path)
     end)
 end
 
@@ -444,9 +444,9 @@ function fn.move_file()
         return
       end
       create_parent_dirs(path)
-      vim.cmd.saveas(vim.fn.fnameescape(path))
+      vim.cmd.saveas(path)
       vim.fn.delete(tostring(vim.fn.expand("#")))
-      vim.cmd.bwipeout("#")
+      vim.cmd.bwipeout[[#]]
     end)
 end
 
@@ -465,7 +465,7 @@ function fn.save_file()
         return
       end
       create_parent_dirs(path)
-      vim.cmd.saveas(vim.fn.fnameescape(path))
+      vim.cmd.saveas(path)
     end)
 end
 
@@ -500,7 +500,7 @@ function fn.close_folds_at(level)
     if vim.fn.foldclosed(line) ~= -1 then
       line = vim.fn.foldclosedend(line) + 1
     elseif vim.fn.foldlevel(line) == level then
-      vim.cmd(''..line..'foldclose')
+      vim.cmd{ cmd = 'foldclose', range = { line } }
       line = vim.fn.foldclosedend(line) + 1
     else
       line = line + 1
@@ -707,12 +707,12 @@ function fn.get_prior_tabpage()
 end
 
 function fn.open_tab(filename)
-  vim.cmd.tabe(vim.fn.fnameescape(filename))
+  vim.cmd.tabedit(filename)
 end
 
 function fn.close_buffer()
   if #vim.api.nvim_tabpage_list_wins(0) > 0 then
-    vim.cmd[[close]]
+    vim.cmd.close()
   else
     require'mini.bufremove'.unshow()
   end
@@ -1043,7 +1043,7 @@ function fn.goto_definition(win_cmd)
             if #infos > 1 then
               vim.fn.setqflist(infos, 'r')
               lsp_info.def_infos[lsp_info.def_id] = {}
-              vim.cmd[[copen]]
+              vim.cmd.copen()
             end
           end,
           on_end = function()
@@ -1053,7 +1053,7 @@ function fn.goto_definition(win_cmd)
 
             local info = lsp_info.def_infos[lsp_info.def_id][1]
             if info then
-              vim.cmd(cmd..' '..vim.fn.fnameescape(info.filename))
+              vim.cmd[cmd](info.filename)
               vim.api.nvim_win_set_cursor(0, { info.lnum, info.col })
             end
           end,
@@ -1101,7 +1101,7 @@ function fn.show_references()
 
             if #infos > 1 then
               vim.fn.setqflist(infos, 'r')
-              vim.cmd[[copen]]
+              vim.cmd.copen()
             end
           end,
           pos = { cur_pos[1], cur_pos[2] + 1 },
@@ -1126,14 +1126,17 @@ function fn.ai_gen(cmd, text)
     and vim.split(text, '\n')
     or vim.api.nvim_buf_get_lines(0, 0, -1, false)
 
-  vim.cmd[[tabe]]
+  vim.cmd.tabedit()
 
   vim.bo.filetype = 'markdown'
   vim.bo.bufhidden = 'wipe'
 
   vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
 
-  vim.cmd('%Gp'..cmd)
+  vim.cmd {
+    cmd = 'Gp'..cmd,
+    range = { 1, vim.fn.line('$') },
+  }
 
   vim.api.nvim_create_autocmd('User', {
     once = true,
@@ -1156,14 +1159,18 @@ function fn.ai_conv(cmd, text)
       },
     },
     function(filetype)
-      vim.cmd[[tabe]]
+      vim.cmd.tabedit()
 
       vim.bo.filetype = 'markdown'
       vim.bo.bufhidden = 'wipe'
 
       vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
 
-      vim.cmd('%Gp'..cmd..' '..filetype)
+      vim.cmd {
+        args = { filetype },
+        cmd = 'Gp'..cmd,
+        range = { 1, vim.fn.line('$') },
+      }
 
       vim.api.nvim_create_autocmd('User', {
         once = true,
@@ -1755,7 +1762,12 @@ function fn.save_workspace(tabpage, force)
     fn.freeze_workspace(tabpage, false)
     local save_path = get_workspace_file_path(tabpage)
     create_parent_dirs(save_path)
-    vim.cmd("silent mksession! "..vim.fn.fnameescape(save_path))
+    vim.cmd {
+      args = { save_path },
+      bang = true,
+      cmd = 'mksession',
+      mods = { silent = true },
+    }
   end
 end
 
@@ -1771,7 +1783,7 @@ function fn.open_workspace(path)
     end
   end
   if vim.fn.isdirectory(workspace_path) == 1 then
-    vim.cmd[[tabnew]]
+    vim.cmd.tabnew()
     local tabpage = vim.api.nvim_get_current_tabpage()
     fn.set_tab_cwd(tabpage, workspace_path)
     load_workspace()

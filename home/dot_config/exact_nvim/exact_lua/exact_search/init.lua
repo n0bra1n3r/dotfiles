@@ -169,8 +169,8 @@ local function show_current_search_result(cmd)
   local row = tonumber(result.line_number)
   local col = pos[2]
 
-  vim.cmd[[tabclose]]
-  vim.cmd(("%s %s"):format(cmd, result.file_name))
+  vim.cmd.tabclose()
+  vim.cmd[cmd](result.file_name)
   vim.api.nvim_win_set_cursor(0, { row, col })
 end
 
@@ -184,11 +184,11 @@ local function maybe_create_search_buffer()
         vim.api.nvim_set_current_win(winid)
         break
       end
-      vim.cmd.tabedit("#"..bufnr)
+      vim.cmd.tabedit('#'..bufnr)
       return nil
     end
 
-    vim.cmd[[tabnew]]
+    vim.cmd.tabnew()
     return vim.api.nvim_get_current_buf()
   end
 end
@@ -196,7 +196,11 @@ end
 local function clear_search_buffer_undo_tree()
   local undo_levels = vim.bo.undolevels
   vim.bo.undolevels = -1
-  vim.cmd[[exec "normal! a‎\<BS>\<Esc>"]]
+  vim.cmd {
+    args = { vim.api.nvim_replace_termcodes('a‎<BS><Esc>', true, true, true) },
+    bang = true,
+    cmd = 'normal',
+  }
   vim.bo.undolevels = undo_levels
   vim.bo.modified = false
 end
@@ -208,7 +212,7 @@ local function initialize_search(search_term, search_args)
   local new_info = get_search_info()
 
   if info then
-    vim.cmd[[echon]]
+    vim.cmd.echon()
 
     ---@diagnostic disable-next-line: undefined-field
     if info.job and not info.job.is_shutdown then
@@ -452,12 +456,12 @@ local function fold_results(line, should_fold)
       if vim.fn.foldclosed(fold_start) == -1 then
         if should_fold == nil or should_fold then
           if last_row - first_row >= fold_threshold then
-            vim.cmd(''..fold_start..','..fold_end..'fold')
+            vim.cmd{ cmd = 'fold', range = { fold_start, fold_end } }
           end
         end
       else
         if should_fold == nil or not should_fold then
-          vim.cmd(''..fold_start..','..fold_end..'foldopen')
+          vim.cmd{ cmd = 'foldopen', range = { fold_start, fold_end } }
         end
       end
     else
@@ -614,7 +618,7 @@ local function finalize_search()
 
   if #info.line_array == 0 then
     vim.api.nvim_buf_delete(0, { force = true })
-    vim.cmd[[redraw]]
+    vim.cmd.redraw()
     return
   end
 
@@ -685,14 +689,18 @@ local function on_buf_write_cmd()
       if file_name ~= nil then
         vim.cmd.write(file_name)
         if not is_file_open then
-          vim.cmd[[bwipe]]
+          vim.cmd.bwipe()
         end
       end
 
       file_name = change_info.file_name
       is_file_open = vim.fn.bufnr(file_name) ~= -1
 
-      vim.cmd('keepjumps edit '..file_name)
+      vim.cmd {
+        args = { file_name },
+        cmd = 'edit',
+        mods = { keepjumps = true },
+      }
     end
 
     replace_search_results_at(row - 1, change_info.line_text)
@@ -708,10 +716,14 @@ local function on_buf_write_cmd()
   if file_name ~= nil then
     vim.cmd.write(file_name)
     if not is_file_open then
-      vim.cmd[[bwipe]]
+      vim.cmd.bwipe()
     end
 
-    vim.cmd('keepjumps buffer '..info.bufnr)
+    vim.cmd {
+      args = { info.bufnr },
+      cmd = 'buffer',
+      mods = { keepjumps = true },
+    }
   end
 
   vim.bo.modified = false
@@ -955,7 +967,7 @@ function M.run(search_args, search_term)
           render_statistics()
 
           if line > redraw_threshold then
-            vim.cmd[[redraw]]
+            vim.cmd.redraw()
 
             redraw_threshold = line + line / 3
           end
@@ -973,7 +985,7 @@ function M.run(search_args, search_term)
         clear_progress_timer()
         render_statistics()
 
-        vim.cmd[[redraw]]
+        vim.cmd.redraw()
       end
     end),
   }
@@ -1013,7 +1025,7 @@ local function on_cmdline_changed()
     if #process_search_input() == 0 then
       if M.mode == 1 and get_is_in_search_buffer() then
         vim.api.nvim_buf_delete(0, { force = true })
-        vim.cmd[[redraw]]
+        vim.cmd.redraw()
       end
     end
   end))
@@ -1025,12 +1037,12 @@ local function enable_live_search()
     callback = on_cmdline_changed,
   })
   vim.fn.inputsave()
-  vim.cmd.echohl("Constant")
+  vim.cmd.echohl[[Constant]]
 end
 
 local function disable_live_search()
   clear_input_timer()
-  vim.cmd.echohl("None")
+  vim.cmd.echohl[[None]]
   vim.fn.inputrestore()
   vim.api.nvim_del_augroup_by_name(augroup_live_search)
 end
@@ -1141,7 +1153,7 @@ function M.prompt(search_args, search_term)
   if get_is_in_search_buffer() then
     if not search_term or #search_term == 0 then
       vim.api.nvim_buf_delete(0, { force = true })
-      vim.cmd[[redraw]]
+      vim.cmd.redraw()
     else
       local info = get_search_info()
 
