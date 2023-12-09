@@ -1,3 +1,9 @@
+local function goto_definition(win_cmd)
+  return function()
+    return fn.goto_definition(win_cmd)
+  end
+end
+
 return {
   config = function()
     local lsp = require'lsp-zero'
@@ -16,12 +22,6 @@ return {
           desc = desc,
           noremap = true,
         })
-      end
-
-      local function goto_definition(win_cmd)
-        return function()
-          return fn.goto_definition(win_cmd)
-        end
       end
 
       map('n', 'K', vim.lsp.buf.hover)
