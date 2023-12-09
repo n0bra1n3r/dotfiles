@@ -33,7 +33,7 @@ function cygpath() {
 }
 
 function _git_override() {
-  if [[ "$1" == "config" && "$*" != *"--help"* ]]; then
+  if [[ "$1" == "config" ]]; then
     shift 1
     command git cf "$@"
   else
@@ -46,8 +46,6 @@ function _silent_background() {
 }
 
 if [[ -n "$NVIM" ]]; then
-  export EDITOR="$HOME/.dotfiles/scripts/nvim-nested"
-
   function _nvim_remote() {
     command nvim --clean --headless --server "$NVIM" "$@"
   }
@@ -65,36 +63,6 @@ if [[ -n "$NVIM" ]]; then
     _silent_background _nvim_remote --remote-expr "v:lua.fn.refresh_git_info()"
   }
 
-  function nvim() {
-    if [ $# -eq 0 ]; then
-      local dir
-      dir="$(cygpath -m "$PWD")"
-      _nvim_remote --remote-expr \
-        "v:lua.fn.open_workspace(\"$dir\")" &>/dev/null \
-        || return $?
-    else
-      local opts
-      opts="$*"
-      while [ $# -gt 0 ]; do
-        case "$1" in
-        -h|--help)
-          printf "Usage:\n  nvim [file]\tEdit file\n"
-          return
-          ;;
-        -v|--version)
-          command nvim --version
-          return
-          ;;
-        *)
-          shift
-          ;;
-        esac
-      done
-      _nvim_remote --remote-expr "v:lua.fn.open_tab(\"$opts\")" &>/dev/null \
-        || return $?
-    fi
-  }
-
   function workspace() {
     # shellcheck disable=1091
     source "$HOME/.dotfiles/scripts/workspace"
@@ -105,8 +73,6 @@ if [[ -n "$NVIM" ]]; then
     _nvim_remote --remote-send "<cmd>quitall<CR>"
   }
 else
-  export EDITOR="nvim"
-
   function cd() {
     builtin cd "$@" && ls -a "$PWD"
   }

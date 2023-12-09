@@ -384,16 +384,6 @@ function fn.open_file_folder(path)
 end
 --}}}
 --{{{ UI
-function fn.get_open_files()
-  local files = {}
-  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_loaded(buf) and #vim.api.nvim_buf_get_option(buf, "buftype") == 0 then
-      table.insert(files, vim.api.nvim_buf_get_name(buf))
-    end
-  end
-  return files
-end
-
 function fn.delete_file()
   local rel_file = vim.fn.pathshorten(vim.fn.expand('%:~:.'))
 
