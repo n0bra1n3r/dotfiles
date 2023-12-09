@@ -1,3 +1,29 @@
+local function log(log_level, ...)
+  local args = { ... }
+
+  local print_safe_args = {}
+  for i = 1, #args do
+    table.insert(print_safe_args, tostring(args[i]))
+  end
+
+  local message = table.concat(print_safe_args, ' ')
+  local title
+  while #message > 0 do
+    local tag = message:match('^(%b[])')
+    if not tag or #tag == 0 then
+      break
+    end
+    if not title then
+      title = tag:sub(2, -2)
+    else
+      title = title..' '..tag
+    end
+    message = vim.trim(message:sub(#tag + 1))
+  end
+
+  vim.notify(#message > 0 and message or 'nil', log_level, { title = title })
+end
+
 return {
   config = function()
     require'fidget'.setup {
@@ -19,33 +45,7 @@ return {
 
     ---@diagnostic disable-next-line: duplicate-set-field
     _G.print = function(...)
-      local args = { ... }
-
-      local print_safe_args = {}
-      for i = 1, #args do
-        table.insert(print_safe_args, tostring(args[i]))
-      end
-
-      local message = table.concat(print_safe_args, ' ')
-      local title
-      while #message > 0 do
-        local tag = message:match('^(%b[])')
-        if not tag or #tag == 0 then
-          break
-        end
-        if not title then
-          title = tag:sub(2, -2)
-        else
-          title = title..' '..tag
-        end
-        message = vim.trim(message:sub(#tag + 1))
-      end
-
-      vim.notify(
-        #message > 0 and message or 'nil',
-        vim.log.levels.INFO,
-        { title = title }
-      )
+      log(vim.log.levels.INFO, ...)
     end
   end,
 }
