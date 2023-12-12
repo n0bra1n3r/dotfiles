@@ -20,7 +20,7 @@ my_tasks {
     notify = false,
     priority = 92,
   },
-  ["Select emulator"] = {
+  ["Run in emulator"] = {
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
@@ -29,11 +29,12 @@ my_tasks {
       vim.g.flutter_current_device = nil
 
       require'flutter-tools.devices'.list_emulators()
+      require'flutter-tools.commands'.run()
     end,
     notify = false,
     priority = 93,
   },
-  ["Select device"] = {
+  ["Run on device"] = {
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
