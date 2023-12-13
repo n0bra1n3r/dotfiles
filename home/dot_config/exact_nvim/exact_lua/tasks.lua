@@ -103,7 +103,7 @@ my_tasks {
     func = function()
       require'flutter-tools.commands'.restart()
       vim.notify(
-        "Restarted application",
+        "Restarting application...",
         vim.log.levels.INFO,
         { title = "Flutter tools" }
       )
