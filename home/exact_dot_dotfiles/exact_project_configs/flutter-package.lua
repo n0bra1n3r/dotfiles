@@ -4,10 +4,24 @@ my_globals {
 
 my_autocmds {
   {
+    'BufNew',
+    pattern = { '*.swift' },
+    callback = function()
+      fn.run_task[[Update iOS example]]
+    end,
+  },
+  {
     'BufWritePost',
     pattern = { '*.arb' },
     callback = function()
       fn.run_task[[Gen strings]]
+    end,
+  },
+  {
+    'FileChangedShell',
+    pattern = { 'project.pbxproj' },
+    callback = function()
+      fn.run_task[[Update iOS example]]
     end,
   },
 }
@@ -22,6 +36,15 @@ my_tasks {
     },
     deps = { [[Install project configuration]] },
     priority = 1,
+  },
+  ["Update iOS example"] = {
+    cond = function()
+      return vim.fn.isdirectory('example/ios')
+    end,
+    cmd = 'pod',
+    args = { 'install' },
+    cwd = 'example/ios',
+    priority = 2,
   },
   ["Run codegen"] = {
     cmd = 'fvm',
