@@ -120,7 +120,7 @@ my_tasks {
     notify = false,
     priority = 99,
   },
-  ["Install project configuration"] = {
+  ["Install project config"] = {
     cond = function()
       return not fn.has_workspace_config()
     end,

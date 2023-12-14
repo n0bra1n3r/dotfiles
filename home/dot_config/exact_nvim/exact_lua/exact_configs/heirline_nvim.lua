@@ -610,7 +610,7 @@ local function bookmark_label()
         end,
       },
       provider = function(self)
-        return vim.fn.fnamemodify(self.path, ':~:.')
+        return vim.fn.pathshorten(vim.fn.fnamemodify(self.path, ':~:.'))
       end,
     },
   }
