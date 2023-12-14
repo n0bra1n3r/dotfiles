@@ -1,11 +1,16 @@
 return {
   config = function()
     require'which-key'.setup {
+      layout = {
+        align = 'center',
+      },
+      show_help = false,
+      show_keys = false,
       window = {
-        border = "single",
+        border = 'single',
         margin = { 0, 0, 0, 0 },
         padding = { 0, 0, 0, 0 },
-        position = "top",
+        position = 'top',
       },
     }
     require'which-key'.register({
