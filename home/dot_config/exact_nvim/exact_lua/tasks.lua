@@ -29,7 +29,6 @@ my_tasks {
       vim.g.flutter_current_device = nil
 
       require'flutter-tools.devices'.list_emulators()
-      require'flutter-tools.commands'.run()
     end,
     notify = false,
     priority = 93,
