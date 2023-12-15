@@ -34,7 +34,7 @@ config.colors = {
       bg_color = scheme_inactive.background,
       fg_color = scheme_inactive.split,
     },
-    inactive_tab_edge = scheme.foreground,
+    inactive_tab_edge = scheme_inactive.background,
     inactive_tab_hover = {
       bg_color = scheme_inactive.background,
       fg_color = scheme.foreground,
