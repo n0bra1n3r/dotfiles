@@ -1074,12 +1074,16 @@ lsp_info = {
                         :sub(2, -2)
                         :gsub('%b()', '')
                         :gsub('%b[]', '')
-                        :gsub('^([%w_]+): [%w:_ ]+,?', '')
-                        :gsub('([%w_]+): [%w:_ ]+',
-                          function(param_name)
-                            param_count = param_count + 1
-                            return '${'..param_count..':'..param_name..'}'
-                          end)
+                      if params.context.triggerKind ==
+                          vim.lsp.protocol.CompletionTriggerKind.TriggerCharacter
+                      then
+                        param_string = param_string:gsub('^([%w_]+): [%w:_ ]+,?', '')
+                      end
+                      param_string = param_string:gsub('([%w_]+): [%w:_ ]+',
+                        function(param_name)
+                          param_count = param_count + 1
+                          return '${'..param_count..':'..param_name..'}'
+                        end)
                       editFormat = p.InsertTextFormat.Snippet
                       textEdit = {
                         range = { ['end'] = params.position, start = params.position },
