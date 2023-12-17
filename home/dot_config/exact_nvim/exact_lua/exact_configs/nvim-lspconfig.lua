@@ -1,7 +1,20 @@
 local function goto_definition(win_cmd)
   return function()
-    return fn.goto_definition(win_cmd)
+    if win_cmd then
+      vim.cmd(win_cmd)
+    end
+    vim.lsp.buf.definition {
+      on_list = function(options)
+        vim.fn.setqflist({}, ' ', options)
+        vim.cmd.copen()
+      end,
+      reuse_win = true,
+    }
   end
+end
+
+local function format()
+  vim.lsp.buf.format{ async = true }
 end
 
 return {
@@ -25,14 +38,14 @@ return {
       end
 
       map('n', 'K', vim.lsp.buf.hover)
-      map('n', 'gd', goto_definition('edit'), "Go to definition")
+      map('n', 'gd', goto_definition(), "Go to definition")
       map('n', '<C-w><C-f>', goto_definition('vsplit'), "Go to definition in vertical split")
       map('n', '<C-w>f', goto_definition('split'), "Go to definition in split")
-      map('n', '<C-w>gf', goto_definition('split'), "Go to definition in new tab")
-      map('n', 'gR', fn.show_references, "Show symbol references")
+      map('n', '<C-w>gf', goto_definition('tab split'), "Go to definition in new tab")
+      map('n', 'gR', vim.lsp.buf.references, "Show symbol references")
       map('n', '<F2>', vim.lsp.buf.rename)
-      map('n', '<F3>', function() vim.lsp.buf.format{ async = true } end)
-      map('x', '<F3>', function() vim.lsp.buf.format{ async = true } end)
+      map('n', '<F3>', format)
+      map('x', '<F3>', format)
       map('n', '<F4>', vim.lsp.buf.code_action)
 
       if vim.lsp.buf.range_code_action then
@@ -121,7 +134,7 @@ return {
             end,
           })
         end,
-      }
+      },
     }
 
     config.sourcekit.setup {
@@ -130,8 +143,20 @@ return {
         '--toolchain',
         'swift',
         'sourcekit-lsp',
-      }
+      },
     }
+
+    require'lspconfig.configs'.nim_lsp = {
+      default_config = {
+        cmd = fn.nim_lsp,
+        filetypes = { 'nim' },
+        root_dir = function()
+          return vim.fn.getcwd()
+        end,
+      },
+    }
+
+    config.nim_lsp.setup{}
 
     lsp.setup()
   end,

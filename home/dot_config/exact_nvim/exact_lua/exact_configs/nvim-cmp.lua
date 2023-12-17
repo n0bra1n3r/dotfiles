@@ -57,6 +57,7 @@ return {
               return vim_item
             end
           end
+          vim_item.abbr = vim_item.menu or vim_item.abbr
           vim_item.kind = kind_icons[vim_item.kind] or vim_item.kind:sub(1, 1)
           vim_item.menu = menu_icons[entry.source.name]
           return vim_item

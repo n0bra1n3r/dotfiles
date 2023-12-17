@@ -142,6 +142,11 @@ my_autocmds {
         { noremap = true, silent = true })
     end,
   }, --}}}
+  { 'FileType', pattern = 'nim', --{{{
+    callback = function()
+      vim.cmd{ args = { 'plugin', 'off' }, cmd = 'filetype' }
+    end,
+  }, --}}}
   { "FileType", pattern = "qf", --{{{
     callback = function()
       vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[<cmd>close<CR>]],
