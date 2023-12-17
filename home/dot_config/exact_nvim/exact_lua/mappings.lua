@@ -143,6 +143,7 @@ my_mappings {
     ["<leader>fs"]      = { fn.save_file, desc = "Save" },
     ["<leader>gb"]      = { "<cmd>Gitsigns blame_line<CR>", desc = "Blame line" },
     ["<leader>gc"]      = { fn.search'git_commits', desc = "Commits" },
+    ["<leader>gd"]      = { [[<cmd>DiffviewOpen<CR>]], desc = "Show diff" },
     ["<leader>gf"]      = { fn.search'git_bcommits', desc = "File commits" },
     ["<leader>gg"]      = { fn.open_git_repo, desc = "Open repo in github" },
     ["<leader>gh"]      = { show_file_history, desc = "Show file history" },
