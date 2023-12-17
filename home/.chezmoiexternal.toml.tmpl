@@ -89,6 +89,14 @@
   url = "https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
   type = "file"
 
+{{ template "dep" "nph/.local/bin" }}
+  {{- if $isWindows }}
+  url = "https://github.com/arnetheduck/nph/releases/download/latest/nph-windows_x64.tar.gz"
+  {{- else if $isDarwin }}
+  url = "https://github.com/arnetheduck/nph/releases/download/latest/nph-macosx_x64.tar.gz"
+  {{- end }}
+  type = "archive"
+
 {{ template "dep" "ripgrep/.local/bin" }}
   {{- if $isWindows }}
   url = "https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-pc-windows-msvc.zip"
