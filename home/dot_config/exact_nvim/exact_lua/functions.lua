@@ -83,7 +83,7 @@ local function prettify_param_string(string)
   local params = string:match('%((.*)') or ''
   local params_parts = vim.split(params, ',')
   if #params_parts <= 1 then
-    return prefix..params
+    return prefix..'('..params
   end
   local result = prefix..'(\n '
   result = result..vim.fn.join(params_parts, ',\n')
@@ -1241,25 +1241,19 @@ lsp_info = {
       }, --}}}
       ['textDocument/definition'] = { --{{{
         capability = true,
-        handler = function(message_id, params, done)
-          local def_cache = {}
+        handler = function(_, params, done)
+          local definitions = {}
 
           vim.fn['nim#suggest#utils#Query'](
             'def',
             {
               on_data = function(reply)
-                local definitions = def_cache[message_id]
-                if not definitions then
-                  definitions = {}
-                  def_cache[message_id] = definitions
-                end
-
                 for _, item in ipairs(reply) do
                   local parts = vim.split(item, '\t',
                     { plain = true, trimempty = false })
                   if parts[1] == 'def' then
                     table.insert(definitions, {
-                      uri = parts[5],
+                      uri = 'file:///'..parts[5],
                       range = {
                         start = {
                           character = tonumber(parts[7]),
@@ -1271,9 +1265,7 @@ lsp_info = {
                 end
               end,
               on_end = function()
-                local definitions = def_cache[message_id]
-
-                if definitions and #definitions == 1 then
+                if #definitions <= 1 then
                   done(definitions[1])
                 else
                   done(definitions or {})
@@ -1338,7 +1330,7 @@ lsp_info = {
                     { plain = true, trimempty = false })
                   if parts[1] == 'use' then
                     table.insert(references, {
-                      uri = parts[5],
+                      uri = 'file:///'..parts[5],
                       range = {
                         start = {
                           character = tonumber(parts[7]),
