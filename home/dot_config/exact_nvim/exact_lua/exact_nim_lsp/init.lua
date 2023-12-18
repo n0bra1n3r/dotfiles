@@ -163,8 +163,8 @@ M.methods['textDocument/completion'] = {
                   end)
                 editFormat = vim.lsp.protocol.InsertTextFormat.Snippet
                 textEdit = {
-                  range = { ['end'] = params.position, start = params.position },
                   newText = label..'('..vim.fn.trim(param_string)..')$0',
+                  range = { ['end'] = params.position, start = params.position },
                 }
               end
               table.insert(items, {
@@ -336,6 +336,33 @@ M.methods['textDocument/definition'] = {
   end,
 }
 
+M.methods['textDocument/formatting'] = {
+  capability = 'documentFormatting',
+  handler = function(_, params, cb)
+    cb.start{ message = 'formatting' }
+
+    local path = uri_to_path(params.textDocument.uri)
+    local buf = get_or_open_buf(path)
+    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    local text = vim.fn.join(lines, '\n')
+    text = vim.fn.system('nph -', text)
+
+    if vim.v.shell_error == 0 then
+      cb.send{{
+        newText = text,
+        range = {
+          ['end'] = { character = 0, line = #lines },
+          start = { character = 0, line = 0 },
+        },
+      }}
+    else
+      cb.send()
+    end
+
+    cb.stop{ message = 'formatting', percentage = 100 }
+  end,
+}
+
 M.methods['textDocument/hover'] = {
   capability = true,
   handler = function(_, params, cb)
@@ -500,9 +527,18 @@ local function get_lsp_capabilities(methods)
   for method, def in pairs(methods) do
     local capability = def.capability
     if capability then
-      local name = method:match('textDocument/(%w+)')
-      if name then
-        capabilities[name..'Provider'] = capability
+      if type(capability) == 'boolean' or type(capability) == 'table' then
+        local name
+        if type(capability) == 'table' then
+          name = capability[1]
+        end
+        name = name or method:match('textDocument/(%w+)')
+        if name then
+          capabilities[name..'Provider'] = capability
+        end
+      elseif type(capability) == 'string' then
+        ---@diagnostic disable-next-line: assign-type-mismatch
+        capabilities[capability..'Provider'] = true
       end
     end
   end

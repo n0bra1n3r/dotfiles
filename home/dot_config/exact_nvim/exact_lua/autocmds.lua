@@ -92,7 +92,7 @@ my_autocmds {
       end
     end,
   }, --}}}
-  { "BufWritePre", pattern = { '*.dart', '*.json', '*.kt', '*.swift' }, --{{{
+  { "BufWritePre", pattern = { '*.dart', '*.json', '*.kt', '*.nim', '*.swift' }, --{{{
     callback = function()
       vim.lsp.buf.format()
     end,
