@@ -1,6 +1,7 @@
 local M = {
   info = {
     diag_stack = {},
+    is_stopped = false,
     proj_cache = {},
   },
   methods = {},
@@ -124,7 +125,7 @@ M.methods['textDocument/completion'] = {
       labelDetailsSupport = true,
     },
   },
-  handler = function(_, params, done)
+  handler = function(_, params, cb)
     local items = {}
 
     vim.fn['nim#suggest#utils#Query'](
@@ -187,7 +188,7 @@ M.methods['textDocument/completion'] = {
           end
         end,
         on_end = function()
-          done(items)
+          cb.send(items)
         end,
         pos = { params.position.line + 1, params.position.character + 1 },
       },
@@ -197,7 +198,7 @@ M.methods['textDocument/completion'] = {
 }
 
 M.methods['textDocument/didChange'] = {
-  handler = function(message_id, params)
+  handler = function(message_id, params, cb)
     local did_change = M.methods['textDocument/didChange']
 
     local path = uri_to_path(params.textDocument.uri)
@@ -214,18 +215,22 @@ M.methods['textDocument/didChange'] = {
         params = params,
       }}
 
+      cb.start{ message = 'diagnostics' }
+
       local buf = get_or_open_buf(path)
       local ns = vim.api.nvim_create_namespace('nim_lsp')
 
-      vim.diagnostic.set(ns, buf, {})
+      vim.schedule(function()
+        vim.diagnostic.set(ns, buf, {})
+      end)
 
       vim.fn['nim#suggest#utils#Query'](
         'chk',
         {
           buffer = buf,
           on_data = function(reply)
-            local cur_stack = M.info.diag_stack[path]
-            if #cur_stack == 1 and cur_stack[1].message_id == message_id then
+            diag_stack = M.info.diag_stack[path]
+            if #diag_stack == 1 and diag_stack[1].message_id == message_id then
               local diagnostics = {}
               for _, item in ipairs(reply) do
                 local parts = vim.split(item, '\t',
@@ -241,18 +246,26 @@ M.methods['textDocument/didChange'] = {
                   })
                 end
               end
-              apply_diagnostics(ns, diagnostics)
+
+              vim.schedule(function()
+                apply_diagnostics(ns, diagnostics)
+              end)
             end
           end,
           on_end = function()
-            local cur_stack = M.info.diag_stack[path]
-            local stack_count = #cur_stack
-            if stack_count > 1 then
-              local last_task = cur_stack[stack_count]
+            diag_stack = M.info.diag_stack[path]
+            if #diag_stack > 1 then
+              cb.report{ message = 'diagnostics', percentage = 100 / #diag_stack }
+
+              local last_task = diag_stack[#diag_stack]
+
               M.info.diag_stack[path] = {}
-              did_change.handler(last_task.message_id, last_task.params)
+
+              did_change.handler(last_task.message_id, last_task.params, cb)
             else
               M.info.diag_stack[path] = {}
+
+              cb.stop{ message = 'diagnostics', percentage = 100 }
             end
           end,
         },
@@ -263,7 +276,7 @@ M.methods['textDocument/didChange'] = {
 }
 
 M.methods['textDocument/didOpen'] = {
-  handler = function(message_id, params)
+  handler = function(message_id, params, cb)
     local did_change = M.methods['textDocument/didChange']
 
     local instance = vim.fn['nim#suggest#ProjectFindOrStart']()
@@ -274,19 +287,19 @@ M.methods['textDocument/didOpen'] = {
       if not M.info.proj_cache[project] then
         M.info.proj_cache[project] = true
         params.textDocument.uri = path_to_uri(project)
-        did_change.handler(message_id, params)
+        did_change.handler(message_id, params, cb)
       else
-        did_change.handler(message_id, params)
+        did_change.handler(message_id, params, cb)
       end
     else
-      did_change.handler(message_id, params)
+      did_change.handler(message_id, params, cb)
     end
   end,
 }
 
 M.methods['textDocument/definition'] = {
   capability = true,
-  handler = function(_, params, done)
+  handler = function(_, params, cb)
     local definitions = {}
 
     vim.fn['nim#suggest#utils#Query'](
@@ -311,9 +324,9 @@ M.methods['textDocument/definition'] = {
         end,
         on_end = function()
           if #definitions == 1 then
-            done(definitions[1])
+            cb.send(definitions[1])
           else
-            done(definitions or {})
+            cb.send(definitions or {})
           end
         end,
         pos = { params.position.line + 1, params.position.character + 1 },
@@ -325,7 +338,7 @@ M.methods['textDocument/definition'] = {
 
 M.methods['textDocument/hover'] = {
   capability = true,
-  handler = function(_, params, done)
+  handler = function(_, params, cb)
     vim.fn['nim#suggest#utils#Query'](
       'def',
       {
@@ -349,7 +362,7 @@ M.methods['textDocument/hover'] = {
             end
           end
 
-          done {
+          cb.send {
             contents = {
               kind = 'markdown',
               value = documentation,
@@ -365,7 +378,7 @@ M.methods['textDocument/hover'] = {
 
 M.methods['textDocument/references'] = {
   capability = true,
-  handler = function(_, params, done)
+  handler = function(_, params, cb)
     vim.fn['nim#suggest#utils#Query'](
       'use',
       {
@@ -388,7 +401,7 @@ M.methods['textDocument/references'] = {
             end
           end
 
-          done(references)
+          cb.send(references)
         end,
         pos = { params.position.line + 1, params.position.character + 1 },
       },
@@ -399,7 +412,7 @@ M.methods['textDocument/references'] = {
 
 M.methods['textDocument/rename'] = {
   capability = true,
-  handler = function(_, params, done)
+  handler = function(_, params, cb)
     local path = uri_to_path(params.textDocument.uri)
     local buf = get_or_open_buf(path)
     local word, word_pos = get_word_at(
@@ -464,14 +477,14 @@ M.methods['textDocument/rename'] = {
               end
             end
 
-            done{ changes = changes }
+            cb.send{ changes = changes }
           end,
           pos = { params.position.line + 1, params.position.character + 1 },
         },
         false,
         true)
     else
-      done()
+      cb.send()
     end
   end,
 }
@@ -497,9 +510,10 @@ local function get_lsp_capabilities(methods)
   return capabilities
 end
 
-function M.cmd()
+function M.cmd(get_client_id)
+  local note_cache = { token = nil }
+
   local message_id = 1
-  local is_stopped = false
 
   local function handler(method, params, callback, notify_callback)
     message_id = message_id + 1
@@ -510,10 +524,19 @@ function M.cmd()
       end
     end
 
+    local function progress(token, kind, opts)
+      vim.schedule(function()
+        vim.lsp.handlers['$/progress'](nil, {
+          token = token,
+          value = vim.tbl_extend('keep', { kind = kind }, opts or {}),
+        }, { client_id = get_client_id() })
+      end)
+    end
+
     if method == 'initialize' then
       send{ capabilities = get_lsp_capabilities(M.methods) }
     elseif method == 'shutdown' then
-      is_stopped = true
+      M.info.is_stopped = true
       send()
     elseif method == 'exit' then
       vim.fn['nim#suggest#ProjectStopAll']()
@@ -523,7 +546,29 @@ function M.cmd()
       local def = M.methods[method]
 
       if def then
-        def.handler(message_id, params, send)
+        def.handler(message_id, params, {
+          report = function(opts)
+            if note_cache.token then
+              progress(note_cache.token, 'report', opts)
+            end
+          end,
+          start = function(opts)
+            if not note_cache.token then
+              note_cache.token = message_id
+              progress(note_cache.token, 'begin', opts)
+            end
+          end,
+          stop = function(opts)
+            if note_cache.token then
+              if opts and opts.percentage then
+                progress(note_cache.token, 'report', opts)
+              end
+              progress(note_cache.token, 'end', opts)
+              note_cache.token = nil
+            end
+          end,
+          send = send,
+        })
       else
         send()
       end
@@ -536,16 +581,18 @@ function M.cmd()
     return true, message_id
   end
 
-  return {
-    is_closing = function()
-      return is_stopped
-    end,
-    notify = handler,
-    request = handler,
-    terminate = function()
-      is_stopped = true
-    end,
-  }
+  return function()
+    return {
+      is_closing = function()
+        return M.info.is_stopped
+      end,
+      notify = handler,
+      request = handler,
+      terminate = function()
+        M.info.is_stopped = true
+      end,
+    }
+  end
 end
 
 return M
