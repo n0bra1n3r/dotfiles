@@ -148,7 +148,7 @@ return {
 
     require'lspconfig.configs'.nim_lsp = {
       default_config = {
-        cmd = fn.nim_lsp,
+        cmd = require'nim_lsp'.cmd,
         filetypes = { 'nim' },
         root_dir = function()
           return vim.fn.getcwd()
