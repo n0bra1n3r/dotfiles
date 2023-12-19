@@ -39,12 +39,16 @@ return {
         {
           sign = { namespace = { 'gitsign' }, colwidth = 1 },
           click = 'v:lua.ScSa',
+          hl = 'FoldColumn',
         },
         {
           text = { fn.foldfunc('󰐕', '┯', '┿', '│', '├', '└') },
           click = "v:lua.ScFa",
         },
-        { text = { ' ' } },
+        {
+          text = { ' ' },
+          hl = 'FoldColumn',
+        },
       },
     }
   end,
