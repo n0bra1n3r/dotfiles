@@ -110,6 +110,15 @@ local function prettify_param_string(string)
   return result
 end
 
+local function project_find()
+  local instance = vim.fn['nim#suggest#ProjectFindOrStart']()
+  if type(instance) == 'table'
+      and type(instance.file) == 'string'
+  then
+    return instance.file
+  end
+end
+
 local function uri_to_path(uri)
   if vim.fn.has('win32') == 1 then
     return uri:match('^file:///(.*)$') or uri
@@ -201,6 +210,8 @@ M.methods['textDocument/didChange'] = {
   handler = function(message_id, params, cb)
     local did_change = M.methods['textDocument/didChange']
 
+    project_find()
+
     local path = uri_to_path(params.textDocument.uri)
     local diag_stack = M.info.diag_stack[path]
 
@@ -279,11 +290,8 @@ M.methods['textDocument/didOpen'] = {
   handler = function(message_id, params, cb)
     local did_change = M.methods['textDocument/didChange']
 
-    local instance = vim.fn['nim#suggest#ProjectFindOrStart']()
-    if type(instance) == 'table'
-        and type(instance.file) == 'string'
-    then
-      local project = instance.file
+    local project = project_find()
+    if project then
       if not M.info.proj_cache[project] then
         M.info.proj_cache[project] = true
         params.textDocument.uri = path_to_uri(project)
