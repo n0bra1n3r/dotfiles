@@ -75,5 +75,8 @@ return {
         return config
       end,
     })
+
+    -- load extensions
+    require'nvim-dap-virtual-text'
   end,
 }
