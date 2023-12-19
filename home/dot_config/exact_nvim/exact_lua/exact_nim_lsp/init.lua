@@ -246,11 +246,12 @@ M.methods['textDocument/didChange'] = {
               for _, item in ipairs(reply) do
                 local parts = vim.split(item, '\t',
                   { plain = true, trimempty = false })
-                if parts[1] == 'chk' then
+                local lnum = (parts[6] and tonumber(parts[6]) or 0) - 1
+                if parts[1] == 'chk' and lnum >= 0 then
                   table.insert(diagnostics, {
                     col = tonumber(parts[7]),
                     filename = parts[5],
-                    lnum = tonumber(parts[6]) - 1,
+                    lnum = lnum,
                     message = vim.fn.eval(parts[8]),
                     severity = name_to_severity(parts[4]),
                     source = 'nim_lsp',
