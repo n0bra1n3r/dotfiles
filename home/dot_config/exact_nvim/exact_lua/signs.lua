@@ -18,8 +18,9 @@ my_signs {
     texthl = 'DiagnosticSignInfo',
   }, --}}}
   DapStopped = { --{{{
-    text = '',
-    texthl = 'Todo',
+    linehl = 'DiffDelete',
+    text = '󰜴',
+    texthl = 'DiagnosticSignError',
   }, --}}}
   DiagnosticSignError = { --{{{
     text = '',

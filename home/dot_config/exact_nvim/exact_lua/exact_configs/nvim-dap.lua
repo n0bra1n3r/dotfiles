@@ -6,17 +6,24 @@ return {
     dap.defaults.fallback.exception_breakpoints = { 'uncaught' }
     dap.defaults.fallback.switchbuf = 'useopen,uselast'
 
+    local codelldb_command
+    if vim.fn.has('win32') == 1 then
+      codelldb_command = 'codelldb.cmd'
+    else
+      codelldb_command = 'codelldb'
+    end
+
     local codelldb = {
-      type = 'server',
-      port = '${port}',
       executable = {
         args = { '--port', '${port}' },
-        command = 'codelldb.cmd',
+        command = codelldb_command,
         detached = false,
       },
       options = {
         initialize_timeout_sec = 10,
       },
+      port = '${port}',
+      type = 'server',
     }
 
     dap.adapters = setmetatable({ codelldb = codelldb }, {
@@ -41,13 +48,15 @@ return {
           config = {
             {
               name = "Launch file",
-              type = 'codelldb',
-              require = 'launch',
               program = fn.ui_input {
                 completion = 'file',
                 default = fn.get_tab_cwd()..'/',
                 prompt = " 󰈔 Path to file: ",
               },
+              request = 'launch',
+              reverseDebugging = true,
+              terminal = 'console',
+              type = 'codelldb',
             },
           }
         end
