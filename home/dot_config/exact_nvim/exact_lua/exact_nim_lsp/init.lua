@@ -99,14 +99,26 @@ local function path_to_uri(path)
 end
 
 local function prettify_param_string(string)
+  local indent = '  '
   local prefix = string:match('^([%w_]+)') or ''
-  local params = string:match('%((.*)') or ''
-  local params_parts = vim.split(params, ',')
-  if #params_parts <= 1 then
-    return prefix..'('..params
+  local params = string:match('%b()') or '()'
+  local suffix = vim.trim(string:sub(#prefix + 1) or '')
+  suffix = vim.trim(suffix:sub(#params + 1) or '')
+  local pragma = suffix:match('%b{}$') or ''
+  suffix = vim.trim(suffix:sub(1, -#pragma - 1))
+  if #pragma > 0 then
+    suffix = suffix..'\n'
+      ..indent..indent
+      ..pragma
   end
-  local result = prefix..'(\n '
-  result = result..vim.fn.join(params_parts, ',\n')
+  local params_parts = vim.split(params, ',')
+  params_parts = vim.tbl_map(vim.trim, params_parts)
+  if #params_parts <= 1 then
+    return prefix..params..suffix
+  end
+  local result = prefix..'(\n'..indent
+  result = result..vim.fn.join(params_parts, ',\n'..indent):sub(2)
+  result = result..suffix
   return result
 end
 
