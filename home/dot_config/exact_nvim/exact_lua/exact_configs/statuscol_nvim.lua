@@ -49,6 +49,16 @@ return {
           text = { ' ' },
           hl = 'FoldColumn',
         },
+        {
+          sign = {
+            name = { '.*' },
+            maxwidth = 2,
+            colwidth = 1,
+            auto = true,
+            wrap = true,
+          },
+          hl = 'FoldColumn',
+        },
       },
     }
   end,
