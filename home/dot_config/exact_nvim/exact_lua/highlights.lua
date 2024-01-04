@@ -2,19 +2,19 @@
 
 my_highlights {
   DiagnosticVirtualTextError = {
-    link = "DiagnosticError",
+    link = 'DiagnosticError',
   },
   DiagnosticVirtualTextHint = {
-    link = "DiagnosticHint",
+    link = 'DiagnosticHint',
   },
   DiagnosticVirtualTextInfo = {
-    link = "DiagnosticInfo",
+    link = 'DiagnosticInfo',
   },
   DiagnosticVirtualTextOk = {
-    link = "DiagnosticOk",
+    link = 'DiagnosticOk',
   },
   DiagnosticVirtualTextWarn = {
-    link = "DiagnosticWarn",
+    link = 'DiagnosticWarn',
   },
   GitSignsChangedelete = {
     link = 'GitsignsDelete',
@@ -29,7 +29,7 @@ my_highlights {
     link = 'illuminatedCurWord',
   },
   OverLength = {
-    link = "ColorColumn",
+    link = 'ColorColumn',
   },
   TreesitterContext = {
     link = 'Normal',
