@@ -13,6 +13,10 @@ else
   shopt -u nullglob
 fi
 
+#{- if eq .chezmoi.os "darwin" }#
+export TERM="wezterm"
+#{- end }#
+
 export EDITOR="nvim"
 
 export PUB_CACHE="$HOME/.pub-cache"

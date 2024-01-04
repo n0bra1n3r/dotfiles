@@ -10,10 +10,12 @@ cd "#{ .chezmoi.sourceDir }#"
 git remote set-url origin $GIT_REMOTE && \
   echo "> set remote to $GIT_REMOTE"
 
+#{- if eq .chezmoi.os "darwin" }#
 TERMINFO_FILE="$(mktemp)" && \
   curl -o "$TERMINFO_FILE" https://raw.githubusercontent.com/wez/wezterm/master/termwiz/data/wezterm.terminfo && \
   tic -x -o ~/.terminfo "$TERMINFO_FILE" && \
   rm "$TERMINFO_FILE" && \
   echo "> installed terminfo"
+#{- end }#
 
 # vim: filetype=sh
