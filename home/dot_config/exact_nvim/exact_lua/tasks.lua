@@ -16,6 +16,7 @@ my_tasks {
     func = function()
       require'coverage'.load()
       require'coverage'.summary()
+      require'coverage'.show()
     end,
     notify = false,
     priority = 92,
