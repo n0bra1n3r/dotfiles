@@ -100,8 +100,11 @@ end
 
 local function prettify_param_string(string)
   local indent = '  '
+  local params = string:match('%b()')
+  if not params then
+    return string
+  end
   local prefix = string:match('^([%w_]+)') or ''
-  local params = string:match('%b()') or '()'
   local suffix = vim.trim(string:sub(#prefix + 1) or '')
   suffix = vim.trim(suffix:sub(#params + 1) or '')
   local pragma = suffix:match('%b{}$') or ''
