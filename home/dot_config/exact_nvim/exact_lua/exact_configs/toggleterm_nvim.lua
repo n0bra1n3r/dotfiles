@@ -8,7 +8,6 @@ return {
         vim.wo[t.window].signcolumn = 'no'
       end,
       open_mapping = nil,
-      persist_mode = false,
       shade_terminals = false,
       -- required to avoid '\r\n' for `chansend` in git bash
       shell = 'powershell',
