@@ -168,6 +168,10 @@
   type = "file"
   executable = true
 
+{{ template "dep" "xcodes/.local/bin" }}
+  url = "https://github.com/XcodesOrg/xcodes/releases/latest/download/xcodes.zip"
+  type = "archive"
+
 {{ template "dep" "yq/.local/bin/yq" }}
   url = "https://github.com/mikefarah/yq/releases/latest/download/yq_darwin_arm64"
   type = "file"
