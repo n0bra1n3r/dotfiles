@@ -21,18 +21,18 @@ export EDITOR="nvim"
 
 export PUB_CACHE="$HOME/.pub-cache"
 
-export PATH="$HOME/.nimble/bin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="$HOME/.dotfiles/scripts:$PATH"
-export PATH="$HOME/.fvm/versions/stable/bin:$PATH"
-export PATH="$PUB_CACHE/bin:$PATH"
+PATH="$HOME/.nimble/bin:$PATH"
+PATH="$HOME/.local/bin:$PATH"
+PATH="$HOME/.dotfiles/scripts:$PATH"
+PATH="$HOME/.fvm/versions/stable/bin:$PATH"
+PATH="$PUB_CACHE/bin:$PATH"
 
 for bin_dir in ~/.dotfiles/deps/*/.local/bin; do
-  export PATH="$bin_dir:$PATH"
+  PATH="$bin_dir:$PATH"
 done
 
 for bin_dir in ~/.dotfiles/deps/*/.local/usr/bin; do
-  export PATH="$bin_dir:$PATH"
+  PATH="$bin_dir:$PATH"
 done
 
 export GIT_CONFIG_GLOBAL="$HOME/.dotfiles/gitconfig/main"
@@ -54,20 +54,22 @@ export RIPGREP_CONFIG_PATH="$HOME/.dotfiles/ripgreprc"
 export BAT_THEME="Catppuccin-frappe"
 
 #{- if eq .chezmoi.os "windows" }#
-export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin:$PATH"
-export PATH="/c/PROGRA~2/Microsoft Visual Studio/Shared/Python39_64:$PATH"
-export PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/MSBuild/Microsoft/VisualStudio/NodeJs:$PATH"
+PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin:$PATH"
+PATH="/c/PROGRA~2/Microsoft Visual Studio/Shared/Python39_64:$PATH"
+PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/MSBuild/Microsoft/VisualStudio/NodeJs:$PATH"
 #{- else if eq .chezmoi.os "darwin" }#
 export ANDROID_HOME="$HOME/Library/Android/sdk"
 export FVM_HOME="$HOME/.fvm"
 export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 
-export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
-export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
-export PATH="$HOME/Library/Python/3.9/bin:$PATH"
-export PATH="$HOME/Library/Android/sdk/cmdline-tools/latest/bin:$HOME/Library/Android/sdk/tools/bin:$PATH"
+PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
+PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
+PATH="$HOME/Library/Python/3.9/bin:$PATH"
+PATH="$HOME/Library/Android/sdk/cmdline-tools/latest/bin:$HOME/Library/Android/sdk/tools/bin:$PATH"
 
 eval "$(brew shellenv)"
 #{- end }#
+
+export PATH
 
 # vim: filetype=sh

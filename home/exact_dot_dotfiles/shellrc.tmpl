@@ -18,8 +18,8 @@ alias ls='eza'
 #{- if eq .chezmoi.os "windows" }#
 alias npm="cmd -c npm.cmd"
 #{- else if eq .chezmoi.os "darwin" }#
-alias pip="pip3"
-alias python="python3"
+alias pip="\$(brew --prefix)/bin/pip3"
+alias python="\$(brew --prefix)/bin/python3"
 alias studio="open -a /Applications/Android\ Studio.app"
 #{- end }#
 
