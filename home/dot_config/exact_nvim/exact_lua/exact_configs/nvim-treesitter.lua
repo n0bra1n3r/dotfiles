@@ -23,6 +23,9 @@ return {
       },
       highlight = {
         enable = true,
+        disable = function(_, bufnr)
+          return vim.api.nvim_buf_line_count(bufnr) > 9999
+        end,
       },
       matchup = {
         enable = true,
