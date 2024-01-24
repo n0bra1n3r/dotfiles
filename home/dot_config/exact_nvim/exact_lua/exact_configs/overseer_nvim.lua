@@ -13,5 +13,7 @@ return {
         border = "single",
       },
     }
+
+    require'dap.ext.vscode'.json_decode = require'overseer.json'.decode
   end,
 }

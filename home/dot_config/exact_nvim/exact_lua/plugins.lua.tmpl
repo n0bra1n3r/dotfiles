@@ -195,7 +195,10 @@ my_plugins {
   { 'echasnovski/mini.indentscope', event = { 'BufRead', 'BufModifiedSet' } },
   --}}}
   --{{{ Tasks
-  { 'stevearc/overseer.nvim' },
+  {
+    'stevearc/overseer.nvim',
+    dependencies = { 'mfussenegger/nvim-dap' },
+  },
   --}}}
   --{{{ Debuggers
   { 'mfussenegger/nvim-dap' },
