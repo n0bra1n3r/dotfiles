@@ -13,6 +13,9 @@ my_tasks {
     priority = 91,
   },
   ["Show test coverage"] = {
+    cond = function()
+      return vim.fn.filereadable('coverage/lcov.info') == 1
+    end,
     func = function()
       require'coverage'.load()
       require'coverage'.summary()
