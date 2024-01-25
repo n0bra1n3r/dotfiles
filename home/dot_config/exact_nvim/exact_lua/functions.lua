@@ -801,13 +801,6 @@ function fn.refresh_git_info(tabpageOrPath)
     local dir = run_git_command(tabpageOrPath, "rev-parse --show-toplevel")
     set_git_info(tabpageOrPath, { dir = dir })
     fn.refresh_git_diff_info(tabpageOrPath)
-    fn.vim_defer(function()
-      for _, win in ipairs(vim.api.nvim_list_wins()) do
-        if fn.is_file_buffer(vim.api.nvim_win_get_buf(win)) then
-          vim.fn.win_execute(win, [[edit]])
-        end
-      end
-    end)()
   else
     set_git_info(tabpageOrPath, nil)
   end
