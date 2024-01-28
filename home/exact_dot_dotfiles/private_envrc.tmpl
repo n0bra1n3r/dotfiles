@@ -62,10 +62,21 @@ export ANDROID_HOME="$HOME/Library/Android/sdk"
 export FVM_HOME="$HOME/.fvm"
 export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 
+for vulkan_sdk_dir in ~/VulkanSDK/*/macOS; do
+  VULKAN_SDK="$vulkan_sdk_dir"
+done
+export VULKAN_SDK
+
+export VK_ICD_FILENAMES="$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"
+export VK_LAYER_PATH="$VULKAN_SDK/share/vulkan/explicit_layer.d"
+
+export DYLD_LIBRARY_PATH="$VULKAN_SDK/lib:$DYLD_LIBRARY_PATH"
+
 PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
 PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
 PATH="$HOME/Library/Python/3.9/bin:$PATH"
 PATH="$HOME/Library/Android/sdk/cmdline-tools/latest/bin:$HOME/Library/Android/sdk/tools/bin:$PATH"
+PATH="$VULKAN_SDK/bin:$PATH"
 
 eval "$(brew shellenv)"
 #{- end }#
