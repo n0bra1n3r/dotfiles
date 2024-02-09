@@ -18,11 +18,15 @@ return {
           if my_launchers then
             local launchers = vim.deepcopy(my_launchers)
             for i, launcher in ipairs(launchers) do
-              launchers[i] = vim.tbl_extend(
-                'keep',
-                launcher,
-                default_launcher
-              )
+              if launcher.condition and not launcher.condition() then
+                launchers[i] = nil
+              else
+                launchers[i] = vim.tbl_extend(
+                  'keep',
+                  launcher,
+                  default_launcher
+                )
+              end
             end
             require'dap'.configurations.dart = launchers
           else

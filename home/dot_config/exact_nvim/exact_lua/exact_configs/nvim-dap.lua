@@ -60,16 +60,20 @@ return {
             },
           }
         end
-        for _, item in ipairs(config) do
-          local env = item.env
-          item.env = function()
-            local env_table
-            if type(env) == 'function' then
-              env_table = env()
-            else
-              env_table = env or {}
+        for i, item in ipairs(config) do
+          if item.condition and not item.condition() then
+            config[i] = nil
+          else
+            local env = item.env
+            item.env = function()
+              local env_table
+              if type(env) == 'function' then
+                env_table = env()
+              else
+                env_table = env or {}
+              end
+              return vim.tbl_extend('keep', env_table, { PATH = vim.env.PATH })
             end
-            return vim.tbl_extend('keep', env_table, { PATH = vim.env.PATH })
           end
         end
         return config

@@ -3,12 +3,12 @@ my_globals {
 }
 
 my_autocmds {
-  { 'BufWritePost',
+  {
+    'BufWritePost',
     pattern = {
       '*/controllers/*_controller.dart',
       '*/models/*_model.dart',
       '*/providers/*_provider.dart',
-      'constants.dart',
     },
     callback = function(args)
       fn.run_task([[Run codegen]], {
@@ -65,6 +65,14 @@ my_launchers {
       name = "Launch app",
       request = 'launch',
     },
+    {
+      name = "Launch widgetbook",
+      condition = function()
+        return vim.fn.filereadable('lib/widgetbook/widgetbook.dart')
+      end,
+      program = 'lib/widgetbook/widgetbook.dart',
+      request = 'launch',
+    }
   },
 }
 
