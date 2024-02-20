@@ -105,18 +105,17 @@ return {
         documentation = cmp.config.window.bordered{ border = "single" },
       },
     }
-    cmp.setup.cmdline({ "/", "?" }, {
-      mapping = cmp.mapping.preset.cmdline(),
-      sources = {
-        { name = "buffer" },
-      }
-    })
-    cmp.setup.cmdline(":", {
+    cmp.setup.cmdline(':', {
       mapping = cmp.mapping.preset.cmdline(),
       sources = cmp.config.sources(
-        { { name = "path" } },
-        { { name = "cmdline" } }
-      )
+        { { name = 'path' } },
+        { { name = 'cmdline' } }
+      ),
+    })
+    cmp.setup.filetype({ 'dap-repl', 'dapui_watches', 'dapui_hover' }, {
+      sources = cmp.config.sources(
+        { { name = 'dap' } }
+      ),
     })
   end,
 }
