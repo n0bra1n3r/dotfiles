@@ -1,28 +1,8 @@
 # vim: filetype=gitconfig
+# chezmoi:template:left-delimiter="#{" right-delimiter="}#"
 
-# This is Git's per-user configuration file.
-
-[user]
-  name = Ryan Blonna
-  email = n0.b741n37@gmail.com
-
-[includeif "gitdir:~/.local/share/chezmoi/"]
-  path = ~/.dotfiles/gitconfig/n0bra1n3r
-
-[includeif "gitdir:~/n0bra1n3r/"]
-  path = ~/.dotfiles/gitconfig/n0bra1n3r
-
-[includeif "gitdir:~/src/"]
-  path = ~/.dotfiles/gitconfig/n0bra1n3r
-
-[includeif "gitdir:/src/"]
-  path = ~/.dotfiles/gitconfig/n0bra1n3r
-
-[include]
-  path = ~/.gitconfig
-
-[pull]
-  rebase = true
+[advice]
+  useCoreFSMonitorConfig = false
 
 [alias]
   ae = add --edit
@@ -30,7 +10,6 @@
   au = add --update
   ca = commit --amend
   ce = commit --allow-empty --message
-  cf = config --file ~/.gitconfig
   cm = commit --message
   co = checkout
   mg = merge
@@ -49,6 +28,17 @@
   st = status
   sw = switch
 
+[core]
+  excludesfile = ~/.dotfiles/gitignore
+#{- if eq .chezmoi.os "windows" }#
+  autocrlf = true
+#{- else if eq .chezmoi.os "darwin" }#
+  autocrlf = input
+#{- end }#
+
+[pull]
+  rebase = true
+
 [tig "bind"]
   generic = <Ctrl-f> scroll-page-down
   generic = <Ctrl-b> scroll-page-up
@@ -56,8 +46,12 @@
   generic = G move-last-line
   main = G move-last-line
 
-[advice]
-  useCoreFSMonitorConfig = false
+[includeif "gitdir:~/.local/share/chezmoi/"]
+  path = ~/.dotfiles/gitconfig/n0bra1n3r
 
-[core]
-  excludesfile = ~/.dotfiles/gitignore
+[includeif "gitdir:~/n0bra1n3r/"]
+  path = ~/.dotfiles/gitconfig/n0bra1n3r
+
+[includeif "gitdir:~/src/"]
+  path = ~/.dotfiles/gitconfig/n0bra1n3r
+

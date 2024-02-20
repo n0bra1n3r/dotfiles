@@ -5,4 +5,14 @@
 
 [url "git@{{ .org.slug }}.github.com"]
   insteadOf = git@github.com
+{{- else }}
+[user]
+  name = Ryan Blonna
+  email = n0.b741n37+Github@gmail.com
+
+[credential]
+  helper = store
 {{- end }}
+
+[include]
+  path = ~/.dotfiles/gitconfig/main

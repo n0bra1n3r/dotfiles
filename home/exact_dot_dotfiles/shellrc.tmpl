@@ -32,15 +32,6 @@ function cygpath() {
   fi
 }
 
-function _git_override() {
-  if [[ "$1" == "config" ]]; then
-    shift 1
-    command git cf "$@"
-  else
-    command git "$@"
-  fi
-}
-
 function _silent_background() {
   ("$@" &>/dev/null &)
 }
@@ -59,7 +50,7 @@ if [[ -n "$NVIM" ]]; then
   }
 
   function git() {
-    _git_override "$@" || return $?
+    command git "$@" || return $?
     _silent_background _nvim_remote --remote-expr "v:lua.fn.refresh_git_info()"
   }
 
@@ -78,7 +69,7 @@ else
   }
 
   function git() {
-    _git_override "$@"
+    command git "$@"
   }
 
   # shellcheck disable=2120
@@ -148,7 +139,6 @@ function ce() {
 # Git aliases
 
 alias gb='git branch'
-alias go='git cf'
 alias gp='git pu'
 alias gs='git st'
 alias gu='git pull'
