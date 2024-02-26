@@ -6,6 +6,3 @@
 
 [url "git@n0bra1n3r.github.com"]
   insteadOf = git@github.com
-
-[includeif "gitdir:~/.pub-cache/"]
-  path = ~/.dotfiles/gitconfig/n0bra1n3r
