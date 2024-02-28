@@ -1402,14 +1402,7 @@ function fn.resume_debugging(tabpage)
   end
 
   require'dap'.listeners.after.event_continued.my_debug_event = function()
-    local splitkeep = vim.o.splitkeep
-    vim.o.splitkeep = 'screen'
-    require'dapui'.close(2)
-    vim.o.splitkeep = splitkeep
-    local equalalways = vim.o.equalalways
-    vim.o.equalalways = false
-    require'dapui'.open(1)
-    vim.o.equalalways = equalalways
+    require'dapui'.close()
 
     update_debugging_state(3)
   end
@@ -1424,18 +1417,12 @@ function fn.resume_debugging(tabpage)
   require'dap'.listeners.after.launch.my_debug_event =
     require'dap'.listeners.after.event_continued.my_debug_event
   require'dap'.listeners.after.event_stopped.my_debug_event = function()
-    local splitkeep = vim.o.splitkeep
-    vim.o.splitkeep = 'screen'
-    require'dapui'.open(2)
-    vim.o.splitkeep = splitkeep
+    require'dapui'.open()
 
     update_debugging_state(2)
   end
   require'dap'.listeners.after.event_terminated.my_debug_event = function()
-    local splitkeep = vim.o.splitkeep
-    vim.o.splitkeep = 'screen'
-    require'dapui'.close(2)
-    vim.o.splitkeep = splitkeep
+    require'dapui'.close()
 
     update_debugging_state(1)
   end
@@ -1469,10 +1456,7 @@ function fn.get_debug_toolbar(tabpage)
 end
 
 function fn.toggle_debug_repl()
-  local equalalways = vim.o.equalalways
-  vim.o.equalalways = false
-  require'dapui'.toggle(1)
-  vim.o.equalalways = equalalways
+  require'dap'.repl.open()
 end
 
 function fn.load_vscode_launch_json(path)

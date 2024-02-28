@@ -957,6 +957,7 @@ return {
                 'acwrite',
                 'help',
                 'nowrite',
+                'prompt',
                 'quickfix',
                 'terminal',
               },

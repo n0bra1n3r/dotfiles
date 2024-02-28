@@ -12,16 +12,6 @@ return {
         {
           elements = {
             {
-              id = "repl",
-              size = 1.0,
-            },
-          },
-          position = "bottom",
-          size = 10,
-        },
-        {
-          elements = {
-            {
               id = "scopes",
               size = 0.5,
             },
