@@ -4,7 +4,7 @@ local opt = vim.opt
 
 my_options {
   background = "dark",
-  belloff="all",
+  belloff = "all",
   opt.clipboard + "unnamed,unnamedplus",
   cmdheight = 0,
   confirm = true,
@@ -52,7 +52,6 @@ my_options {
   scrollback = 9001,
   scrolloff = 3,
   sessionoptions = "buffers,folds,winsize,winpos",
-  selection = "exclusive",
   shiftwidth = 2,
   opt.shortmess + "acsCFISW",
   showbreak = "↪",
