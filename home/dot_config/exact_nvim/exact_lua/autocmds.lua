@@ -104,6 +104,11 @@ my_autocmds {
       vim.o.cmdheight = 1
     end,
   }, --}}}
+  { { 'CmdlineEnter', 'CmdWinEnter', 'InsertEnter', 'TermEnter' }, --{{{
+    callback = function()
+      fn.vim_defer(vim.cmd.nohlsearch)()
+    end,
+  }, --}}}
   { "CmdlineLeave", --{{{
     callback = function()
       vim.o.cmdheight = 0
@@ -200,12 +205,6 @@ my_autocmds {
         end)()
       end
     end,
-  }, --}}}
-  { 'TermEnter', --{{{
-    callback = fn.vim_defer(function()
-      vim.cmd.match[[OverLength //]]
-      vim.cmd.nohlsearch()
-    end),
   }, --}}}
   { "TextYankPost", --{{{
     callback = function()
