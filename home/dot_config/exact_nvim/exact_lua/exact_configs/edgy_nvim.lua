@@ -19,6 +19,13 @@ return {
         },
       },
       exit_when_last = true,
+      keys = {
+        ['<C-q>'] = false,
+        ['<Esc>'] = function(win)
+          win.view.edgebar:close()
+        end,
+        q = false,
+      },
     }
   end,
 }

@@ -59,10 +59,6 @@ my_autocmds {
           if #vim.api.nvim_tabpage_list_wins(0) > 1 then
             vim.cmd.wincmd[[T]]
           end
-        elseif vim.bo.filetype == 'qf' then
-          if #vim.api.nvim_tabpage_list_wins(0) > 1 then
-            vim.cmd.wincmd[[J]]
-          end
         elseif vim.bo.filetype == 'dap-repl' then
           vim.api.nvim_buf_attach(0, false, {
             on_lines = function()
@@ -145,12 +141,6 @@ my_autocmds {
   { 'FileType', pattern = 'nim', --{{{
     callback = function()
       vim.cmd{ args = { 'plugin', 'off' }, cmd = 'filetype' }
-    end,
-  }, --}}}
-  { "FileType", pattern = "qf", --{{{
-    callback = function()
-      vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[<cmd>close<CR>]],
-        { noremap = true, silent = true })
     end,
   }, --}}}
   { 'FileType', pattern = 'search', --{{{
