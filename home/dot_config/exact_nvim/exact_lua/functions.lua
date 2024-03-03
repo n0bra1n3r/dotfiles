@@ -1456,7 +1456,7 @@ function fn.get_debug_toolbar(tabpage)
 end
 
 function fn.toggle_debug_repl()
-  require'dap'.repl.open()
+  require'dap'.repl.toggle()
 end
 
 function fn.load_vscode_launch_json(path)
