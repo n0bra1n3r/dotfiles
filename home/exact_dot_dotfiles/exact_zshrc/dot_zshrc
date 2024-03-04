@@ -30,11 +30,6 @@ setopt HIST_IGNORE_SPACE
 setopt HIST_IGNORE_ALL_DUPS
 setopt INC_APPEND_HISTORY
 
-source ~/.dotfiles/deps/zsh-autosuggestions/.dotfiles/zsh-autosuggestions-master/zsh-autosuggestions.zsh
-
-export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-export ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
-
 if [[ ! -z "$NVIM" ]]; then
   autoload -U add-zsh-hook
 
