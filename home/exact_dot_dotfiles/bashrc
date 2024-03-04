@@ -3,14 +3,8 @@
 source ~/.dotfiles/envrc
 source ~/.dotfiles/shellrc
 
-_GIT_EXEC_PATH="$(git --exec-path 2>/dev/null)"
-_GIT_COMPLETION_PATH="${_GIT_EXEC_PATH%/libexec/git-core}"
-_GIT_COMPLETION_PATH="${_GIT_COMPLETION_PATH%/lib/git-core}"
-_GIT_COMPLETION_PATH="$_GIT_COMPLETION_PATH/share/git/completion"
-
-if [[ -f "$_GIT_COMPLETION_PATH/git-completion.bash" ]]; then
-  source "$_GIT_COMPLETION_PATH/git-completion.bash"
-fi
+source "$HOME/.dotfiles/deps/fzf-shell/.local/share/fzf/completion.bash"
+source "$HOME/.dotfiles/deps/fzf-shell/.local/share/fzf/key-bindings.bash"
 
 bind 'set show-all-if-ambiguous on'
 bind 'set completion-ignore-case off'

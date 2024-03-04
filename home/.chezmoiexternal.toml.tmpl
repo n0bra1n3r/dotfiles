@@ -63,6 +63,20 @@
   type = "archive"
   stripComponents = 1
 
+{{ template "dep" "fzf/.local/bin" }}
+  {{- if $isWindows }}
+  url = "https://github.com/junegunn/fzf/releases/download/0.46.1/fzf-0.46.1-windows_amd64.zip"
+  {{- else if $isDarwin }}
+  url = "https://github.com/junegunn/fzf/releases/download/0.46.1/fzf-0.46.1-darwin_arm64.zip"
+  {{- end }}
+  type = "archive"
+
+{{ template "dep" "fzf-shell/.local/share/fzf" }}
+  url = "https://github.com/junegunn/fzf/archive/refs/tags/0.46.1.zip"
+  type = "archive"
+  stripComponents = 2
+  include = ["**/*.bash", "**/*.zsh"]
+
 {{ template "dep" "gh/.local" }}
   {{- if $isWindows }}
   url = "https://github.com/cli/cli/releases/download/v2.35.0/gh_2.35.0_windows_amd64.zip"
