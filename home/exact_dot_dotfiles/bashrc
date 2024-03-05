@@ -21,24 +21,9 @@ export HISTFILESIZE=$HISTSIZE
 
 PROMPT_COMMAND="history -a $HISTFILE;$PROMPT_COMMAND"
 
-__git_complete g __git_main
-__git_complete cg __git_main
-
-function _workspace() {
-  COMPREPLY=()
-  if command git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    local locals="$(command git for-each-ref \
-      --sort=-committerdate \
-      --format='%(refname:lstrip=2)' \
-      refs/heads/)"
-    local current="$(command git branch --show-current)"
-    local workspaces="$(echo -e "$locals" | grep -v HEAD | grep -v "$current")"
-    COMPREPLY=($(compgen -W "$workspaces" -- "${COMP_WORDS[1]}"))
-  fi
-}
-
-complete -o nosort -F _workspace workspace
-complete -o nosort -F _workspace ws
+complete -F _fzf_complete_workspace -o nosort -o default -o bashdefault workspace
+complete -F _fzf_complete_ws -o nosort -o default -o bashdefault ws
+complete -F _fzf_complete_w -o nosort -o default -o bashdefault w
 
 if [[ -f ~/.bashrc ]] && ! (return 0 2>/dev/null); then
   source ~/.bashrc

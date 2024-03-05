@@ -87,6 +87,28 @@ else
   }
 fi
 
+function _fzf_complete_workspace() {
+  local locals
+  local current
+
+  locals="$(command git for-each-ref \
+    --sort=-committerdate \
+    --format='%(refname:lstrip=2)' \
+    refs/heads/)"
+  current="$(command git branch --show-current)"
+
+  _fzf_complete --multi --reverse --prompt="branch> " -- "$@" < \
+    <(echo -e "$locals" | grep -v HEAD | grep -v "$current")
+}
+
+function _fzf_complete_ws() {
+  _fzf_complete_workspace "$@"
+}
+
+function _fzf_complete_w() {
+  _fzf_complete_workspace "$@"
+}
+
 # General aliases
 
 alias c='cd'
