@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=1090
 source ~/.dotfiles/envrc
+# shellcheck disable=1090
 source ~/.dotfiles/shellrc
 
+# shellcheck disable=1091
 source "$HOME/.dotfiles/deps/fzf-shell/.local/share/fzf/completion.bash"
+# shellcheck disable=1091
 source "$HOME/.dotfiles/deps/fzf-shell/.local/share/fzf/key-bindings.bash"
 
 bind 'set show-all-if-ambiguous on'
@@ -26,6 +30,7 @@ complete -F _fzf_complete_ws -o nosort -o default -o bashdefault ws
 complete -F _fzf_complete_w -o nosort -o default -o bashdefault w
 
 if [[ -f ~/.bashrc ]] && ! (return 0 2>/dev/null); then
+  # shellcheck disable=1090
   source ~/.bashrc
 fi
 
