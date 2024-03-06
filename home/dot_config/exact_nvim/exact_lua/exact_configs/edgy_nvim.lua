@@ -22,7 +22,11 @@ return {
       keys = {
         ['<C-q>'] = false,
         ['<Esc>'] = function(win)
-          win.view.edgebar:close()
+          if win.view.ft == 'qf' then
+            vim.cmd.cclose()
+          else
+            win.view.edgebar:close()
+          end
         end,
         q = false,
       },
