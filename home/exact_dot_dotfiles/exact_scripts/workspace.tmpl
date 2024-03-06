@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# chezmoi:template:left-delimiter="#{" right-delimiter="}#"
 
 if [ -n "$ZSH_VERSION" ]; then
   setopt +o nomatch
@@ -39,20 +40,58 @@ local WORKSPACE_BRANCH="$WORKSPACE_BRANCH"
 local WORKSPACE_ROOT_DIR="$WORKSPACE_ROOT_DIR"
 local WORKSPACE_DEFAULT_DIR="$WORKSPACE_DEFAULT_DIR"
 
-GIT_DIR="$(git rev-parse --show-toplevel 2>/dev/null)"
+if [[ -d "$BRANCH" || -d "$HOME/src/$BRANCH" || -d "$HOME/#{ .org.slug }#/$BRANCH" ]]; then
+  local DIR_PATH
+  if [[ -d "$BRANCH" ]]; then
+    DIR_PATH="$BRANCH" || return 1
+  elif [[ -d "$HOME/src/$BRANCH" ]]; then
+    DIR_PATH="$HOME/src/$BRANCH" || return 1
+  else
+    DIR_PATH="$HOME/#{ .org.slug }#/$BRANCH" || return 1
+  fi
 
-if [[ -z "$GIT_DIR" ]]; then
-  echo "$INFO_MSG: not inside a git repository" >&2
-  git clone "$BRANCH" || return 1
+  echo "$INFO_MSG: received valid directory name '$BRANCH'" >&2
 
-  local REPO_NAME
-  REPO_NAME="$(basename "$BRANCH" .git)"
-  local CLONE_DIR
-  CLONED_DIR="$PWD/$REPO_NAME"
-  builtin cd "$CLONED_DIR" || return 1
+  builtin cd "$DIR_PATH" || return 1
+
+  GIT_DIR="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+  if [[ -z "$GIT_DIR" ]]; then
+    for dir_name in staging main master; do
+      if [[ -d "$DIR_PATH/$dir_name" ]]; then
+        pushd "$DIR_PATH/$dir_name" >/dev/null || return 1
+        GIT_DIR="$(git rev-parse --show-toplevel 2>/dev/null)"
+        popd >/dev/null || return 1
+
+        if [[ -n "$GIT_DIR" ]]; then
+          builtin cd "$DIR_PATH/$dir_name" || return 1
+        fi
+      fi
+    done
+  fi
+
+  if [[ -z "$GIT_DIR" ]]; then
+    echo "$ERROR_MSG: could not find default branch" >&2
+    return 1
+  fi
 
   BRANCH="$(git branch --show-current)"
-  GIT_DIR="$(git rev-parse --show-toplevel)"
+else
+  GIT_DIR="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+  if [[ -z "$GIT_DIR" ]]; then
+    echo "$INFO_MSG: not inside a git repository" >&2
+    git clone "$BRANCH" || return 1
+
+    local REPO_NAME
+    REPO_NAME="$(basename "$BRANCH" .git)"
+    local CLONED_DIR
+    CLONED_DIR="$PWD/$REPO_NAME"
+    builtin cd "$CLONED_DIR" || return 1
+
+    BRANCH="$(git branch --show-current)"
+    GIT_DIR="$(git rev-parse --show-toplevel)"
+  fi
 fi
 
 [[ -z "$MSYSTEM" ]] || GIT_DIR="$(cygpath -u "$GIT_DIR")"
@@ -255,3 +294,5 @@ __workspace_main__ "$@"
 
 unset -f push_workspace
 unset -f pop_workspace
+
+# vim: filetype=sh

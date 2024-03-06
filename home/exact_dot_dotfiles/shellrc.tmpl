@@ -88,17 +88,34 @@ else
 fi
 
 function _fzf_complete_workspace() {
-  local locals
   local current
 
-  locals="$(command git for-each-ref \
-    --sort=-committerdate \
-    --format='%(refname:lstrip=2)' \
-    refs/heads/)"
-  current="$(command git branch --show-current)"
+  current="$(command git branch --show-current 2>/dev/null)"
 
-  _fzf_complete --multi --reverse --prompt="branch> " -- "$@" < \
-    <(echo -e "$locals" | grep -v HEAD | grep -v "$current")
+  if [[ -z "$current" ]]; then
+    local dirs
+    dirs=()
+    #{- if index . "org"}#
+    if [[ -d "$HOME/#{ .org.slug }#" ]]; then
+      dirs+=("$HOME/#{ .org.slug }#"/ws-*/*)
+    fi
+    #{- end }#
+    if [[ -d "$HOME/src" ]]; then
+      dirs+=("$HOME/src"/ws-*/*)
+    fi
+
+    _fzf_complete --multi --reverse --prompt="workspace> " -- "$@" < \
+      <(printf '%s\n' "${dirs[@]}")
+  else
+    local locals
+    locals="$(command git for-each-ref \
+      --sort=-committerdate \
+      --format='%(refname:lstrip=2)' \
+      refs/heads/)"
+
+    _fzf_complete --multi --reverse --prompt="branch> " -- "$@" < \
+      <(echo -e "$locals" | grep -v HEAD | grep -v "$current")
+  fi
 }
 
 function _fzf_complete_ws() {
