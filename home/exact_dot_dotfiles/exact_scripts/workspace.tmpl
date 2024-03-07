@@ -40,7 +40,8 @@ local WORKSPACE_BRANCH="$WORKSPACE_BRANCH"
 local WORKSPACE_ROOT_DIR="$WORKSPACE_ROOT_DIR"
 local WORKSPACE_DEFAULT_DIR="$WORKSPACE_DEFAULT_DIR"
 
-if [[ -d "$BRANCH" || -d "$HOME/src/$BRANCH" || -d "$HOME/#{ .org.slug }#/$BRANCH" ]]; then
+if [[ "$BRANCH" = ws-* ]] && \
+    [[ -d "$BRANCH" || -d "$HOME/src/$BRANCH" || -d "$HOME/#{ .org.slug }#/$BRANCH" ]]; then
   local DIR_PATH
   if [[ -d "$BRANCH" ]]; then
     DIR_PATH="$BRANCH" || return 1
@@ -98,9 +99,9 @@ fi
 
 THIS_BRANCH="$(git branch --show-current)"
 
-WORKSPACE_BRANCH="$(basename "$(git rev-parse --abbrev-ref origin/HEAD)")"
+WORKSPACE_BRANCH="$(basename "$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null)")"
 
-if [[ -z "$WORKSPACE_BRANCH" ]]; then
+if [[ -z "$WORKSPACE_BRANCH" || "$WORKSPACE_BRANCH" == "HEAD" ]]; then
   echo "$ERROR_MSG: could not find default branch" >&2
   return 1
 else
