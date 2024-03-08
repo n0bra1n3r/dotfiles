@@ -181,10 +181,18 @@ alias gb='git branch'
 alias gp='git pu'
 alias gs='git st'
 alias gu='git pull'
-alias gw='git sw'
 
 function ga() {
-  git add -N "*$**" && git ap "*$**"
+  if [[ $# -eq 0 ]]; then
+    command git ls-files --deleted --modified --other --exclude-standard \
+      | fzf -0 -m \
+        --preview 'command git diff --color=always {-1}' \
+        --bind 'enter:become(command git add {+})'
+
+    git st
+  else
+    git add "$@"
+  fi
 }
 
 function gc() {
@@ -192,12 +200,52 @@ function gc() {
   source "$HOME/.dotfiles/scripts/git-commit-message"
 }
 
-function gr() {
-  git rs "*$**"
+function ge() {
+  if [[ $# -eq 0 ]]; then
+    command git log --format='%h %s' \
+      | fzf -0 \
+        --preview "git show --color=always \$(echo {} | cut -d' ' -f1)" \
+        --bind "enter:become(command git rb \$(echo {} | cut -d' ' -f1))"
+  else
+    git rb "$@"
+  fi
 }
 
-function grs() {
-  git rss "*$**"
+function gr() {
+  if [[ $# -eq 0 ]]; then
+    command git diff --name-only --staged \
+      | fzf -0 -m \
+        --preview 'command git diff --color=always --staged {-1}' \
+        --bind 'enter:become(command git rss {+})'
+
+    git st
+  else
+    git rss "$@"
+  fi
+}
+
+function gt() {
+  command git stash list \
+    | fzf -0 \
+      --preview "command git show --pretty=oneline --color=always --patch \"\$(echo {} | cut -d: -f1)\"" \
+      --bind "enter:become(command git sap \$(echo {} | cut -d: -f1))"
+
+  git st
+}
+
+function gw() {
+  if [[ $# -eq 0 ]]; then
+    command git branch \
+      | grep -v '^[*+]' \
+      | awk '{print $1}' \
+      | fzf -0 \
+        --preview 'git show --color=always {-1}' \
+        --bind 'enter:become(command git sw {})'
+
+    git st
+  else
+    git sw "$@"
+  fi
 }
 
 if [[ -n "$START_COMMAND" ]]; then
