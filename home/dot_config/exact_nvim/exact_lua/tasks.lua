@@ -24,19 +24,6 @@ my_tasks {
     notify = false,
     priority = 92,
   },
-  ["Run in emulator"] = {
-    cond = function()
-      return fn.is_debug_mode() and vim.g.project_type == 'flutter'
-    end,
-    func = function()
-      vim.g.flutter_current_config = nil
-      vim.g.flutter_current_device = nil
-
-      require'flutter-tools.devices'.list_emulators()
-    end,
-    notify = false,
-    priority = 93,
-  },
   ["Run on device"] = {
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
@@ -53,7 +40,7 @@ my_tasks {
       )
     end,
     notify = false,
-    priority = 94,
+    priority = 93,
   },
   ["Run profiler"] = {
     cond = function()
@@ -66,7 +53,7 @@ my_tasks {
       end
     end,
     notify = false,
-    priority = 95,
+    priority = 94,
   },
   ["Hot reload"] = {
     cond = function()
@@ -76,7 +63,7 @@ my_tasks {
       require'flutter-tools.commands'.reload()
     end,
     notify = false,
-    priority = 96,
+    priority = 95,
   },
   ["Debug continue"] = {
     cond = function()
@@ -97,7 +84,7 @@ my_tasks {
         type = 'number',
       },
     },
-    priority = 97,
+    priority = 96,
   },
   ["Debug restart"] = {
     cond = function()
@@ -107,7 +94,7 @@ my_tasks {
       require'flutter-tools.commands'.restart()
     end,
     notify = false,
-    priority = 98,
+    priority = 97,
   },
   ["Debug terminate"] = {
     cond = function()
@@ -117,7 +104,7 @@ my_tasks {
       require'flutter-tools.commands'.quit()
     end,
     notify = false,
-    priority = 99,
+    priority = 98,
   },
   ["Install project config"] = {
     cond = function()
@@ -138,6 +125,6 @@ my_tasks {
         fn.save_as_workspace_config)
     end,
     notify = false,
-    priority = 100,
+    priority = 99,
   },
 }

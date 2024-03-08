@@ -78,7 +78,9 @@ return {
     local select_device_fn = require'flutter-tools.devices'.select_device
     require'flutter-tools.devices'.select_device = function(device, args)
       vim.g.flutter_current_device = device
-      select_device_fn(device, args)
+      if vim.g.flutter_current_config then
+        select_device_fn(device, args)
+      end
     end
 
     -- FIX: Hack to set current_config
@@ -113,6 +115,13 @@ return {
     require'dap'.run = function(config, ...)
       if config.dartSdkPath and config.flutterSdkPath then
         vim.g.flutter_current_config = config
+        local device = vim.g.flutter_current_device
+        if device then
+          config.args = vim.list_extend(config.args or {}, {
+            '--device-id',
+            device.id,
+          })
+        end
       else
         vim.g.flutter_current_config = nil
       end
