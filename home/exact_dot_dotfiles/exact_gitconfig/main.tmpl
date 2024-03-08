@@ -5,19 +5,13 @@
   useCoreFSMonitorConfig = false
 
 [alias]
-  ae = add --edit
-  ap = add --patch
-  au = add --update
   ca = commit --amend
   ce = commit --allow-empty --message
   cm = commit --message
-  co = checkout
-  mg = merge
   pu = push --follow-tags --recurse-submodules=check
   puf = push --follow-tags --force-with-lease
   pup = !git push --follow-tags --set-upstream origin $(git branch --show-current)
-  rb = rebase --rebase-merges
-  rbi = rebase --rebase-merges --interactive
+  rb = rebase --rebase-merges --interactive
   rs = restore
   rss = restore --staged
   rsd = !git stash --staged && git stash drop
