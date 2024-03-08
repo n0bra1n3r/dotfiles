@@ -180,7 +180,6 @@ my_mappings {
     ["<Tab>5"]          = { goto_bookmark(5), desc = "Bookmark 5" },
     ["<Tab><BS>"]       = { del_cur_bookmark, desc = "Delete bookmark" },
     [";"]               = { "l" },
-    ['\\']              = { [[:nohlsearch<CR>]] },
     C                   = { '"_C' },
     c                   = { '"_c' },
     D                   = { '"_D' },
