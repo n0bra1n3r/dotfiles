@@ -135,6 +135,7 @@ my_mappings {
     ['<leader>ac']      = { [[<cmd>lua fn.ai_conv('CodeConv')<CR>]], desc = "Conv code" },
     ['<leader>ad']      = { [[<cmd>lua fn.ai_gen('ApiDoc')<CR>]], desc = "Doc gen" },
     ['<leader>db']      = { fn.search'dap_breakpoints', desc = "Breakpoints" },
+    ['<leader>dd']      = { fn.toggle_debug_repl, desc = "Toggle REPL" },
     ['<leader>de']      = { fn.resume_debugging, desc = "Enter Debugger" },
     ["<leader>fd"]      = { fn.delete_file, desc = "Delete" },
     ["<leader>fe"]      = { fn.edit_file, desc = "Edit" },
