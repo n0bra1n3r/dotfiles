@@ -669,11 +669,8 @@ function fn.save_tabpage()
 end
 
 function fn.show_buffer_jump_picker(dir)
-  require'portal.builtin'.jumplist.tunnel({
+  require'portal.builtin'.changelist.tunnel({
     direction = dir,
-    filter = function(j)
-      return j.buffer == vim.api.nvim_get_current_buf()
-    end,
   })
 end
 
