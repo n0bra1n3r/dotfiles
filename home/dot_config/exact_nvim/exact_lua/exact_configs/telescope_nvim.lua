@@ -63,5 +63,15 @@ return {
     require'telescope'.load_extension('dap')
     require'telescope'.load_extension('fzf')
     require'telescope'.load_extension('smart_history')
+
+    require'dap.ui'.pick_one = function(items, prompt, label_fn, cb)
+      vim.ui.select(items, {
+        prompt = prompt,
+        dressing = {
+          relative = 'editor',
+        },
+        format_item = label_fn,
+      }, cb)
+    end
   end,
 }
