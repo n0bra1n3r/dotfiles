@@ -200,7 +200,7 @@ function gc() {
   source "$HOME/.dotfiles/scripts/git-commit-message"
 }
 
-function ge() {
+function gl() {
   if [[ $# -eq 0 ]]; then
     command git log --format='%h %s' \
       | fzf -0 \
