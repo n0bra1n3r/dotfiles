@@ -48,8 +48,9 @@ export GH_TOKEN="$GITHUB_ACCESS_TOKEN"
 export OPENAI_API_KEY="#{ .openAi.key }#"
 #{- end }#
 
-export RIPGREP_CONFIG_PATH="$HOME/.dotfiles/ripgreprc"
 export BAT_THEME="Catppuccin-frappe"
+export FZF_DEFAULT_OPTS="--bind 'j:down,k:up,alt-j:preview-down,alt-k:preview-up'"
+export RIPGREP_CONFIG_PATH="$HOME/.dotfiles/ripgreprc"
 
 #{- if eq .chezmoi.os "windows" }#
 # shellcheck disable=SC2147

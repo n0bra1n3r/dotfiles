@@ -200,10 +200,19 @@ function gc() {
   source "$HOME/.dotfiles/scripts/git-commit-message"
 }
 
+function gg() {
+  command git reflog --color=always \
+    | fzf -0 \
+      --ansi \
+      --preview "git show --color=always \$(echo {} | cut -d' ' -f1)" \
+      --bind "enter:become(command git reset --hard \$(echo {} | cut -d' ' -f1))"
+}
+
 function gl() {
   if [[ $# -eq 0 ]]; then
-    command git log --format='%h %s' \
+    command git log --oneline --color=always \
       | fzf -0 \
+        --ansi \
         --preview "git show --color=always \$(echo {} | cut -d' ' -f1)" \
         --bind "enter:become(command git rb \$(echo {} | cut -d' ' -f1))"
   else
