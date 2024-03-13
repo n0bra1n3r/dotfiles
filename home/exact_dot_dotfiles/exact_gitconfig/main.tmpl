@@ -10,7 +10,6 @@
   cm = commit --message
   pu = push --follow-tags --recurse-submodules=check
   puf = push --follow-tags --force-with-lease
-  pup = !git push --follow-tags --set-upstream origin $(git branch --show-current)
   rb = rebase --rebase-merges --interactive
   rs = restore
   rss = restore --staged
@@ -21,6 +20,7 @@
   sau = !git stash --staged && git stash && git stash pop --index stash@{1}
   st = status
   sw = switch
+  pushnew = push --set-upstream origin HEAD
 
 [core]
   excludesfile = ~/.dotfiles/gitignore
@@ -32,6 +32,9 @@
 
 [pull]
   rebase = true
+
+[push]
+  default = current
 
 [tig "bind"]
   generic = <Ctrl-f> scroll-page-down
