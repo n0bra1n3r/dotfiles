@@ -8,7 +8,7 @@
   ca = commit --amend
   ce = commit --allow-empty --message
   cm = commit --message
-  pu = push --follow-tags --recurse-submodules=check
+  pu = push --follow-tags --recurse-submodules=check --set-upstream origin HEAD
   puf = push --follow-tags --force-with-lease
   rb = rebase --rebase-merges --interactive
   rs = restore
@@ -20,7 +20,6 @@
   sau = !git stash --staged && git stash && git stash pop --index stash@{1}
   st = status
   sw = switch
-  pushnew = push --set-upstream origin HEAD
 
 [core]
   excludesfile = ~/.dotfiles/gitignore
