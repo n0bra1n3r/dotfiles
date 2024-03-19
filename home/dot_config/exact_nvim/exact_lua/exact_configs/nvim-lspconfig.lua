@@ -14,7 +14,7 @@ local function goto_definition(win_cmd)
 end
 
 local function format()
-  vim.lsp.buf.format{ async = true }
+  vim.lsp.buf.format()
 end
 
 return {
