@@ -86,6 +86,9 @@ my_autocmds {
           fn.save_workspace()
         end
       end
+      if vim.bo[args.buf].filetype == 'Trouble' then
+        require'trouble'.action('cancel')
+      end
     end,
   }, --}}}
   { "BufWritePre", pattern = { '*.dart', '*.json', '*.kt', '*.nim', '*.swift' }, --{{{

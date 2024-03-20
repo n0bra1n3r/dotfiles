@@ -153,7 +153,7 @@ my_mappings {
     ["<leader>gr"]      = { ":Gitsigns reset_hunk<CR>", desc = "Reset hunk" },
     ["<leader>gs"]      = { search_history, desc = "Search history" },
     ["<leader>id"]      = { fn.search'diagnostics_document', desc = "Document issues" },
-    ["<leader>iw"]      = { fn.search'diagnostics_workspace', desc = "Workspace issues" },
+    ["<leader>iw"]      = { [[<cmd>Trouble<CR>]], desc = "Workspace issues" },
     ["<leader>l"]       = { fn.search'lsp_document_symbols', desc = "LSP symbols" },
     ["<leader>pa"]      = { "<cmd>Mason<CR>", desc = "Packages" },
     ["<leader>pl"]      = { "<cmd>Lazy<CR>", desc = "Plugins" },

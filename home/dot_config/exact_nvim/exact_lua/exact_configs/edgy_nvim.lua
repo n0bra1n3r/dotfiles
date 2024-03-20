@@ -17,6 +17,11 @@ return {
           end,
           title = 'Debugger',
         },
+        {
+          ft = 'Trouble',
+          open = 'Trouble',
+          title = 'Trouble',
+        },
       },
       exit_when_last = true,
       keys = {
@@ -24,6 +29,8 @@ return {
         ['<Esc>'] = function(win)
           if win.view.ft == 'qf' then
             vim.cmd.cclose()
+          elseif win.view.ft == 'Trouble' then
+            vim.cmd.TroubleClose()
           else
             win.view.edgebar:close()
           end
