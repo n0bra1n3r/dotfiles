@@ -1,12 +1,20 @@
 local function goto_definition(win_cmd)
   return function()
-    if win_cmd then
-      vim.cmd(win_cmd)
-    end
     vim.lsp.buf.definition {
       on_list = function(options)
-        vim.fn.setqflist({}, ' ', options)
-        vim.cmd.copen()
+        if options.items then
+          if #options.items > 1 then
+            vim.fn.setqflist({}, ' ', options)
+            vim.cmd.copen()
+          else
+            if win_cmd then
+              vim.cmd(win_cmd)
+            end
+            local item = options.items[1]
+            vim.cmd.drop(item.filename)
+            vim.api.nvim_win_set_cursor(0, { item.lnum, item.col - 1 })
+          end
+        end
       end,
       reuse_win = true,
     }

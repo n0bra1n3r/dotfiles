@@ -713,7 +713,7 @@ function fn.add_buf_to_loclist(bufnr)
         table.insert(list, 1, {
           bufnr = bufnr,
           filename = name,
-          col = cur[2],
+          col = cur[2] + 1,
           lnum = cur[1],
         })
         vim.fn.setloclist(win, list, 'r')
