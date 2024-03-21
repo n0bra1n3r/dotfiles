@@ -598,10 +598,123 @@ function fn.is_terminal_buf(buf)
   return false
 end
 --}}}
+--{{{ Quickfix
+local qf_info = {
+  ids = {},
+}
+
+function fn.set_qf_items(name, what, shouldAppend)
+  what = what or { items = {} }
+  local action = shouldAppend and 'a' or 'r'
+  if qf_info[name] == nil then
+    if vim.fn.getqflist({ nr = 0, size = 0 }).size > 0 then
+      action = ' '
+    end
+  end
+  vim.fn.setqflist({}, action, vim.tbl_extend('keep', {
+    id = qf_info[name],
+    context = vim.tbl_extend('keep', {
+      name = name,
+    }, what.context or {})
+  }, what))
+  if qf_info[name] == nil then
+    local info = vim.fn.getqflist({ id = 0, winid = 0 })
+    qf_info[name] = info.id
+    if info.winid ~= 0 and action == ' ' then
+      vim.cmd[[silent colder]]
+    else
+      vim.fn.setqflist({}, ' ')
+    end
+  end
+end
+
+function fn.show_qf(name)
+  if qf_info[name] ~= nil then
+    local nr = vim.fn.getqflist({ id = qf_info[name], nr = 0 }).nr
+    local curnr = vim.fn.getqflist({ nr = 0 }).nr
+    local count = curnr - nr
+    if count > 0 then
+      vim.cmd([[silent colder ]]..count)
+    elseif count < 0 then
+      vim.cmd([[silent cnewer ]]..(-count))
+    end
+  end
+  vim.cmd.copen()
+end
+
+function fn.close_qf()
+  vim.cmd.cclose()
+  local nr = vim.fn.getqflist({ nr = 0 }).nr
+  local lastnr = vim.fn.getqflist({ nr = '$' }).nr
+  local count = lastnr - nr
+  if count > 0 then
+    vim.cmd([[silent cnewer ]]..count)
+  end
+end
+
+function fn.show_lsp_diagnostics_list()
+  fn.show_qf('lsp_diagnostics')
+end
+
+function fn.update_lsp_diagnostics_list(isAutoShow)
+  local items = vim.diagnostic.toqflist(vim.diagnostic.get())
+  fn.set_qf_items('lsp_diagnostics', {
+    title = "LSP Diagnostics",
+    items = items,
+  })
+
+  if isAutoShow and #items > 0 then
+    local isOpen = vim.fn.getqflist({ winid = 0 }).winid ~= 0
+    if not isOpen then
+      local winid = vim.api.nvim_get_current_win()
+      fn.show_lsp_diagnostics_list()
+      vim.api.nvim_set_current_win(winid)
+    end
+  end
+end
+
+fn.set_qf_items('lsp_diagnostics')
+fn.set_qf_items('lsp_definitions')
+fn.set_qf_items('task_output_1')
+fn.set_qf_items('task_output_2')
+fn.set_qf_items('task_output_3')
+fn.set_qf_items('task_output_4')
+fn.set_qf_items('task_output_5')
+fn.set_qf_items('task_output_6')
+fn.set_qf_items('task_output_7')
+--}}}
 --{{{ Navigation
 local nav_info = {
   last_tabpage = nil,
 }
+
+function fn.restore_tabpage()
+  if nav_info.last_tabpage and
+      vim.api.nvim_tabpage_is_valid(nav_info.last_tabpage) then
+    pcall(vim.api.nvim_set_current_tabpage, nav_info.last_tabpage)
+    nav_info.last_tabpage = nil
+  end
+end
+
+function fn.save_tabpage()
+  local cur_tabpage = vim.api.nvim_get_current_tabpage()
+  fn.vim_defer(function()
+    nav_info.last_tabpage = cur_tabpage
+  end)()
+end
+
+function fn.get_prior_tabpage()
+  local tabnr = vim.fn.tabpagenr[[#]]
+  for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
+    if vim.api.nvim_tabpage_get_number(tabpage) == tabnr then
+      return tabpage
+    end
+  end
+end
+
+function fn.open_tab(filename)
+  vim.cmd.tabedit(filename)
+end
 
 function fn.edit_buffer(mode, path)
   local tabpage = vim.api.nvim_get_current_tabpage()
@@ -632,40 +745,41 @@ function fn.float_window()
   })
 end
 
-function fn.get_prior_tabpage()
-  local tabnr = vim.fn.tabpagenr[[#]]
-  for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
-    if vim.api.nvim_tabpage_get_number(tabpage) == tabnr then
-      return tabpage
-    end
-  end
-end
-
-function fn.open_tab(filename)
-  vim.cmd.tabedit(filename)
-end
-
-function fn.close_buffer()
+function fn.close_window(win)
+  win = win or vim.api.nvim_get_current_win()
+  local buf = vim.api.nvim_win_get_buf(win)
   if #vim.api.nvim_tabpage_list_wins(0) > 0 then
-    vim.cmd.close()
+    if vim.bo[buf].filetype == 'qf' then
+      fn.close_qf()
+    else
+      vim.api.nvim_win_close(win, false)
+    end
   else
-    require'mini.bufremove'.unshow()
+    require'mini.bufremove'.unshow(buf)
   end
 end
 
-function fn.restore_tabpage()
-  if nav_info.last_tabpage and
-      vim.api.nvim_tabpage_is_valid(nav_info.last_tabpage) then
-    pcall(vim.api.nvim_set_current_tabpage, nav_info.last_tabpage)
-    nav_info.last_tabpage = nil
+function fn.zoom_window(win)
+  win = win or vim.api.nvim_get_current_win()
+  if vim.w[win].edgy_enter ~= nil then
+    local winpos
+    for _, pos in ipairs{ 'bottom', 'top', 'left', 'right' } do
+      for _, winid in ipairs(require'edgy.layout'.get(pos)) do
+        if winid == win then
+          winpos = pos
+          break
+        end
+      end
+      if winpos then break end
+    end
+    for _, winid in ipairs(require'edgy.layout'.get(winpos)) do
+      if winid ~= win then
+        require'edgy.editor'.get_win(winid):hide()
+      end
+    end
+  else
+    vim.cmd.only()
   end
-end
-
-function fn.save_tabpage()
-  local cur_tabpage = vim.api.nvim_get_current_tabpage()
-  fn.vim_defer(function()
-    nav_info.last_tabpage = cur_tabpage
-  end)()
 end
 
 function fn.show_buffer_jump_picker(dir)
@@ -1041,15 +1155,11 @@ function fn.create_task(name, config)
           vim.deepcopy(config.args or {}),
           vim.deepcopy(params.args or {}))
         local deps = {
+          { 'task_output_quickfix' },
           config.notify == false
             and { 'on_complete_notify', statuses = {} }
             or 'on_complete_notify',
           { 'run_after', task_names = config.deps or {} },
-          {
-            'on_output_quickfix',
-            errorformat = config.errorformat,
-            set_diagnostics = true,
-          },
           'default',
         }
         if not config.func then

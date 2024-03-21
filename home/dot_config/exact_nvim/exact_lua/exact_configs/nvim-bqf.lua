@@ -1,5 +1,9 @@
 return {
   config = function()
-    require'bqf'.setup()
+    require'bqf'.setup {
+      preview = {
+        border = 'single',
+      },
+    }
   end,
 }

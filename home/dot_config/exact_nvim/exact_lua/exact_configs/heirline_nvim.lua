@@ -709,22 +709,32 @@ local function header_icon()
   return {
     hl = function(self)
       local fg = self.icon_color
-      if not require'heirline.conditions'.is_active() then
-        fg = 'buffer_inactive'
-      elseif vim.bo.modified then
-        fg = 'buffer_modified'
+      if fn.is_file_buffer() then
+        if not require'heirline.conditions'.is_active() then
+          fg = 'buffer_inactive'
+        elseif vim.bo.modified then
+          fg = 'buffer_modified'
+        end
       end
       return { fg = fg }
     end,
     init = function(self)
-      local filename = vim.api.nvim_buf_get_name(0)
-      local extension = vim.fn.fnamemodify(filename, ':e')
-      self.icon, self.icon_color = require'nvim-web-devicons'.get_icon_color(
-        filename,
-        extension,
-        { default = true })
+      if vim.bo.filetype == 'qf' then
+        self.icon = '󱁤'
+      elseif vim.bo.filetype == 'dap-repl' then
+        self.icon = '󰃤'
+        self.icon_color = 'debug_mode'
+      else
+        local filename = vim.api.nvim_buf_get_name(0)
+        local extension = vim.fn.fnamemodify(filename, ':e')
+        self.icon, self.icon_color = require'nvim-web-devicons'.get_icon_color(
+          filename,
+          extension,
+          { default = true })
+      end
     end,
     provider = function(self)
+      if #vim.bo.buftype > 0 then return self.icon end
       if vim.bo.readonly then return '󰈈' end
       return vim.bo.modified and '' or self.icon
     end,
@@ -738,17 +748,26 @@ local function header_label()
       local fg = 'buffer_inactive'
       local is_active = require'heirline.conditions'.is_active()
       if is_active then
-        fg = vim.bo.modified and 'buffer_modified' or 'buffer'
+        fg = 'buffer'
+        if vim.bo.modified and fn.is_file_buffer() then
+          fg = 'buffer_modified'
+        end
       end
       return { fg = fg, bold = is_active, italic = is_active }
     end,
     init = function(self)
-      local winid = vim.api.nvim_get_current_win()
-      local win_width = vim.fn.getwininfo(winid)[1].width
-      if not fn.is_filename_empty() then
-        self.filename = vim.fn.expand('%:~:.')
-        if #self.filename / win_width >= 0.6 then
-          self.filename = vim.fn.pathshorten(self.filename)
+      if vim.bo.filetype == 'qf' then
+        self.filename = 'Quickfix'
+      elseif vim.bo.filetype == 'dap-repl' then
+        self.filename = 'Debugger'
+      else
+        local winid = vim.api.nvim_get_current_win()
+        local win_width = vim.fn.getwininfo(winid)[1].width
+        if not fn.is_filename_empty() then
+          self.filename = vim.fn.expand('%:~:.')
+          if #self.filename / win_width >= 0.6 then
+            self.filename = vim.fn.pathshorten(self.filename)
+          end
         end
       end
     end,
@@ -756,7 +775,7 @@ local function header_label()
       callback = function(_, minwid, nclicks)
         vim.api.nvim_set_current_win(minwid)
         if nclicks > 1 then
-          vim.cmd.only()
+          fn.zoom_window(minwid)
         end
       end,
       minwid = function()
@@ -782,7 +801,7 @@ local function header_close_btn()
     hl = { fg = 'close_btn' },
     on_click = {
       callback = function(_, minwid)
-        vim.api.nvim_win_close(minwid, false)
+        fn.close_window(minwid)
       end,
       minwid = function()
         return vim.api.nvim_get_current_win()
@@ -957,8 +976,6 @@ return {
                 'acwrite',
                 'help',
                 'nowrite',
-                'prompt',
-                'quickfix',
                 'terminal',
               },
               filetype = {

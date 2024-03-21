@@ -1,7 +1,7 @@
 -- vim: fcl=all fdm=marker fdl=0 fen
 
 my_autocmds {
-  { { 'BufEnter', 'BufWinEnter' }, --{{{
+  { { 'BufEnter', 'BufWinEnter', 'FileType' }, --{{{
     callback = function()
       vim.cmd.checktime()
 
@@ -86,9 +86,6 @@ my_autocmds {
           fn.save_workspace()
         end
       end
-      if vim.bo[args.buf].filetype == 'Trouble' then
-        require'trouble'.action('cancel')
-      end
     end,
   }, --}}}
   { "BufWritePre", pattern = { '*.dart', '*.json', '*.kt', '*.nim', '*.swift' }, --{{{
@@ -126,6 +123,11 @@ my_autocmds {
   { { 'CursorMoved', 'InsertEnter' }, --{{{
     callback = function()
       vim.wo.relativenumber = false
+    end,
+  }, --}}}
+  { "DiagnosticChanged", --{{{
+    callback = function()
+      fn.update_lsp_diagnostics_list(true)
     end,
   }, --}}}
   { "DirChanged", --{{{
@@ -283,11 +285,6 @@ my_autocmds {
       end
     end,
     once = true,
-  }, --}}}
-  { "VimLeavePre", --{{{
-    callback = function()
-      vim.cmd.cclose()
-    end,
   }, --}}}
   { 'WinEnter', --{{{
     callback = function()

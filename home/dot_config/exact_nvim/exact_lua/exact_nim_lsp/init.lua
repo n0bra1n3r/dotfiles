@@ -142,184 +142,184 @@ local function uri_to_path(uri)
   end
 end
 
-M.methods['textDocument/completion'] = {
-  capability = {
-    triggerCharacters = { '.' },
-    completionItem = {
-      labelDetailsSupport = true,
-    },
-  },
-  handler = function(_, params, cb)
-    local items = {}
+-- M.methods['textDocument/completion'] = {
+--   capability = {
+--     triggerCharacters = { '.' },
+--     completionItem = {
+--       labelDetailsSupport = true,
+--     },
+--   },
+--   handler = function(_, params, cb)
+--     local items = {}
+--
+--     vim.fn['nim#suggest#utils#Query'](
+--       'sug',
+--       {
+--         on_data = function(reply)
+--           for _, item in ipairs(reply) do
+--             local parts = vim.split(item, '\t',
+--               { plain = true, trimempty = false })
+--             if parts[1] == 'sug' then
+--               local kind = get_completion_item_kind(parts[2])
+--               local name = parts[3]
+--               local name_parts = vim.split(name, '.', { plain = true })
+--               local label = name_parts[#name_parts]
+--               local description = vim.fn.eval(parts[8])
+--               local editFormat = vim.lsp.protocol.InsertTextFormat.PlainText
+--               local textEdit
+--               if kind == vim.lsp.protocol.CompletionItemKind.Function or
+--                 kind == vim.lsp.protocol.CompletionItemKind.Method
+--               then
+--                 local param_count = 0
+--                 local param_string = parts[4]:match('%b()')
+--                   :sub(2, -2)
+--                   :gsub('%b()', '')
+--                   :gsub('%b[]', '')
+--                 if params.context.triggerKind ==
+--                     vim.lsp.protocol.CompletionTriggerKind.TriggerCharacter
+--                 then
+--                   param_string = param_string:gsub('^([%w_]+): [%w:_ ]+,?', '')
+--                 end
+--                 param_string = param_string:gsub('([%w_]+): [%w:_ ]+',
+--                   function(param_name)
+--                     param_count = param_count + 1
+--                     return '${'..param_count..':'..param_name..'}'
+--                   end)
+--                 editFormat = vim.lsp.protocol.InsertTextFormat.Snippet
+--                 textEdit = {
+--                   newText = label..'('..vim.fn.trim(param_string)..')$0',
+--                   range = { ['end'] = params.position, start = params.position },
+--                 }
+--               end
+--               table.insert(items, {
+--                 kind = kind,
+--                 detail = parts[4],
+--                 documentation = {
+--                   kind = 'markdown',
+--                   value = '-\n'..vim.fn.join({
+--                     '*'..parts[5]..'*',
+--                     #description > 0 and description or nil,
+--                   }, '\n\n'),
+--                 },
+--                 insertTextFormat = editFormat,
+--                 label = label,
+--                 labelDetails = {
+--                   description = name,
+--                 },
+--                 textEdit = textEdit,
+--               })
+--             end
+--           end
+--         end,
+--         on_end = function()
+--           cb.send(items)
+--         end,
+--         pos = { params.position.line + 1, params.position.character + 1 },
+--       },
+--       false,
+--       true)
+--   end,
+-- }
 
-    vim.fn['nim#suggest#utils#Query'](
-      'sug',
-      {
-        on_data = function(reply)
-          for _, item in ipairs(reply) do
-            local parts = vim.split(item, '\t',
-              { plain = true, trimempty = false })
-            if parts[1] == 'sug' then
-              local kind = get_completion_item_kind(parts[2])
-              local name = parts[3]
-              local name_parts = vim.split(name, '.', { plain = true })
-              local label = name_parts[#name_parts]
-              local description = vim.fn.eval(parts[8])
-              local editFormat = vim.lsp.protocol.InsertTextFormat.PlainText
-              local textEdit
-              if kind == vim.lsp.protocol.CompletionItemKind.Function or
-                kind == vim.lsp.protocol.CompletionItemKind.Method
-              then
-                local param_count = 0
-                local param_string = parts[4]:match('%b()')
-                  :sub(2, -2)
-                  :gsub('%b()', '')
-                  :gsub('%b[]', '')
-                if params.context.triggerKind ==
-                    vim.lsp.protocol.CompletionTriggerKind.TriggerCharacter
-                then
-                  param_string = param_string:gsub('^([%w_]+): [%w:_ ]+,?', '')
-                end
-                param_string = param_string:gsub('([%w_]+): [%w:_ ]+',
-                  function(param_name)
-                    param_count = param_count + 1
-                    return '${'..param_count..':'..param_name..'}'
-                  end)
-                editFormat = vim.lsp.protocol.InsertTextFormat.Snippet
-                textEdit = {
-                  newText = label..'('..vim.fn.trim(param_string)..')$0',
-                  range = { ['end'] = params.position, start = params.position },
-                }
-              end
-              table.insert(items, {
-                kind = kind,
-                detail = parts[4],
-                documentation = {
-                  kind = 'markdown',
-                  value = '-\n'..vim.fn.join({
-                    '*'..parts[5]..'*',
-                    #description > 0 and description or nil,
-                  }, '\n\n'),
-                },
-                insertTextFormat = editFormat,
-                label = label,
-                labelDetails = {
-                  description = name,
-                },
-                textEdit = textEdit,
-              })
-            end
-          end
-        end,
-        on_end = function()
-          cb.send(items)
-        end,
-        pos = { params.position.line + 1, params.position.character + 1 },
-      },
-      false,
-      true)
-  end,
-}
+-- M.methods['textDocument/didChange'] = {
+--   handler = function(message_id, params, cb)
+--     local did_change = M.methods['textDocument/didChange']
+--
+--     project_find()
+--
+--     local path = uri_to_path(params.textDocument.uri)
+--     local diag_stack = M.info.diag_stack[path]
+--
+--     if diag_stack and #diag_stack > 0 then
+--       table.insert(diag_stack, {
+--         message_id = message_id,
+--         params = params,
+--       })
+--     else
+--       M.info.diag_stack[path] = {{
+--         message_id = message_id,
+--         params = params,
+--       }}
+--
+--       cb.start{ message = 'diagnostics' }
+--
+--       local buf = get_or_open_buf(path)
+--       local ns = vim.api.nvim_create_namespace('nim_lsp')
+--
+--       vim.schedule(function()
+--         vim.diagnostic.set(ns, buf, {})
+--       end)
+--
+--       vim.fn['nim#suggest#utils#Query'](
+--         'chk',
+--         {
+--           buffer = buf,
+--           on_data = function(reply)
+--             diag_stack = M.info.diag_stack[path]
+--             if #diag_stack == 1 and diag_stack[1].message_id == message_id then
+--               local diagnostics = {}
+--               for _, item in ipairs(reply) do
+--                 local parts = vim.split(item, '\t',
+--                   { plain = true, trimempty = false })
+--                 local lnum = (parts[6] and tonumber(parts[6]) or 0) - 1
+--                 if parts[1] == 'chk' and lnum >= 0 then
+--                   table.insert(diagnostics, {
+--                     col = tonumber(parts[7]),
+--                     filename = parts[5],
+--                     lnum = lnum,
+--                     message = vim.fn.eval(parts[8]),
+--                     severity = name_to_severity(parts[4]),
+--                     source = 'nim_lsp',
+--                   })
+--                 end
+--               end
+--
+--               vim.schedule(function()
+--                 apply_diagnostics(ns, diagnostics)
+--               end)
+--             end
+--           end,
+--           on_end = function()
+--             diag_stack = M.info.diag_stack[path]
+--             if #diag_stack > 1 then
+--               cb.report{ message = 'diagnostics', percentage = 100 / #diag_stack }
+--
+--               local last_task = diag_stack[#diag_stack]
+--
+--               M.info.diag_stack[path] = {}
+--
+--               did_change.handler(last_task.message_id, last_task.params, cb)
+--             else
+--               M.info.diag_stack[path] = {}
+--
+--               cb.stop{ message = 'diagnostics', percentage = 100 }
+--             end
+--           end,
+--         },
+--         false,
+--         true)
+--     end
+--   end,
+-- }
 
-M.methods['textDocument/didChange'] = {
-  handler = function(message_id, params, cb)
-    local did_change = M.methods['textDocument/didChange']
-
-    project_find()
-
-    local path = uri_to_path(params.textDocument.uri)
-    local diag_stack = M.info.diag_stack[path]
-
-    if diag_stack and #diag_stack > 0 then
-      table.insert(diag_stack, {
-        message_id = message_id,
-        params = params,
-      })
-    else
-      M.info.diag_stack[path] = {{
-        message_id = message_id,
-        params = params,
-      }}
-
-      cb.start{ message = 'diagnostics' }
-
-      local buf = get_or_open_buf(path)
-      local ns = vim.api.nvim_create_namespace('nim_lsp')
-
-      vim.schedule(function()
-        vim.diagnostic.set(ns, buf, {})
-      end)
-
-      vim.fn['nim#suggest#utils#Query'](
-        'chk',
-        {
-          buffer = buf,
-          on_data = function(reply)
-            diag_stack = M.info.diag_stack[path]
-            if #diag_stack == 1 and diag_stack[1].message_id == message_id then
-              local diagnostics = {}
-              for _, item in ipairs(reply) do
-                local parts = vim.split(item, '\t',
-                  { plain = true, trimempty = false })
-                local lnum = (parts[6] and tonumber(parts[6]) or 0) - 1
-                if parts[1] == 'chk' and lnum >= 0 then
-                  table.insert(diagnostics, {
-                    col = tonumber(parts[7]),
-                    filename = parts[5],
-                    lnum = lnum,
-                    message = vim.fn.eval(parts[8]),
-                    severity = name_to_severity(parts[4]),
-                    source = 'nim_lsp',
-                  })
-                end
-              end
-
-              vim.schedule(function()
-                apply_diagnostics(ns, diagnostics)
-              end)
-            end
-          end,
-          on_end = function()
-            diag_stack = M.info.diag_stack[path]
-            if #diag_stack > 1 then
-              cb.report{ message = 'diagnostics', percentage = 100 / #diag_stack }
-
-              local last_task = diag_stack[#diag_stack]
-
-              M.info.diag_stack[path] = {}
-
-              did_change.handler(last_task.message_id, last_task.params, cb)
-            else
-              M.info.diag_stack[path] = {}
-
-              cb.stop{ message = 'diagnostics', percentage = 100 }
-            end
-          end,
-        },
-        false,
-        true)
-    end
-  end,
-}
-
-M.methods['textDocument/didOpen'] = {
-  handler = function(message_id, params, cb)
-    local did_change = M.methods['textDocument/didChange']
-
-    local project = project_find()
-    if project then
-      if not M.info.proj_cache[project] then
-        M.info.proj_cache[project] = true
-        params.textDocument.uri = path_to_uri(project)
-        did_change.handler(message_id, params, cb)
-      else
-        did_change.handler(message_id, params, cb)
-      end
-    else
-      did_change.handler(message_id, params, cb)
-    end
-  end,
-}
+-- M.methods['textDocument/didOpen'] = {
+--   handler = function(message_id, params, cb)
+--     local did_change = M.methods['textDocument/didChange']
+--
+--     local project = project_find()
+--     if project then
+--       if not M.info.proj_cache[project] then
+--         M.info.proj_cache[project] = true
+--         params.textDocument.uri = path_to_uri(project)
+--         did_change.handler(message_id, params, cb)
+--       else
+--         did_change.handler(message_id, params, cb)
+--       end
+--     else
+--       did_change.handler(message_id, params, cb)
+--     end
+--   end,
+-- }
 
 M.methods['textDocument/definition'] = {
   capability = true,
