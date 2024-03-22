@@ -603,7 +603,7 @@ local qf_info = {
   ids = {},
 }
 
-function fn.set_qf_items(name, what, shouldAppend)
+local function set_qf_items(name, what, shouldAppend)
   what = what or { items = {} }
   local action = shouldAppend and 'a' or 'r'
   if qf_info[name] == nil then
@@ -618,7 +618,7 @@ function fn.set_qf_items(name, what, shouldAppend)
     }, what.context or {})
   }, what))
   if qf_info[name] == nil then
-    local info = vim.fn.getqflist({ id = 0, winid = 0 })
+    local info = vim.fn.getqflist{ id = 0, winid = 0 }
     qf_info[name] = info.id
     if info.winid ~= 0 and action == ' ' then
       vim.cmd[[silent colder]]
@@ -628,11 +628,21 @@ function fn.set_qf_items(name, what, shouldAppend)
   end
 end
 
-function fn.show_qf(name)
+local function get_qf_context(name)
+  if qf_info[name] == nil then
+    return {}
+  end
+  return vim.fn.getqflist({
+    id = qf_info[name],
+    context = 0,
+  }).context or {}
+end
+
+local function show_qf(name)
   if not fn.is_terminal_buf() then
     if qf_info[name] ~= nil then
-      local nr = vim.fn.getqflist({ id = qf_info[name], nr = 0 }).nr
-      local curnr = vim.fn.getqflist({ nr = 0 }).nr
+      local nr = vim.fn.getqflist{ id = qf_info[name], nr = 0 }.nr
+      local curnr = vim.fn.getqflist{ nr = 0 }.nr
       local count = curnr - nr
       if count > 0 then
         vim.cmd([[silent colder ]]..count)
@@ -646,8 +656,9 @@ end
 
 function fn.close_qf()
   vim.cmd.cclose()
-  local nr = vim.fn.getqflist({ nr = 0 }).nr
-  local lastnr = vim.fn.getqflist({ nr = '$' }).nr
+
+  local nr = vim.fn.getqflist{ nr = 0 }.nr
+  local lastnr = vim.fn.getqflist{ nr = '$' }.nr
   local count = lastnr - nr
   if count > 0 then
     vim.cmd([[silent cnewer ]]..count)
@@ -655,35 +666,100 @@ function fn.close_qf()
 end
 
 function fn.show_lsp_diagnostics_list()
-  fn.show_qf('lsp_diagnostics')
+  show_qf('lsp_diagnostics')
 end
 
-function fn.update_lsp_diagnostics_list(isAutoShow)
-  local items = vim.diagnostic.toqflist(vim.diagnostic.get())
-  fn.set_qf_items('lsp_diagnostics', {
-    title = "LSP Diagnostics",
-    items = items,
+function fn.update_lsp_diagnostics_list()
+  set_qf_items('lsp_diagnostics', {
+    items = vim.diagnostic.toqflist(vim.diagnostic.get()),
   })
+end
 
-  if isAutoShow and #items > 0 then
-    local isOpen = vim.fn.getqflist({ winid = 0 }).winid ~= 0
-    if not isOpen then
-      local winid = vim.api.nvim_get_current_win()
-      fn.show_lsp_diagnostics_list()
-      vim.api.nvim_set_current_win(winid)
+function fn.show_lsp_definitions_list()
+  show_qf('lsp_definitions')
+end
+
+function fn.update_lsp_definitions_list(options)
+  set_qf_items('lsp_definitions', options)
+end
+
+function fn.get_task_output_codes()
+  local qf_name_prefix = 'task_output_'
+
+  local codes = {}
+  for i = 1, 7 do
+    local qf_name = qf_name_prefix..i
+    local context = get_qf_context(qf_name)
+    if context.is_running or context.exit_code then
+      table.insert(codes, context.exit_code or -1)
+    end
+  end
+  return codes
+end
+
+function fn.show_task_output(nr)
+  local qf_name_prefix = 'task_output_'
+
+  local count = 0
+  for i = 1, 7 do
+    local qf_name = qf_name_prefix..i
+    local context = get_qf_context(qf_name)
+    if context.is_running or context.exit_code then
+      count = count + 1
+      if count == nr then
+        show_qf(qf_name)
+        break
+      end
     end
   end
 end
 
-fn.set_qf_items('lsp_diagnostics')
-fn.set_qf_items('lsp_definitions')
-fn.set_qf_items('task_output_1')
-fn.set_qf_items('task_output_2')
-fn.set_qf_items('task_output_3')
-fn.set_qf_items('task_output_4')
-fn.set_qf_items('task_output_5')
-fn.set_qf_items('task_output_6')
-fn.set_qf_items('task_output_7')
+function fn.update_task_output(output, id)
+  local qf_name_prefix = 'task_output_'
+
+  local qf_id = id
+  if not qf_id then
+    for i = 1, 7 do
+      local qf_name = qf_name_prefix..i
+      local context = get_qf_context(qf_name)
+      if not context.is_running then
+        set_qf_items(qf_name)
+        if not qf_id then
+          qf_id = i
+        end
+      end
+    end
+  end
+
+  if qf_id then
+    local qf_name = qf_name_prefix..qf_id
+    if type(output) == 'table' then
+      local items = {}
+      for _, line in ipairs(output) do
+        table.insert(items, { text = line })
+      end
+      set_qf_items(qf_name, {
+        items = items,
+        context = { is_running = true },
+      }, true)
+    else
+      set_qf_items(qf_name, {
+        context = { exit_code = output },
+      })
+    end
+  end
+  return qf_id
+end
+
+set_qf_items('lsp_diagnostics')
+set_qf_items('lsp_definitions')
+set_qf_items('task_output_1')
+set_qf_items('task_output_2')
+set_qf_items('task_output_3')
+set_qf_items('task_output_4')
+set_qf_items('task_output_5')
+set_qf_items('task_output_6')
+set_qf_items('task_output_7')
 --}}}
 --{{{ Navigation
 local nav_info = {

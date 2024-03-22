@@ -4,8 +4,8 @@ local function goto_definition(win_cmd)
       on_list = function(options)
         if options.items then
           if #options.items > 1 then
-            fn.set_qf_items('lsp_definitions', options)
-            fn.show_qf('lsp_definitions')
+            fn.update_lsp_definitions_list(options)
+            fn.show_lsp_definitions_list()
           else
             if win_cmd then
               vim.cmd(win_cmd)

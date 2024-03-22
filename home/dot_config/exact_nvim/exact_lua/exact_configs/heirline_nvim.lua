@@ -71,6 +71,8 @@ local function colors()
     separator = hl'Normal'.bg,
     tab = hl'Title'.fg,
     tab_inactive = hl'NonText'.fg,
+    task_done_error = hl'Error'.fg,
+    task_done_success = hl'String'.fg,
     task_running = hl'WarningMsg'.fg,
     window_btn = hl'NonText'.fg,
     workspace = hl'Title'.fg,
@@ -177,7 +179,6 @@ end
 local function mode_label()
   return {
     init = function(self)
-      self.task_count = fn.running_task_count()
       self.is_recording = vim.fn.reg_recording() ~= ''
     end,
     on_click = {
@@ -187,15 +188,11 @@ local function mode_label()
       name = 'mode_click_callback',
     },
     {
-      hl = function(self)
-        local fg = self.is_recording
-          and 'macro_recording'
-          or 'task_running'
-        return { fg = fg, bold = true }
+      hl = function()
+        return { fg = 'macro_recording', bold = true }
       end,
       provider = function(self)
-        return self.task_count > 0 and '󱐋'
-          or (self.is_recording and '•' or ' ')
+        return self.is_recording and '•' or ' '
       end,
     },
     {
@@ -308,6 +305,187 @@ local function workspace_label()
       space(),
     },
     border'',
+  }
+end
+
+local function diagnostic_label(severity, buf)
+  return {
+    init = function(self)
+      self.child_index.value = self.child_index.value + 1
+      self.count = self.counts[severity]
+      self.icon = self.icons[severity]
+      self.name = self.severities[severity]
+    end,
+    condition = function(self)
+      return self.counts[severity] > 0
+    end,
+    {
+      space(),
+      condition = function(self)
+        return self.child_index.value > 1
+      end,
+      sep'│',
+      space(),
+    },
+    {
+      on_click = {
+        callback = function(_, minwid)
+          if minwid == 0 then
+            fn.show_lsp_diagnostics_list()
+          else
+            vim.api.nvim_set_current_win(minwid)
+            vim.diagnostic.goto_next{ severity = severity }
+          end
+        end,
+        minwid = buf and function()
+          return vim.api.nvim_get_current_win()
+        end,
+        name = function(self)
+          return 'diagnostic_click_callback'..self.name
+        end,
+      },
+      hl = function(self)
+        if not require'heirline.conditions'.is_active() then
+          return { fg = 'diagnostic_inactive' }
+        end
+        return { fg = 'diagnostic_'..self.name }
+      end,
+      provider = function(self)
+        return self.icon..self.count
+      end,
+    },
+  }
+end
+
+local function diagnostics_bar(buf)
+  local s = vim.diagnostic.severity
+  local severities = {
+    [s.ERROR] = 'Error',
+    [s.WARN] = 'Warn',
+    [s.HINT] = 'Hint',
+    [s.INFO] = 'Info',
+  }
+  local icons = {}
+  for severity, name in pairs(severities) do
+    icons[severity] = vim.fn.sign_getdefined('DiagnosticSign'..name)[1].text
+  end
+  return {
+    condition = function()
+      return (not buf or fn.is_file_buffer(buf))
+        and #vim.diagnostic.get(buf) > 0
+    end,
+    init = function(self)
+      self.counts = {}
+      for severity, _ in pairs(self.severities) do
+        self.counts[severity] = #vim.diagnostic.get(buf, {
+          severity = severity,
+        })
+      end
+    end,
+    static = {
+      icons = icons,
+      severities = severities,
+    },
+    border'',
+    {
+      hl = { bg = 'background' },
+      init = function(self)
+        self.child_index = { value = 0 }
+      end,
+      update = {
+        'BufEnter',
+        'DiagnosticChanged',
+        'TabEnter',
+      },
+      diagnostic_label(s.ERROR, buf),
+      diagnostic_label(s.WARN, buf),
+      diagnostic_label(s.INFO, buf),
+      diagnostic_label(s.HINT, buf),
+    },
+    border'',
+  }
+end
+
+local function task_btn()
+  return {
+    init = function(self)
+      self.child_index.value = self.child_index.value + 1
+    end,
+    {
+      space(),
+      condition = function(self)
+        return self.child_index.value > 1
+      end,
+      sep'│',
+      space(),
+    },
+    {
+      on_click = {
+        callback = function(self)
+          fn.show_task_output(self.index)
+        end,
+        name = function(self)
+          return 'task_output_click_callback'..self.index
+        end,
+      },
+      {
+        condition = function(self)
+          return self.task_output_codes[self.index] < 0
+        end,
+        hl = { fg = 'task_running' },
+        provider = '󱐋',
+      },
+      {
+        condition = function(self)
+          return self.task_output_codes[self.index] >= 0
+        end,
+        hl = function(self)
+          local hl = self.task_output_codes[self.index] == 0
+            and 'task_done_success'
+            or 'task_done_error'
+          return { fg = hl }
+        end,
+        provider = function(self)
+          return self.task_output_codes[self.index] == 0
+            and '󰸞'
+            or '󱎘'
+        end,
+      },
+    },
+  }
+end
+
+local function task_bar()
+  return {
+    condition = function()
+      return #fn.get_task_output_codes() > 0
+    end,
+    init = function(self)
+      self.task_output_codes = fn.get_task_output_codes()
+    end,
+    border'',
+    {
+      hl = { bg = 'background' },
+      init = function(self)
+        self.child_index = { value = 0 }
+
+        local task_count = #self.task_output_codes
+        for i = 1, task_count do
+          local child = self[i]
+          if not child or child.index ~= i then
+            self[i] = self:new(task_btn(), i)
+            child = self[i]
+            child.index = i
+          end
+        end
+        if #self > task_count then
+          for i = task_count + 1, #self do
+            self[i] = nil
+          end
+        end
+      end,
+    },
+    border'',
   }
 end
 
@@ -738,7 +916,12 @@ local function header_icon()
       if vim.bo.readonly then return '󰈈' end
       return vim.bo.modified and '' or self.icon
     end,
-    update = { 'BufEnter', 'BufNew', 'BufModifiedSet', 'TermLeave' },
+    update = {
+      'BufEnter',
+      'BufNew',
+      'BufModifiedSet',
+      'TabEnter',
+    },
   }
 end
 
@@ -796,7 +979,7 @@ local function header_label()
       'BufEnter',
       'BufNew',
       'BufModifiedSet',
-      'TermLeave',
+      'TabEnter',
       'WinResized',
     },
   }
@@ -842,95 +1025,7 @@ local function header()
   }
 end
 
-local function diagnostic_label(severity)
-  return {
-    init = function(self)
-      self.child_index.value = self.child_index.value + 1
-      self.count = self.counts[severity]
-      self.icon = self.icons[severity]
-      self.name = self.severities[severity]
-    end,
-    condition = function(self)
-      return self.counts[severity] > 0
-    end,
-    {
-      space(),
-      condition = function(self)
-        return self.child_index.value > 1
-      end,
-      sep'│',
-      space(),
-    },
-    {
-      on_click = {
-        callback = function(_, minwid)
-          vim.api.nvim_set_current_win(minwid)
-          vim.diagnostic.goto_next{ severity = severity }
-        end,
-        minwid = function()
-          return vim.api.nvim_get_current_win()
-        end,
-        name = function(self)
-          return 'diagnostic_click_callback'..self.name
-        end,
-      },
-      hl = function(self)
-        if not require'heirline.conditions'.is_active() then
-          return { fg = 'diagnostic_inactive' }
-        end
-        return { fg = 'diagnostic_'..self.name }
-      end,
-      provider = function(self)
-        return self.icon..self.count
-      end,
-    },
-  }
-end
-
-local function diagnostics_bar()
-  local s = vim.diagnostic.severity
-  local severities = {
-    [s.ERROR] = 'Error',
-    [s.WARN] = 'Warn',
-    [s.HINT] = 'Hint',
-    [s.INFO] = 'Info',
-  }
-  local icons = {}
-  for severity, name in pairs(severities) do
-    icons[severity] = vim.fn.sign_getdefined('DiagnosticSign'..name)[1].text
-  end
-  return {
-    condition = require'heirline.conditions'.has_diagnostics,
-    init = function(self)
-      self.counts = {}
-      for severity, _ in pairs(self.severities) do
-        self.counts[severity] = #vim.diagnostic.get(0, { severity = severity })
-      end
-    end,
-    static = {
-      icons = icons,
-      severities = severities,
-    },
-    border'',
-    {
-      hl = { bg = 'background' },
-      init = function(self)
-        self.child_index = { value = 0 }
-      end,
-      update = { 'BufEnter', 'DiagnosticChanged', 'TermLeave' },
-      diagnostic_label(s.ERROR),
-      diagnostic_label(s.WARN),
-      diagnostic_label(s.INFO),
-      diagnostic_label(s.HINT),
-    },
-    border'',
-  }
-end
-
-local function quickfix_bar()
-end
-
-local function window_bar()
+local function window_control_bar()
   return {
     condition = function()
       return fn.is_file_buffer() or fn.is_empty_buffer()
@@ -1005,6 +1100,10 @@ return {
         mode_label(),
         space(),
         workspace_label(),
+        space(),
+        task_bar(),
+        space(),
+        diagnostics_bar(),
         space(math.huge),
         location_label(),
         space(),
@@ -1023,9 +1122,9 @@ return {
         space(-3),
         header(),
         space(),
-        diagnostics_bar(),
+        diagnostics_bar(0),
         space(math.huge),
-        window_bar(),
+        window_control_bar(),
       },
     }
 

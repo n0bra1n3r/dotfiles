@@ -125,9 +125,9 @@ my_autocmds {
       vim.wo.relativenumber = false
     end,
   }, --}}}
-  { "DiagnosticChanged", --{{{
+  { 'DiagnosticChanged', --{{{
     callback = function()
-      fn.update_lsp_diagnostics_list(true)
+      fn.update_lsp_diagnostics_list()
     end,
   }, --}}}
   { "DirChanged", --{{{
