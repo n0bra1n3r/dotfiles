@@ -629,7 +629,7 @@ function fn.set_qf_items(name, what, shouldAppend)
 end
 
 function fn.show_qf(name)
-  if not fn.is_terminal_buf()
+  if not fn.is_terminal_buf() then
     if qf_info[name] ~= nil then
       local nr = vim.fn.getqflist({ id = qf_info[name], nr = 0 }).nr
       local curnr = vim.fn.getqflist({ nr = 0 }).nr
@@ -1507,12 +1507,12 @@ function fn.resume_debugging(tabpage)
       require'flutter-tools.dap'.setup(require'flutter-tools.config')
     end
 
+    require'dapui'.close()
     update_debugging_state(1)
   end
 
   require'dap'.listeners.after.event_continued.my_debug_event = function()
     require'dapui'.close()
-
     update_debugging_state(3)
   end
   require'dap'.listeners.after.event_process.my_debug_event =
@@ -1523,19 +1523,19 @@ function fn.resume_debugging(tabpage)
     require'dap'.listeners.after.event_continued.my_debug_event
   require'dap'.listeners.after.launch.my_debug_event =
     require'dap'.listeners.after.event_continued.my_debug_event
-  require'dap'.listeners.after.launch.my_debug_event =
-    require'dap'.listeners.after.event_continued.my_debug_event
+
   require'dap'.listeners.after.event_stopped.my_debug_event = function()
     require'dapui'.open()
-
     update_debugging_state(2)
   end
+
   require'dap'.listeners.after.event_terminated.my_debug_event = function()
     require'dapui'.close()
-
     update_debugging_state(1)
   end
   require'dap'.listeners.after.event_exited.my_debug_event =
+    require'dap'.listeners.after.event_terminated.my_debug_event
+  require'dap'.listeners.after.disconnect.my_debug_event =
     require'dap'.listeners.after.event_terminated.my_debug_event
   require'dap'.listeners.after.terminate.my_debug_event =
     require'dap'.listeners.after.event_terminated.my_debug_event
