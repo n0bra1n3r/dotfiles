@@ -629,17 +629,19 @@ function fn.set_qf_items(name, what, shouldAppend)
 end
 
 function fn.show_qf(name)
-  if qf_info[name] ~= nil then
-    local nr = vim.fn.getqflist({ id = qf_info[name], nr = 0 }).nr
-    local curnr = vim.fn.getqflist({ nr = 0 }).nr
-    local count = curnr - nr
-    if count > 0 then
-      vim.cmd([[silent colder ]]..count)
-    elseif count < 0 then
-      vim.cmd([[silent cnewer ]]..(-count))
+  if not fn.is_terminal_buf()
+    if qf_info[name] ~= nil then
+      local nr = vim.fn.getqflist({ id = qf_info[name], nr = 0 }).nr
+      local curnr = vim.fn.getqflist({ nr = 0 }).nr
+      local count = curnr - nr
+      if count > 0 then
+        vim.cmd([[silent colder ]]..count)
+      elseif count < 0 then
+        vim.cmd([[silent cnewer ]]..(-count))
+      end
     end
+    vim.cmd.copen()
   end
-  vim.cmd.copen()
 end
 
 function fn.close_qf()
