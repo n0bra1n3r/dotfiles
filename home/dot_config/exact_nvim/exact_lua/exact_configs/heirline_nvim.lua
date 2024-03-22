@@ -308,6 +308,89 @@ local function workspace_label()
   }
 end
 
+local function task_btn()
+  return {
+    init = function(self)
+      self.child_index.value = self.child_index.value + 1
+    end,
+    {
+      space(),
+      condition = function(self)
+        return self.child_index.value > 1
+      end,
+      sep'│',
+      space(),
+    },
+    {
+      on_click = {
+        callback = function(self)
+          fn.show_task_output(self.index)
+        end,
+        name = function(self)
+          return 'task_output_click_callback'..self.index
+        end,
+      },
+      {
+        condition = function(self)
+          return self.task_output_codes[self.index] < 0
+        end,
+        hl = { fg = 'task_running' },
+        provider = '󱐋',
+      },
+      {
+        condition = function(self)
+          return self.task_output_codes[self.index] >= 0
+        end,
+        hl = function(self)
+          local hl = self.task_output_codes[self.index] == 0
+            and 'task_done_success'
+            or 'task_done_error'
+          return { fg = hl }
+        end,
+        provider = function(self)
+          return self.task_output_codes[self.index] == 0
+            and '󰸞'
+            or '󱎘'
+        end,
+      },
+    },
+  }
+end
+
+local function task_bar()
+  return {
+    condition = function()
+      return #fn.get_task_output_codes() > 0
+    end,
+    init = function(self)
+      self.task_output_codes = fn.get_task_output_codes()
+    end,
+    border'',
+    {
+      hl = { bg = 'background' },
+      init = function(self)
+        self.child_index = { value = 0 }
+
+        local task_count = #self.task_output_codes
+        for i = 1, task_count do
+          local child = self[i]
+          if not child or child.index ~= i then
+            self[i] = self:new(task_btn(), i)
+            child = self[i]
+            child.index = i
+          end
+        end
+        if #self > task_count then
+          for i = task_count + 1, #self do
+            self[i] = nil
+          end
+        end
+      end,
+    },
+    border'',
+  }
+end
+
 local function diagnostic_label(severity, buf)
   return {
     init = function(self)
@@ -401,89 +484,6 @@ local function diagnostics_bar(buf)
       diagnostic_label(s.WARN, buf),
       diagnostic_label(s.INFO, buf),
       diagnostic_label(s.HINT, buf),
-    },
-    border'',
-  }
-end
-
-local function task_btn()
-  return {
-    init = function(self)
-      self.child_index.value = self.child_index.value + 1
-    end,
-    {
-      space(),
-      condition = function(self)
-        return self.child_index.value > 1
-      end,
-      sep'│',
-      space(),
-    },
-    {
-      on_click = {
-        callback = function(self)
-          fn.show_task_output(self.index)
-        end,
-        name = function(self)
-          return 'task_output_click_callback'..self.index
-        end,
-      },
-      {
-        condition = function(self)
-          return self.task_output_codes[self.index] < 0
-        end,
-        hl = { fg = 'task_running' },
-        provider = '󱐋',
-      },
-      {
-        condition = function(self)
-          return self.task_output_codes[self.index] >= 0
-        end,
-        hl = function(self)
-          local hl = self.task_output_codes[self.index] == 0
-            and 'task_done_success'
-            or 'task_done_error'
-          return { fg = hl }
-        end,
-        provider = function(self)
-          return self.task_output_codes[self.index] == 0
-            and '󰸞'
-            or '󱎘'
-        end,
-      },
-    },
-  }
-end
-
-local function task_bar()
-  return {
-    condition = function()
-      return #fn.get_task_output_codes() > 0
-    end,
-    init = function(self)
-      self.task_output_codes = fn.get_task_output_codes()
-    end,
-    border'',
-    {
-      hl = { bg = 'background' },
-      init = function(self)
-        self.child_index = { value = 0 }
-
-        local task_count = #self.task_output_codes
-        for i = 1, task_count do
-          local child = self[i]
-          if not child or child.index ~= i then
-            self[i] = self:new(task_btn(), i)
-            child = self[i]
-            child.index = i
-          end
-        end
-        if #self > task_count then
-          for i = task_count + 1, #self do
-            self[i] = nil
-          end
-        end
-      end,
     },
     border'',
   }
@@ -1100,7 +1100,6 @@ return {
         mode_label(),
         space(),
         workspace_label(),
-        space(),
         task_bar(),
         space(),
         diagnostics_bar(),
