@@ -22,6 +22,7 @@ return {
         g = { name = "Git" },
         i = { name = "Issues" },
         p = { name = "Packages" },
+        q = { name = "Quickfix" },
       },
     }, { mode = "n" })
   end,

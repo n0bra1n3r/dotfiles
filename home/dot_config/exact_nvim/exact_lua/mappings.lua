@@ -75,6 +75,12 @@ local function update_file()
     vim.cmd{ cmd = 'update', mods = { silent = true } }
   end
 end
+
+local function show_task_output(nr)
+  return function()
+    fn.show_task_output(nr)
+  end
+end
 --}}}
 
 my_mappings {
@@ -157,7 +163,13 @@ my_mappings {
     ["<leader>l"]       = { fn.search'lsp_document_symbols', desc = "LSP symbols" },
     ["<leader>pa"]      = { "<cmd>Mason<CR>", desc = "Packages" },
     ["<leader>pl"]      = { "<cmd>Lazy<CR>", desc = "Plugins" },
-    ["<leader>q"]       = { fn.show_task_output, desc = "Show quickfix" },
+    ["<leader>q1"]       = { show_task_output(1), desc = "Log 1" },
+    ["<leader>q2"]       = { show_task_output(2), desc = "Log 2" },
+    ["<leader>q3"]       = { show_task_output(3), desc = "Log 3" },
+    ["<leader>q4"]       = { show_task_output(4), desc = "Log 4" },
+    ["<leader>q5"]       = { show_task_output(5), desc = "Log 5" },
+    ["<leader>q6"]       = { show_task_output(6), desc = "Log 6" },
+    ["<leader>q7"]       = { show_task_output(7), desc = "Log 7" },
     ["<leader>s"]       = { search_and_replace, desc = "Search & replace" },
     ["<leader>t"]       = { "<cmd>OverseerRun<CR>", desc = "Tasks" },
     ["<leader>X"]       = { '<cmd>quitall<CR>', desc = "Quit" },
