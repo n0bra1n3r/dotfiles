@@ -1024,12 +1024,11 @@ return {
       'ColorScheme',
       'FocusLost',
       'FocusGained',
-      'WinEnter',
     }, {
       group = vim.api.nvim_create_augroup('conf_heirline', { clear = true }),
-      callback = function()
+      callback = fn.vim_defer(function()
         require'heirline.utils'.on_colorscheme(colors)
-      end,
+      end),
     })
 
     refresh_bookmark_list()
