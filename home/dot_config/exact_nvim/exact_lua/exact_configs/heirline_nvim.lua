@@ -1129,6 +1129,7 @@ return {
     }
 
     vim.api.nvim_create_autocmd({
+      'BufEnter',
       'ColorScheme',
       'FocusLost',
       'FocusGained',
