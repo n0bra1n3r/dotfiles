@@ -157,7 +157,7 @@ my_mappings {
     ["<leader>l"]       = { fn.search'lsp_document_symbols', desc = "LSP symbols" },
     ["<leader>pa"]      = { "<cmd>Mason<CR>", desc = "Packages" },
     ["<leader>pl"]      = { "<cmd>Lazy<CR>", desc = "Plugins" },
-    ["<leader>q"]       = { [[<cmd>copen<CR>]], desc = "Focus quickfix" },
+    ["<leader>q"]       = { fn.show_task_output, desc = "Show quickfix" },
     ["<leader>s"]       = { search_and_replace, desc = "Search & replace" },
     ["<leader>t"]       = { "<cmd>OverseerRun<CR>", desc = "Tasks" },
     ["<leader>X"]       = { '<cmd>quitall<CR>', desc = "Quit" },

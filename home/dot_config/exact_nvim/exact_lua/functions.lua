@@ -700,15 +700,19 @@ end
 function fn.show_task_output(nr)
   local qf_name_prefix = 'task_output_'
 
-  local count = 0
-  for i = 1, 7 do
-    local qf_name = qf_name_prefix..i
-    local context = get_qf_context(qf_name)
-    if context.is_running or context.exit_code then
-      count = count + 1
-      if count == nr then
-        show_qf(qf_name)
-        break
+  if not nr then
+    show_qf(qf_name_prefix..1)
+  else
+    local count = 0
+    for i = 1, 7 do
+      local qf_name = qf_name_prefix..i
+      local context = get_qf_context(qf_name)
+      if context.is_running or context.exit_code then
+        count = count + 1
+        if count == nr then
+          show_qf(qf_name)
+          break
+        end
       end
     end
   end
