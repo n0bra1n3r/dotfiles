@@ -335,7 +335,9 @@ local function task_btn()
           return self.task_output_codes[self.index] < 0
         end,
         hl = { fg = 'task_running' },
-        provider = '󱐋',
+        provider = function(self)
+          return '󰞌 '..self.index
+        end,
       },
       {
         condition = function(self)
@@ -349,8 +351,8 @@ local function task_btn()
         end,
         provider = function(self)
           return self.task_output_codes[self.index] == 0
-            and '󰸞'
-            or '󱎘'
+            and '󰸞 '..self.index
+            or '󱎘 '..self.index
         end,
       },
     },
@@ -365,7 +367,7 @@ local function task_bar()
     init = function(self)
       self.task_output_codes = fn.get_task_output_codes()
     end,
-    border'',
+    border'',
     {
       hl = { bg = 'background' },
       init = function(self)
