@@ -67,6 +67,7 @@ local function colors()
     git_stash = hl'DiagnosticInfo'.fg,
     location = hl'NonText'.fg,
     macro_recording = hl'Error'.fg,
+    quickfix = hl'DiagnosticInfo'.fg,
     separator = hl'Normal'.bg,
     tab = hl'Title'.fg,
     tab_inactive = hl'NonText'.fg,
@@ -709,18 +710,17 @@ local function header_icon()
   return {
     hl = function(self)
       local fg = self.icon_color
-      if fn.is_file_buffer() then
-        if not require'heirline.conditions'.is_active() then
-          fg = 'buffer_inactive'
-        elseif vim.bo.modified then
-          fg = 'buffer_modified'
-        end
+      if not require'heirline.conditions'.is_active() then
+        fg = 'buffer_inactive'
+      elseif vim.bo.modified and fn.is_file_buffer() then
+        fg = 'buffer_modified'
       end
       return { fg = fg }
     end,
     init = function(self)
       if vim.bo.filetype == 'qf' then
         self.icon = '󱁤'
+        self.icon_color = 'quickfix'
       elseif vim.bo.filetype == 'dap-repl' then
         self.icon = '󰃤'
         self.icon_color = 'debug_mode'
@@ -748,7 +748,13 @@ local function header_label()
       local fg = 'buffer_inactive'
       local is_active = require'heirline.conditions'.is_active()
       if is_active then
-        fg = 'buffer'
+        if vim.bo.filetype == 'qf' then
+          fg = 'quickfix'
+        elseif vim.bo.filetype == 'dap-repl' then
+          fg = 'debug_mode'
+        else
+          fg = 'buffer'
+        end
         if vim.bo.modified and fn.is_file_buffer() then
           fg = 'buffer_modified'
         end
@@ -919,6 +925,9 @@ local function diagnostics_bar()
     },
     border'',
   }
+end
+
+local function quickfix_bar()
 end
 
 local function window_bar()
