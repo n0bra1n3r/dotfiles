@@ -5,6 +5,7 @@ my_plugins {
   --{{{ Misc
   { 'echasnovski/mini.bufremove' },
   { 'echasnovski/mini.misc' },
+  { 'nvim-neotest/nvim-nio' },
   { 'kyazdani42/nvim-web-devicons' },
   { 'nvim-lua/plenary.nvim' },
   { 'kevinhwang91/promise-async' },
@@ -28,7 +29,12 @@ my_plugins {
   { 'j-hui/fidget.nvim', lazy = false },
 
   -- quickfix
-  { 'kevinhwang91/nvim-bqf', ft = 'qf' },
+  {
+    'kevinhwang91/nvim-bqf',
+    url = 'https://github.com/n0bra1n3r/nvim-bqf',
+    branch = 'mouse-config',
+    ft = 'qf'
+  },
   { 'https://gitlab.com/yorickpeterse/nvim-pqf.git', lazy = false },
   --}}}
   --{{{ Mappings
@@ -204,7 +210,12 @@ my_plugins {
   --}}}
   --{{{ Debuggers
   { 'mfussenegger/nvim-dap' },
-  { 'rcarriga/nvim-dap-ui', dependencies = { 'mfussenegger/nvim-dap' } },
+  { 'rcarriga/nvim-dap-ui',
+    dependencies = {
+      'mfussenegger/nvim-dap',
+      'nvim-neotest/nvim-nio',
+    },
+  },
   {
     'theHamsta/nvim-dap-virtual-text',
     dependencies = {
