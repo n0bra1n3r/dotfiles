@@ -689,8 +689,12 @@ local function set_qf_items(name, what, isAppend)
     context = { name = name }
   }, map))
 
+  local info = vim.fn.getqflist{ id = 0, winid = true }
+
+  vim.wo[info.winid].foldlevel =
+    vim.wo[info.winid].foldlevel
   if qf_info[name] == nil then
-    qf_info[name] = vim.fn.getqflist{ id = 0 }.id
+    qf_info[name] = info.id
     vim.fn.setqflist({}, ' ')
   end
 end
