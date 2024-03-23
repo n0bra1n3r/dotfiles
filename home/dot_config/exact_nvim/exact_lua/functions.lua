@@ -207,6 +207,27 @@ function fn.foldfunc(close, start_open, open, sep, mid_sep, end_sep)
   end
 end
 
+function fn.fold_expr_qf()
+  local items = vim.fn.getqflist{ nr = 0, items = true }.items
+  local first = items[1]
+  local entry = items[vim.v.lnum]
+  local level = '0'
+  if entry then
+    if entry.valid == 0 then
+      if #entry.type > 0 and #first.type > 0 then
+        level = '>1'
+      else
+        level = '>2'
+      end
+    elseif #first.type > 0 then
+      level = '1'
+    else
+      level = '2'
+    end
+  end
+  return level
+end
+
 function fn.is_floating(win)
   return vim.api.nvim_win_get_config(win or 0).relative ~= [[]]
 end
@@ -386,6 +407,30 @@ function fn.open_file_folder(path)
     and vim.fn.fnamemodify(path, ':p:h')
     or vim.fn.expand'%:p:h'
   fn.open_folder(folder)
+end
+
+function fn.get_sign_for_severity(severity)
+  local suffix = severity
+  if type(severity) == 'number' then
+    local s = vim.diagnostic.severity
+    local severities = {
+      [s.ERROR] = 'Error',
+      [s.WARN] = 'Warn',
+      [s.HINT] = 'Hint',
+      [s.INFO] = 'Info',
+    }
+    suffix = severities[severity]
+  elseif #severity == 1 then
+    local severities = {
+      E = 'Error',
+      W = 'Warn',
+      N = 'Hint',
+      I = 'Info',
+    }
+    suffix = severities[severity:upper()]
+  end
+  local name = 'DiagnosticSign'..suffix
+  return vim.fn.sign_getdefined(name)[1].text, name
 end
 --}}}
 --{{{ UI
@@ -603,24 +648,59 @@ local qf_info = {
   ids = {},
 }
 
-local function set_qf_items(name, what, shouldAppend)
-  what = what or { items = {} }
-  local action = shouldAppend and 'a' or 'r'
+local function set_qf_items(name, what, isAppend)
+  local map = what or { items = {} }
+  local act = isAppend and 'a' or 'r'
+
   if qf_info[name] == nil then
-    if vim.fn.getqflist({ nr = 0, size = 0 }).size > 0 then
-      action = ' '
+    if vim.fn.getqflist{
+      nr = 0,
+      size = true,
+    }.size > 0 then
+      act = ' '
     end
   end
-  vim.fn.setqflist({}, action, vim.tbl_extend('keep', {
+
+  if act == 'r' then
+    local items = vim.fn.getqflist{
+      nr = 0,
+      items = true,
+    }.items
+    if #items == #map.items then
+      for i, item1 in ipairs(items) do
+        local item2 = vim.deepcopy(map.items[i])
+        item2.bufnr = item2.bufnr or item1.bufnr
+        item2.col = item2.col or item1.col
+        item2.end_col = item2.end_col or item1.end_col
+        item2.end_lnum = item2.end_lnum or item1.end_lnum
+        item2.lnum = item2.lnum or item1.lnum
+        item2.module = item2.module or item1.module
+        item2.nr = item2.nr or item1.nr
+        item2.pattern = item2.pattern or item1.pattern
+        item2.text = item2.text or item1.text
+        item2.type = item2.type or item1.type
+        item2.valid = item2.valid or item1.valid
+        item2.vcol = item2.vcol or item1.vcol
+        if not vim.deep_equal(item1, item2) then
+          goto set_items
+        end
+      end
+      return
+    end
+  end
+
+  ::set_items::
+  vim.fn.setqflist({}, act, vim.tbl_extend('keep', {
     id = qf_info[name],
     context = vim.tbl_extend('keep', {
       name = name,
-    }, what.context or {})
-  }, what))
+    }, map.context or {})
+  }, map))
+
   if qf_info[name] == nil then
     local info = vim.fn.getqflist{ id = 0, winid = 0 }
     qf_info[name] = info.id
-    if info.winid ~= 0 and action == ' ' then
+    if info.winid ~= 0 and act == ' ' then
       vim.cmd[[silent colder]]
     else
       vim.fn.setqflist({}, ' ')
@@ -632,16 +712,19 @@ local function get_qf_context(name)
   if qf_info[name] == nil then
     return {}
   end
-  return vim.fn.getqflist({
+  return vim.fn.getqflist{
     id = qf_info[name],
-    context = 0,
-  }).context or {}
+    context = true,
+  }.context or {}
 end
 
 local function show_qf(name)
   if not fn.is_terminal_buf() then
     if qf_info[name] ~= nil then
-      local nr = vim.fn.getqflist{ id = qf_info[name], nr = 0 }.nr
+      local nr = vim.fn.getqflist{
+        id = qf_info[name],
+        nr = true,
+      }.nr
       local curnr = vim.fn.getqflist{ nr = 0 }.nr
       local count = curnr - nr
       if count > 0 then
@@ -665,14 +748,142 @@ function fn.close_qf()
   end
 end
 
+function fn.qf_text(info)
+  local list = vim.fn.getqflist {
+    id = info.id,
+    context = true,
+    items = true,
+    qfbufnr = true,
+  }
+
+  local lines = {}
+
+  if list.context.name == 'lsp_diagnostics' then
+    for _, item in ipairs(list.items) do
+      local line
+      if item.valid == 0 then
+        if #item.type == 0 then
+          line = {{ item.text }}
+        else
+          line = {
+            { '  ' },
+            { fn.get_sign_for_severity(item.type) },
+            { item.text, 'Title' },
+          }
+        end
+        table.insert(lines, line)
+      else
+        local filename = vim.fn.fnamemodify(
+          vim.api.nvim_buf_get_name(item.bufnr), ':t')
+        line = {
+          { '    ' },
+          { vim.split(item.text, '\n')[1], 'Normal' },
+          { '  ' },
+          {
+            ('%s:%d:%d'):format(
+              filename,
+              item.lnum,
+              item.col
+            ),
+            'Comment',
+          },
+        }
+        table.insert(lines, line)
+      end
+    end
+  end
+
+  vim.schedule(function()
+    local ns = vim.api.nvim_create_namespace('qf_text_hl')
+
+    vim.api.nvim_buf_clear_namespace(list.qfbufnr, ns, 0, -1)
+
+    for lnum, line in ipairs(lines) do
+      local col = 0
+      for _, comp in ipairs(line) do
+        local len = #comp[1]
+        local hl = comp[2]
+        if hl then
+          vim.api.nvim_buf_add_highlight(
+            list.qfbufnr, ns, hl,
+            lnum - 1, col, col + len
+          )
+        end
+        col = col + len
+      end
+    end
+  end)
+
+  local content = {}
+  for _, line in ipairs(lines) do
+    local texts = {}
+    for _, comp in ipairs(line) do
+      table.insert(texts, comp[1])
+    end
+    table.insert(content, vim.fn.join(texts, ''))
+  end
+  return content
+end
+
 function fn.show_lsp_diagnostics_list()
   show_qf('lsp_diagnostics')
 end
 
 function fn.update_lsp_diagnostics_list()
-  set_qf_items('lsp_diagnostics', {
-    items = vim.diagnostic.toqflist(vim.diagnostic.get()),
-  })
+  local s = vim.diagnostic.severity
+  local severities = {
+    [s.ERROR] = 'E',
+    [s.HINT] = 'N',
+    [s.INFO] = 'I',
+    [s.WARN] = 'W',
+  }
+  local diagnostics = vim.diagnostic.get()
+
+  local diag_map = {}
+  for _, diagnostic in ipairs(diagnostics) do
+    local source_map = diag_map[diagnostic['source']]
+    if not source_map then
+      source_map = {}
+      diag_map[diagnostic['source']] = source_map
+    end
+    local severity = diagnostic['severity']
+    local code_key = ''..severity
+
+    if severity == s.ERROR then
+      code_key = code_key..',Errors'
+    elseif severity == s.HINT or severity == s.INFO then
+      code_key = code_key..','..diagnostic['code']
+    elseif severity == s.WARN then
+      code_key = code_key..',Warnings'
+    end
+
+    local diag_list = source_map[code_key]
+    if not diag_list then
+      diag_list = {}
+      source_map[code_key] = diag_list
+    end
+    table.insert(diag_list, diagnostic)
+  end
+
+  local items = {}
+  for source, source_map in pairs(diag_map) do
+    table.insert(items, { text = source })
+    local code_keys = vim.tbl_keys(source_map)
+    table.sort(code_keys, function (a, b)
+      return a < b
+    end)
+    for _, code_key in ipairs(code_keys) do
+      local key = vim.split(code_key, ',')
+      local val = source_map[code_key]
+      table.insert(items, {
+        text = key[2],
+        type = severities[tonumber(key[1])],
+      })
+      vim.list_extend(items, vim.diagnostic.toqflist(val))
+    end
+  end
+
+  set_qf_items('lsp_diagnostics', { items = items })
 end
 
 function fn.show_lsp_definitions_list()

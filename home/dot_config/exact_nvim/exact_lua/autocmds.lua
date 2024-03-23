@@ -11,23 +11,17 @@ my_autocmds {
         else
           vim.cmd.match[[OverLength /\%>80v.\+/]]
         end
-
-        vim.wo.foldcolumn = '1'
-        vim.wo.number = true
       else
         vim.cmd.match[[OverLength //]]
-
-        vim.wo.foldcolumn = '0'
-        vim.wo.number = false
       end
     end,
   }, --}}}
-  { "BufEnter", pattern = "*.arb", --{{{
+  { { 'BufEnter', 'BufWinEnter' }, pattern = "*.arb", --{{{
     callback = function()
       vim.bo.filetype = "json"
     end,
   }, --}}}
-  { "BufEnter", pattern = { '*.podspec', 'fastlane/*', 'Podfile' }, --{{{
+  { { 'BufEnter', 'BufWinEnter' }, pattern = { '*.podspec', 'fastlane/*', 'Podfile' }, --{{{
     callback = function()
       vim.bo.filetype = 'ruby'
     end,

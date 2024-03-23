@@ -46,8 +46,9 @@ my_options {
     tab = "▸ ",
   }, --}}}
   mouse = "a",
-  number = false,
+  number = true,
   numberwidth = 2,
+  quickfixtextfunc = 'v:lua.fn.qf_text',
   ruler = false,
   scrollback = 9001,
   scrolloff = 3,

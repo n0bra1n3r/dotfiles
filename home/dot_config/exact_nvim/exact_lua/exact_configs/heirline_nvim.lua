@@ -393,7 +393,7 @@ local function task_bar()
   }
 end
 
-local function diagnostic_label(severity, buf)
+local function diagnostic_btn(severity, buf)
   return {
     init = function(self)
       self.child_index.value = self.child_index.value + 1
@@ -452,7 +452,7 @@ local function diagnostics_bar(buf)
   }
   local icons = {}
   for severity, name in pairs(severities) do
-    icons[severity] = vim.fn.sign_getdefined('DiagnosticSign'..name)[1].text
+    icons[severity] = fn.get_sign_for_severity(name)
   end
   return {
     condition = function()
@@ -482,10 +482,10 @@ local function diagnostics_bar(buf)
         'DiagnosticChanged',
         'TabEnter',
       },
-      diagnostic_label(s.ERROR, buf),
-      diagnostic_label(s.WARN, buf),
-      diagnostic_label(s.INFO, buf),
-      diagnostic_label(s.HINT, buf),
+      diagnostic_btn(s.ERROR, buf),
+      diagnostic_btn(s.WARN, buf),
+      diagnostic_btn(s.INFO, buf),
+      diagnostic_btn(s.HINT, buf),
     },
     border'',
   }

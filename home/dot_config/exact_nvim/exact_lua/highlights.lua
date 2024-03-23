@@ -34,4 +34,8 @@ my_highlights {
   TreesitterContext = {
     link = 'Normal',
   },
+  QuickFixLine = {
+    fg = 'None',
+    bg = 'None',
+  },
 }

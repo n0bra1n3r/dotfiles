@@ -7,12 +7,15 @@ return {
       bottom = {
         {
           ft = 'qf',
-          title = 'Quickfix',
+          wo = {
+            foldcolumn = '1',
+            foldenable = true,
+            foldexpr = 'v:lua.fn.fold_expr_qf()',
+            foldmethod = 'expr',
+            wrap = false,
+          },
         },
-        {
-          ft = 'dap-repl',
-          title = 'Debugger',
-        },
+        { ft = 'dap-repl' },
       },
       exit_when_last = true,
       keys = {
@@ -23,6 +26,7 @@ return {
         q = false,
       },
       wo = {
+        number = false,
         winbar = false,
         winhighlight = '',
       },
