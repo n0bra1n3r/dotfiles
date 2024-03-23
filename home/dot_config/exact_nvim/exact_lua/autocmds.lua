@@ -26,7 +26,7 @@ my_autocmds {
       vim.bo.filetype = 'ruby'
     end,
   }, --}}}
-  { "BufHidden", --{{{
+  { 'BufHidden', --{{{
     callback = function()
       if fn.is_empty_buffer() then
         vim.bo.buflisted = false

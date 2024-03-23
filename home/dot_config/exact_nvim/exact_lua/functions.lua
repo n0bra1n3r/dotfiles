@@ -208,7 +208,7 @@ function fn.foldfunc(close, start_open, open, sep, mid_sep, end_sep)
 end
 
 function fn.fold_expr_qf()
-  local items = vim.fn.getqflist{ nr = 0, items = true }.items
+  local items = vim.fn.getqflist{ id = 0, items = true }.items
   local first = items[1]
   local entry = items[vim.v.lnum]
   local level = '0'
@@ -653,20 +653,14 @@ local function set_qf_items(name, what, isAppend)
   local act = isAppend and 'a' or 'r'
 
   if qf_info[name] == nil then
-    if vim.fn.getqflist{
-      nr = 0,
-      size = true,
-    }.size > 0 then
+    if vim.fn.getqflist{ id = 0, size = true }.size > 0 then
       act = ' '
     end
   end
 
-  if act == 'r' then
-    local items = vim.fn.getqflist{
-      nr = 0,
-      items = true,
-    }.items
-    if #items == #map.items then
+  if act == 'r' and map.items then
+    local items = vim.fn.getqflist{ id = 0, items = true }.items
+    if #map.items > 0 and #items == #map.items then
       for i, item1 in ipairs(items) do
         local item2 = vim.deepcopy(map.items[i])
         item2.bufnr = item2.bufnr or item1.bufnr
@@ -690,21 +684,14 @@ local function set_qf_items(name, what, isAppend)
   end
 
   ::set_items::
-  vim.fn.setqflist({}, act, vim.tbl_extend('keep', {
+  vim.fn.setqflist({}, act, vim.tbl_deep_extend('keep', {
     id = qf_info[name],
-    context = vim.tbl_extend('keep', {
-      name = name,
-    }, map.context or {})
+    context = { name = name }
   }, map))
 
   if qf_info[name] == nil then
-    local info = vim.fn.getqflist{ id = 0, winid = 0 }
-    qf_info[name] = info.id
-    if info.winid ~= 0 and act == ' ' then
-      vim.cmd[[silent colder]]
-    else
-      vim.fn.setqflist({}, ' ')
-    end
+    qf_info[name] = vim.fn.getqflist{ id = 0 }.id
+    vim.fn.setqflist({}, ' ')
   end
 end
 
@@ -715,7 +702,7 @@ local function get_qf_context(name)
   return vim.fn.getqflist{
     id = qf_info[name],
     context = true,
-  }.context or {}
+  }.context
 end
 
 local function show_qf(name)
@@ -737,15 +724,12 @@ local function show_qf(name)
   end
 end
 
-function fn.close_qf()
-  vim.cmd.cclose()
-
-  local nr = vim.fn.getqflist{ nr = 0 }.nr
-  local lastnr = vim.fn.getqflist{ nr = '$' }.nr
-  local count = lastnr - nr
-  if count > 0 then
-    vim.cmd([[silent cnewer ]]..count)
-  end
+function fn.get_qf_title()
+  local title = vim.fn.getqflist{
+    id = 0,
+    title = true,
+  }.title
+  return #title > 0 and title or "Quickfix"
 end
 
 function fn.qf_text(info)
@@ -852,7 +836,7 @@ function fn.update_lsp_diagnostics_list()
     if severity == s.ERROR then
       code_key = code_key..',Errors'
     elseif severity == s.HINT or severity == s.INFO then
-      code_key = code_key..','..diagnostic['code']
+      code_key = code_key..',['..diagnostic['code']..']'
     elseif severity == s.WARN then
       code_key = code_key..',Warnings'
     end
@@ -883,7 +867,10 @@ function fn.update_lsp_diagnostics_list()
     end
   end
 
-  set_qf_items('lsp_diagnostics', { items = items })
+  set_qf_items('lsp_diagnostics', {
+    title = 'LSP Diagnostics',
+    items = items,
+  })
 end
 
 function fn.show_lsp_definitions_list()
@@ -891,7 +878,9 @@ function fn.show_lsp_definitions_list()
 end
 
 function fn.update_lsp_definitions_list(options)
-  set_qf_items('lsp_definitions', options)
+  set_qf_items('lsp_definitions', vim.tbl_extend('keep', {
+    title = 'LSP Definitions'
+  }, options))
 end
 
 function fn.get_task_output_codes()
@@ -934,7 +923,9 @@ function fn.update_task_output(output, id)
       local qf_name = qf_name_prefix..i
       local context = get_qf_context(qf_name)
       if not context.is_running then
-        set_qf_items(qf_name)
+        set_qf_items(qf_name, {
+          title = 'Task Output '..i,
+        })
         if not qf_id then
           qf_id = i
         end
@@ -950,11 +941,13 @@ function fn.update_task_output(output, id)
         table.insert(items, { text = line })
       end
       set_qf_items(qf_name, {
+        title = 'Task Output '..qf_id,
         items = items,
         context = { is_running = true },
       }, true)
     else
       set_qf_items(qf_name, {
+        title = 'Task Output '..qf_id,
         context = { exit_code = output },
       })
     end
@@ -1038,11 +1031,7 @@ function fn.close_window(win)
   win = win or vim.api.nvim_get_current_win()
   local buf = vim.api.nvim_win_get_buf(win)
   if #vim.api.nvim_tabpage_list_wins(0) > 0 then
-    if vim.bo[buf].filetype == 'qf' then
-      fn.close_qf()
-    else
-      vim.api.nvim_win_close(win, false)
-    end
+    vim.api.nvim_win_close(win, false)
   else
     require'mini.bufremove'.unshow(buf)
   end

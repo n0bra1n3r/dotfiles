@@ -35,7 +35,6 @@ my_highlights {
     link = 'Normal',
   },
   QuickFixLine = {
-    fg = 'None',
-    bg = 'None',
+    link = 'CursorLine',
   },
 }

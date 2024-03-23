@@ -948,7 +948,7 @@ local function header_label()
     end,
     init = function(self)
       if vim.bo.filetype == 'qf' then
-        self.filename = 'Quickfix'
+        self.filename = fn.get_qf_title()
       elseif vim.bo.filetype == 'dap-repl' then
         self.filename = 'Debugger'
       else
@@ -977,13 +977,6 @@ local function header_label()
     provider = function(self)
       return self.filename or '[No Name]'
     end,
-    update = {
-      'BufEnter',
-      'BufNew',
-      'BufModifiedSet',
-      'TabEnter',
-      'WinResized',
-    },
   }
 end
 
