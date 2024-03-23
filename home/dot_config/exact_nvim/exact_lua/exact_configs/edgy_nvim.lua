@@ -24,6 +24,7 @@ return {
       },
       wo = {
         winbar = false,
+        winhighlight = '',
       },
     }
   end,
