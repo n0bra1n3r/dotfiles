@@ -825,10 +825,16 @@ function fn.update_lsp_diagnostics_list()
 
   local diag_map = {}
   for _, diagnostic in ipairs(diagnostics) do
-    local source_map = diag_map[diagnostic['source']]
+    local source_name = diagnostic['source']
+      :gsub('[^A-Za-z0-9 ]', '')
+      :lower()
+      :gsub("(%l)(%w*)", function(a, b)
+        return a:upper()..b
+      end)
+    local source_map = diag_map[source_name]
     if not source_map then
       source_map = {}
-      diag_map[diagnostic['source']] = source_map
+      diag_map[source_name] = source_map
     end
     local severity = diagnostic['severity']
     local code_key = ''..severity
