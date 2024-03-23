@@ -709,22 +709,27 @@ local function get_qf_context(name)
   }.context
 end
 
-local function show_qf(name)
-  if not fn.is_terminal_buf() then
-    if qf_info[name] ~= nil then
-      local nr = vim.fn.getqflist{
-        id = qf_info[name],
-        nr = true,
-      }.nr
-      local curnr = vim.fn.getqflist{ nr = 0 }.nr
-      local count = curnr - nr
-      if count > 0 then
-        vim.cmd([[silent colder ]]..count)
-      elseif count < 0 then
-        vim.cmd([[silent cnewer ]]..(-count))
-      end
+local function show_qf(name, is_foldable)
+  if qf_info[name] ~= nil then
+    local nr = vim.fn.getqflist{
+      id = qf_info[name],
+      nr = true,
+    }.nr
+    local curnr = vim.fn.getqflist{ nr = 0 }.nr
+    local count = curnr - nr
+    if count > 0 then
+      vim.cmd([[silent colder ]]..count)
+    elseif count < 0 then
+      vim.cmd([[silent cnewer ]]..(-count))
     end
     vim.cmd.copen()
+
+    if is_foldable then
+      vim.wo.foldenable = true
+      vim.wo.foldexpr = vim.wo.foldexpr
+    else
+      vim.wo.foldenable = false
+    end
   end
 end
 
@@ -814,7 +819,7 @@ function fn.qf_text(info)
 end
 
 function fn.show_lsp_diagnostics_list()
-  show_qf('lsp_diagnostics')
+  show_qf('lsp_diagnostics', true)
 end
 
 function fn.update_lsp_diagnostics_list()

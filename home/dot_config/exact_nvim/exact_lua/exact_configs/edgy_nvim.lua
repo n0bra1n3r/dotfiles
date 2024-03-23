@@ -9,7 +9,6 @@ return {
           ft = 'qf',
           wo = {
             foldcolumn = '1',
-            foldenable = true,
             foldexpr = 'v:lua.fn.fold_expr_qf()',
             foldmethod = 'expr',
             wrap = false,
