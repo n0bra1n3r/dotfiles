@@ -1142,6 +1142,7 @@ end
 
 function fn.close_window(win)
   win = win or vim.api.nvim_get_current_win()
+
   local buf = vim.api.nvim_win_get_buf(win)
   if #vim.api.nvim_tabpage_list_wins(0) > 0 then
     vim.api.nvim_win_close(win, false)
@@ -1152,7 +1153,8 @@ end
 
 function fn.zoom_window(win)
   win = win or vim.api.nvim_get_current_win()
-  if vim.w[win].edgy_enter ~= nil then
+
+  if require'edgy'.get_win(win) then
     local winpos
     for _, pos in ipairs{ 'bottom', 'top', 'left', 'right' } do
       for _, winid in ipairs(require'edgy.layout'.get(pos)) do
@@ -1163,9 +1165,11 @@ function fn.zoom_window(win)
       end
       if winpos then break end
     end
-    for _, winid in ipairs(require'edgy.layout'.get(winpos)) do
-      if winid ~= win then
-        require'edgy.editor'.get_win(winid):hide()
+    if winpos then
+      for _, winid in ipairs(require'edgy.layout'.get(winpos)) do
+        if winid ~= win then
+          require'edgy'.get_win(winid):hide()
+        end
       end
     end
   else
