@@ -207,27 +207,6 @@ function fn.foldfunc(close, start_open, open, sep, mid_sep, end_sep)
   end
 end
 
-function fn.fold_expr_qf()
-  local items = vim.fn.getqflist{ id = 0, items = true }.items
-  local first = items[1]
-  local entry = items[vim.v.lnum]
-  local level = '0'
-  if entry then
-    if entry.valid == 0 then
-      if #entry.type > 0 and #first.type > 0 then
-        level = '>1'
-      else
-        level = '>2'
-      end
-    elseif #first.type > 0 then
-      level = '1'
-    else
-      level = '2'
-    end
-  end
-  return level
-end
-
 function fn.is_floating(win)
   return vim.api.nvim_win_get_config(win or 0).relative ~= [[]]
 end
@@ -655,25 +634,22 @@ vim.fn.setqflist = function(...)
       or (args[3] and args[3].items)
   then
     vim.cmd[[silent 10chistory]]
-    local list = vim.fn.getqflist{ id = 0, winid = true }
-    if list.winid ~= 0 then
-      vim.wo[list.winid].foldenable = false
+
+    local winid = vim.fn.getqflist{ winid = true }.winid
+    if winid ~= 0 then
+      vim.wo[winid].foldenable = false
     end
   end
   setqflist_fn(unpack(args))
 end
 
-local function set_qf_items(name, what, is_append)
+local function set_qf_list(name, what, is_append)
   local act = is_append and 'a' or 'r'
   local map = what or { items = {} }
 
-  local list = vim.fn.getqflist {
-    id = 0,
-    items = true,
-    context = true,
-  }
+  local list = vim.fn.getqflist{ items = true, context = true }
 
-  if qf_info[name] == nil then
+  if not qf_info[name] then
     if list.context.name then
       act = ' '
     end
@@ -699,7 +675,7 @@ local function set_qf_items(name, what, is_append)
           goto set_items
         end
       end
-      return
+      return false
     end
   end
 
@@ -724,13 +700,14 @@ local function set_qf_items(name, what, is_append)
     end
   end
 
-  if qf_info[name] == nil then
+  if not qf_info[name] then
     qf_info[name] = list.id
   end
+  return true
 end
 
 local function get_qf_context(name)
-  if qf_info[name] == nil then
+  if not qf_info[name] then
     return {}
   end
   return vim.fn.getqflist{
@@ -739,8 +716,18 @@ local function get_qf_context(name)
   }.context
 end
 
+local function get_qf_items(name)
+  if name and not qf_info[name] then
+    return {}
+  end
+  return vim.fn.getqflist{
+    id = name and qf_info[name],
+    items = true,
+  }.items
+end
+
 local function show_qf(name, is_foldable)
-  if qf_info[name] ~= nil then
+  if qf_info[name] then
     local nr = vim.fn.getqflist{
       id = qf_info[name],
       nr = true,
@@ -794,6 +781,27 @@ local function qf_diagnostics_lines(items)
   return lines
 end
 
+function fn.qf_fold_expr()
+  local items = get_qf_items()
+  local first = items[1]
+  local entry = items[vim.v.lnum]
+  local level = '0'
+  if entry then
+    if entry.valid == 0 then
+      if #entry.type > 0 and #first.type > 0 then
+        level = '>1'
+      else
+        level = '>2'
+      end
+    elseif #first.type > 0 then
+      level = '1'
+    else
+      level = '2'
+    end
+  end
+  return level
+end
+
 function fn.qf_text(info)
   local list = vim.fn.getqflist {
     id = info.id,
@@ -838,27 +846,36 @@ function fn.qf_text(info)
   return content
 end
 
-function fn.show_lsp_diagnostics_list(severity)
-  local qf_name = 'lsp_diagnostics'
-
-  show_qf(qf_name, true)
-
-  local qf_id = qf_info[qf_name]
-  local items = vim.fn.getqflist{
-    id = qf_id,
-    items = true,
-  }.items
+local function select_diagnostic_group(severity)
+  local context = get_qf_context('lsp_diagnostics')
+  local items = get_qf_items(context.name)
+  local index
   for i, item in ipairs(items) do
     if #item.type > 0 then
-      if not severity or
-          fn.get_sign_for_severity(item.type) ==
+      index = index or i
+      if not severity then
+        break
+      end
+      if fn.get_sign_for_severity(item.type) ==
           fn.get_sign_for_severity(severity)
       then
-        setqflist_fn({}, 'r', { id = qf_id, idx = i })
-        break
+        set_qf_list(context.name, {
+          context = { selection = severity },
+          idx = i
+        })
+        return
       end
     end
   end
+  set_qf_list(context.name, {
+    context = { selection = nil },
+    idx = index,
+  })
+end
+
+function fn.show_lsp_diagnostics_list(severity)
+  select_diagnostic_group(severity)
+  show_qf('lsp_diagnostics', true)
 end
 
 function fn.update_lsp_diagnostics_list()
@@ -927,7 +944,10 @@ function fn.update_lsp_diagnostics_list()
     end
   end
 
-  set_qf_items('lsp_diagnostics', { items = items })
+  local context = get_qf_context('lsp_diagnostics')
+  if set_qf_list(context.name, { items = items }) then
+    select_diagnostic_group(context.selection)
+  end
 end
 
 function fn.show_lsp_definitions_list()
@@ -936,7 +956,7 @@ end
 
 function fn.update_lsp_definitions_list(options)
   options.title = nil
-  set_qf_items('lsp_definitions', options)
+  set_qf_list('lsp_definitions', options)
 end
 
 function fn.show_lsp_references_list()
@@ -945,7 +965,7 @@ end
 
 function fn.update_lsp_references_list(options)
   options.title = nil
-  set_qf_items('lsp_references', options)
+  set_qf_list('lsp_references', options)
 end
 
 function fn.get_task_output_codes()
@@ -988,7 +1008,7 @@ function fn.update_task_output(output, id)
       local qf_name = qf_name_prefix..i
       local context = get_qf_context(qf_name)
       if not context.is_running then
-        set_qf_items(qf_name)
+        set_qf_list(qf_name)
         if not qf_id then
           qf_id = i
         end
@@ -1003,12 +1023,12 @@ function fn.update_task_output(output, id)
       for _, line in ipairs(output) do
         table.insert(items, { text = line })
       end
-      set_qf_items(qf_name, {
+      set_qf_list(qf_name, {
         context = { is_running = true },
         items = items,
       }, true)
     else
-      set_qf_items(qf_name, {
+      set_qf_list(qf_name, {
         context = { exit_code = output },
       })
     end
@@ -1016,16 +1036,16 @@ function fn.update_task_output(output, id)
   return qf_id
 end
 
-set_qf_items('lsp_diagnostics', { title = "LSP Diagnostics" })
-set_qf_items('lsp_definitions', { title = "LSP Definitions" })
-set_qf_items('lsp_references', { title = "LSP References" })
-set_qf_items('task_output_1', { title = "Task Output 1" })
-set_qf_items('task_output_2', { title = "Task Output 2" })
-set_qf_items('task_output_3', { title = "Task Output 3" })
-set_qf_items('task_output_4', { title = "Task Output 4" })
-set_qf_items('task_output_5', { title = "Task Output 5" })
-set_qf_items('task_output_6', { title = "Task Output 6" })
-set_qf_items('messages', { title = "Messages" })
+set_qf_list('lsp_diagnostics', { title = "LSP Diagnostics" })
+set_qf_list('lsp_definitions', { title = "LSP Definitions" })
+set_qf_list('lsp_references', { title = "LSP References" })
+set_qf_list('task_output_1', { title = "Task Output 1" })
+set_qf_list('task_output_2', { title = "Task Output 2" })
+set_qf_list('task_output_3', { title = "Task Output 3" })
+set_qf_list('task_output_4', { title = "Task Output 4" })
+set_qf_list('task_output_5', { title = "Task Output 5" })
+set_qf_list('task_output_6', { title = "Task Output 6" })
+set_qf_list('messages', { title = "Messages" })
 --}}}
 --{{{ Navigation
 local nav_info = {
