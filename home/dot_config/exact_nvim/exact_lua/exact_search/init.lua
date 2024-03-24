@@ -675,14 +675,8 @@ end
 local function on_buf_write_cmd()
   local info = get_search_info()
 
-  local change_rows = {}
-  for row, _ in pairs(info.change_table) do
-    table.insert(change_rows, row)
-  end
-
   local file_name, is_file_open
-  for _, row in ipairs(change_rows) do
-    local change_info = info.change_table[row]
+  for row, change_info in pairs(info.change_table) do
     local change_line = tonumber(change_info.line_number) - 1
 
     if change_info.file_name ~= file_name then
@@ -703,14 +697,14 @@ local function on_buf_write_cmd()
       }
     end
 
-    replace_search_results_at(row - 1, change_info.line_text)
-
     vim.api.nvim_buf_set_lines(
       vim.fn.bufnr(file_name),
       change_line,
       change_line + 1,
       true,
       { change_info.line_text })
+
+    replace_search_results_at(row - 1, change_info.line_text)
   end
 
   if file_name ~= nil then
@@ -726,10 +720,16 @@ local function on_buf_write_cmd()
     }
   end
 
-  vim.bo.modified = false
-  info.change_table = {}
+  for _, change_info in pairs(info.change_table) do
+    local file_info = info.file_table[change_info.file_name]
+    local first_row = math.min(unpack(vim.tbl_values(file_info)))
+    render_file_name(first_row - 1, file_name, false)
+  end
 
   render_statistics(false)
+
+  vim.bo.modified = false
+  info.change_table = {}
 end
 
 local function on_exit()
