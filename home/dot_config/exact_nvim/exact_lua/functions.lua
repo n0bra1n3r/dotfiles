@@ -646,6 +646,13 @@ end
 --{{{ Quickfix
 local qf_info = {}
 
+local setqflist_fn = vim.fn.setqflist
+vim.fn.setqflist = function(...)
+  -- set current list to the last one to write to it by default
+  vim.cmd[[silent 10chistory]]
+  setqflist_fn(...)
+end
+
 local function set_qf_items(name, what, is_append)
   local act = is_append and 'a' or 'r'
   local map = what or { items = {} }
@@ -687,7 +694,7 @@ local function set_qf_items(name, what, is_append)
   end
 
   ::set_items::
-  vim.fn.setqflist({}, act, vim.tbl_deep_extend('keep', {
+  setqflist_fn({}, act, vim.tbl_deep_extend('keep', {
     context = { name = name },
     id = qf_info[name],
     title = map.title,
@@ -721,13 +728,7 @@ local function show_qf(name, is_foldable)
       id = qf_info[name],
       nr = true,
     }.nr
-    local curnr = vim.fn.getqflist{ nr = 0 }.nr
-    local count = curnr - nr
-    if count > 0 then
-      vim.cmd([[silent colder ]]..count)
-    elseif count < 0 then
-      vim.cmd([[silent cnewer ]]..(-count))
-    end
+    vim.cmd(('silent %dchistory'):format(nr))
     vim.cmd.copen()
 
     if is_foldable then
