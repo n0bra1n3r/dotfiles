@@ -702,9 +702,16 @@ local function set_qf_items(name, what, is_append)
 
   list = vim.fn.getqflist{ id = 0, winid = true }
 
-  if vim.wo[list.winid].foldenable then
-    vim.wo[list.winid].foldlevel =
-      vim.wo[list.winid].foldlevel
+  if list.winid ~= 0 then
+    if vim.wo[list.winid].foldenable then
+      vim.wo[list.winid].foldlevel =
+        vim.wo[list.winid].foldlevel
+    end
+    if act == 'a' then
+      vim.api.nvim_win_set_cursor(list.winid, {
+        vim.fn.line('$', list.winid), 0,
+      })
+    end
   end
 
   if qf_info[name] == nil then
