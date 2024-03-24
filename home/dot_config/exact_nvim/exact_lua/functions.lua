@@ -996,7 +996,7 @@ set_qf_items('task_output_4', { title = "Task Output 4" })
 set_qf_items('task_output_5', { title = "Task Output 5" })
 set_qf_items('task_output_6', { title = "Task Output 6" })
 set_qf_items('task_output_7', { title = "Task Output 7" })
-set_qf_items('quickfix', { title = "Quickfix" })
+set_qf_items('messages', { title = "Messages" })
 --}}}
 --{{{ Navigation
 local nav_info = {
