@@ -397,9 +397,6 @@ local function diagnostic_btn(severity, buf)
   return {
     init = function(self)
       self.child_index.value = self.child_index.value + 1
-      self.count = self.counts[severity]
-      self.icon = self.icons[severity]
-      self.name = self.severities[severity]
     end,
     condition = function(self)
       return self.counts[severity] > 0
@@ -413,13 +410,19 @@ local function diagnostic_btn(severity, buf)
       space(),
     },
     {
+      init = function(self)
+        self.severity = severity
+        self.count = self.counts[severity]
+        self.icon = self.icons[severity]
+        self.name = self.severities[severity]
+      end,
       on_click = {
-        callback = function(_, minwid)
+        callback = function(self, minwid)
           if minwid == 0 then
-            fn.show_lsp_diagnostics_list()
+            fn.show_lsp_diagnostics_list(self.severity)
           else
             vim.api.nvim_set_current_win(minwid)
-            vim.diagnostic.goto_next{ severity = severity }
+            vim.diagnostic.goto_next{ severity = self.severity }
           end
         end,
         minwid = buf and function()

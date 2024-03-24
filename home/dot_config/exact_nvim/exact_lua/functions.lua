@@ -838,8 +838,27 @@ function fn.qf_text(info)
   return content
 end
 
-function fn.show_lsp_diagnostics_list()
-  show_qf('lsp_diagnostics', true)
+function fn.show_lsp_diagnostics_list(severity)
+  local qf_name = 'lsp_diagnostics'
+
+  show_qf(qf_name, true)
+
+  local qf_id = qf_info[qf_name]
+  local items = vim.fn.getqflist{
+    id = qf_id,
+    items = true,
+  }.items
+  for i, item in ipairs(items) do
+    if #item.type > 0 then
+      if not severity or
+          fn.get_sign_for_severity(item.type) ==
+          fn.get_sign_for_severity(severity)
+      then
+        setqflist_fn({}, 'r', { id = qf_id, idx = i })
+        break
+      end
+    end
+  end
 end
 
 function fn.update_lsp_diagnostics_list()
