@@ -626,6 +626,7 @@ end
 local qf_info = {}
 
 local setqflist_fn = vim.fn.setqflist
+---@diagnostic disable-next-line: duplicate-set-field
 vim.fn.setqflist = function(...)
   -- set current list to the last one to write to it by default
   local args = { ... }
