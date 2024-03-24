@@ -948,7 +948,10 @@ local function header_label()
     end,
     init = function(self)
       if vim.bo.filetype == 'qf' then
-        self.filename = fn.get_qf_title()
+        self.filename = vim.fn.getqflist{
+          id = 0,
+          title = true,
+        }.title
       elseif vim.bo.filetype == 'dap-repl' then
         self.filename = 'Debugger'
       else
