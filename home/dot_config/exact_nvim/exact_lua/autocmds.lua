@@ -144,7 +144,7 @@ my_autocmds {
   }, --}}}
   { 'FileType', pattern = 'nim', --{{{
     callback = function()
-      vim.cmd{ args = { 'plugin', 'off' }, cmd = 'filetype' }
+      vim.cmd.filetype{ args = { 'plugin', 'off' } }
     end,
   }, --}}}
   { 'FileType', pattern = 'search', --{{{
@@ -198,7 +198,7 @@ my_autocmds {
       fn.show_workspace(nil, false)
 
       if vim.fn.reg_recording() ~= '' then
-        vim.cmd[[normal q]]
+        vim.cmd.normal[[q]]
         fn.vim_defer(function()
           vim.notify("Stopped macro recording")
         end)()

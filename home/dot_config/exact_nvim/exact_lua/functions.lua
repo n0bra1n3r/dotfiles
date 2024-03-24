@@ -513,13 +513,15 @@ function fn.ui_try(callback, ...)
 end
 
 function fn.close_folds_at(level)
+  level = level or vim.fn.foldlevel('.')
+
   local line = 1
   local last = vim.fn.line('$')
   while line < last do
     if vim.fn.foldclosed(line) ~= -1 then
       line = vim.fn.foldclosedend(line) + 1
     elseif vim.fn.foldlevel(line) == level then
-      vim.cmd{ cmd = 'foldclose', range = { line } }
+      vim.cmd.foldclose{ range = { line } }
       line = vim.fn.foldclosedend(line) + 1
     else
       line = line + 1
@@ -634,7 +636,7 @@ vim.fn.setqflist = function(...)
       or (#args[1] > 0 and not args[3])
       or (args[3] and args[3].items)
   then
-    vim.cmd[[silent 10chistory]]
+    vim.cmd.chistory{  count = 10, mods = { silent = true } }
 
     local winid = vim.fn.getqflist{ winid = 0 }.winid
     if winid ~= 0 then
@@ -733,7 +735,7 @@ local function show_qf(name, is_foldable)
       id = qf_info[name],
       nr = 0,
     }.nr
-    vim.cmd(('silent %dchistory'):format(nr))
+    vim.cmd.chistory{ count = nr, mods = { silent = true } }
     vim.cmd.copen()
 
     if is_foldable then

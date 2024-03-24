@@ -196,10 +196,9 @@ end
 local function clear_search_buffer_undo_tree()
   local undo_levels = vim.bo.undolevels
   vim.bo.undolevels = -1
-  vim.cmd {
+  vim.cmd.normal{
     args = { vim.api.nvim_replace_termcodes('a‎<BS><Esc>', true, true, true) },
     bang = true,
-    cmd = 'normal',
   }
   vim.bo.undolevels = undo_levels
   vim.bo.modified = false
@@ -456,12 +455,12 @@ local function fold_results(line, should_fold)
       if vim.fn.foldclosed(fold_start) == -1 then
         if should_fold == nil or should_fold then
           if last_row - first_row >= fold_threshold then
-            vim.cmd{ cmd = 'fold', range = { fold_start, fold_end } }
+            vim.cmd.fold{ range = { fold_start, fold_end } }
           end
         end
       else
         if should_fold == nil or not should_fold then
-          vim.cmd{ cmd = 'foldopen', range = { fold_start, fold_end } }
+          vim.cmd.foldopen{ range = { fold_start, fold_end } }
         end
       end
     else
@@ -690,9 +689,8 @@ local function on_buf_write_cmd()
       file_name = change_info.file_name
       is_file_open = vim.fn.bufnr(file_name) ~= -1
 
-      vim.cmd {
+      vim.cmd.edit {
         args = { file_name },
-        cmd = 'edit',
         mods = { keepjumps = true },
       }
     end
@@ -713,9 +711,8 @@ local function on_buf_write_cmd()
       vim.cmd.bwipe()
     end
 
-    vim.cmd {
+    vim.cmd.buffer {
       args = { info.bufnr },
-      cmd = 'buffer',
       mods = { keepjumps = true },
     }
   end

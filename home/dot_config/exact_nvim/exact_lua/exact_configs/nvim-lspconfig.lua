@@ -45,9 +45,9 @@ return {
 
       map('n', 'K', vim.lsp.buf.hover)
       map('n', 'gd', goto_definition(), "Go to definition")
-      map('n', '<C-w><C-f>', goto_definition('vsplit'), "Go to definition in vertical split")
-      map('n', '<C-w>f', goto_definition('split'), "Go to definition in split")
-      map('n', '<C-w>gf', goto_definition('tab split'), "Go to definition in new tab")
+      map('n', '<C-w><C-d>', goto_definition('vsplit'), "Go to definition in vertical split")
+      map('n', '<C-w>d', goto_definition('split'), "Go to definition in split")
+      map('n', '<C-w>gd', goto_definition('tab split'), "Go to definition in new tab")
       map('n', 'gR', show_references, "Show symbol references")
       map('n', '<F2>', vim.lsp.buf.rename)
       map('n', '<F3>', vim.lsp.buf.format)
