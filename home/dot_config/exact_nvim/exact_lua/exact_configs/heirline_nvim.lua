@@ -237,7 +237,7 @@ local function git_repo_status()
       end,
       space(),
       {
-        hl = { fg = 'git_stash' },
+        hl = { fg = 'git_stash', italic = true },
         provider = function(self)
           return '󰇙'..fn.git_stash_count(self.cwd)
         end,
@@ -249,7 +249,7 @@ local function git_repo_status()
       end,
       space(),
       {
-        hl = { fg = 'git_remote' },
+        hl = { fg = 'git_remote', italic = true },
         provider = function(self)
           return ''..fn.git_remote_change_count(self.cwd)
         end,
@@ -261,7 +261,7 @@ local function git_repo_status()
       end,
       space(),
       {
-        hl = { fg = 'git_local' },
+        hl = { fg = 'git_local', italic = true },
         provider = function(self)
           return ''..fn.git_local_change_count(self.cwd)
         end,
@@ -322,37 +322,37 @@ local function task_btn()
       space(),
     },
     {
+      init = function(self)
+        self.code = self.task_output_codes[self.index]
+      end,
+      hl = function(self)
+        local hl
+        if self.code < 0 then
+          hl = 'task_running'
+        elseif self.code == 0 then
+          hl = 'task_done_success'
+        else
+          hl = 'task_done_error'
+        end
+        return { fg = hl, italic = true }
+      end,
+      provider = function(self)
+        local icon
+        if self.code < 0 then
+          icon = '󰞌'
+        elseif self.code == 0 then
+          icon = '󰸞'
+        else
+          icon = '󱎘'
+        end
+        return icon..' '..self.index
+      end,
       on_click = {
         callback = function(self)
           fn.show_task_output(self.index)
         end,
         name = function(self)
           return 'task_output_click_callback'..self.index
-        end,
-      },
-      {
-        condition = function(self)
-          return self.task_output_codes[self.index] < 0
-        end,
-        hl = { fg = 'task_running' },
-        provider = function(self)
-          return '󰞌 '..self.index
-        end,
-      },
-      {
-        condition = function(self)
-          return self.task_output_codes[self.index] >= 0
-        end,
-        hl = function(self)
-          local hl = self.task_output_codes[self.index] == 0
-            and 'task_done_success'
-            or 'task_done_error'
-          return { fg = hl }
-        end,
-        provider = function(self)
-          return self.task_output_codes[self.index] == 0
-            and '󰸞 '..self.index
-            or '󱎘 '..self.index
         end,
       },
     },

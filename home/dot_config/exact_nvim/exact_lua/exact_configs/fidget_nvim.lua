@@ -1,6 +1,3 @@
-local function log(log_level, ...)
-end
-
 return {
   config = function()
     require'fidget'.setup {
