@@ -891,6 +891,8 @@ function fn.update_lsp_diagnostics_list()
   local diag_map = {}
   for _, diagnostic in ipairs(diagnostics) do
     local source_name = diagnostic['source']
+    source_name = source_name or 'Neovim'
+    source_name = source_name
       :gsub('[^A-Za-z0-9 ]', '')
       :lower()
       :gsub("(%l)(%w*)", function(a, b)
@@ -907,7 +909,10 @@ function fn.update_lsp_diagnostics_list()
     if severity == s.ERROR then
       code_key = code_key..',Errors'
     elseif severity == s.HINT or severity == s.INFO then
-      code_key = code_key..',['..diagnostic['code']..']'
+      local code = diagnostic['code']
+      local title = code and '['..code..']'
+        or (severity == s.HINT and 'Hint' or 'Info')
+      code_key = code_key..','..title
     elseif severity == s.WARN then
       code_key = code_key..',Warnings'
     end
