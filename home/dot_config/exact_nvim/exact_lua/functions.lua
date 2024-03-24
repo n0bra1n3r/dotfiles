@@ -649,8 +649,18 @@ local qf_info = {}
 local setqflist_fn = vim.fn.setqflist
 vim.fn.setqflist = function(...)
   -- set current list to the last one to write to it by default
-  vim.cmd[[silent 10chistory]]
-  setqflist_fn(...)
+  local args = { ... }
+  if (args[2] and args[2] == ' ')
+      or (#args[1] > 0 and not args[3])
+      or (args[3] and args[3].items)
+  then
+    vim.cmd[[silent 10chistory]]
+    local list = vim.fn.getqflist{ id = 0, winid = true }
+    if list.winid ~= 0 then
+      vim.wo[list.winid].foldenable = false
+    end
+  end
+  setqflist_fn(unpack(args))
 end
 
 local function set_qf_items(name, what, is_append)
