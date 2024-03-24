@@ -291,6 +291,8 @@ my_autocmds {
     callback = function()
       if vim.bo.filetype == 'dap-repl' then
         vim.wo.wrap = false
+      elseif vim.bo.filetype == 'qf' then
+        fn.save_lsp_diagnostics_pos()
       end
     end,
   }, --}}}

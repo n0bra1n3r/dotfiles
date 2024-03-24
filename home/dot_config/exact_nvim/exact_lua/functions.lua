@@ -636,7 +636,7 @@ vim.fn.setqflist = function(...)
   then
     vim.cmd[[silent 10chistory]]
 
-    local winid = vim.fn.getqflist{ winid = true }.winid
+    local winid = vim.fn.getqflist{ winid = 0 }.winid
     if winid ~= 0 then
       vim.wo[winid].foldenable = false
     end
@@ -648,7 +648,7 @@ local function set_qf_list(name, what, is_append)
   local act = is_append and 'a' or 'r'
   local map = what or { items = {} }
 
-  local list = vim.fn.getqflist{ items = true, context = true }
+  local list = vim.fn.getqflist{ items = 0, context = 0 }
 
   if not qf_info[name] then
     if list.context.name then
@@ -687,7 +687,7 @@ local function set_qf_list(name, what, is_append)
     title = map.title,
   }, map))
 
-  list = vim.fn.getqflist{ id = 0, winid = true }
+  list = vim.fn.getqflist{ id = 0, winid = 0 }
 
   if list.winid ~= 0 then
     if vim.wo[list.winid].foldenable then
@@ -713,7 +713,7 @@ local function get_qf_context(name)
   end
   return vim.fn.getqflist{
     id = qf_info[name],
-    context = true,
+    context = 0,
   }.context
 end
 
@@ -723,7 +723,7 @@ local function get_qf_items(name)
   end
   return vim.fn.getqflist{
     id = name and qf_info[name],
-    items = true,
+    items = 0,
   }.items
 end
 
@@ -731,7 +731,7 @@ local function show_qf(name, is_foldable)
   if qf_info[name] then
     local nr = vim.fn.getqflist{
       id = qf_info[name],
-      nr = true,
+      nr = 0,
     }.nr
     vim.cmd(('silent %dchistory'):format(nr))
     vim.cmd.copen()
@@ -806,9 +806,9 @@ end
 function fn.qf_text(info)
   local list = vim.fn.getqflist {
     id = info.id,
-    context = true,
-    items = true,
-    qfbufnr = true,
+    context = 0,
+    items = 0,
+    qfbufnr = 0,
   }
 
   local lines = list.context.name == 'lsp_diagnostics'
@@ -847,7 +847,7 @@ function fn.qf_text(info)
   return content
 end
 
-local function select_diagnostic_group(severity)
+local function select_diagnostic_group(severity, is_apply)
   local context = get_qf_context('lsp_diagnostics')
   local items = get_qf_items(context.name)
   local index
@@ -862,7 +862,7 @@ local function select_diagnostic_group(severity)
       then
         set_qf_list(context.name, {
           context = { selection = severity },
-          idx = i
+          idx = is_apply and i
         })
         return
       end
@@ -870,12 +870,35 @@ local function select_diagnostic_group(severity)
   end
   set_qf_list(context.name, {
     context = { selection = nil },
-    idx = index,
+    idx = is_apply and index,
   })
 end
 
+function fn.save_lsp_diagnostics_pos()
+  local qf_id = qf_info['lsp_diagnostics']
+  if qf_id then
+    local list =  vim.fn.getqflist {
+      id = qf_id,
+      idx = 0,
+      items = 0,
+    }
+    if list.idx ~= 0 then
+      local s = vim.diagnostic.severity
+      local severities = {
+        E = s.ERROR,
+        W = s.WARN,
+        N = s.HINT,
+        I = s.INFO,
+      }
+      local type = list.items[list.idx].type
+      vim.print(severities[type])
+      select_diagnostic_group(severities[type], false)
+    end
+  end
+end
+
 function fn.show_lsp_diagnostics_list(severity)
-  select_diagnostic_group(severity)
+  select_diagnostic_group(severity, true)
   show_qf('lsp_diagnostics', true)
 end
 
@@ -952,7 +975,7 @@ function fn.update_lsp_diagnostics_list()
 
   local context = get_qf_context('lsp_diagnostics')
   if set_qf_list(context.name, { items = items }) then
-    select_diagnostic_group(context.selection)
+    select_diagnostic_group(context.selection, true)
   end
 end
 
