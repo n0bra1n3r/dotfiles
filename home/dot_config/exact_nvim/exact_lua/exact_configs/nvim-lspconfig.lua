@@ -21,8 +21,13 @@ local function goto_definition(win_cmd)
   end
 end
 
-local function format()
-  vim.lsp.buf.format()
+local function show_references()
+  vim.lsp.buf.references(nil, {
+    on_list = function(options)
+      fn.update_lsp_references_list(options)
+      fn.show_lsp_references_list()
+    end,
+  })
 end
 
 return {
@@ -43,16 +48,14 @@ return {
       map('n', '<C-w><C-f>', goto_definition('vsplit'), "Go to definition in vertical split")
       map('n', '<C-w>f', goto_definition('split'), "Go to definition in split")
       map('n', '<C-w>gf', goto_definition('tab split'), "Go to definition in new tab")
-      map('n', 'gR', vim.lsp.buf.references, "Show symbol references")
+      map('n', 'gR', show_references, "Show symbol references")
       map('n', '<F2>', vim.lsp.buf.rename)
-      map('n', '<F3>', format)
-      map('x', '<F3>', format)
+      map('n', '<F3>', vim.lsp.buf.format)
+      map('x', '<F3>', vim.lsp.buf.format)
       map('n', '<F4>', vim.lsp.buf.code_action)
 
       if vim.lsp.buf.range_code_action then
         map('x', '<F4>', vim.lsp.buf.range_code_action)
-      else
-        map('x', '<F4>', vim.lsp.buf.code_action)
       end
 
       map('n', '[s', vim.diagnostic.goto_prev, "Go to next diagnostic")

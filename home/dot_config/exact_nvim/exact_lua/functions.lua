@@ -916,14 +916,24 @@ function fn.show_lsp_definitions_list()
 end
 
 function fn.update_lsp_definitions_list(options)
+  options.title = nil
   set_qf_items('lsp_definitions', options)
+end
+
+function fn.show_lsp_references_list()
+  show_qf('lsp_references')
+end
+
+function fn.update_lsp_references_list(options)
+  options.title = nil
+  set_qf_items('lsp_references', options)
 end
 
 function fn.get_task_output_codes()
   local qf_name_prefix = 'task_output_'
 
   local codes = {}
-  for i = 1, 7 do
+  for i = 1, 6 do
     local qf_name = qf_name_prefix..i
     local context = get_qf_context(qf_name)
     if context.is_running or context.exit_code then
@@ -937,7 +947,7 @@ function fn.show_task_output(nr)
   local qf_name_prefix = 'task_output_'
 
   local count = 0
-  for i = 1, 7 do
+  for i = 1, 6 do
     local qf_name = qf_name_prefix..i
     local context = get_qf_context(qf_name)
     if context.is_running or context.exit_code then
@@ -955,7 +965,7 @@ function fn.update_task_output(output, id)
 
   local qf_id = id
   if not qf_id then
-    for i = 1, 7 do
+    for i = 1, 6 do
       local qf_name = qf_name_prefix..i
       local context = get_qf_context(qf_name)
       if not context.is_running then
@@ -989,13 +999,13 @@ end
 
 set_qf_items('lsp_diagnostics', { title = "LSP Diagnostics" })
 set_qf_items('lsp_definitions', { title = "LSP Definitions" })
+set_qf_items('lsp_references', { title = "LSP References" })
 set_qf_items('task_output_1', { title = "Task Output 1" })
 set_qf_items('task_output_2', { title = "Task Output 2" })
 set_qf_items('task_output_3', { title = "Task Output 3" })
 set_qf_items('task_output_4', { title = "Task Output 4" })
 set_qf_items('task_output_5', { title = "Task Output 5" })
 set_qf_items('task_output_6', { title = "Task Output 6" })
-set_qf_items('task_output_7', { title = "Task Output 7" })
 set_qf_items('messages', { title = "Messages" })
 --}}}
 --{{{ Navigation

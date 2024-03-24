@@ -169,7 +169,6 @@ my_mappings {
     ["<leader>q4"]      = { show_task_output(4), desc = "Log 4" },
     ["<leader>q5"]      = { show_task_output(5), desc = "Log 5" },
     ["<leader>q6"]      = { show_task_output(6), desc = "Log 6" },
-    ["<leader>q7"]      = { show_task_output(7), desc = "Log 7" },
     ["<leader>qq"]      = { [[:silent 10chistory|copen<CR>]], desc = "Messages" },
     ["<leader>s"]       = { search_and_replace, desc = "Search & replace" },
     ["<leader>t"]       = { "<cmd>OverseerRun<CR>", desc = "Tasks" },
