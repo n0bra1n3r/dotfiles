@@ -890,7 +890,6 @@ function fn.save_lsp_diagnostics_pos()
         I = s.INFO,
       }
       local type = list.items[list.idx].type
-      vim.print(severities[type])
       select_diagnostic_group(severities[type], false)
     end
   end
