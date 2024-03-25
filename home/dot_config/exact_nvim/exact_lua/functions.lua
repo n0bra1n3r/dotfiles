@@ -644,21 +644,19 @@ vim.fn.setqflist = function(...)
 end
 
 local function set_qf_list(name, what, is_append)
-  local act = is_append and 'a' or 'r'
-  local map = what or { items = {} }
+  what = what or { items = {} }
 
   local list = vim.fn.getqflist{ items = 0, context = 0 }
 
-  if not qf_info[name] then
-    if list.context.name then
-      act = ' '
-    end
+  local act = is_append and 'a' or 'r'
+  if not qf_info[name] and list.context.name then
+    act = ' '
   end
 
-  if act == 'r' and map.items then
-    if #map.items > 0 and #list.items == #map.items then
+  if act == 'r' and what.items then
+    if #what.items > 0 and #list.items == #what.items then
       for i, item1 in ipairs(list.items) do
-        local item2 = vim.deepcopy(map.items[i])
+        local item2 = vim.deepcopy(what.items[i])
         item2.bufnr = item2.bufnr or item1.bufnr
         item2.col = item2.col or item1.col
         item2.end_col = item2.end_col or item1.end_col
@@ -683,8 +681,8 @@ local function set_qf_list(name, what, is_append)
   setqflist_fn({}, act, vim.tbl_deep_extend('keep', {
     context = { name = name },
     id = qf_info[name],
-    title = map.title,
-  }, map))
+    title = what.title,
+  }, what))
 
   list = vim.fn.getqflist{ id = 0, winid = 0 }
 
@@ -692,11 +690,6 @@ local function set_qf_list(name, what, is_append)
     if vim.wo[list.winid].foldenable then
       vim.wo[list.winid].foldlevel =
         vim.wo[list.winid].foldlevel
-    end
-    if act == 'a' then
-      vim.api.nvim_win_set_cursor(list.winid, {
-        vim.fn.line('$', list.winid), 0,
-      })
     end
   end
 
@@ -742,6 +735,13 @@ local function show_qf(name, is_foldable)
       vim.wo.foldenable = false
     end
   end
+end
+
+local function is_current_qf(name)
+  if not qf_info[name] then
+    return false
+  end
+  return qf_info[name] == vim.fn.getqflist{ id = 0 }.id
 end
 
 local function qf_diagnostics_lines(items)
@@ -810,9 +810,10 @@ function fn.qf_text(info)
     qfbufnr = 0,
   }
 
-  local lines = list.context.name == 'lsp_diagnostics'
-    and qf_diagnostics_lines(list.items)
-    or {}
+  local lines = {}
+  if list.context.name == 'lsp_diagnostics' then
+    lines = qf_diagnostics_lines(list.items)
+  end
 
   vim.schedule(function()
     local ns = vim.api.nvim_create_namespace('qf_text_hl')
@@ -1020,6 +1021,7 @@ function fn.show_task_output(nr)
       count = count + 1
       if count == nr then
         show_qf(qf_name)
+        vim.cmd.cbottom()
         break
       end
     end
@@ -1046,14 +1048,17 @@ function fn.update_task_output(output, id)
   if qf_id then
     local qf_name = qf_name_prefix..qf_id
     if type(output) == 'table' then
-      local items = {}
+      local lines = {}
       for _, line in ipairs(output) do
-        table.insert(items, { text = line })
+        table.insert(lines, line)
       end
       set_qf_list(qf_name, {
         context = { is_running = true },
-        items = items,
+        lines = lines,
       }, true)
+      if is_current_qf(qf_name) then
+        vim.cmd.cbottom()
+      end
     else
       set_qf_list(qf_name, {
         context = { exit_code = output },
@@ -1065,6 +1070,7 @@ end
 
 function fn.show_messages_list()
   show_qf('messages')
+  vim.cmd.cbottom()
 end
 
 set_qf_list('lsp_diagnostics', { title = "LSP Diagnostics" })
