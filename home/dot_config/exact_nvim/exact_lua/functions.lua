@@ -633,14 +633,14 @@ vim.fn.setqflist = function(...)
       or (#args[1] > 0 and not args[3])
       or (args[3] and args[3].items)
   then
-    vim.cmd.chistory{  count = 10, mods = { silent = true } }
+    vim.cmd.chistory{ count = 10, mods = { silent = true } }
 
     local winid = vim.fn.getqflist{ winid = 0 }.winid
     if winid ~= 0 then
       vim.wo[winid].foldenable = false
     end
   end
-  setqflist_fn(unpack(args))
+  fn.ui_try(setqflist_fn, unpack(args))
 end
 
 local function set_qf_list(name, what, is_append)
