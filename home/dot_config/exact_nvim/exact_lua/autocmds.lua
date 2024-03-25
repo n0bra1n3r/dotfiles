@@ -136,12 +136,6 @@ my_autocmds {
       vim.bo.bufhidden = "wipe"
     end,
   }, --}}}
-  { "FileType", pattern = "help", --{{{
-    callback = function()
-      vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[<cmd>quit<CR>]],
-        { noremap = true, silent = true })
-    end,
-  }, --}}}
   { 'FileType', pattern = 'nim', --{{{
     callback = function()
       vim.cmd.filetype{ args = { 'plugin', 'off' } }

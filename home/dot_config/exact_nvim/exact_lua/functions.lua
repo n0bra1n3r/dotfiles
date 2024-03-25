@@ -361,10 +361,7 @@ function fn.search(obj)
     }
   end
 
-  return function()
-    ---@diagnostic disable-next-line: redundant-parameter
-    lib[obj](opts)
-  end
+  lib[obj](opts)
 end
 
 function fn.open_folder(path)
@@ -1065,6 +1062,10 @@ function fn.update_task_output(output, id)
     end
   end
   return qf_id
+end
+
+function fn.show_messages_list()
+  show_qf('messages')
 end
 
 set_qf_list('lsp_diagnostics', { title = "LSP Diagnostics" })
