@@ -1135,9 +1135,9 @@ return {
       'FocusGained',
     }, {
       group = vim.api.nvim_create_augroup('conf_heirline', { clear = true }),
-      callback = fn.vim_defer(function()
+      callback = function()
         require'heirline.utils'.on_colorscheme(colors)
-      end),
+      end,
     })
 
     refresh_bookmark_list()
