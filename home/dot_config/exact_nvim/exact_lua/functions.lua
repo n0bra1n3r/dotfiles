@@ -396,14 +396,20 @@ function fn.get_sign_for_severity(severity)
       [s.INFO] = 'Info',
     }
     suffix = severities[severity]
-  elseif #severity == 1 then
-    local severities = {
-      E = 'Error',
-      W = 'Warn',
-      N = 'Hint',
-      I = 'Info',
-    }
-    suffix = severities[severity:upper()]
+  elseif type(severity) == 'string' then
+    suffix = vim.trim(severity)
+    if #severity == 1 then
+      local severities = {
+        E = 'Error',
+        W = 'Warn',
+        N = 'Hint',
+        I = 'Info',
+      }
+      suffix = severities[severity:upper()]
+    end
+  end
+  if not suffix or #suffix == 0 then
+    return nil, nil
   end
   local name = 'DiagnosticSign'..suffix
   return vim.fn.sign_getdefined(name)[1].text, name
@@ -644,7 +650,7 @@ vim.fn.setqflist = function(...)
 end
 
 local function set_qf_list(name, what, is_append)
-  what = what or { items = {} }
+  what = what or { lines = {} }
 
   local list = vim.fn.getqflist{ items = 0, context = 0 }
 
@@ -653,50 +659,83 @@ local function set_qf_list(name, what, is_append)
     act = ' '
   end
 
-  if act == 'r' and what.items then
-    if #what.items > 0 and #list.items == #what.items then
-      for i, item1 in ipairs(list.items) do
-        local item2 = vim.deepcopy(what.items[i])
-        item2.bufnr = item2.bufnr or item1.bufnr
-        item2.col = item2.col or item1.col
-        item2.end_col = item2.end_col or item1.end_col
-        item2.end_lnum = item2.end_lnum or item1.end_lnum
-        item2.lnum = item2.lnum or item1.lnum
-        item2.module = item2.module or item1.module
-        item2.nr = item2.nr or item1.nr
-        item2.pattern = item2.pattern or item1.pattern
-        item2.text = item2.text or item1.text
-        item2.type = item2.type or item1.type
-        item2.valid = item2.valid or item1.valid
-        item2.vcol = item2.vcol or item1.vcol
-        if not vim.deep_equal(item1, item2) then
-          goto set_items
-        end
+  local is_equal = false
+
+  -- convert items to lines to prevent scroll offsets from jumping
+  if what.items then
+    is_equal = act == 'r' and #list.items == #what.items
+
+    local lines = {}
+    for i, item in ipairs(what.items) do
+      if is_equal then
+        local item1 = list.items[i]
+        item.bufnr = item.bufnr or item1.bufnr
+        item.col = item.col or item1.col
+        item.end_col = item.end_col or item1.end_col
+        item.end_lnum = item.end_lnum or item1.end_lnum
+        item.lnum = item.lnum or item1.lnum
+        item.module = item.module or item1.module
+        item.nr = item.nr or item1.nr
+        item.pattern = item.pattern or item1.pattern
+        item.text = item.text or item1.text
+        item.type = item.type or item1.type
+        item.valid = item.valid or item1.valid
+        item.vcol = item.vcol or item1.vcol
+        is_equal = vim.deep_equal(item1, item)
       end
-      return false
+
+      local col, end_col = item.col, item.end_col
+      if item.vcol and item.vcol ~= 0 then
+        col = col and col - 1
+        end_col = end_col and end_col - 1
+      end
+
+      local filename = item.filename
+      if item.bufnr and item.bufnr ~= 0 then
+        filename = vim.api.nvim_buf_get_name(item.bufnr)
+      end
+
+      table.insert(lines, ('%s|%s|%s|%s|%s'):format(
+        item.type or '',
+        (item.lnum and item.lnum ~= 0) and ('%d-%d:%d-%d'):format(
+          item.lnum,
+          item.end_lnum or 0,
+          col or 0,
+          end_col or 0
+        ) or '',
+        item.module or '',
+        filename or '',
+        item.text or ''
+      ))
     end
+
+    what.efm = '%t|%l-%e:%c-%k|%o|%f|%m,%t|%l-%e:%c-%k||%f|%m,%t||||%m,||||%m'
+    what.lines = lines
+    what.items = nil
   end
 
-  ::set_items::
-  setqflist_fn({}, act, vim.tbl_deep_extend('keep', {
-    context = { name = name },
-    id = qf_info[name],
-    title = what.title,
-  }, what))
+  if not is_equal then
+    setqflist_fn({}, act, vim.tbl_deep_extend('keep', {
+      context = { name = name },
+      id = qf_info[name],
+      title = what.title,
+    }, what))
 
-  list = vim.fn.getqflist{ id = 0, winid = 0 }
+    list = vim.fn.getqflist{ id = 0, winid = 0 }
 
-  if list.winid ~= 0 then
-    if vim.wo[list.winid].foldenable then
-      vim.wo[list.winid].foldlevel =
-        vim.wo[list.winid].foldlevel
+    if list.winid ~= 0 then
+      if vim.wo[list.winid].foldenable then
+        vim.wo[list.winid].foldlevel =
+          vim.wo[list.winid].foldlevel
+      end
     end
   end
 
   if not qf_info[name] then
     qf_info[name] = list.id
   end
-  return true
+
+  return not is_equal
 end
 
 local function get_qf_context(name)
@@ -744,11 +783,32 @@ local function is_current_qf(name)
   return qf_info[name] == vim.fn.getqflist{ id = 0 }.id
 end
 
+function fn.qf_fold_expr()
+  local items = get_qf_items()
+  local first = items[1]
+  local entry = items[vim.v.lnum]
+  local level = '0'
+  if entry then
+    if entry.bufnr == 0 then
+      if #entry.type > 0 and #first.type > 0 then
+        level = '>1'
+      else
+        level = '>2'
+      end
+    elseif #first.type > 0 then
+      level = '1'
+    else
+      level = '2'
+    end
+  end
+  return level
+end
+
 local function qf_diagnostics_lines(items)
   local lines = {}
   for _, item in ipairs(items) do
     local line
-    if item.valid == 0 then
+    if item.bufnr == 0 then
       if #item.type == 0 then
         line = {{ item.text }}
       else
@@ -779,27 +839,6 @@ local function qf_diagnostics_lines(items)
     end
   end
   return lines
-end
-
-function fn.qf_fold_expr()
-  local items = get_qf_items()
-  local first = items[1]
-  local entry = items[vim.v.lnum]
-  local level = '0'
-  if entry then
-    if entry.valid == 0 then
-      if #entry.type > 0 and #first.type > 0 then
-        level = '>1'
-      else
-        level = '>2'
-      end
-    elseif #first.type > 0 then
-      level = '1'
-    else
-      level = '2'
-    end
-  end
-  return level
 end
 
 function fn.qf_text(info)
