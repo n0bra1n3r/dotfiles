@@ -86,6 +86,10 @@
   type = "archive"
   stripComponents = 1
 
+{{ template "dep" "git-fuzzy/.local" }}
+  url = "https://github.com/bigH/git-fuzzy"
+  type = "git-repo"
+
 {{ template "dep" "neovim/.local" }}
   {{- if $isWindows }}
   url = "https://github.com/neovim/neovim/releases/download/stable/nvim-win64.zip"
