@@ -98,7 +98,7 @@ my_autocmds {
       vim.o.cmdheight = 1
     end,
   }, --}}}
-  { { 'CmdlineEnter', 'CmdWinEnter', 'InsertEnter', 'TermEnter' }, --{{{
+  { { 'InsertEnter', 'TermEnter' }, --{{{
     callback = function()
       fn.vim_defer(vim.cmd.nohlsearch)()
     end,
