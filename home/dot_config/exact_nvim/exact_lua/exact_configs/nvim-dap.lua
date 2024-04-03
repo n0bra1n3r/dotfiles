@@ -60,6 +60,7 @@ return {
             },
           }
         end
+
         for i, item in ipairs(config) do
           if item.condition and not item.condition() then
             config[i] = nil

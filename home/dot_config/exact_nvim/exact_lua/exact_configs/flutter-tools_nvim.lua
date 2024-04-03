@@ -78,16 +78,16 @@ return {
     local select_device_fn = require'flutter-tools.devices'.select_device
     require'flutter-tools.devices'.select_device = function(device, args)
       vim.g.flutter_current_device = device
-      if vim.g.flutter_current_config then
+      if vim.g.dap_current_config then
         select_device_fn(device, args)
       end
     end
 
-    -- FIX: Hack to set current_config
+    -- FIX: Hack to set dap_current_config
     local pick_if_many_fn = require'dap.ui'.pick_if_many
     local run_fn = require'dap'.run
     require'dap.ui'.pick_if_many = function(l, p, fmt_fn, ...)
-      local config = vim.g.flutter_current_config
+      local config = vim.g.dap_current_config
       if config then
         local device = vim.g.flutter_current_device
         if device then
@@ -114,7 +114,7 @@ return {
     end
     require'dap'.run = function(config, ...)
       if config.dartSdkPath and config.flutterSdkPath then
-        vim.g.flutter_current_config = config
+        vim.g.dap_current_config = config
         local device = vim.g.flutter_current_device
         if device then
           config.args = vim.list_extend(config.args or {}, {
@@ -123,7 +123,7 @@ return {
           })
         end
       else
-        vim.g.flutter_current_config = nil
+        vim.g.dap_current_config = nil
       end
       run_fn(config, ...)
     end

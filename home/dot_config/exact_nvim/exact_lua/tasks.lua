@@ -24,12 +24,37 @@ my_tasks {
     notify = false,
     priority = 92,
   },
+  ["Select launcher"] = {
+    cond = function()
+      return fn.is_debug_mode()
+    end,
+    func = function()
+      vim.g.dap_current_config = nil
+
+      local configurations = require'dap'.configurations[vim.bo.filetype] or {}
+
+      if vim.tbl_islist(configurations) and #configurations ~= 0 then
+        require'dap.ui'.pick_if_many(
+          configurations,
+          "Configuration: ",
+          function(item)
+            return item.name
+          end,
+          function(config)
+            vim.g.dap_current_config = config
+          end
+        )
+      end
+    end,
+    notify = false,
+    priority = 93,
+  },
   ["Run on device"] = {
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
     func = function()
-      vim.g.flutter_current_config = nil
+      vim.g.dap_current_config = nil
       vim.g.flutter_current_device = nil
 
       require'flutter-tools.devices'.list_devices()
@@ -40,7 +65,7 @@ my_tasks {
       )
     end,
     notify = false,
-    priority = 93,
+    priority = 94,
   },
   ["Run profiler"] = {
     cond = function()
@@ -53,7 +78,7 @@ my_tasks {
       end
     end,
     notify = false,
-    priority = 94,
+    priority = 95,
   },
   ["Hot reload"] = {
     cond = function()
@@ -63,7 +88,7 @@ my_tasks {
       require'flutter-tools.commands'.reload()
     end,
     notify = false,
-    priority = 95,
+    priority = 96,
   },
   ["Debug continue"] = {
     cond = function()
@@ -84,7 +109,7 @@ my_tasks {
         type = 'number',
       },
     },
-    priority = 96,
+    priority = 97,
   },
   ["Debug restart"] = {
     cond = function()
@@ -94,7 +119,7 @@ my_tasks {
       require'flutter-tools.commands'.restart()
     end,
     notify = false,
-    priority = 97,
+    priority = 98,
   },
   ["Debug terminate"] = {
     cond = function()
@@ -104,7 +129,7 @@ my_tasks {
       require'flutter-tools.commands'.quit()
     end,
     notify = false,
-    priority = 98,
+    priority = 99,
   },
   ["Install project configuration"] = {
     cond = function()
@@ -125,6 +150,6 @@ my_tasks {
         fn.save_as_workspace_config)
     end,
     notify = false,
-    priority = 99,
+    priority = 100,
   },
 }

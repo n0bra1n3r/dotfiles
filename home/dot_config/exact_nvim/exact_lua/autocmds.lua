@@ -89,7 +89,7 @@ my_autocmds {
   }, --}}}
   { "BufWritePost", pattern = { '.nvim/init.lua' }, --{{{
     callback = function()
-      vim.g.flutter_current_config = nil
+      vim.g.dap_current_config = nil
       vim.g.flutter_current_device = nil
     end,
   }, --}}}
