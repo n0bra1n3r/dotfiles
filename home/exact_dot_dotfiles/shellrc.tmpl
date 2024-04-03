@@ -182,19 +182,6 @@ alias gp='git pu'
 alias gs='git st'
 alias gu='git pull'
 
-function ga() {
-  if [[ $# -eq 0 ]]; then
-    command git ls-files --deleted --modified --other --exclude-standard \
-      | fzf -0 -m \
-        --preview 'command git diff --color=always {-1}' \
-        --bind 'enter:become(command git add {+})'
-
-    git st
-  else
-    git add "$@"
-  fi
-}
-
 function gc() {
   # shellcheck disable=1091
   source "$HOME/.dotfiles/scripts/git-commit-message"
@@ -206,40 +193,6 @@ function gg() {
       --ansi \
       --preview "git show --color=always \$(echo {} | cut -d' ' -f1)" \
       --bind "enter:become(command git reset --hard \$(echo {} | cut -d' ' -f1))"
-}
-
-function gl() {
-  if [[ $# -eq 0 ]]; then
-    command git log --oneline --color=always \
-      | fzf -0 \
-        --ansi \
-        --preview "git show --color=always \$(echo {} | cut -d' ' -f1)" \
-        --bind "enter:become(command git rb \$(echo {} | cut -d' ' -f1))"
-  else
-    git rb "$@"
-  fi
-}
-
-function gr() {
-  if [[ $# -eq 0 ]]; then
-    command git diff --name-only --staged \
-      | fzf -0 -m \
-        --preview 'command git diff --color=always --staged {-1}' \
-        --bind 'enter:become(command git rss {+})'
-
-    git st
-  else
-    git rss "$@"
-  fi
-}
-
-function gt() {
-  command git stash list \
-    | fzf -0 \
-      --preview "command git show --pretty=oneline --color=always --patch \"\$(echo {} | cut -d: -f1)\"" \
-      --bind "enter:become(command git sap \$(echo {} | cut -d: -f1))"
-
-  git st
 }
 
 function gw() {
