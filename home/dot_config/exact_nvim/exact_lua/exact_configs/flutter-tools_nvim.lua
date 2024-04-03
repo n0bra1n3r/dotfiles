@@ -74,6 +74,8 @@ return {
       },
     }
 
+    require'flutter-tools.dap'.setup(require'flutter-tools.config')
+
     -- FIX: Hack to set current_device
     local select_device_fn = require'flutter-tools.devices'.select_device
     require'flutter-tools.devices'.select_device = function(device, args)
