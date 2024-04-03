@@ -2028,7 +2028,7 @@ local function load_workspace(tabpage)
     fn.freeze_workspace(tabpage, false)
     local workspace_path = fn.get_workspace_dir(tabpage)
     local workspace_conf = workspace_file:read("*a")
-    vim.api.nvim_exec2(workspace_conf, { output = false })
+    pcall(vim.api.nvim_exec2, workspace_conf, { output = false })
     io.close(workspace_file)
     fn.set_tab_cwd(tabpage, workspace_path)
   end
