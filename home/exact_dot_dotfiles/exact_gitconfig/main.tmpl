@@ -24,11 +24,24 @@
 
 [core]
   excludesfile = ~/.dotfiles/gitignore
+  pager = delta
 #{- if eq .chezmoi.os "windows" }#
   autocrlf = true
 #{- else if eq .chezmoi.os "darwin" }#
   autocrlf = input
 #{- end }#
+
+[delta]
+  navigate = true
+
+[diff]
+  colorMoved = default
+
+[interactive]
+  diffFilter = delta --color-only
+
+[merge]
+  conflictstyle = diff3
 
 [pull]
   rebase = true
