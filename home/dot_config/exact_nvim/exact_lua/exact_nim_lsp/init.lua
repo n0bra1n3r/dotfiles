@@ -273,7 +273,13 @@ M.methods['textDocument/didChange'] = {
                 ..[[%-ICC: %m]]
             }.items)
 
-            vim.list_extend(diagnostics, new_diagnostics)
+            for _, diagnostic in ipairs(new_diagnostics) do
+              diagnostic.code = diagnostic.message:match('%[(%w+)%]$')
+              if diagnostic.code then
+                diagnostic.message = diagnostic.message:sub(1, -#diagnostic.code - 4)
+              end
+              table.insert(diagnostics, diagnostic)
+            end
 
             apply_diagnostics(ns, diagnostics)
           end
