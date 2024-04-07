@@ -13,6 +13,10 @@ my_autocmds {
         end
       else
         vim.cmd.match[[OverLength //]]
+
+        if vim.bo.filetype == 'qf' then
+          require'bqf'.enable()
+        end
       end
     end,
   }, --}}}

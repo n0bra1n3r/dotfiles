@@ -2,6 +2,7 @@ local M = {
   info = {
     diag_stack = {},
     is_stopped = false,
+    line_cache = {},
   },
   methods = {},
 }
@@ -43,8 +44,9 @@ local function get_or_open_buf(name)
   return buf
 end
 
-local function get_word_at(buf, line, col)
-  local line_text = vim.api.nvim_buf_get_lines(buf, line - 1, line, false)[1]
+local function get_word_at(buf, line, col, lines)
+  local line_text = lines and lines[line] or
+    vim.api.nvim_buf_get_lines(buf, line - 1, line, false)[1]
   if line_text then
     local prefix = line_text:sub(1, col):match('[%w_]+$')
     local suffix = line_text:sub(col + 1):match('^[%w_]+')
@@ -53,8 +55,9 @@ local function get_word_at(buf, line, col)
   end
 end
 
-local function get_token_at(buf, line, col)
-  local line_text = vim.api.nvim_buf_get_lines(buf, line - 1, line, false)[1]
+local function get_token_at(buf, line, col, lines)
+  local line_text = lines and lines[line] or
+    vim.api.nvim_buf_get_lines(buf, line - 1, line, false)[1]
   if line_text then
     local line_part = line_text:sub(col + 1)
     local token_start = line_part:sub(1, 1)
@@ -67,14 +70,23 @@ local function get_token_at(buf, line, col)
     })[token_start]
     return token_end and
       line_part:match([[%b]]..token_start..token_end) or
-      get_word_at(buf, line, col)
+      get_word_at(buf, line, col, lines)
   end
+end
+
+local function get_cached_lines(buf)
+  local lines = M.info.line_cache[''..buf]
+  if not lines then
+    lines = vim.fn.readfile(vim.api.nvim_buf_get_name(buf))
+    M.info.line_cache[''..buf] = lines
+  end
+  return lines
 end
 
 local function apply_diagnostics(ns, diagnostics)
   local bufs = {}
   for _, diagnostic in ipairs(diagnostics) do
-    local buf = diagnostic.bufnr or vim.fn.bufnr(diagnostic.filename)
+    local buf = diagnostic.bufnr or get_or_open_buf(diagnostic.filename)
     if buf ~= -1 then
       local buf_diagnostics = bufs[buf]
       if not buf_diagnostics then
@@ -82,7 +94,8 @@ local function apply_diagnostics(ns, diagnostics)
         bufs[buf] = buf_diagnostics
       end
       if not diagnostic.end_col or diagnostic.end_col == diagnostic.col then
-        local token = get_token_at(buf, diagnostic.lnum + 1, diagnostic.col)
+        local lines = not vim.api.nvim_buf_is_loaded(buf) and get_cached_lines(buf)
+        local token = get_token_at(buf, diagnostic.lnum + 1, diagnostic.col, lines)
         if token then
           diagnostic.end_col = diagnostic.col + #token
         end

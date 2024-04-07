@@ -7,7 +7,5 @@ return {
         border = 'single',
       },
     }
-
-    require'bqf'.enable()
   end,
 }
