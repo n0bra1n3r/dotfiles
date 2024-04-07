@@ -53,6 +53,24 @@ local function get_word_at(buf, line, col)
   end
 end
 
+local function get_token_at(buf, line, col)
+  local line_text = vim.api.nvim_buf_get_lines(buf, line - 1, line, false)[1]
+  if line_text then
+    local line_part = line_text:sub(col + 1)
+    local token_start = line_part:sub(1, 1)
+    local token_end = ({
+      ["'"] = "'",
+      ['"'] = '"',
+      ['('] = ')',
+      ['{'] = '}',
+      ['['] = ']',
+    })[token_start]
+    return token_end and
+      line_part:match([[%b]]..token_start..token_end) or
+      get_word_at(buf, line, col)
+  end
+end
+
 local function apply_diagnostics(ns, diagnostics)
   local bufs = {}
   for _, diagnostic in ipairs(diagnostics) do
@@ -63,10 +81,10 @@ local function apply_diagnostics(ns, diagnostics)
         buf_diagnostics = {}
         bufs[buf] = buf_diagnostics
       end
-      if not diagnostic.end_col then
-        local word = get_word_at(buf, diagnostic.lnum + 1, diagnostic.col)
-        if word then
-          diagnostic.end_col = diagnostic.col + #word
+      if not diagnostic.end_col or diagnostic.end_col == diagnostic.col then
+        local token = get_token_at(buf, diagnostic.lnum + 1, diagnostic.col)
+        if token then
+          diagnostic.end_col = diagnostic.col + #token
         end
       end
       diagnostic.source = 'nim_lsp'
