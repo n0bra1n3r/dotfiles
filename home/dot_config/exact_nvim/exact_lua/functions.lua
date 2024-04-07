@@ -649,6 +649,32 @@ vim.fn.setqflist = function(...)
   fn.ui_try(setqflist_fn, unpack(args))
 end
 
+local function get_diagnostic_line(item)
+  local col, end_col = item.col, item.end_col
+  if item.vcol and item.vcol ~= 0 then
+    col = col and col - 1
+    end_col = end_col and end_col - 1
+  end
+
+  local filename = item.filename
+  if item.bufnr and item.bufnr ~= 0 then
+    filename = vim.api.nvim_buf_get_name(item.bufnr)
+  end
+
+  return ('%s|%s|%s|%s|%s'):format(
+    item.type or '',
+    (item.lnum and item.lnum ~= 0) and ('%d-%d:%d-%d'):format(
+      item.lnum,
+      item.end_lnum or 0,
+      col or 0,
+      end_col or 0
+    ) or '',
+    item.module or '',
+    filename or '',
+    item.text or ''
+  )
+end
+
 local function set_qf_list(name, what, is_append)
   what = what or { lines = {} }
 
@@ -684,29 +710,7 @@ local function set_qf_list(name, what, is_append)
         is_equal = vim.deep_equal(item1, item)
       end
 
-      local col, end_col = item.col, item.end_col
-      if item.vcol and item.vcol ~= 0 then
-        col = col and col - 1
-        end_col = end_col and end_col - 1
-      end
-
-      local filename = item.filename
-      if item.bufnr and item.bufnr ~= 0 then
-        filename = vim.api.nvim_buf_get_name(item.bufnr)
-      end
-
-      table.insert(lines, ('%s|%s|%s|%s|%s'):format(
-        item.type or '',
-        (item.lnum and item.lnum ~= 0) and ('%d-%d:%d-%d'):format(
-          item.lnum,
-          item.end_lnum or 0,
-          col or 0,
-          end_col or 0
-        ) or '',
-        item.module or '',
-        filename or '',
-        item.text or ''
-      ))
+      table.insert(lines, get_diagnostic_line(item))
     end
 
     what.efm = '%t|%l-%e:%c-%k|%o|%f|%m,%t|%l-%e:%c-%k||%f|%m,%t||||%m,||||%m'
@@ -952,7 +956,7 @@ function fn.update_lsp_diagnostics_list()
 
   local diag_map = {}
   for _, diagnostic in ipairs(diagnostics) do
-    local source_name = diagnostic['source']
+    local source_name = diagnostic.source
     source_name = source_name or 'Neovim'
     source_name = source_name
       :gsub('[^A-Za-z0-9 ]', ' ')
@@ -965,13 +969,13 @@ function fn.update_lsp_diagnostics_list()
       source_map = {}
       diag_map[source_name] = source_map
     end
-    local severity = diagnostic['severity']
+    local severity = diagnostic.severity
     local code_key = ''..severity
 
     if severity == s.ERROR then
       code_key = code_key..',Errors'
     elseif severity == s.HINT or severity == s.INFO then
-      local code = diagnostic['code']
+      local code = diagnostic.code
       local title = code and '['..code..']'
         or (severity == s.HINT and 'Hint' or 'Info')
       code_key = code_key..','..title
@@ -984,7 +988,9 @@ function fn.update_lsp_diagnostics_list()
       diag_list = {}
       source_map[code_key] = diag_list
     end
-    table.insert(diag_list, diagnostic)
+
+    table.insert(diag_list,
+      get_diagnostic_line(vim.diagnostic.toqflist{ diagnostic }[1]))
   end
 
   local sources = vim.tbl_keys(diag_map)
@@ -992,10 +998,10 @@ function fn.update_lsp_diagnostics_list()
     return a < b
   end)
 
-  local items = {}
+  local lines = {}
   for _, source in ipairs(sources) do
     local source_map = diag_map[source]
-    table.insert(items, { text = source })
+    table.insert(lines, get_diagnostic_line{ text = source })
     local code_keys = vim.tbl_keys(source_map)
     table.sort(code_keys, function (a, b)
       return a < b
@@ -1003,16 +1009,20 @@ function fn.update_lsp_diagnostics_list()
     for _, code_key in ipairs(code_keys) do
       local key = vim.split(code_key, ',')
       local val = source_map[code_key]
-      table.insert(items, {
+      table.insert(lines, get_diagnostic_line{
         text = key[2],
         type = severities[tonumber(key[1])],
       })
-      vim.list_extend(items, vim.diagnostic.toqflist(val))
+      vim.list_extend(lines, val)
     end
   end
 
   local context = get_qf_context('lsp_diagnostics')
-  if set_qf_list(context.name, { items = items }) then
+  if set_qf_list(context.name, {
+    efm = '%t|%l-%e:%c-%k|%o|%f|%m,%t|%l-%e:%c-%k||%f|%m,%t||||%m,||||%m',
+    lines = lines
+  })
+  then
     select_diagnostic_group(context.selection, true)
   end
 end
