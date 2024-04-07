@@ -955,7 +955,7 @@ function fn.update_lsp_diagnostics_list()
     local source_name = diagnostic['source']
     source_name = source_name or 'Neovim'
     source_name = source_name
-      :gsub('[^A-Za-z0-9 ]', '')
+      :gsub('[^A-Za-z0-9 ]', ' ')
       :lower()
       :gsub("(%l)(%w*)", function(a, b)
         return a:upper()..b

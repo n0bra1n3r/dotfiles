@@ -2,7 +2,6 @@ local M = {
   info = {
     diag_stack = {},
     is_stopped = false,
-    proj_cache = {},
   },
   methods = {},
 }
@@ -70,24 +69,13 @@ local function apply_diagnostics(ns, diagnostics)
           diagnostic.end_col = diagnostic.col + #word
         end
       end
+      diagnostic.source = 'nim_lsp'
       table.insert(buf_diagnostics, diagnostic)
     end
   end
   for buf, buf_diagnostics in pairs(bufs) do
     vim.diagnostic.set(ns, buf, buf_diagnostics)
   end
-end
-
-local function name_to_severity(name)
-  local severities = vim.diagnostic.severity
-  if name == 'Error' then
-    return severities.ERROR
-  elseif name == 'Hint' then
-    return severities.HINT
-  elseif name == 'Warning' then
-    return severities.WARN
-  end
-  return severities.INFO
 end
 
 local function path_to_uri(path)
@@ -123,15 +111,6 @@ local function prettify_param_string(string)
   result = result..vim.fn.join(params_parts, ',\n'..indent):sub(2)
   result = result..suffix
   return result
-end
-
-local function project_find()
-  local instance = vim.fn['nim#suggest#ProjectFindOrStart']()
-  if type(instance) == 'table'
-      and type(instance.file) == 'string'
-  then
-    return instance.file
-  end
 end
 
 local function uri_to_path(uri)
@@ -221,105 +200,75 @@ end
 --   end,
 -- }
 
--- M.methods['textDocument/didChange'] = {
---   handler = function(message_id, params, cb)
---     local did_change = M.methods['textDocument/didChange']
---
---     project_find()
---
---     local path = uri_to_path(params.textDocument.uri)
---     local diag_stack = M.info.diag_stack[path]
---
---     if diag_stack and #diag_stack > 0 then
---       table.insert(diag_stack, {
---         message_id = message_id,
---         params = params,
---       })
---     else
---       M.info.diag_stack[path] = {{
---         message_id = message_id,
---         params = params,
---       }}
---
---       cb.start{ message = 'diagnostics' }
---
---       local buf = get_or_open_buf(path)
---       local ns = vim.api.nvim_create_namespace('nim_lsp')
---
---       vim.schedule(function()
---         vim.diagnostic.set(ns, buf, {})
---       end)
---
---       vim.fn['nim#suggest#utils#Query'](
---         'chk',
---         {
---           buffer = buf,
---           on_data = function(reply)
---             diag_stack = M.info.diag_stack[path]
---             if #diag_stack == 1 and diag_stack[1].message_id == message_id then
---               local diagnostics = {}
---               for _, item in ipairs(reply) do
---                 local parts = vim.split(item, '\t',
---                   { plain = true, trimempty = false })
---                 local lnum = (parts[6] and tonumber(parts[6]) or 0) - 1
---                 if parts[1] == 'chk' and lnum >= 0 then
---                   table.insert(diagnostics, {
---                     col = tonumber(parts[7]),
---                     filename = parts[5],
---                     lnum = lnum,
---                     message = vim.fn.eval(parts[8]),
---                     severity = name_to_severity(parts[4]),
---                     source = 'nim_lsp',
---                   })
---                 end
---               end
---
---               vim.schedule(function()
---                 apply_diagnostics(ns, diagnostics)
---               end)
---             end
---           end,
---           on_end = function()
---             diag_stack = M.info.diag_stack[path]
---             if #diag_stack > 1 then
---               cb.report{ message = 'diagnostics', percentage = 100 / #diag_stack }
---
---               local last_task = diag_stack[#diag_stack]
---
---               M.info.diag_stack[path] = {}
---
---               did_change.handler(last_task.message_id, last_task.params, cb)
---             else
---               M.info.diag_stack[path] = {}
---
---               cb.stop{ message = 'diagnostics', percentage = 100 }
---             end
---           end,
---         },
---         false,
---         true)
---     end
---   end,
--- }
+M.methods['textDocument/didChange'] = {
+  handler = function(_, params, cb)
+    local text = params.contentChanges and
+      params.contentChanges[#params.contentChanges].text or
+      params.textDocument.text
+    if text and #text > 0 then
+      local path = uri_to_path(params.textDocument.uri)
 
--- M.methods['textDocument/didOpen'] = {
---   handler = function(message_id, params, cb)
---     local did_change = M.methods['textDocument/didChange']
---
---     local project = project_find()
---     if project then
---       if not M.info.proj_cache[project] then
---         M.info.proj_cache[project] = true
---         params.textDocument.uri = path_to_uri(project)
---         did_change.handler(message_id, params, cb)
---       else
---         did_change.handler(message_id, params, cb)
---       end
---     else
---       did_change.handler(message_id, params, cb)
---     end
---   end,
--- }
+      local ns = vim.api.nvim_create_namespace('nim_lsp')
+
+      local diagnostics = {}
+
+      local job = require'plenary.job':new{
+        args = {
+          'check',
+          '--verbosity:0',
+          '--eval:',
+          text,
+        },
+        command = 'nim',
+        cwd = vim.fn.fnamemodify(path, ':h'),
+        on_exit = function()
+          table.remove(M.info.diag_stack, 1)
+          cb.stop{ message = 'diagnostics', percentage = 100 }
+
+          if #M.info.diag_stack > 0 then
+            M.info.diag_stack[1]:start()
+            cb.start{ message = 'diagnostics' }
+          end
+        end,
+        on_stderr = vim.schedule_wrap(function(_, line)
+          if line then
+            local new_diagnostics = vim.diagnostic.fromqflist(vim.fn.getqflist{
+              lines = { line:gsub([[^cmdfile%.nim]], path) },
+              efm = [[%f(%l\, %c) %trror: %m,]]
+                ..[[%f(%l\, %c) %tarning: %m,]]
+                ..[[%N%f(%l\, %c) Hint: %m,]]
+                ..[[%I%f(%l\, %c) %m,]]
+                ..[[%-IHint: %m,]]
+                ..[[%-ICC: %m]]
+            }.items)
+
+            vim.list_extend(diagnostics, new_diagnostics)
+
+            apply_diagnostics(ns, diagnostics)
+          end
+        end),
+      }
+
+      if #M.info.diag_stack < 2 then
+        table.insert(M.info.diag_stack, job)
+
+        if #M.info.diag_stack < 2 then
+          M.info.diag_stack[1]:start()
+          cb.start{ message = 'diagnostics' }
+        end
+      else
+        M.info.diag_stack[2] = job
+      end
+    end
+  end,
+}
+
+M.methods['textDocument/didOpen'] = {
+  handler = function(message_id, params, cb)
+    local did_change = M.methods['textDocument/didChange']
+    did_change.handler(message_id, params, cb)
+  end,
+}
 
 M.methods['textDocument/definition'] = {
   capability = true,
@@ -600,7 +549,6 @@ function M.cmd(get_client_id)
       send()
     elseif method == 'exit' then
       vim.fn['nim#suggest#ProjectStopAll']()
-      M.info.proj_cache = {}
       send()
     else
       local def = M.methods[method]
