@@ -794,8 +794,15 @@ function fn.qf_fold_expr()
   if entry then
     if entry.bufnr == 0 then
       level = '>2'
+    elseif entry.type == '>' then
+      level = '3'
     else
-      level = '2'
+      local next = items[vim.v.lnum + 1]
+      if next and next.type == '>' then
+        level = '>3'
+      else
+        level = '2'
+      end
     end
   end
   return level
