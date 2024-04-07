@@ -243,6 +243,7 @@ M.methods['textDocument/didChange'] = {
 
       local diagnostics = {}
       local info_cache = {}
+      local last_diagnostic
 
       local job = require'plenary.job':new{
         args = {
@@ -271,7 +272,9 @@ M.methods['textDocument/didChange'] = {
                 ..[[%N%f(%l\, %c) Hint: %m,]]
                 ..[[%A%f(%l\, %c) %m,]]
                 ..[[%-IHint: %m,]]
-                ..[[%-ICC: %m]]
+                ..[[%-EError: %m,]]
+                ..[[%-ICC: %m,]]
+                ..[[%-Istack trace: %m]]
             }.items
 
             for _, error in ipairs(errors) do
@@ -292,6 +295,12 @@ M.methods['textDocument/didChange'] = {
                   diagnostic.severity = vim.diagnostic.severity.INFO
                   table.insert(info_cache, diagnostic)
                 end
+
+                last_diagnostic = diagnostic
+              elseif last_diagnostic then
+                last_diagnostic.message = last_diagnostic.message
+                  ..'\n'
+                  ..error.text
               end
             end
 
