@@ -789,18 +789,11 @@ end
 
 function fn.qf_fold_expr()
   local items = get_qf_items()
-  local first = items[1]
   local entry = items[vim.v.lnum]
   local level = '0'
   if entry then
     if entry.bufnr == 0 then
-      if #entry.type > 0 and #first.type > 0 then
-        level = '>1'
-      else
-        level = '>2'
-      end
-    elseif #first.type > 0 then
-      level = '1'
+      level = '>2'
     else
       level = '2'
     end
