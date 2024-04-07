@@ -827,7 +827,7 @@ local function qf_diagnostics_lines(items)
       local filename = vim.fn.fnamemodify(
         vim.api.nvim_buf_get_name(item.bufnr), ':t')
       line = {
-        { '    ' },
+        { item.type == '>' and '      ' or '    ' },
         { vim.split(item.text, '\n')[1], 'Normal' },
         { '  ' },
         {
@@ -991,10 +991,18 @@ function fn.update_lsp_diagnostics_list()
 
     table.insert(diag_list,
       get_diagnostic_line(vim.diagnostic.toqflist{ diagnostic }[1]))
+
+    if type(diagnostic.user_data) == 'table' then
+      for _, info in ipairs(diagnostic.user_data) do
+        local item = vim.diagnostic.toqflist{ info }[1]
+        item.type = '>'
+        table.insert(diag_list, get_diagnostic_line(item))
+      end
+    end
   end
 
   local sources = vim.tbl_keys(diag_map)
-  table.sort(sources, function (a, b)
+  table.sort(sources, function(a, b)
     return a < b
   end)
 

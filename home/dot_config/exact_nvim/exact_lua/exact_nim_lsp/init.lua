@@ -242,6 +242,7 @@ M.methods['textDocument/didChange'] = {
       local ns = vim.api.nvim_create_namespace('nim_lsp')
 
       local diagnostics = {}
+      local info_cache = {}
 
       local job = require'plenary.job':new{
         args = {
@@ -263,22 +264,35 @@ M.methods['textDocument/didChange'] = {
         end,
         on_stderr = vim.schedule_wrap(function(_, line)
           if line then
-            local new_diagnostics = vim.diagnostic.fromqflist(vim.fn.getqflist{
+            local errors = vim.fn.getqflist{
               lines = { line:gsub([[^cmdfile%.nim]], path) },
               efm = [[%f(%l\, %c) %trror: %m,]]
                 ..[[%f(%l\, %c) %tarning: %m,]]
                 ..[[%N%f(%l\, %c) Hint: %m,]]
-                ..[[%I%f(%l\, %c) %m,]]
+                ..[[%A%f(%l\, %c) %m,]]
                 ..[[%-IHint: %m,]]
                 ..[[%-ICC: %m]]
-            }.items)
+            }.items
 
-            for _, diagnostic in ipairs(new_diagnostics) do
-              diagnostic.code = diagnostic.message:match('%[(%w+)%]$')
-              if diagnostic.code then
-                diagnostic.message = diagnostic.message:sub(1, -#diagnostic.code - 4)
+            for _, error in ipairs(errors) do
+              local diagnostic = vim.diagnostic.fromqflist{ error }[1]
+              if diagnostic then
+                diagnostic.code = diagnostic.message:match('%[(%w+)%]$')
+                if diagnostic.code then
+                  diagnostic.message = diagnostic.message:sub(1, -#diagnostic.code - 4)
+                end
+
+                if #error.type ~= 0 then
+                  if #info_cache > 0 then
+                    diagnostic.user_data = info_cache
+                    info_cache = {}
+                  end
+                  table.insert(diagnostics, diagnostic)
+                else
+                  diagnostic.severity = vim.diagnostic.severity.INFO
+                  table.insert(info_cache, diagnostic)
+                end
               end
-              table.insert(diagnostics, diagnostic)
             end
 
             apply_diagnostics(ns, diagnostics)
