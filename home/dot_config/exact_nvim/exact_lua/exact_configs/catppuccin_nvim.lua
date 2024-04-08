@@ -44,7 +44,7 @@ return {
         semantic_tokens = true,
         telescope = true,
         treesitter = true,
-        --ufo = true,
+        ufo = true,
         which_key = true,
         window_picker = true,
       },

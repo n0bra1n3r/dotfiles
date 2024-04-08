@@ -814,7 +814,7 @@ local function qf_diagnostics_lines(items)
     local line
     if item.bufnr == 0 then
       if #item.type == 0 then
-        line = {{ item.text }}
+        line = {{ item.text, 'Title' }}
       else
         line = {
           { '  ' },
@@ -864,18 +864,13 @@ function fn.qf_text(info)
     vim.api.nvim_buf_clear_namespace(list.qfbufnr, ns, 0, -1)
 
     for lnum, line in ipairs(lines) do
-      local col = 0
-      for _, comp in ipairs(line) do
-        local len = #comp[1]
-        local hl = comp[2]
-        if hl then
-          vim.api.nvim_buf_add_highlight(
-            list.qfbufnr, ns, hl,
-            lnum - 1, col, col + len
-          )
-        end
-        col = col + len
-      end
+      pcall(vim.api.nvim_buf_set_extmark,
+        list.qfbufnr, ns,
+        lnum - 1, 0, {
+          virt_text = line,
+          virt_text_pos = 'overlay',
+        }
+      )
     end
   end)
 

@@ -16,6 +16,10 @@ my_highlights {
   DiagnosticVirtualTextWarn = {
     link = 'DiagnosticWarn',
   },
+  Folded = {
+    bg = 'None',
+    fg = 'None',
+  },
   GitSignsChangedelete = {
     link = 'GitsignsDelete',
   },
@@ -31,10 +35,11 @@ my_highlights {
   OverLength = {
     link = 'ColorColumn',
   },
+  QuickFixLine = {
+    bg = 'None',
+    fg = 'None',
+  },
   TreesitterContext = {
     link = 'Normal',
-  },
-  QuickFixLine = {
-    link = 'CursorLine',
   },
 }
