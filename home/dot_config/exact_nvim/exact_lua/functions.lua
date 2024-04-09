@@ -641,7 +641,7 @@ vim.fn.setqflist = function(...)
   then
     vim.cmd.chistory{ count = 10, mods = { silent = true } }
 
-    local winid = vim.fn.getqflist{ winid = 0 }.winid
+    local winid = vim.fn.getqflist{ id = 0, winid = 0 }.winid
     if winid ~= 0 then
       vim.wo[winid].foldenable = false
     end
@@ -678,7 +678,7 @@ end
 local function set_qf_list(name, what, is_append)
   what = what or { lines = {} }
 
-  local list = vim.fn.getqflist{ items = 0, context = 0 }
+  local list = vim.fn.getqflist{ id = 0, items = 0, context = 0 }
 
   local act = is_append and 'a' or 'r'
   if not qf_info[name] and list.context.name then
@@ -959,7 +959,7 @@ function fn.select_lsp_diagnostic(severityOrLocation)
     end
   end
 
-  if path and context.selection then
+  if type(context.selection) == 'table' then
     lnum = context.selection[1]
     col = context.selection[2] + 1
     path = context.selection[3]
