@@ -963,6 +963,7 @@ function fn.show_lsp_diagnostics_list(severity)
 end
 
 function fn.update_lsp_diagnostics_list()
+  local diag_count_max = 100
   local s = vim.diagnostic.severity
   local severities = {
     [s.ERROR] = 'E',
@@ -970,51 +971,56 @@ function fn.update_lsp_diagnostics_list()
     [s.INFO] = 'I',
     [s.WARN] = 'W',
   }
-  local diagnostics = vim.diagnostic.get()
 
   local diag_map = {}
-  for _, diagnostic in ipairs(diagnostics) do
-    local source_name = diagnostic.source
-    source_name = source_name or 'Neovim'
-    source_name = source_name
-      :gsub('[^A-Za-z0-9 ]', ' ')
-      :lower()
-      :gsub("(%l)(%w*)", function(a, b)
-        return a:upper()..b
-      end)
-    local source_map = diag_map[source_name]
-    if not source_map then
-      source_map = {}
-      diag_map[source_name] = source_map
-    end
-    local severity = diagnostic.severity
-    local code_key = ''..severity
 
-    if severity == s.ERROR then
-      code_key = code_key..',Errors'
-    elseif severity == s.HINT or severity == s.INFO then
-      local code = diagnostic.code
-      local title = code and '['..code..']'
-        or (severity == s.HINT and 'Hint' or 'Info')
-      code_key = code_key..','..title
-    elseif severity == s.WARN then
-      code_key = code_key..',Warnings'
-    end
+  for severity, _ in pairs(severities) do
+    local diagnostics = vim.diagnostic.get(nil, { severity = severity })
+    local diag_count = math.min(#diagnostics, diag_count_max)
 
-    local diag_list = source_map[code_key]
-    if not diag_list then
-      diag_list = {}
-      source_map[code_key] = diag_list
-    end
+    for i = 1, diag_count do
+      local diagnostic = diagnostics[i]
+      local source_name = diagnostic.source
+      source_name = source_name or 'Neovim'
+      source_name = source_name
+        :gsub('[^A-Za-z0-9 ]', ' ')
+        :lower()
+        :gsub("(%l)(%w*)", function(a, b)
+          return a:upper()..b
+        end)
+      local source_map = diag_map[source_name]
+      if not source_map then
+        source_map = {}
+        diag_map[source_name] = source_map
+      end
 
-    table.insert(diag_list,
-      get_diagnostic_line(vim.diagnostic.toqflist{ diagnostic }[1]))
+      local code_key = ''..severity
+      if severity == s.ERROR then
+        code_key = code_key..',Errors'
+      elseif severity == s.HINT or severity == s.INFO then
+        local code = diagnostic.code
+        local title = code and '['..code..']'
+          or (severity == s.HINT and 'Hint' or 'Info')
+        code_key = code_key..','..title
+      elseif severity == s.WARN then
+        code_key = code_key..',Warnings'
+      end
 
-    if type(diagnostic.user_data) == 'table' then
-      for _, info in ipairs(diagnostic.user_data) do
-        local item = vim.diagnostic.toqflist{ info }[1]
-        item.type = '>'
-        table.insert(diag_list, get_diagnostic_line(item))
+      local diag_list = source_map[code_key]
+      if not diag_list then
+        diag_list = {}
+        source_map[code_key] = diag_list
+      end
+
+      local item = vim.diagnostic.toqflist{ diagnostic }[1]
+      table.insert(diag_list, get_diagnostic_line(item))
+
+      if type(diagnostic.user_data) == 'table' then
+        for _, info in ipairs(diagnostic.user_data) do
+          local info_item = vim.diagnostic.toqflist{ info }[1]
+          info_item.type = '>'
+          table.insert(diag_list, get_diagnostic_line(info_item))
+        end
       end
     end
   end
@@ -1028,10 +1034,12 @@ function fn.update_lsp_diagnostics_list()
   for _, source in ipairs(sources) do
     local source_map = diag_map[source]
     table.insert(lines, get_diagnostic_line{ text = source })
+
     local code_keys = vim.tbl_keys(source_map)
     table.sort(code_keys, function (a, b)
       return a < b
     end)
+
     for _, code_key in ipairs(code_keys) do
       local key = vim.split(code_key, ',')
       local val = source_map[code_key]
