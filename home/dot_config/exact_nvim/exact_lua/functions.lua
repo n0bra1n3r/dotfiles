@@ -934,8 +934,11 @@ function fn.select_lsp_diagnostic(severityOrLocation)
 
   local items = get_qf_items(context.name)
 
+  local first
   for i, item in ipairs(items) do
     if #item.type > 0 then
+      first = first or i
+
       local is_match
       if path then
         is_match = path == vim.api.nvim_buf_get_name(item.bufnr)
@@ -949,10 +952,22 @@ function fn.select_lsp_diagnostic(severityOrLocation)
       if is_match then
         set_qf_list(context.name, {
           context = { selection = severityOrLocation },
-          idx = i
+          idx = i,
         })
         return
       end
+    end
+  end
+
+  if path and context.selection then
+    lnum = context.selection[1]
+    col = context.selection[2] + 1
+    path = context.selection[3]
+    if not get_has_diagnostic(path, lnum, col) then
+      set_qf_list(context.name, {
+        context = { selection = nil },
+        idx = first,
+      })
     end
   end
 end
