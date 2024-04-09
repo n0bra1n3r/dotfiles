@@ -773,9 +773,10 @@ local function show_qf(name, is_foldable)
 
     if is_foldable then
       vim.wo.foldenable = true
-      vim.wo.foldexpr = vim.wo.foldexpr
+      vim.wo.foldlevel = 2
     else
       vim.wo.foldenable = false
+      vim.wo.foldlevel = vim.go.foldlevelstart
     end
   end
 end
@@ -797,8 +798,8 @@ function fn.qf_fold_expr()
     elseif entry.type == '>' then
       level = '3'
     else
-      local next = items[vim.v.lnum + 1]
-      if next and next.type == '>' then
+      local child = items[vim.v.lnum + 1]
+      if child and child.type == '>' then
         level = '>3'
       else
         level = '2'
@@ -885,57 +886,79 @@ function fn.qf_text(info)
   return content
 end
 
-local function select_diagnostic_group(severity, is_apply)
+local function get_has_diagnostic(path, lnum, col)
+  local bufnr = vim.fn.bufnr(path)
+  if bufnr <= 0 then
+    return
+  end
+
+  local lnum_1 = lnum - 1
+  local col_1 = col - 1
+
+  local diagnostics = vim.diagnostic.get(bufnr, { lnum = lnum_1 })
+  if #diagnostics == 0 then
+    return
+  end
+
+  for _, diagnostic in ipairs(diagnostics) do
+    if col_1 >= diagnostic.col
+        and col_1 <= diagnostic.end_col
+    then
+      return true
+    end
+  end
+  return false
+end
+
+function fn.select_lsp_diagnostic(severityOrLocation)
+  severityOrLocation = severityOrLocation
+    or vim.api.nvim_win_get_cursor(0)
+
+  local path, lnum, col
+
+  if type(severityOrLocation) == 'table' then
+    lnum = severityOrLocation[1]
+    col = severityOrLocation[2] + 1
+    path = severityOrLocation[3]
+      or vim.api.nvim_buf_get_name(0)
+
+    severityOrLocation[3] = path
+  end
+
   local context = get_qf_context('lsp_diagnostics')
+
+  if vim.deep_equal(severityOrLocation, context.selection)
+      or (path and not get_has_diagnostic(path, lnum, col)) then
+    return
+  end
+
   local items = get_qf_items(context.name)
-  local index
+
   for i, item in ipairs(items) do
     if #item.type > 0 then
-      index = index or i
-      if not severity then
-        break
+      local is_match
+      if path then
+        is_match = path == vim.api.nvim_buf_get_name(item.bufnr)
+          and lnum >= item.lnum and lnum <= item.end_lnum
+          and col >= item.col and col < item.end_col
+      else
+        is_match = fn.get_sign_for_severity(severityOrLocation) ==
+          fn.get_sign_for_severity(item.type)
       end
-      if fn.get_sign_for_severity(item.type) ==
-          fn.get_sign_for_severity(severity)
-      then
+
+      if is_match then
         set_qf_list(context.name, {
-          context = { selection = severity },
-          idx = is_apply and i
+          context = { selection = severityOrLocation },
+          idx = i
         })
         return
       end
     end
   end
-  set_qf_list(context.name, {
-    context = { selection = nil },
-    idx = is_apply and index,
-  })
-end
-
-function fn.save_lsp_diagnostics_pos()
-  local qf_id = qf_info['lsp_diagnostics']
-  if qf_id then
-    local list =  vim.fn.getqflist {
-      id = qf_id,
-      idx = 0,
-      items = 0,
-    }
-    if list.idx ~= 0 then
-      local s = vim.diagnostic.severity
-      local severities = {
-        E = s.ERROR,
-        W = s.WARN,
-        N = s.HINT,
-        I = s.INFO,
-      }
-      local type = list.items[list.idx].type
-      select_diagnostic_group(severities[type], false)
-    end
-  end
 end
 
 function fn.show_lsp_diagnostics_list(severity)
-  select_diagnostic_group(severity, true)
+  fn.select_lsp_diagnostic(severity)
   show_qf('lsp_diagnostics', true)
 end
 
@@ -1026,7 +1049,7 @@ function fn.update_lsp_diagnostics_list()
     lines = lines
   })
   then
-    select_diagnostic_group(context.selection, true)
+    fn.select_lsp_diagnostic(context.selection)
   end
 end
 
