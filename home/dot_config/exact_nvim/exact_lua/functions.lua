@@ -961,18 +961,20 @@ function fn.select_lsp_diagnostic(severityOrLocation)
           idx = i,
         })
 
-        local sel_hl = ({ fn.get_sign_for_severity(item.type) })[2]
+        if list.qfbufnr ~= 0 then
+          local sel_hl = ({ fn.get_sign_for_severity(item.type) })[2]
 
-        vim.schedule(function()
-          pcall(vim.api.nvim_buf_set_extmark,
-            list.qfbufnr, ns,
-            i - 1, 0, {
-              id = 1,
-              virt_text = {{ '   ', sel_hl }},
-              virt_text_pos = 'overlay',
-            }
-          )
-        end)
+          vim.schedule(function()
+            pcall(vim.api.nvim_buf_set_extmark,
+              list.qfbufnr, ns,
+              i - 1, 0, {
+                id = 1,
+                virt_text = {{ '   ', sel_hl }},
+                virt_text_pos = 'overlay',
+              }
+            )
+          end)
+        end
         return
       end
     end
