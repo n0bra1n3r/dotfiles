@@ -868,6 +868,7 @@ function fn.qf_text(info)
       pcall(vim.api.nvim_buf_set_extmark,
         list.qfbufnr, ns,
         lnum - 1, 0, {
+          id = lnum,
           virt_text = line,
           virt_text_pos = 'overlay',
         }
@@ -925,17 +926,22 @@ function fn.select_lsp_diagnostic(severityOrLocation)
     severityOrLocation[3] = path
   end
 
-  local context = get_qf_context('lsp_diagnostics')
+  local list = vim.fn.getqflist{
+    id = qf_info['lsp_diagnostics'],
+    context = 0,
+    items = 0,
+    qfbufnr = 0,
+  }
 
-  if vim.deep_equal(severityOrLocation, context.selection)
+  if vim.deep_equal(severityOrLocation, list.context.selection)
       or (path and not get_has_diagnostic(path, lnum, col)) then
     return
   end
 
-  local items = get_qf_items(context.name)
+  local ns = vim.api.nvim_create_namespace('qf_idx_hl')
 
   local first
-  for i, item in ipairs(items) do
+  for i, item in ipairs(list.items) do
     if #item.type > 0 then
       first = first or i
 
@@ -950,24 +956,40 @@ function fn.select_lsp_diagnostic(severityOrLocation)
       end
 
       if is_match then
-        set_qf_list(context.name, {
+        set_qf_list(list.context.name, {
           context = { selection = severityOrLocation },
           idx = i,
         })
+
+        local sel_hl = ({ fn.get_sign_for_severity(item.type) })[2]
+
+        vim.schedule(function()
+          pcall(vim.api.nvim_buf_set_extmark,
+            list.qfbufnr, ns,
+            i - 1, 0, {
+              id = 1,
+              virt_text = {{ '   ', sel_hl }},
+              virt_text_pos = 'overlay',
+            }
+          )
+        end)
         return
       end
     end
   end
 
-  if type(context.selection) == 'table' then
-    lnum = context.selection[1]
-    col = context.selection[2] + 1
-    path = context.selection[3]
+  if type(list.context.selection) == 'table' then
+    lnum = list.context.selection[1]
+    col = list.context.selection[2] + 1
+    path = list.context.selection[3]
+
     if not get_has_diagnostic(path, lnum, col) then
-      set_qf_list(context.name, {
+      set_qf_list(list.context.name, {
         context = { selection = nil },
         idx = first,
       })
+
+      vim.api.nvim_buf_clear_namespace(list.qfbufnr, ns, 0, -1)
     end
   end
 end
