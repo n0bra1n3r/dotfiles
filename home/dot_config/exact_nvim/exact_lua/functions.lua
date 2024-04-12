@@ -1760,7 +1760,11 @@ function fn.run_task(name, args)
   local is_ok, overseer = pcall(require, 'overseer')
   if is_ok then
     local params = { args = {} }
+    local opts = {}
     if args then
+      opts = args.opts or {}
+      args.opts = nil
+
       for k, v in pairs(args) do
         if type(k) == 'number' then
           params.args[k] = v
@@ -1769,10 +1773,11 @@ function fn.run_task(name, args)
         end
       end
     end
-    overseer.run_template {
+
+    overseer.run_template(vim.tbl_extend('force', opts, {
       name = name,
       params = params,
-    }
+    }))
   end
 end
 
