@@ -157,6 +157,10 @@
   url = "https://github.com/jqlang/jq/releases/latest/download/jq-win64.exe"
   type = "file"
 
+{{ template "dep" "make/.local" }}
+  url = "https://sourceforge.net/projects/ezwinports/files/make-4.4.1-without-guile-w32-bin.zip/download"
+  type = "archive"
+
 {{ template "dep" "silicon/.local/bin" }}
   url = "https://github.com/Aloxaf/silicon/releases/download/v0.5.1/silicon-v0.5.1-x86_64-pc-windows-msvc.tar.gz"
   type = "archive"
