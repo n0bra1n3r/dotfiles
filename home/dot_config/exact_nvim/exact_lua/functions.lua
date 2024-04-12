@@ -849,6 +849,7 @@ end
 function fn.qf_text(info)
   local list = vim.fn.getqflist {
     id = info.id,
+    idx = 0,
     context = 0,
     items = 0,
     qfbufnr = 0,
@@ -870,6 +871,20 @@ function fn.qf_text(info)
         lnum - 1, 0, {
           id = lnum,
           virt_text = line,
+          virt_text_pos = 'overlay',
+        }
+      )
+    end
+
+    if list.idx ~= 0 then
+      local sel = list.items[list.idx]
+      local sel_hl = ({ fn.get_sign_for_severity(sel.type) })[2]
+
+      pcall(vim.api.nvim_buf_set_extmark,
+        list.qfbufnr, vim.api.nvim_create_namespace('qf_idx_hl'),
+        list.idx - 1, 0, {
+          id = 1,
+          virt_text = {{ '   ', sel_hl }},
           virt_text_pos = 'overlay',
         }
       )
