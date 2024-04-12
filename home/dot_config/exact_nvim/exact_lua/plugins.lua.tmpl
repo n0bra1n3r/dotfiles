@@ -55,9 +55,8 @@ my_plugins {
   {
     'nvim-neorg/neorg',
     build = ':Neorg sync-parsers',
-    ft = 'norg',
-    cmd = 'Neorg',
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    lazy = false,
   },
   --}}}
   --{{{ Motions
