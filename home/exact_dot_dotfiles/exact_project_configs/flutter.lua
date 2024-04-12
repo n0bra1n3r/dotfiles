@@ -1,102 +1,111 @@
+-- vim: fcl=all fdm=marker fdl=0 fen
+
 my_globals {
   project_type = 'flutter',
 }
 
 my_autocmds {
-  {
-    'BufWritePost',
+  { 'BufWritePost', -- run codegen
     pattern = {
       '*/controllers/*_controller.dart',
       '*/models/*_model.dart',
       '*/providers/*_provider.dart',
-    },
+      'lib/common/constants.dart',
+    }, --{{{
     callback = function(args)
       fn.run_task([[Run codegen]], {
         '--build-filter',
-        vim.fn.fnamemodify(args.file, ':~:.:h')..'/'..vim.fn.fnamemodify(args.file, ':t:r')..'.*',
+        vim.fn.fnamemodify(args.file, ':~:.:h')
+          ..'/'
+          ..vim.fn.fnamemodify(args.file, ':t:r')..'.*.dart',
       })
-    end,
+    end, --}}}
   },
-  {
-    'BufWritePost',
-    pattern = { '*.arb' },
+  { { 'BufDelete', 'BufWritePre' }, -- initialize widgetbook
+    pattern = {
+      'widgetbook/**/*.dart',
+    }, --{{{
+    callback = function(args)
+      if vim.fn.filereadable(args.file) == 0 then
+        vim.schedule(function()
+          fn.run_task[[Regen widgetbook]]
+        end)
+      end
+    end, --}}}
+  },
+  { 'BufWritePost', -- generate strings
+    pattern = {
+      '*.arb',
+    }, --{{{
     callback = function()
       fn.run_task[[Gen strings]]
-    end,
+    end, --}}}
   },
 }
 
 my_tasks {
-  ["Install dependencies"] = {
+  ["Install dependencies"] = { --{{{
     cmd = 'fvm',
     args = {
       'flutter',
       'pub',
       'get',
     },
-    deps = { [[Install project configuration]] },
     priority = 1,
-  },
-  ["Run codegen"] = {
+  }, --}}}
+  ["Run codegen"] = { --{{{
     cmd = 'fvm',
     args = {
-      'dart',
+      'flutter',
+      'pub',
       'run',
       'build_runner',
       'build',
       '--delete-conflicting-outputs',
     },
-    deps = { [[Hot reload]] },
-    priority = 52,
-  },
-  ["Gen strings"] = {
+    priority = 2,
+  }, --}}}
+  ["Gen strings"] = { --{{{
     cmd = 'fvm',
     args = {
       'flutter',
       'gen-l10n',
     },
-    priority = 53,
-  },
+    priority = 3,
+  }, --}}}
+  ["Regen widgetbook"] = { --{{{
+    cmd = 'fvm',
+    args = {
+      'flutter',
+      'pub',
+      'run',
+      'build_runner',
+      'build',
+      '--delete-conflicting-outputs',
+    },
+    cwd = 'widgetbook',
+    priority = 4,
+  }, --}}}
 }
 
-my_launchers {
-  dart = {
-    {
-      name = "Launch app",
+my_launchers { --{{{
+  dart = vim.tbl_map(function(project)
+    local env = vim.fn.fnamemodify('.env.json', ':p')
+    return {
+      cwd = vim.fn.fnamemodify(project, ':p:h:h'),
+      name = "Launch "..(project:match'(%w+)/lib/main%.dart$' or 'app'),
       request = 'launch',
-    },
-    {
-      name = "Launch widgetbook",
-      condition = function()
-        return vim.fn.filereadable('lib/widgetbook/widgetbook.dart')
-      end,
-      program = 'lib/widgetbook/widgetbook.dart',
-      request = 'launch',
+      toolArgs = vim.fn.filereadable(env) and {
+        '--dart-define-from-file', env,
+      },
     }
-  },
-}
+  end, vim.fn.glob('./**/lib/main.dart', true, true)),
+} --}}}
 
 my_snippets {
   dart = {
-    ["create freezed data class"] = {
-      prefix = 'fdclass',
-      body = [[
-      import 'package:freezed_annotation/freezed_annotation.dart';
-
-      part '$TM_FILENAME_BASE.freezed.dart';
-      part '$TM_FILENAME_BASE.g.dart';
-
-      @freezed
-      sealed class ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} with _$${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} {
-        const factory ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}(${1:params}) = _${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/};
-
-        factory ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}.fromJson(Map<String, dynamic> json) => _$${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}FromJson(json);
-        $0
-      }
-      ]],
-    },
-    ["create riverpod provider"] = {
-      prefix = 'rprovider',
+    ["create riverpod provider"] = { --{{{
+      prefix = 'riverpodprovider',
       body = [[
       import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -104,12 +113,12 @@ my_snippets {
 
       @riverpod
       ${1:type} ${TM_FILENAME_BASE/(.*)_provider/${1:/camelcase}/}(${TM_FILENAME_BASE/(.*)_provider/${1:/pascalcase}/}Ref ref) {
-        $0
+        return ${2:value};
       }
       ]]
-    },
-    ["create riverpod controller"] = {
-      prefix = 'rcontroller',
+    }, --}}}
+    ["create riverpod controller"] = { --{{{
+      prefix = 'riverpodcontroller',
       body = [[
       import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -121,6 +130,17 @@ my_snippets {
         FutureOr<${1:type}> build() async {}$0
       }
       ]]
-    },
+    }, --}}}
+    ["create widgetbook usecase"] = { --{{{
+      prefix = 'widgetbookusecase',
+      body = [[
+      import 'package:widgetbook_annotation/widgetbook_annotation.dart';
+
+      @UseCase(name: '${1:name}', type: ${2:type})
+      Widget ${TM_FILENAME_BASE/(.*)/${1:/camelcase}/}(BuildContext context) {
+        return ${3:widget};
+      }
+      ]]
+    }, --}}}
   },
 }
