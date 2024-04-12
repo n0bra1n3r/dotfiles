@@ -1,7 +1,7 @@
 my_snippets {
   dart = {
     ["create flutter stateless widget class"] = {
-      prefix = "fstatelesswidget",
+      prefix = "flutterstatelesswidget",
       body = [[
       import 'package:flutter/material.dart';
 
@@ -16,7 +16,7 @@ my_snippets {
       ]]
     },
     ["create flutter stateful widget class"] = {
-      prefix = "fstatefulwidget",
+      prefix = "flutterstatefulwidget",
       body = [[
       import 'package:flutter/material.dart';
 
@@ -37,16 +37,28 @@ my_snippets {
     },
   },
   lua = {
-    ["create snippet"] = {
-      prefix = "snippet",
+    ["create project snippet"] = {
+      prefix = "projectsnippet",
       body = [=[
-      ["${1:name}"] = {
+      ["${1:name}"] = { --{{{
         prefix = "${2:prefix}",
         description = "${3:description}",
         body = [[
         $0
         ]],
-      },
+      }, --}}}
+      ]=],
+    },
+    ["create project task"] = {
+      prefix = "projecttask",
+      body = [=[
+      ["${1:name}"] = { --{{{
+        cmd = "${2:command}",
+        args ={
+          "${3:args}",
+        },
+        priority = 99,
+      }, --}}}
       ]=],
     },
   },
