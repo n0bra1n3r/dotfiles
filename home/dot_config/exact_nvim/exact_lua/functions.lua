@@ -927,8 +927,14 @@ function fn.select_lsp_diagnostic(severityOrLocation)
   severityOrLocation = severityOrLocation
     or vim.api.nvim_win_get_cursor(0)
 
-  local path, lnum, col
+  local list = vim.fn.getqflist{
+    id = qf_info['lsp_diagnostics'],
+    context = 0,
+    items = 0,
+    qfbufnr = 0,
+  }
 
+  local path, lnum, col
   if type(severityOrLocation) == 'table' then
     lnum = severityOrLocation[1]
     col = severityOrLocation[2] + 1
@@ -938,73 +944,67 @@ function fn.select_lsp_diagnostic(severityOrLocation)
     severityOrLocation[3] = path
   end
 
-  local list = vim.fn.getqflist{
-    id = qf_info['lsp_diagnostics'],
-    context = 0,
-    items = 0,
-    qfbufnr = 0,
-  }
+  if not vim.deep_equal(severityOrLocation, list.context.selection)
+      and (not path or get_has_diagnostic(path, lnum, col)) then
+    local ns = vim.api.nvim_create_namespace('qf_idx_hl')
 
-  if vim.deep_equal(severityOrLocation, list.context.selection)
-      or (path and not get_has_diagnostic(path, lnum, col)) then
-    return
-  end
+    vim.api.nvim_buf_clear_namespace(list.qfbufnr, ns, 0, -1)
 
-  local ns = vim.api.nvim_create_namespace('qf_idx_hl')
+    local first
+    for i, item in ipairs(list.items) do
+      if #item.type > 0 then
+        first = first or i
 
-  local first
-  for i, item in ipairs(list.items) do
-    if #item.type > 0 then
-      first = first or i
-
-      local is_match
-      if path then
-        is_match = path == vim.api.nvim_buf_get_name(item.bufnr)
-          and lnum >= item.lnum and lnum <= item.end_lnum
-          and col >= item.col and col < item.end_col
-      else
-        is_match = fn.get_sign_for_severity(severityOrLocation) ==
-          fn.get_sign_for_severity(item.type)
-      end
-
-      if is_match then
-        set_qf_list(list.context.name, {
-          context = { selection = severityOrLocation },
-          idx = i,
-        })
-
-        if list.qfbufnr ~= 0 and item.bufnr ~= 0 then
-          local sel_hl = ({ fn.get_sign_for_severity(item.type) })[2]
-          vim.schedule(function()
-            pcall(vim.api.nvim_buf_set_extmark,
-              list.qfbufnr, ns,
-              i - 1, 0, {
-                id = 1,
-                priority = 102,
-                virt_text = {{ '   ', sel_hl }},
-                virt_text_pos = 'overlay',
-              }
-            )
-          end)
+        local is_match
+        if path then
+          is_match = path == vim.api.nvim_buf_get_name(item.bufnr)
+            and lnum >= item.lnum and lnum <= item.end_lnum
+            and col >= item.col and col < item.end_col
+        else
+          is_match = fn.get_sign_for_severity(severityOrLocation) ==
+            fn.get_sign_for_severity(item.type)
         end
-        return
+
+        if is_match then
+          set_qf_list(list.context.name, {
+            context = { selection = severityOrLocation },
+            idx = i,
+          })
+
+          if list.qfbufnr ~= 0 and item.bufnr ~= 0 then
+            local sel_hl = ({ fn.get_sign_for_severity(item.type) })[2]
+            vim.schedule(function()
+              pcall(vim.api.nvim_buf_set_extmark,
+                list.qfbufnr, ns,
+                i - 1, 0, {
+                  id = 1,
+                  priority = 102,
+                  virt_text = {{ '   ', sel_hl }},
+                  virt_text_pos = 'overlay',
+                }
+              )
+            end)
+          end
+
+          goto matched
+        end
       end
     end
-  end
 
-  if type(list.context.selection) == 'table' then
-    lnum = list.context.selection[1]
-    col = list.context.selection[2] + 1
-    path = list.context.selection[3]
+    if type(list.context.selection) == 'table' then
+      lnum = list.context.selection[1]
+      col = list.context.selection[2] + 1
+      path = list.context.selection[3]
 
-    if not get_has_diagnostic(path, lnum, col) then
-      set_qf_list(list.context.name, {
-        context = { selection = nil },
-        idx = first,
-      })
-
-      vim.api.nvim_buf_clear_namespace(list.qfbufnr, ns, 0, -1)
+      if not get_has_diagnostic(path, lnum, col) then
+        set_qf_list(list.context.name, {
+          context = { selection = nil },
+          idx = first,
+        })
+      end
     end
+
+    ::matched::
   end
 end
 
