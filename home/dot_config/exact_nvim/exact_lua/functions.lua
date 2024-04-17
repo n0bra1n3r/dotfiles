@@ -870,21 +870,8 @@ function fn.qf_text(info)
         list.qfbufnr, ns,
         lnum - 1, 0, {
           id = lnum,
+          priority = 101,
           virt_text = line,
-          virt_text_pos = 'overlay',
-        }
-      )
-    end
-
-    if list.idx ~= 0 then
-      local sel = list.items[list.idx]
-      local sel_hl = ({ fn.get_sign_for_severity(sel.type) })[2]
-
-      pcall(vim.api.nvim_buf_set_extmark,
-        list.qfbufnr, vim.api.nvim_create_namespace('qf_idx_hl'),
-        list.idx - 1, 0, {
-          id = 1,
-          virt_text = {{ '   ', sel_hl }},
           virt_text_pos = 'overlay',
         }
       )
@@ -976,14 +963,14 @@ function fn.select_lsp_diagnostic(severityOrLocation)
           idx = i,
         })
 
-        if list.qfbufnr ~= 0 then
+        if list.qfbufnr ~= 0 and item.bufnr ~= 0 then
           local sel_hl = ({ fn.get_sign_for_severity(item.type) })[2]
-
           vim.schedule(function()
             pcall(vim.api.nvim_buf_set_extmark,
               list.qfbufnr, ns,
               i - 1, 0, {
                 id = 1,
+                priority = 102,
                 virt_text = {{ '   ', sel_hl }},
                 virt_text_pos = 'overlay',
               }
