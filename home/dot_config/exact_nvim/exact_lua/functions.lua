@@ -793,7 +793,7 @@ function fn.qf_fold_expr()
   local entry = items[vim.v.lnum]
   local level = '0'
   if entry then
-    if entry.bufnr == 0 then
+    if entry.bufnr == 0 and entry.type ~= '.' then
       level = '>2'
     elseif entry.type == '>' then
       level = '3'
@@ -817,13 +817,23 @@ local function qf_diagnostics_lines(items)
       if #item.type == 0 then
         line = {{ item.text, 'Title' }}
       else
-        line = {
-          { '  ' },
-          { fn.get_sign_for_severity(item.type) },
-          { item.text, 'Title' },
-        }
+        local sign, sign_hl = fn.get_sign_for_severity(item.type)
+        if sign then
+          line = {
+            { '  ' },
+            { sign, sign_hl },
+            { item.text, 'Title' },
+          }
+        else
+          line = {
+            { '    ' },
+            { item.text, 'Comment' },
+          }
+        end
       end
-      table.insert(lines, line)
+      if line then
+        table.insert(lines, line)
+      end
     else
       local filename = vim.fn.fnamemodify(
         vim.api.nvim_buf_get_name(item.bufnr), ':t')
@@ -1017,18 +1027,13 @@ function fn.update_lsp_diagnostics_list()
 
   for severity, _ in pairs(severities) do
     local diagnostics = vim.diagnostic.get(nil, { severity = severity })
-    local diag_count = math.min(#diagnostics, diag_count_max)
 
-    for i = 1, diag_count do
+    for i = 1, #diagnostics do
       local diagnostic = diagnostics[i]
+
       local source_name = diagnostic.source
-      source_name = source_name or 'Neovim'
-      source_name = source_name
-        :gsub('[^A-Za-z0-9 ]', ' ')
-        :lower()
-        :gsub("(%l)(%w*)", function(a, b)
-          return a:upper()..b
-        end)
+        and diagnostic.source:lower()
+        or 'neovim'
       local source_map = diag_map[source_name]
       if not source_map then
         source_map = {}
@@ -1053,15 +1058,27 @@ function fn.update_lsp_diagnostics_list()
         source_map[code_key] = diag_list
       end
 
-      local item = vim.diagnostic.toqflist{ diagnostic }[1]
-      table.insert(diag_list, get_diagnostic_line(item))
+      if #diag_list < diag_count_max then
+        local item = vim.diagnostic.toqflist{ diagnostic }[1]
+        table.insert(diag_list, get_diagnostic_line(item))
 
-      if type(diagnostic.user_data) == 'table' then
-        for _, info in ipairs(diagnostic.user_data) do
-          local info_item = vim.diagnostic.toqflist{ info }[1]
-          info_item.type = '>'
-          table.insert(diag_list, get_diagnostic_line(info_item))
+        if type(diagnostic.user_data) == 'table' then
+          for _, info in ipairs(diagnostic.user_data) do
+            local info_item = vim.diagnostic.toqflist{ info }[1]
+            info_item.type = '>'
+            table.insert(diag_list, get_diagnostic_line(info_item))
+          end
         end
+      elseif #diag_list == diag_count_max then
+        local remaining_count = #diagnostics - diag_count_max
+        if remaining_count > 0 then
+          table.insert(diag_list, get_diagnostic_line{
+            text = ''..remaining_count..' more items...',
+            type = '.',
+          })
+        end
+      else
+        break
       end
     end
   end
@@ -1072,10 +1089,16 @@ function fn.update_lsp_diagnostics_list()
   end)
 
   local lines = {}
-  for _, source in ipairs(sources) do
-    local source_map = diag_map[source]
-    table.insert(lines, get_diagnostic_line{ text = source })
+  for _, source_name in ipairs(sources) do
+    table.insert(lines, get_diagnostic_line{
+      text = source_name
+        :gsub('[^A-Za-z0-9 ]', ' ')
+        :gsub('(%l)(%w*)', function(a, b)
+          return a:upper()..b
+        end)
+    })
 
+    local source_map = diag_map[source_name]
     local code_keys = vim.tbl_keys(source_map)
     table.sort(code_keys, function (a, b)
       return a < b
