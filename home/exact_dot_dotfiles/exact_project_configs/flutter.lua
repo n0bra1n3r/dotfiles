@@ -95,9 +95,9 @@ my_launchers { --{{{
       cwd = vim.fn.fnamemodify(project, ':p:h:h'),
       name = "Launch "..(project:match'(%w+)/lib/main%.dart$' or 'app'),
       request = 'launch',
-      toolArgs = vim.fn.filereadable(env) and {
+      toolArgs = vim.fn.filereadable(env) == 1 and {
         '--dart-define-from-file', env,
-      },
+      } or nil,
     }
   end, vim.fn.glob('./**/lib/main.dart', true, true)),
 } --}}}
