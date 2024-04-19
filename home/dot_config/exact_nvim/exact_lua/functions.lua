@@ -386,7 +386,7 @@ function fn.open_file_folder(path)
 end
 
 function fn.get_sign_for_severity(severity)
-  local suffix = severity
+  local suffix
   if type(severity) == 'number' then
     local s = vim.diagnostic.severity
     local severities = {
@@ -685,61 +685,31 @@ local function set_qf_list(name, what, is_append)
     act = ' '
   end
 
-  local is_equal = false
-
-  -- convert items to lines to prevent scroll offsets from jumping
   if what.items then
-    is_equal = act == 'r' and #list.items == #what.items
-
-    local lines = {}
-    for i, item in ipairs(what.items) do
-      if is_equal then
-        local item1 = list.items[i]
-        item.bufnr = item.bufnr or item1.bufnr
-        item.col = item.col or item1.col
-        item.end_col = item.end_col or item1.end_col
-        item.end_lnum = item.end_lnum or item1.end_lnum
-        item.lnum = item.lnum or item1.lnum
-        item.module = item.module or item1.module
-        item.nr = item.nr or item1.nr
-        item.pattern = item.pattern or item1.pattern
-        item.text = item.text or item1.text
-        item.type = item.type or item1.type
-        item.valid = item.valid or item1.valid
-        item.vcol = item.vcol or item1.vcol
-        is_equal = vim.deep_equal(item1, item)
-      end
-
-      table.insert(lines, get_diagnostic_line(item))
-    end
-
+    -- convert items to lines to prevent scroll offsets from jumping
     what.efm = '%t|%l-%e:%c-%k|%o|%f|%m,%t|%l-%e:%c-%k||%f|%m,%t||||%m,||||%m'
-    what.lines = lines
+    what.lines = vim.tbl_map(get_diagnostic_line, what.items)
     what.items = nil
   end
 
-  if not is_equal then
-    setqflist_fn({}, act, vim.tbl_deep_extend('keep', {
-      context = { name = name },
-      id = qf_info[name],
-      title = what.title,
-    }, what))
+  setqflist_fn({}, act, vim.tbl_deep_extend('keep', {
+    context = { name = name },
+    id = qf_info[name],
+    title = what.title,
+  }, what))
 
-    list = vim.fn.getqflist{ id = 0, winid = 0 }
+  list = vim.fn.getqflist{ id = 0, winid = 0 }
 
-    if list.winid ~= 0 then
-      if vim.wo[list.winid].foldenable then
-        vim.wo[list.winid].foldlevel =
-          vim.wo[list.winid].foldlevel
-      end
+  if list.winid ~= 0 then
+    if vim.wo[list.winid].foldenable then
+      vim.wo[list.winid].foldlevel =
+        vim.wo[list.winid].foldlevel
     end
   end
 
   if not qf_info[name] then
     qf_info[name] = list.id
   end
-
-  return not is_equal
 end
 
 local function get_qf_context(name)
@@ -923,6 +893,20 @@ local function get_has_diagnostic(path, lnum, col)
   return false
 end
 
+local function get_selection_pos(location)
+  local path, lnum, col
+  lnum = location[1]
+  col = location[2] + 1
+  path = location[3] or vim.api.nvim_buf_get_name(0)
+  return path, lnum, col
+end
+
+local function get_is_item_at_pos(item, path, lnum, col)
+  return path == vim.api.nvim_buf_get_name(item.bufnr)
+    and lnum >= item.lnum and lnum <= item.end_lnum
+    and col >= item.col and col < item.end_col
+end
+
 function fn.select_lsp_diagnostic(severityOrLocation)
   severityOrLocation = severityOrLocation
     or vim.api.nvim_win_get_cursor(0)
@@ -936,34 +920,22 @@ function fn.select_lsp_diagnostic(severityOrLocation)
 
   local path, lnum, col
   if type(severityOrLocation) == 'table' then
-    lnum = severityOrLocation[1]
-    col = severityOrLocation[2] + 1
-    path = severityOrLocation[3]
-      or vim.api.nvim_buf_get_name(0)
-
+    path, lnum, col = get_selection_pos(severityOrLocation)
     severityOrLocation[3] = path
   end
 
+  local ns = vim.api.nvim_create_namespace('qf_idx_hl')
+
   if not vim.deep_equal(severityOrLocation, list.context.selection)
       and (not path or get_has_diagnostic(path, lnum, col)) then
-    local ns = vim.api.nvim_create_namespace('qf_idx_hl')
-
-    vim.api.nvim_buf_clear_namespace(list.qfbufnr, ns, 0, -1)
-
     local first
     for i, item in ipairs(list.items) do
       if #item.type > 0 then
         first = first or i
 
-        local is_match
-        if path then
-          is_match = path == vim.api.nvim_buf_get_name(item.bufnr)
-            and lnum >= item.lnum and lnum <= item.end_lnum
-            and col >= item.col and col < item.end_col
-        else
-          is_match = fn.get_sign_for_severity(severityOrLocation) ==
-            fn.get_sign_for_severity(item.type)
-        end
+        local sign, hl = fn.get_sign_for_severity(item.type)
+        local is_match = path and get_is_item_at_pos(item, path, lnum, col)
+          or ({ sign, hl } == { fn.get_sign_for_severity(severityOrLocation) })
 
         if is_match then
           set_qf_list(list.context.name, {
@@ -972,39 +944,58 @@ function fn.select_lsp_diagnostic(severityOrLocation)
           })
 
           if list.qfbufnr ~= 0 and item.bufnr ~= 0 then
-            local sel_hl = ({ fn.get_sign_for_severity(item.type) })[2]
             vim.schedule(function()
               pcall(vim.api.nvim_buf_set_extmark,
                 list.qfbufnr, ns,
                 i - 1, 0, {
                   id = 1,
                   priority = 102,
-                  virt_text = {{ '   ', sel_hl }},
+                  virt_text = {{ '   ', hl }},
                   virt_text_pos = 'overlay',
                 }
               )
             end)
           end
 
-          goto matched
+          break
         end
       end
     end
 
-    if type(list.context.selection) == 'table' then
-      lnum = list.context.selection[1]
-      col = list.context.selection[2] + 1
-      path = list.context.selection[3]
+    local sel_idx = vim.fn.getqflist{
+      id = list.id,
+      idx = 0,
+    }.idx
 
-      if not get_has_diagnostic(path, lnum, col) then
-        set_qf_list(list.context.name, {
-          context = { selection = nil },
-          idx = first,
-        })
+    local selection = vim.fn.getqflist{
+      id = list.id,
+      context = 0,
+    }.context.selection
+
+    if type(selection) == 'table' then
+      if sel_idx ~= 0 then
+        if not get_is_item_at_pos(
+          list.items[sel_idx],
+          get_selection_pos(selection)
+        ) then
+          set_qf_list(list.context.name, {
+            context = { selection = nil },
+            idx = first,
+          })
+        end
       end
     end
+  end
 
-    ::matched::
+  local selection = vim.fn.getqflist{
+    id = list.id,
+    context = 0,
+  }.context.selection
+
+  if type(selection) ~= 'table' then
+    vim.schedule(function()
+      vim.api.nvim_buf_clear_namespace(list.qfbufnr, ns, 0, -1)
+    end)
   end
 end
 
@@ -1116,13 +1107,13 @@ function fn.update_lsp_diagnostics_list()
   end
 
   local context = get_qf_context('lsp_diagnostics')
-  if set_qf_list(context.name, {
+
+  set_qf_list(context.name, {
     efm = '%t|%l-%e:%c-%k|%o|%f|%m,%t|%l-%e:%c-%k||%f|%m,%t||||%m,||||%m',
     lines = lines
   })
-  then
-    fn.select_lsp_diagnostic(context.selection)
-  end
+
+  fn.select_lsp_diagnostic(context.selection)
 end
 
 function fn.show_lsp_definitions_list()
