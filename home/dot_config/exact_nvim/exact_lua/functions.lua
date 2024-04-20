@@ -722,16 +722,6 @@ local function get_qf_context(name)
   }.context
 end
 
-local function get_qf_items(name)
-  if name and not qf_info[name] then
-    return {}
-  end
-  return vim.fn.getqflist{
-    id = name and qf_info[name],
-    items = 0,
-  }.items
-end
-
 local function show_qf(name, is_foldable)
   if qf_info[name] then
     local nr = vim.fn.getqflist{
@@ -759,7 +749,7 @@ local function is_current_qf(name)
 end
 
 function fn.qf_fold_expr()
-  local items = get_qf_items()
+  local items = vim.fn.getqflist{ id = 0, items = 0 }.items
   local entry = items[vim.v.lnum]
   local level = '0'
   if entry then
@@ -869,139 +859,149 @@ function fn.qf_text(info)
   return content
 end
 
-local function get_has_diagnostic(path, lnum, col)
+local function get_has_diagnostic_at_loc(location)
+  local lnum, col, path = unpack(location)
   local bufnr = vim.fn.bufnr(path)
-  if bufnr <= 0 then
-    return
-  end
 
-  local lnum_1 = lnum - 1
-  local col_1 = col - 1
+  if bufnr <= 0 then return end
 
-  local diagnostics = vim.diagnostic.get(bufnr, { lnum = lnum_1 })
-  if #diagnostics == 0 then
-    return
-  end
+  local diagnostics = vim.diagnostic.get(bufnr, { lnum = lnum - 1 })
+
+  if #diagnostics == 0 then return end
 
   for _, diagnostic in ipairs(diagnostics) do
-    if col_1 >= diagnostic.col
-        and col_1 <= diagnostic.end_col
-    then
+    if col >= diagnostic.col and col <= diagnostic.end_col then
       return true
     end
   end
   return false
 end
 
-local function get_selection_pos(location)
-  local path, lnum, col
-  lnum = location[1]
-  col = location[2] + 1
-  path = location[3] or vim.api.nvim_buf_get_name(0)
-  return path, lnum, col
-end
-
-local function get_is_item_at_pos(item, path, lnum, col)
+local function get_is_item_at_loc(item, location)
+  local lnum, col, path = unpack(location)
   return path == vim.api.nvim_buf_get_name(item.bufnr)
     and lnum >= item.lnum and lnum <= item.end_lnum
-    and col >= item.col and col < item.end_col
+    and col + 1 >= item.col and col + 1 < item.end_col
+end
+
+local function highlight_item_at_idx(idx, hl)
+  local qfbufnr = vim.fn.getqflist{ qfbufnr = 0 }.qfbufnr
+  if qfbufnr ~= 0 then
+    pcall(vim.api.nvim_buf_set_extmark,
+      qfbufnr,
+      vim.api.nvim_create_namespace('qf_idx_hl'),
+      idx - 1, 0, {
+        id = 1,
+        priority = 102,
+        virt_text = {{ '   ', hl }},
+        virt_text_pos = 'overlay',
+      }
+    )
+  end
+end
+
+local function clear_item_highlight()
+  local qfbufnr = vim.fn.getqflist{ qfbufnr = 0 }.qfbufnr
+  vim.api.nvim_buf_clear_namespace(
+    qfbufnr,
+    vim.api.nvim_create_namespace('qf_idx_hl'),
+    0, -1
+  )
 end
 
 function fn.select_lsp_diagnostic(severityOrLocation)
   severityOrLocation = severityOrLocation
     or vim.api.nvim_win_get_cursor(0)
 
+  local severity, location
+  if type(severityOrLocation) == 'table' then
+    severityOrLocation[3] = severityOrLocation[3]
+      or vim.api.nvim_buf_get_name(0)
+    location = severityOrLocation
+  else
+    severity = severityOrLocation
+  end
+
   local list = vim.fn.getqflist{
     id = qf_info['lsp_diagnostics'],
     context = 0,
+    idx = 0,
     items = 0,
-    qfbufnr = 0,
   }
 
-  local path, lnum, col
-  if type(severityOrLocation) == 'table' then
-    path, lnum, col = get_selection_pos(severityOrLocation)
-    severityOrLocation[3] = path
-  end
-
-  local ns = vim.api.nvim_create_namespace('qf_idx_hl')
-
-  if not vim.deep_equal(severityOrLocation, list.context.selection)
-      and (not path or get_has_diagnostic(path, lnum, col)) then
-    local first
-    for i, item in ipairs(list.items) do
+  if vim.deep_equal(severityOrLocation, list.context.selection)
+      or vim.bo.filetype == 'qf'
+  then
+    if is_current_qf(list.context.name) then
+      local sel_item =  list.items[list.idx]
+      if sel_item then
+        local _, hl = fn.get_sign_for_severity(sel_item.type)
+        highlight_item_at_idx(list.idx, hl)
+      end
+    end
+  elseif severity or get_has_diagnostic_at_loc(location) then
+    local start
+    for idx, item in ipairs(list.items) do
       if #item.type > 0 then
-        first = first or i
+        start = start or idx
 
-        local sign, hl = fn.get_sign_for_severity(item.type)
-        local is_match = path and get_is_item_at_pos(item, path, lnum, col)
-          or ({ sign, hl } == { fn.get_sign_for_severity(severityOrLocation) })
+        if (location and get_is_item_at_loc(item, location))
+            or severity
+        then
+          local sign, hl = fn.get_sign_for_severity(item.type)
+          if ({ sign, hl } == { fn.get_sign_for_severity(severity) })
+              or location
+          then
+            set_qf_list(list.context.name, {
+              context = { selection = severityOrLocation },
+              idx = idx,
+            })
 
-        if is_match then
-          set_qf_list(list.context.name, {
-            context = { selection = severityOrLocation },
-            idx = i,
-          })
-
-          if list.qfbufnr ~= 0 and item.bufnr ~= 0 then
-            vim.schedule(function()
-              pcall(vim.api.nvim_buf_set_extmark,
-                list.qfbufnr, ns,
-                i - 1, 0, {
-                  id = 1,
-                  priority = 102,
-                  virt_text = {{ '   ', hl }},
-                  virt_text_pos = 'overlay',
-                }
-              )
-            end)
+            if is_current_qf(list.context.name)
+                and item.bufnr ~= 0
+            then
+              vim.schedule(function()
+                highlight_item_at_idx(idx, hl)
+              end)
+            end
+            break
           end
-
-          break
         end
       end
     end
 
-    local sel_idx = vim.fn.getqflist{
-      id = list.id,
-      idx = 0,
-    }.idx
-
-    local selection = vim.fn.getqflist{
+    list = vim.fn.getqflist{
       id = list.id,
       context = 0,
-    }.context.selection
+      idx = 0,
+      items = 0,
+    }
 
-    if type(selection) == 'table' then
-      if sel_idx ~= 0 then
-        if not get_is_item_at_pos(
-          list.items[sel_idx],
-          get_selection_pos(selection)
-        ) then
-          set_qf_list(list.context.name, {
-            context = { selection = nil },
-            idx = first,
-          })
-        end
+    if type(list.context.selection) == 'table'
+        and list.idx ~= 0
+    then
+      if not get_is_item_at_loc(
+        list.items[list.idx],
+        list.context.selection
+      ) then
+        set_qf_list(list.context.name, {
+          context = { selection = nil },
+          idx = start,
+        })
       end
     end
   end
 
-  local selection = vim.fn.getqflist{
-    id = list.id,
-    context = 0,
-  }.context.selection
+  local context = get_qf_context(list.context.name)
 
-  if type(selection) ~= 'table' then
-    vim.schedule(function()
-      vim.api.nvim_buf_clear_namespace(list.qfbufnr, ns, 0, -1)
-    end)
+  if type(context.selection) ~= 'table' then
+    vim.schedule(clear_item_highlight)
   end
 end
 
 function fn.show_lsp_diagnostics_list(severity)
-  fn.select_lsp_diagnostic(severity)
   show_qf('lsp_diagnostics', true)
+  fn.select_lsp_diagnostic(severity)
 end
 
 function fn.update_lsp_diagnostics_list()
@@ -1106,17 +1106,16 @@ function fn.update_lsp_diagnostics_list()
     end
   end
 
-  local context = get_qf_context('lsp_diagnostics')
-
-  set_qf_list(context.name, {
+  set_qf_list('lsp_diagnostics', {
     efm = '%t|%l-%e:%c-%k|%o|%f|%m,%t|%l-%e:%c-%k||%f|%m,%t||||%m,||||%m',
     lines = lines
   })
 
-  fn.select_lsp_diagnostic(context.selection)
+  fn.select_lsp_diagnostic()
 end
 
 function fn.show_lsp_definitions_list()
+  clear_item_highlight()
   show_qf('lsp_definitions')
 end
 
@@ -1126,6 +1125,7 @@ function fn.update_lsp_definitions_list(options)
 end
 
 function fn.show_lsp_references_list()
+  clear_item_highlight()
   show_qf('lsp_references')
 end
 
@@ -1149,6 +1149,8 @@ function fn.get_task_output_codes()
 end
 
 function fn.show_task_output(nr)
+  clear_item_highlight()
+
   local qf_name_prefix = 'task_output_'
 
   local count = 0
@@ -1207,6 +1209,7 @@ function fn.update_task_output(output, id)
 end
 
 function fn.show_messages_list()
+  clear_item_highlight()
   show_qf('messages')
   vim.cmd.cbottom()
 end
