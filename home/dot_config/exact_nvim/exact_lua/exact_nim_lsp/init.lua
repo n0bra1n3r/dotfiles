@@ -378,11 +378,13 @@ M.methods['textDocument/formatting'] = {
     local buf = get_or_open_buf(path)
     local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
     local text = vim.fn.join(lines, '\n')
-    text = vim.fn.system('nph -', text)
+    local new_lines = vim.fn.systemlist('nph -', text)
 
-    if vim.v.shell_error == 0 then
+    if vim.v.shell_error == 0
+        and not vim.deep_equal(new_lines, lines)
+    then
       cb.send{{
-        newText = text,
+        newText = vim.fn.join(new_lines, '\n'),
         range = {
           ['end'] = { character = 0, line = #lines },
           start = { character = 0, line = 0 },
