@@ -177,11 +177,19 @@ function ce() {
 
 # Git aliases
 
-alias ga='git add --patch'
 alias gb='git branch'
 alias gp='git pu'
 alias gs='git st'
 alias gu='git pull'
+
+function ga() {
+  if [[ $# -eq 0 ]]; then
+    git fz status
+  else
+    local pat="$1"; shift
+    git add --patch "*$pat*" "$@"
+  fi
+}
 
 function gc() {
   # shellcheck disable=1091
