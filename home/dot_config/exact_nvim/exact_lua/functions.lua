@@ -795,11 +795,15 @@ local function qf_diagnostics_lines(items)
         table.insert(lines, line)
       end
     else
+      local msg_len = 50
+      local message = vim.fn.join(vim.split(item.text, '\n'), '↪')
       local filename = vim.fn.fnamemodify(
         vim.api.nvim_buf_get_name(item.bufnr), ':t')
+
       line = {
         { item.type == '>' and '      ' or '    ' },
-        { vim.split(item.text, '\n')[1], 'Normal' },
+        { message:sub(1, msg_len), 'Normal' },
+        #message > msg_len and { '...', 'Comment' } or { '' },
         { '  ' },
         {
           ('%s:%d:%d'):format(
