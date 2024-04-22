@@ -46,7 +46,6 @@ return {
         treesitter = true,
         ufo = true,
         which_key = true,
-        window_picker = true,
       },
     }
 

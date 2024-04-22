@@ -169,11 +169,13 @@ my_mappings {
     gf                  = { edit_buf'edit', desc = "Edit" },
     h                   = { ";" },
     l                   = { get_motion_expr('k$l', 'h'), expr = true },
+    S                   = { [[<Plug>(leap-from-window)]] },
+    s                   = { [[<Plug>(leap)]] },
     x                   = { "col('$')==col('.')?'gJ':'\"_x'", expr = true },
     ['y.']              = { call(fn.copy_line_info, '%s:%d:%d'), desc = "Copy cursor location" },
     yD                  = { 'D', desc = "Cut text after cursor" },
     yd                  = { 'dd', desc = "Cut line" },
-    yx                  = { "col('$')==col('.')?'gJ':'x'", expr = true, desc = "Cut character under cursor" },
+    yx                  = { "col('$')==col('.')?'ylgJ':'x'", expr = true, desc = "Cut character under cursor" },
     z0                  = { call(fn.close_folds_at), desc = "Close all folds at current level" },
     z1                  = { call(fn.close_folds_at, 1), desc = "Close all level 1 folds" },
     z2                  = { call(fn.close_folds_at, 2), desc = "Close all level 2 folds" },
@@ -213,6 +215,8 @@ my_mappings {
     l                   = { "h" },
     P                   = { "p" },
     p                   = { "P" },
+    S                   = { [[<Plug>(leap-backward)]] },
+    s                   = { [[<Plug>(leap-forward)]] },
     y                   = { "ygv" },
   }, --}}}
 }
