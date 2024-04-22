@@ -63,6 +63,17 @@ if [[ -n "$NVIM" ]]; then
   function exit() {
     _nvim_remote --remote-send "<cmd>quitall<CR>"
   }
+
+  function __nvim_ipc__() {
+    local cmd
+    local out
+    cmd="$(_nvim_remote --remote-expr "v:lua.fn.get_last_sent_cmd()")"
+    _nvim_remote --remote-expr "v:lua.fn.set_shell_active(v:true, \"$cmd\")" &>/dev/null
+    out=$(eval "$cmd" 2>&1)
+    _nvim_remote --remote-expr "v:lua.fn.set_shell_active(v:false, \"$cmd\", $?, \"$out\")" &>/dev/null
+  }
+
+  trap __nvim_ipc__ SIGUSR1
 else
   function cd() {
     builtin cd "$@" && ls -a "$PWD"

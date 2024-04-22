@@ -535,6 +535,7 @@ end
 --{{{ Terminal
 local term_info = {
   is_shell_active = false,
+  shell_cmd = nil,
 }
 
 local function get_terminal_tabpage()
@@ -591,23 +592,36 @@ function fn.set_terminal_dir(cwd)
   local terminal = get_terminal()
   local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
   fn.set_tab_cwd(tabpage, cwd)
-  terminal.dir = fn.get_tab_cwd(tabpage)
+  terminal.dir = cwd
 end
 
-function fn.send_terminal(command, is_hist, should_focus)
-  get_terminal():send((is_hist and '' or ' ')..command,
-    should_focus ~= nil and not should_focus)
+function fn.get_last_sent_cmd()
+  return term_info.shell_cmd
 end
 
-function fn.set_shell_active(is_active, cmd, exit_code)
+function fn.send_terminal(command, should_focus)
+  if fn.is_main_terminal() then
+    term_info.shell_cmd = command
+
+    if should_focus == nil or should_focus then
+      get_terminal():send(command)
+    else
+      local terminal = get_terminal()
+      local shell_pid = vim.fn.jobpid(terminal.job_id)
+      vim.fn.system('kill -s SIGUSR1 '..shell_pid)
+    end
+  end
+end
+
+function fn.set_shell_active(is_active, cmd, exit_code, output)
   term_info.is_shell_active = is_active
-  if not is_active and not
-      get_terminal():is_focused() and
-      cmd:sub(1, 1) ~= ' '
-  then
+  if not is_active and not get_terminal():is_focused() then
+    output = output and vim.trim(output) or ''
     vim.notify(
-      "exited with code "..exit_code,
-      vim.log.levels.INFO,
+      #output > 0
+        and output
+        or ("exited with code "..exit_code),
+      exit_code == 0 and vim.log.levels.INFO or vim.log.levels.ERROR,
       { title = cmd }
     )
   end
