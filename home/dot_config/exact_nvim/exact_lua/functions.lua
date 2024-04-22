@@ -543,15 +543,11 @@ local function get_terminal_tabpage()
 end
 
 local function get_terminal(start_command)
-  local cmd
-  if vim.fn.has('win32') == 1 then
-    cmd = 'bash'
-  else
-    cmd = 'zsh --login'
-  end
   return require'toggleterm.terminal'.Terminal:new {
     id = 0,
-    cmd = cmd,
+    cmd = vim.fn.has('win32') == 1
+      and 'bash'
+      or 'zsh --login',
     direction = 'tab',
     env = {
       START_COMMAND = start_command,
@@ -560,12 +556,19 @@ local function get_terminal(start_command)
   }
 end
 
+function fn.is_main_terminal(buf)
+  local terminal = require'toggleterm.terminal'.get(0, true)
+  return terminal and (not buf or terminal.bufnr == buf)
+end
+
 function fn.open_terminal(start_command)
-  local tabpage = get_terminal_tabpage()
-  if not tabpage then
+  if not fn.is_main_terminal() then
     get_terminal(start_command):open()
-  elseif vim.api.nvim_get_current_tabpage() ~= tabpage then
-    vim.api.nvim_set_current_tabpage(tabpage)
+  else
+    local tabpage = get_terminal_tabpage()
+    if tabpage and vim.api.nvim_get_current_tabpage() ~= tabpage then
+      vim.api.nvim_set_current_tabpage(tabpage)
+    end
   end
 end
 
@@ -625,6 +628,17 @@ function fn.is_terminal_buf(buf)
     end
   end
   return false
+end
+
+function fn.init_terminal_mode()
+  if not fn.is_main_terminal() then
+    local empty_buf = vim.api.nvim_get_current_buf()
+    fn.refresh_git_info()
+    fn.open_terminal('nvim')
+    fn.set_terminal_dir()
+    vim.cmd.tabonly()
+    vim.api.nvim_buf_delete(empty_buf, { force = true })
+  end
 end
 --}}}
 --{{{ Quickfix

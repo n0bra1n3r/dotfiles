@@ -25,22 +25,14 @@ my_commands {
     desc = "Git add files",
     nargs = "?",
   }, --}}}
+  InitTerminalMode = { --{{{
+    function()
+      fn.init_terminal_mode()
+    end,
+    desc = "Init terminal mode",
+  }, --}}}
   W = "WorkspaceOpen",
   Ws = "WorkspaceSave",
-  TerminalModeStart = { --{{{
-    function(opts)
-      local empty_buf = vim.api.nvim_get_current_buf()
-      fn.refresh_git_info()
-      if opts.args and #opts.args > 0 then
-        fn.open_terminal(opts.args)
-      end
-      fn.set_terminal_dir()
-      vim.cmd.tabonly()
-      vim.api.nvim_buf_delete(empty_buf, { force = true })
-    end,
-    desc = "Start terminal mode",
-    nargs = "?",
-  }, --}}}
   WorkspaceFreeze = { --{{{
     function()
       fn.freeze_workspace()

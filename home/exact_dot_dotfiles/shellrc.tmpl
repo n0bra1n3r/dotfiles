@@ -75,7 +75,7 @@ else
   # shellcheck disable=2120
   function nvim() {
     if [[ $# -eq 0 ]]; then
-      command nvim +"TerminalModeStart nvim"
+      command nvim +"InitTerminalMode"
     else
       command nvim "$@"
     fi

@@ -1083,9 +1083,6 @@ return {
                 'nowrite',
                 'terminal',
               },
-              filetype = {
-                'toggleterm',
-              },
             }, args.buf)
             or (not fn.is_file_buffer(args.buf)
               and fn.is_in_floating(args.buf))
