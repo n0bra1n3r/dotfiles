@@ -614,16 +614,19 @@ function fn.send_terminal(command, should_focus)
 end
 
 function fn.set_shell_active(is_active, cmd, exit_code, output)
-  term_info.is_shell_active = is_active
-  if not is_active and not get_terminal():is_focused() then
-    output = output and vim.trim(output) or ''
-    vim.notify(
-      #output > 0
-        and output
-        or ("exited with code "..exit_code),
-      exit_code == 0 and vim.log.levels.INFO or vim.log.levels.ERROR,
-      { title = cmd }
-    )
+  if term_info.is_shell_active ~= is_active then
+    term_info.is_shell_active = is_active
+
+    if not is_active and not get_terminal():is_focused() then
+      output = output and vim.trim(output) or ''
+      vim.notify(
+        #output > 0
+          and output
+          or ("exited with code "..exit_code),
+        exit_code == 0 and vim.log.levels.INFO or vim.log.levels.ERROR,
+        { title = cmd }
+      )
+    end
   end
 end
 

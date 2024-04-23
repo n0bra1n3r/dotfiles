@@ -67,10 +67,16 @@ if [[ -n "$NVIM" ]]; then
   function __nvim_ipc__() {
     local cmd
     local out
+    local code
     cmd="$(_nvim_remote --remote-expr "v:lua.fn.get_last_sent_cmd()")"
+    echo "$cmd"
     _nvim_remote --remote-expr "v:lua.fn.set_shell_active(v:true, \"$cmd\")" &>/dev/null
     out=$(eval "$cmd" 2>&1)
-    _nvim_remote --remote-expr "v:lua.fn.set_shell_active(v:false, \"$cmd\", $?, \"$out\")" &>/dev/null
+    code=$?
+    _nvim_remote --remote-expr "v:lua.fn.set_shell_active(v:false, \"$cmd\", $code, \"$out\")" &>/dev/null
+    printf '%s' "$out"
+    kill -SIGINT $$ &>/dev/null
+    return $code
   }
 
   trap __nvim_ipc__ SIGUSR1
