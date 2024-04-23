@@ -5,7 +5,6 @@ return {
         enabled = false,
       },
       bottom = {
-        { ft = 'dap-repl' },
         {
           ft = 'qf',
           wo = {
@@ -15,6 +14,7 @@ return {
             wrap = false,
           },
         },
+        { ft = 'dap-repl' },
       },
       exit_when_last = true,
       keys = {
