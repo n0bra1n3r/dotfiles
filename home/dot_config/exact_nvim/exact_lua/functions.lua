@@ -677,7 +677,7 @@ vim.fn.setqflist = function(...)
       vim.wo[winid].foldenable = false
     end
   end
-  fn.ui_try(setqflist_fn, unpack(args))
+  pcall(setqflist_fn, unpack(args))
 end
 
 local function get_diagnostic_line(item)
