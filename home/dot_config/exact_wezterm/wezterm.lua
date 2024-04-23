@@ -65,6 +65,7 @@ config.keys = {
     action = wezterm.action.SendString'\x1b[9;5u',
   },
 }
+config.native_macos_fullscreen_mode = true
 config.scrollback_lines = 9001
 config.window_frame = {
   font_size = config.font_size - 2,
