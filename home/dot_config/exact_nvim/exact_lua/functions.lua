@@ -2005,6 +2005,31 @@ local function unset_debugging_keymaps()
   end
 end
 
+function fn.select_debug_launcher(buf)
+  vim.g.dap_current_config = nil
+
+  local filetype = buf and vim.bo[buf].filetype or (
+    vim.g.project_filetypes[vim.g.project_type] or
+    vim.g.project_type or
+    vim.bo.filetype
+  )
+
+  local configurations = require'dap'.configurations[filetype] or {}
+
+  if vim.tbl_islist(configurations) and #configurations ~= 0 then
+    require'dap.ui'.pick_if_many(
+      configurations,
+      "Configuration: ",
+      function(item)
+        return item.name
+      end,
+      function(config)
+        vim.g.dap_current_config = config
+      end
+    )
+  end
+end
+
 function fn.is_debug_mode(tabpage)
   return get_debug_state(tabpage) ~= 0
 end
