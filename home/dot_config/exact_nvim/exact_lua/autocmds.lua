@@ -224,7 +224,7 @@ my_autocmds {
           if project_config then
             vim.api.nvim_set_keymap("n", [[<leader>pr]], [[]], {
               callback = function()
-                fn.open_tab(project_config)
+                vim.cmd.tabedit(project_config)
               end,
               desc = "Project",
               noremap = true,

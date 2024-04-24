@@ -1270,10 +1270,6 @@ function fn.get_prior_tabpage()
   end
 end
 
-function fn.open_tab(filename)
-  vim.cmd.tabedit(filename)
-end
-
 function fn.edit_buffer(mode, path)
   local tabpage = vim.api.nvim_get_current_tabpage()
   local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
