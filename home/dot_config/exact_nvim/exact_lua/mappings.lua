@@ -10,8 +10,8 @@ end
 
 local function redir(cmd)
   return function()
-    local output = vim.fn.execute(cmd)
-    if #vim.trim(output) > 0 then
+    local output = fn.ui_try(vim.fn.execute, cmd)
+    if output and #vim.trim(output) > 0 then
       vim.notify(output)
     end
   end
