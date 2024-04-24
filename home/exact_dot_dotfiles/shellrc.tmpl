@@ -203,8 +203,14 @@ function ga() {
   if [[ $# -eq 0 ]]; then
     git fz status
   else
-    local pat="$1"; shift
-    git add --patch "*$pat*" "$@"
+    local opts=()
+    for arg in "$@"; do
+      case "$arg" in
+      -*) opts+=("$arg") ;;
+      *) opts+=("*$arg*") ;;
+      esac
+    done
+    git add "${opts[@]}"
   fi
 }
 
