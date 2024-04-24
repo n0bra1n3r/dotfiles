@@ -25,7 +25,15 @@ my_options {
   foldenable = true,
   foldlevelstart = 99,
   foldmethod = "indent",
-  grepprg = [[rg --no-heading --no-messages --vimgrep --ignore-file="$HOME/.dotfiles/rgignore/main" --ignore-file="$HOME/.dotfiles/rgignore/$NVIM_PROJECT_TYPE" --ignore-file="$PWD/.nvim/ignore"]],
+  grepprg = vim.fn.join {--{{{
+    [[rg]],
+    [[--no-heading]],
+    [[--no-messages]],
+    [[--vimgrep]],
+    [[--ignore-file="$HOME/.dotfiles/rgignore/main"]],
+    [[--ignore-file="$HOME/.dotfiles/rgignore/$NVIM_PROJECT_TYPE"]],
+    [[--ignore-file="$PWD/.nvim/ignore"]],
+  }, --}}}
   grepformat = "%f:%l:%c:%m",
   guicursor = { --{{{
     "v-n-sm:block",
