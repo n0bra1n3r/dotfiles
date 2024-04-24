@@ -8,6 +8,15 @@ local function call(fun, ...)
   end
 end
 
+local function redir(cmd)
+  return function()
+    local output = vim.fn.execute(cmd)
+    if #vim.trim(output) > 0 then
+      vim.notify(output)
+    end
+  end
+end
+
 local function edit_buf(view)
   return call(fn.edit_buffer, view, vim.fn.expand('<cfile>'))
 end
@@ -93,6 +102,7 @@ my_mappings {
     ['<C-i>']           = { '<Nop>' },
     ["<C-Left>"]        = { "<C-w>h" },
     ['<C-o>']           = { '<Nop>' },
+    ['<C-r>']           = { redir'redo' },
     ["<C-Right>"]       = { "<C-w>l" },
     ["<C-Tab>"]         = { call(fn.search, 'loclist') },
     ['<C-u>']           = { [[<C-u>zz]] },
@@ -171,6 +181,7 @@ my_mappings {
     l                   = { get_motion_expr('k$l', 'h'), expr = true },
     S                   = { [[<Plug>(leap-from-window)]] },
     s                   = { [[<Plug>(leap)]] },
+    u                   = { redir'undo' },
     x                   = { "col('$')==col('.')?'gJ':'\"_x'", expr = true },
     ['y.']              = { call(fn.copy_line_info, '%s:%d:%d'), desc = "Copy cursor location" },
     yD                  = { 'D', desc = "Cut text after cursor" },
