@@ -1261,25 +1261,6 @@ set_qf_list('task_output_6', { title = "Task Output 6" })
 set_qf_list('messages', { title = "Messages" })
 --}}}
 --{{{ Navigation
-local nav_info = {
-  last_tabpage = nil,
-}
-
-function fn.restore_tabpage()
-  if nav_info.last_tabpage and
-      vim.api.nvim_tabpage_is_valid(nav_info.last_tabpage) then
-    pcall(vim.api.nvim_set_current_tabpage, nav_info.last_tabpage)
-    nav_info.last_tabpage = nil
-  end
-end
-
-function fn.save_tabpage()
-  local cur_tabpage = vim.api.nvim_get_current_tabpage()
-  fn.vim_defer(function()
-    nav_info.last_tabpage = cur_tabpage
-  end)()
-end
-
 function fn.get_prior_tabpage()
   local tabnr = vim.fn.tabpagenr[[#]]
   for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do

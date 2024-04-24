@@ -189,7 +189,6 @@ my_autocmds {
   { "TabClosed", --{{{
     callback = function()
       vim.o.cmdheight = 0
-      fn.restore_tabpage()
     end,
   }, --}}}
   { "TabEnter", --{{{
@@ -199,7 +198,6 @@ my_autocmds {
   }, --}}}
   { "TabLeave", --{{{
     callback = function()
-      fn.save_tabpage()
       fn.show_workspace(nil, false)
 
       if vim.fn.reg_recording() ~= '' then
