@@ -34,6 +34,18 @@ local function open_help()
   return fn.ui_try(vim.cmd.help, vim.fn.expand('<cword>'))
 end
 
+local function cursor_right()
+  local count = vim.v.count1
+  for _ = 1, count, 1 do
+		local isOnFold = vim.fn.foldclosed('.') > -1
+		if isOnFold then
+			pcall(vim.cmd.normal, { 'zo', bang = true })
+		else
+      vim.cmd.normal{ 'l', bang = true }
+		end
+	end
+end
+
 local function get_map_expr(key)
   return ([[(v:count!=0||mode(1)[0:1]=='no'?'%s':'g%s')]]):format(key, key)
 end
@@ -172,7 +184,7 @@ my_mappings {
     ["<Tab>4"]          = { call(fn.goto_bookmark, 4), desc = "Bookmark 4" },
     ["<Tab>5"]          = { call(fn.goto_bookmark, 5), desc = "Bookmark 5" },
     ["<Tab><BS>"]       = { call(fn.del_bookmark), desc = "Delete bookmark" },
-    [";"]               = { "l" },
+    [';']               = { cursor_right },
     C                   = { '"_C' },
     c                   = { '"_c' },
     D                   = { '"_D' },
