@@ -8,7 +8,7 @@ local function call(fun, ...)
   end
 end
 
-local function redir(cmd)
+local function ui_redir(cmd)
   return function()
     local output = fn.ui_try(vim.fn.execute, cmd)
     if output and #vim.trim(output) > 0 then
@@ -102,7 +102,7 @@ my_mappings {
     ['<C-i>']           = { '<Nop>' },
     ["<C-Left>"]        = { "<C-w>h" },
     ['<C-o>']           = { '<Nop>' },
-    ['<C-r>']           = { redir'redo' },
+    ['<C-r>']           = { ui_redir'redo' },
     ["<C-Right>"]       = { "<C-w>l" },
     ["<C-Tab>"]         = { call(fn.search, 'loclist') },
     ['<C-u>']           = { [[<C-u>zz]] },
@@ -181,7 +181,7 @@ my_mappings {
     l                   = { get_motion_expr('k$l', 'h'), expr = true },
     S                   = { [[<Plug>(leap-from-window)]] },
     s                   = { [[<Plug>(leap)]] },
-    u                   = { redir'undo' },
+    u                   = { ui_redir'undo' },
     x                   = { "col('$')==col('.')?'gJ':'\"_x'", expr = true },
     ['y.']              = { call(fn.copy_line_info, '%s:%d:%d'), desc = "Copy cursor location" },
     yD                  = { 'D', desc = "Cut text after cursor" },
