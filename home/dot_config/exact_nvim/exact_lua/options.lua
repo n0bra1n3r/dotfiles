@@ -49,6 +49,7 @@ my_options {
   number = true,
   numberwidth = 2,
   quickfixtextfunc = 'v:lua.fn.qf_text',
+  report = 9999,
   ruler = false,
   scrollback = 9001,
   scrolloff = 3,
