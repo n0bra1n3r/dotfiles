@@ -24,7 +24,7 @@ my_tasks {
     notify = false,
     priority = 92,
   },
-  ["Run on device"] = {
+  ["Select device"] = {
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
