@@ -1355,10 +1355,6 @@ function fn.toggle_bookmarked(buf)
 end
 
 function fn.goto_bookmark(index)
-  if not require'grapple'.exists{ index = index } then
-    require'grapple'.tag{ index = index }
-    vim.o.showtabline = 2
-  end
   require'grapple'.select{ index = index }
 end
 

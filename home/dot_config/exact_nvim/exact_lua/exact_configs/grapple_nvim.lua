@@ -2,7 +2,6 @@ return {
   config = function()
     require'grapple'.setup {
       scope = 'workspace',
-      save_path = '.nvim/favorites',
       scopes = {
         {
           name = 'workspace',
