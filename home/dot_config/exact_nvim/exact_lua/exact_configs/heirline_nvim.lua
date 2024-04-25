@@ -45,7 +45,7 @@ local function colors()
   return {
     background = hl'TabLine'.bg,
     bookmark = hl'TabLine'.fg,
-    bookmark_key = hl'NonText'.fg,
+    bookmark_index = hl'NonText'.fg,
     bookmark_btn = hl'NonText'.fg,
     border = hl'TabLine'.bg,
     buffer = hl'Title'.fg,
@@ -168,7 +168,7 @@ end
 
 local function refresh_bookmark_list()
   local old_showtabline = vim.o.showtabline
-  vim.o.showtabline = #require'grapple'.tags() > 0 and 2 or 0
+  vim.o.showtabline = #fn.get_bookmarks() > 0 and 2 or 0
   if vim.o.showtabline == old_showtabline and vim.o.showtabline ~= 0 then
     vim.schedule(vim.cmd.redrawtabline)
   end
@@ -767,12 +767,12 @@ end
 --{{{ Tabline
 local function bookmark_label()
   return {
-    { provider = '󰃀', hl = { fg = 'bookmark_key' } },
+    { provider = '󰃀', hl = { fg = 'bookmark_index' } },
     space(),
     {
-      hl = { fg = 'bookmark_key', bold = true },
+      hl = { fg = 'bookmark_index', bold = true },
       provider = function(self)
-        return self.key
+        return self.index
       end,
     },
     space(),
@@ -783,14 +783,14 @@ local function bookmark_label()
           if fn.is_terminal_buf(minwid) then
             fn.set_terminal_dir(vim.fn.fnamemodify(self.path, ':h'))
           else
-            require'grapple'.select{ key = self.key }
+            fn.goto_bookmark(self.index)
           end
         end,
         minwid = function()
           return vim.api.nvim_get_current_buf()
         end,
         name = function(self)
-          return 'bookmark_select_callback'..self.key
+          return 'bookmark_select_callback'..self.index
         end,
       },
       provider = function(self)
@@ -806,11 +806,11 @@ local function bookmark_del_btn()
       hl = { fg = 'close_btn' },
       on_click = {
         callback = function(self)
-          require'grapple'.untag{ key = self.key }
+          fn.del_bookmark(self.index)
           refresh_bookmark_list()
         end,
         name = function(self)
-          return 'bookmark_untag_callback'..self.key
+          return 'bookmark_untag_callback'..self.index
         end,
       },
       provider = '󰅖',
@@ -821,12 +821,12 @@ end
 local function bookmarks_bar()
   return {
     init = function(self)
-      local tags = require'grapple'.tags()
-      for i, tag in ipairs(tags) do
+      local bookmarks = fn.get_bookmarks()
+      for i, bookmark in ipairs(bookmarks) do
         local child = self[i]
         if not child or
-          child.path ~= tag.file_path or
-          child.key ~= tag.key
+          child.path ~= bookmark.path or
+          child.index ~= i
         then
           self[i] = self:new({
             hl = { bg = 'default' },
@@ -844,12 +844,12 @@ local function bookmarks_bar()
             },
           }, i)
           child = self[i]
-          child.key = tag.key
-          child.path = tag.file_path
+          child.index = i
+          child.path = bookmark.path
         end
       end
-      if #self > #tags then
-        for i = #tags + 1, #self do
+      if #self > #bookmarks then
+        for i = #bookmarks + 1, #self do
           self[i] = nil
         end
       end
@@ -863,16 +863,7 @@ local function bookmark_btn()
     hl = { fg = 'bookmark_btn' },
     on_click = {
       callback = function(_, minwid)
-        local tags = require'grapple'.tags()
-        vim.fn.sort(tags, function(a, b) return a.key - b.key end)
-        local key
-        for i, tag in ipairs(tags) do
-          if i ~= tag.key then
-            key = i
-            break
-          end
-        end
-        require'grapple'.toggle{ buffer = minwid, key = key }
+        fn.toggle_bookmarked(minwid)
         refresh_bookmark_list()
       end,
       minwid = function()
@@ -883,7 +874,7 @@ local function bookmark_btn()
       end,
     },
     provider = function(self)
-      return require'grapple'.exists{ buffer = self.buf }
+      return fn.is_bookmarked(self.buf)
         and '󰃀' or '󰃃'
     end,
   }

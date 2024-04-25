@@ -1342,16 +1342,28 @@ function fn.show_buffer_jump_picker(dir)
   })
 end
 
-function fn.goto_bookmark(tag)
-  if not require'grapple'.exists{ key = tag } then
-    require'grapple'.tag{ key = tag }
-    vim.o.showtabline = 2
-  end
-  require'grapple'.select{ key = tag }
+function fn.get_bookmarks()
+  return require'grapple'.tags()
 end
 
-function fn.del_bookmark(tag)
-  require'grapple'.untag{ key = tag }
+function fn.is_bookmarked(buf)
+  return require'grapple'.exists{ buffer = buf }
+end
+
+function fn.toggle_bookmarked(buf)
+  require'grapple'.toggle{ buffer = buf }
+end
+
+function fn.goto_bookmark(index)
+  if not require'grapple'.exists{ index = index } then
+    require'grapple'.tag{ index = index }
+    vim.o.showtabline = 2
+  end
+  require'grapple'.select{ index = index }
+end
+
+function fn.del_bookmark(index)
+  require'grapple'.untag{ index = index }
   if #require'grapple'.tags() == 0 then
     vim.o.showtabline = 0
   end
