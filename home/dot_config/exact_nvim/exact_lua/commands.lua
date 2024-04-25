@@ -1,30 +1,6 @@
 -- vim: fcl=all fdm=marker fdl=0 fen
 
 my_commands {
-  G = { --{{{
-    function(opts)
-      fn.send_terminal("git "..fn.expand_each(opts.fargs), not opts.bang)
-    end,
-    bang = true,
-    complete = function(lead)
-      local pipe = io.popen("bash -c 'git-complete.bash "..lead.."'")
-      local completions = pipe:read("*a")
-      pipe:close()
-      return vim.fn.split(completions, "\n")
-    end,
-    desc = "Git command",
-    nargs = "+",
-  }, --}}}
-  Ga = { --{{{
-    function(opts)
-      fn.send_terminal("git add -p "..fn.expand_each(opts.fargs))
-    end,
-    complete = function(lead)
-      return my_config.commands.G.complete("add -p "..lead)
-    end,
-    desc = "Git add files",
-    nargs = "?",
-  }, --}}}
   InitTerminalMode = { --{{{
     function()
       fn.init_terminal_mode()
