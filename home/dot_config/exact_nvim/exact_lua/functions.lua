@@ -220,9 +220,16 @@ function fn.is_in_floating(buf)
   return false
 end
 
+function fn.get_visual_line_range()
+  return {
+    vim.fn.getpos[['<]][2],
+    vim.fn.getpos[['>]][2],
+  }
+end
+
 function fn.get_visual_selection()
-  local s_start = vim.fn.getpos("'<")
-  local s_end = vim.fn.getpos("'>")
+  local s_start = vim.fn.getpos[['<]]
+  local s_end = vim.fn.getpos[['>]]
   local n_lines = math.abs(s_end[2] - s_start[2]) + 1
   local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
   lines[1] = lines[1]:sub(s_start[3], -1)
@@ -1586,6 +1593,24 @@ function fn.open_git_repo(path)
   else
     fn.open_file_folder(path)
   end
+end
+
+function fn.run_git_commit(tabpageOrPath)
+  vim.ui.input({
+      prompt = " 󱉶 Commit message: ",
+      dressing = {
+        relative = 'editor',
+      },
+    },
+    function(msg)
+      if msg and #msg > 0 then
+        fn.ui_try(
+          run_git_command,
+          tabpageOrPath,
+          'commit --message "'..msg..'"'
+        )
+      end
+    end)
 end
 
 function fn.show_file_history(range, term)
