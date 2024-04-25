@@ -176,8 +176,6 @@ my_mappings {
     ["<M-l>"]           = { "v:lua.fn.is_floating()?'h':'<C-w>h'", expr = true },
     ["<PageDown>"]      = { "L<Down>", noremap = false },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
-    ['<S-Tab><S-Tab>']  = { call(fn.show_buffer_jump_picker, 'forward'), desc = "Forward jumps" },
-    ['<Tab><Tab>']      = { call(fn.show_buffer_jump_picker, 'backward'), desc = "Backward jumps" },
     ["<Tab>1"]          = { call(fn.goto_bookmark, 1), desc = "Bookmark 1" },
     ["<Tab>2"]          = { call(fn.goto_bookmark, 2), desc = "Bookmark 2" },
     ["<Tab>3"]          = { call(fn.goto_bookmark, 3), desc = "Bookmark 3" },

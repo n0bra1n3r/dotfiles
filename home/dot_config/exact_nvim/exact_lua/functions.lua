@@ -1336,12 +1336,6 @@ function fn.zoom_window(win)
   end
 end
 
-function fn.show_buffer_jump_picker(dir)
-  require'portal.builtin'.changelist.tunnel({
-    direction = dir,
-  })
-end
-
 function fn.get_bookmarks()
   return require'grapple'.tags()
 end
