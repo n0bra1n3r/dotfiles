@@ -27,5 +27,15 @@ return {
         },
       },
     }
+
+    require'diffview.utils'.echo_multiln = function(msg, hl)
+      local level = vim.log.levels.INFO
+      if hl == 'ErrorMsg' then
+        level = vim.log.levels.ERROR
+      elseif hl == 'WarningMsg' then
+        level = vim.log.levels.WARN
+      end
+      vim.notify(vim.fn.join(msg, '\n'), level)
+    end
   end
 }
