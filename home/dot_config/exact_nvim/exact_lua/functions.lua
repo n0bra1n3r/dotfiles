@@ -1527,6 +1527,29 @@ function fn.get_git_worktree_root(tabpageOrPath)
   end
 end
 
+function fn.run_git_commit(tabpageOrPath)
+  run_git_command(tabpageOrPath, [[diff --quiet HEAD]])
+  if vim.v.shell_error == 0 then
+    vim.notify('Nothing to commit', vim.log.levels.INFO)
+  else
+    vim.ui.input({
+        prompt = " 󰘬 Commit message: ",
+        dressing = {
+          relative = 'editor',
+        },
+      },
+      function(msg)
+        if msg and #msg > 0 then
+          fn.ui_try(
+            run_git_command,
+            tabpageOrPath,
+            'commit --message "'..msg..'"'
+          )
+        end
+      end)
+  end
+end
+
 function fn.open_in_os(args)
   require'plenary.job':new{
     args = args,
@@ -1593,24 +1616,6 @@ function fn.open_git_repo(path)
   else
     fn.open_file_folder(path)
   end
-end
-
-function fn.run_git_commit(tabpageOrPath)
-  vim.ui.input({
-      prompt = " 󱉶 Commit message: ",
-      dressing = {
-        relative = 'editor',
-      },
-    },
-    function(msg)
-      if msg and #msg > 0 then
-        fn.ui_try(
-          run_git_command,
-          tabpageOrPath,
-          'commit --message "'..msg..'"'
-        )
-      end
-    end)
 end
 
 function fn.show_file_history(range, term)
