@@ -505,43 +505,73 @@ local function location_label()
       init = function(self)
         local win = vim.api.nvim_get_current_win()
         self.cursor = vim.api.nvim_win_get_cursor(win)
+        self.search = vim.fn.searchcount()
       end,
-      update = { 'CursorMoved','CursorMovedI' },
       space(),
       {
         hl = { fg = 'location', italic = true },
-        on_click = {
-          callback = function(_, minwid)
-            fn.copy_line_info('%s:%d', minwid)
+        {
+          condition = function()
+            return vim.v.hlsearch ~= 1
           end,
-          minwid = function()
-            return vim.api.nvim_get_current_win()
+          on_click = {
+            callback = function(_, minwid)
+              fn.copy_line_info('%s:%d', minwid)
+            end,
+            minwid = function()
+              return vim.api.nvim_get_current_win()
+            end,
+            name = 'location_line_click_callback',
+          },
+          provider = function(self)
+            local line_num = tostring(self.cursor[1])
+            return 'L'..('0'):rep(3 - #line_num)..line_num
           end,
-          name = 'location_line_click_callback',
+          update = { 'CursorMoved','CursorMovedI' },
         },
-        provider = function(self)
-          local line_num = tostring(self.cursor[1])
-          return 'L'..('0'):rep(3 - #line_num)..line_num
-        end,
+        {
+          condition = function()
+            return vim.v.hlsearch == 1
+          end,
+          provider = function(self)
+            local search_index = tostring(self.search.current)
+            local search_count = tostring(self.search.total)
+            return ('0'):rep(#search_count - #search_index)..search_index
+          end,
+        },
       },
       space(),
       sep'╱',
       space(),
       {
         hl = { fg = 'location', italic = true },
-        on_click = {
-          callback = function(_, minwid)
-            fn.copy_line_info('%s:%d:%d', minwid)
+        {
+          condition = function()
+            return vim.v.hlsearch ~= 1
           end,
-          minwid = function()
-            return vim.api.nvim_get_current_win()
+          on_click = {
+            callback = function(_, minwid)
+              fn.copy_line_info('%s:%d:%d', minwid)
+            end,
+            minwid = function()
+              return vim.api.nvim_get_current_win()
+            end,
+            name = 'location_col_click_callback',
+          },
+          provider = function(self)
+            local col_num = tostring(self.cursor[2])
+            return 'C'..('0'):rep(3 - #col_num)..col_num
           end,
-          name = 'location_col_click_callback',
+          update = { 'CursorMoved','CursorMovedI' },
         },
-        provider = function(self)
-          local col_num = tostring(self.cursor[2])
-          return 'C'..('0'):rep(3 - #col_num)..col_num
-        end,
+        {
+          condition = function()
+            return vim.v.hlsearch == 1
+          end,
+          provider = function(self)
+            return tostring(self.search.total)
+          end,
+        },
       },
       space(),
     },
