@@ -1633,15 +1633,13 @@ function fn.open_git_repo(path)
                 '--branch',
                 info.branch,
               },
-              command = vim.fn.expand[[~/.dotfiles/deps/gh/.local/bin/gh]],
+              command = 'gh',
               detached = true,
             }:start()
           end)()
         end
       end,
     }:start()
-  else
-    fn.open_file_folder(path)
   end
 end
 
@@ -2325,6 +2323,10 @@ function fn.open_workspace(path)
     fn.set_tab_cwd(tabpage, workspace_path)
     load_workspace()
   end
+end
+
+function fn.open_workspace_folder(path)
+  fn.open_folder(fn.get_workspace_dir(path))
 end
 --}}}
 
