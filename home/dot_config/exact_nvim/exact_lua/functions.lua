@@ -1250,6 +1250,34 @@ function fn.update_task_output(output, id)
   return qf_id
 end
 
+function fn.update_notifications_list(level, note)
+  local time = vim.fn.strftime("%b %d %Y %H:%M:%S")
+  local severities = {
+    [vim.log.levels.ERROR] = 'E',
+    [vim.log.levels.WARN] = 'W',
+    [vim.log.levels.DEBUG] = 'N',
+    [vim.log.levels.INFO] = 'I',
+    [vim.log.levels.TRACE] = 'N',
+  }
+  local lines = {
+    ('%s|%s'):format(severities[level], time),
+  }
+  vim.list_extend(lines, vim.tbl_map(function(line)
+    return ('|%s'):format(line)
+  end, vim.split(note, '\n')))
+
+  set_qf_list('notifications', {
+    efm = '|%m,%t|%m',
+    lines = lines,
+  }, true)
+end
+
+function fn.show_notifications_list()
+  clear_item_highlight()
+  show_qf('notifications')
+  vim.cmd.cbottom()
+end
+
 function fn.show_messages_list()
   clear_item_highlight()
   show_qf('messages')
@@ -1259,12 +1287,12 @@ end
 set_qf_list('lsp_diagnostics', { title = "LSP Diagnostics" })
 set_qf_list('lsp_definitions', { title = "LSP Definitions" })
 set_qf_list('lsp_references', { title = "LSP References" })
+set_qf_list('notifications', { title = "Notifications" })
 set_qf_list('task_output_1', { title = "Task Output 1" })
 set_qf_list('task_output_2', { title = "Task Output 2" })
 set_qf_list('task_output_3', { title = "Task Output 3" })
 set_qf_list('task_output_4', { title = "Task Output 4" })
 set_qf_list('task_output_5', { title = "Task Output 5" })
-set_qf_list('task_output_6', { title = "Task Output 6" })
 set_qf_list('messages', { title = "Messages" })
 --}}}
 --{{{ Navigation

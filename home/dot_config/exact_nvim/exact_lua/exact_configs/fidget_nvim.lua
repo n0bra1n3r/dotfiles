@@ -19,6 +19,8 @@ return {
       local line_limit = 4
       local char_limit = 50
 
+      fn.update_notifications_list(level, msg)
+
       local lines = vim.split(msg, '\n',
         { plain = true, trimempty = true })
 
