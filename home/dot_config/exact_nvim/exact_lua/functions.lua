@@ -1268,6 +1268,18 @@ set_qf_list('task_output_6', { title = "Task Output 6" })
 set_qf_list('messages', { title = "Messages" })
 --}}}
 --{{{ Navigation
+function fn.move_cursor_right()
+  local count = vim.v.count1
+  for _ = 1, count, 1 do
+		local isOnFold = vim.fn.foldclosed('.') > -1
+		if isOnFold then
+			pcall(vim.cmd.normal, { 'zo', bang = true })
+		else
+      vim.cmd.normal{ 'l', bang = true }
+		end
+	end
+end
+
 function fn.get_prior_tabpage()
   local tabnr = vim.fn.tabpagenr[[#]]
   for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
@@ -1545,9 +1557,24 @@ function fn.run_git_commit(tabpageOrPath)
             tabpageOrPath,
             'commit --message "'..msg..'"'
           )
+          fn.refresh_git_info(tabpageOrPath)
         end
       end)
   end
+end
+
+function fn.search_git_history()
+  vim.ui.input({
+      prompt = " 󰘬 Search term: ",
+      dressing = {
+        relative = 'editor',
+      },
+    },
+    function(term)
+      if term and #term > 0 then
+        fn.show_file_history(nil, term)
+      end
+    end)
 end
 
 function fn.open_in_os(args)

@@ -1,6 +1,29 @@
 -- vim: fcl=all fdm=marker fdl=0 fen
 
 --{{{ Helpers
+local function lazy(name, field)
+  return setmetatable({}, {
+    __call = function(_, ...)
+      local obj = name[1]
+      if type(obj) == 'string' then
+        obj = require(obj)
+      end
+      for i = 2, #name do
+        obj = obj[name[i]]
+      end
+      return obj[field](...)
+    end,
+    __index = function(_, index)
+      local access = name
+      if type(name) ~= 'table' then
+        access = { name }
+      end
+      table.insert(access, field)
+      return lazy(access, index)
+    end,
+  })
+end
+
 local function call(fun, ...)
   local args = { ... }
   return function()
@@ -34,18 +57,6 @@ local function open_help()
   return fn.ui_try(vim.cmd.help, vim.fn.expand('<cword>'))
 end
 
-local function cursor_right()
-  local count = vim.v.count1
-  for _ = 1, count, 1 do
-		local isOnFold = vim.fn.foldclosed('.') > -1
-		if isOnFold then
-			pcall(vim.cmd.normal, { 'zo', bang = true })
-		else
-      vim.cmd.normal{ 'l', bang = true }
-		end
-	end
-end
-
 local function get_map_expr(key)
   return ([[(v:count!=0||mode(1)[0:1]=='no'?'%s':'g%s')]]):format(key, key)
 end
@@ -56,20 +67,6 @@ end
 
 local function get_motion_expr(if_then, if_else)
   return ([[col('.')==1&&col([line('.')-1,'$'])>1?'%s':'%s']]):format(if_then, if_else)
-end
-
-local function search_history()
-  vim.ui.input({
-      prompt = " 󱉶 Search term: ",
-      dressing = {
-        relative = 'editor',
-      },
-    },
-    function(term)
-      if term and #term > 0 then
-        fn.show_file_history(nil, term)
-      end
-    end)
 end
 --}}}
 
@@ -107,8 +104,8 @@ my_mappings {
     ["<M-l>"]           = { "<Left>", silent = false },
   }, --}}}
   n = { --{{{
-    [']g']              = { call(vim.cmd.Gitsigns, 'next_hunk'), desc = "Next hunk" },
-    ['[g']              = { call(vim.cmd.Gitsigns, 'prev_hunk'), desc = "Prev hunk" },
+    [']g']              = { call(lazy'gitsigns'.next_hunk), desc = "Next hunk" },
+    ['[g']              = { call(lazy'gitsigns'.prev_hunk), desc = "Prev hunk" },
     ["<C-`>"]           = { call(fn.toggle_terminal) },
     ["<C-c>"]           = { call(vim.cmd.tabclose) },
     ['<C-d>']           = { [[<C-d>zz]] },
@@ -140,16 +137,16 @@ my_mappings {
     ["<leader>fm"]      = { call(fn.move_file), desc = "Move" },
     ["<leader>fo"]      = { call(fn.open_file_folder), desc = "Open folder" },
     ["<leader>fs"]      = { call(fn.save_file), desc = "Save" },
-    ['<leader>ga']      = { call(vim.cmd.Gitsigns, 'stage_hunk'), desc = "Add hunk" },
-    ['<leader>gb']      = { call(vim.cmd.Gitsigns, 'blame_line'), desc = "Blame line" },
+    ['<leader>ga']      = { call(lazy'gitsigns'.stage_hunk), desc = "Add hunk" },
+    ['<leader>gb']      = { call(lazy'gitsigns'.blame_line), desc = "Blame line" },
     ['<leader>gc']      = { call(fn.run_git_commit), desc = "Commit changes" },
-    ['<leader>gd']      = { call(vim.cmd.DiffviewOpen), desc = "Show diff" },
+    ['<leader>gd']      = { call(lazy'diffview'.open), desc = "Show diff" },
     ["<leader>gg"]      = { call(fn.open_git_repo), desc = "Open repo in github" },
     ["<leader>gh"]      = { call(fn.show_file_history), desc = "Show file history" },
-    ["<leader>gp"]      = { call(vim.cmd.Gitsigns, 'preview_hunk'), desc = "Preview hunk" },
+    ["<leader>gp"]      = { call(lazy'gitsigns'.preview_hunk), desc = "Preview hunk" },
     ["<leader>go"]      = { call(fn.open_in_github), desc = "Open file in Github" },
-    ["<leader>gr"]      = { call(vim.cmd.Gitsigns, 'reset_hunk'), desc = "Reset hunk" },
-    ["<leader>gs"]      = { search_history, desc = "Search history" },
+    ["<leader>gr"]      = { call(lazy'gitsigns'.reset_hunk), desc = "Reset hunk" },
+    ["<leader>gs"]      = { fn.search_git_history, desc = "Search history" },
     ["<leader>id"]      = { call(fn.search, 'diagnostics_document'), desc = "Document issues" },
     ["<leader>iw"]      = { call(fn.show_lsp_diagnostics_list), desc = "Workspace issues" },
     ["<leader>l"]       = { call(fn.search, 'lsp_document_symbols'), desc = "LSP symbols" },
@@ -162,7 +159,7 @@ my_mappings {
     ["<leader>q5"]      = { call(fn.show_task_output, 5), desc = "Log 5" },
     ["<leader>q6"]      = { call(fn.show_task_output, 6), desc = "Log 6" },
     ["<leader>qq"]      = { call(fn.show_messages_list), desc = "Messages" },
-    ["<leader>s"]       = { call(require'search'.prompt), desc = "Search & replace" },
+    ["<leader>s"]       = { call(lazy'search'.prompt), desc = "Search & replace" },
     ["<leader>t"]       = { call(vim.cmd.OverseerRun), desc = "Tasks" },
     ["<leader>X"]       = { call(vim.cmd.quitall), desc = "Quit" },
     ["<leader>x"]       = { call(fn.close_window), desc = "Close" },
@@ -182,7 +179,7 @@ my_mappings {
     ["<Tab>4"]          = { call(fn.goto_bookmark, 4), desc = "Bookmark 4" },
     ["<Tab>5"]          = { call(fn.goto_bookmark, 5), desc = "Bookmark 5" },
     ["<Tab><BS>"]       = { call(fn.del_bookmark), desc = "Delete bookmark" },
-    [';']               = { cursor_right },
+    [';']               = { fn.move_cursor_right },
     C                   = { '"_C' },
     c                   = { '"_c' },
     D                   = { '"_D' },
