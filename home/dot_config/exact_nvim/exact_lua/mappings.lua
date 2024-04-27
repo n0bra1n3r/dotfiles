@@ -57,6 +57,24 @@ local function open_help()
   return fn.ui_try(vim.cmd.help, vim.fn.expand('<cword>'))
 end
 
+local function relative_jump(dir)
+  return function()
+    vim.wo.relativenumber = true
+    vim.schedule(function()
+      local input = vim.fn.getchar()
+      if type(input) == 'number'
+          and input >= 49
+          and input <= 57 then
+        local count = vim.fn.nr2char(input)
+        vim.wo.relativenumber = false
+        vim.cmd.normal(count..dir)
+      else
+        vim.wo.relativenumber = false
+      end
+    end)
+  end
+end
+
 local function get_map_expr(key)
   return ([[(v:count!=0||mode(1)[0:1]=='no'?'%s':'g%s')]]):format(key, key)
 end
@@ -180,6 +198,8 @@ my_mappings {
     ["<Tab>4"]          = { call(fn.goto_bookmark, 4), desc = "Bookmark 4" },
     ["<Tab>5"]          = { call(fn.goto_bookmark, 5), desc = "Bookmark 5" },
     ["<Tab><BS>"]       = { call(fn.del_bookmark), desc = "Delete bookmark" },
+    ['<Tab>j']          = { relative_jump'j', desc = "Relative jump down" },
+    ['<Tab>k']          = { relative_jump'k', desc = "Relative jump up" },
     [';']               = { call(fn.move_cursor_right) },
     C                   = { '"_C' },
     c                   = { '"_c' },
