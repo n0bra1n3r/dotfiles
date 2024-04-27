@@ -1679,6 +1679,8 @@ end
 --}}}
 --{{{ Assistants
 function fn.ai_gen(cmd, text)
+  require'gp'
+
   local filetype = vim.bo.filetype
 
   local lines = text
@@ -1707,6 +1709,8 @@ function fn.ai_gen(cmd, text)
 end
 
 function fn.ai_conv(cmd, text)
+  require'gp'
+
   local lines = text
     and vim.split(text, '\n')
     or vim.api.nvim_buf_get_lines(0, 0, -1, false)

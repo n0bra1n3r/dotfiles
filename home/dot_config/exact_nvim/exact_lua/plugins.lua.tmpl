@@ -55,7 +55,7 @@ my_plugins {
   --}}}
   --{{{ Motions
   { 'numToStr/Comment.nvim', event = { 'BufRead', 'BufModifiedSet' } },
-  { 'ggandor/leap.nvim', event = 'VeryLazy' },
+  { 'ggandor/leap.nvim', event = 'BufRead' },
   { 'echasnovski/mini.splitjoin', event = 'BufRead' },
   { 'chrisgrieser/nvim-spider', event = { 'BufRead', 'BufModifiedSet' } },
   { 'chrisgrieser/nvim-various-textobjs', event = { 'BufRead', 'BufModifiedSet' } },
@@ -69,7 +69,6 @@ my_plugins {
   { 'cbochs/grapple.nvim' },
   {
     'nvim-telescope/telescope.nvim',
-    event = 'VeryLazy',
     dependencies = {
       'nvim-telescope/telescope-dap.nvim',
       'nvim-telescope/telescope-fzf-native.nvim',
@@ -106,11 +105,9 @@ my_plugins {
       ':MasonInstall dart-debug-adapter',
       ':MasonInstall shellcheck',
     },
+    cmd = 'Mason',
   },
-  {
-    'williamboman/mason-lspconfig.nvim',
-    dependencies = { 'williamboman/mason.nvim' },
-  },
+  { 'williamboman/mason-lspconfig.nvim' },
   --}}}
   --{{{ Syntax Highlighting
   {
@@ -177,7 +174,7 @@ my_plugins {
   },
   --}}}
   --{{{ Assistants
-  { 'Robitx/gp.nvim', event = 'BufRead' },
+  { 'Robitx/gp.nvim' },
   --}}}
   --{{{ Editor
   {
@@ -192,10 +189,7 @@ my_plugins {
   { 'echasnovski/mini.indentscope', event = { 'BufRead', 'BufModifiedSet' } },
   --}}}
   --{{{ Tasks
-  {
-    'stevearc/overseer.nvim',
-    dependencies = { 'mfussenegger/nvim-dap' },
-  },
+  { 'stevearc/overseer.nvim' },
   --}}}
   --{{{ Debuggers
   { 'mfussenegger/nvim-dap' },
