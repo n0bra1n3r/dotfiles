@@ -740,7 +740,10 @@ local function set_qf_list(name, what, is_append)
 
   if list.winid ~= 0 then
     if vim.wo[list.winid].foldenable then
-      vim.cmd.normal[[zx]]
+      vim.wo[list.winid].foldmethod =
+        vim.wo[list.winid].foldmethod
+      vim.wo[list.winid].foldlevel =
+        vim.wo[list.winid].foldlevel
     end
   end
 
