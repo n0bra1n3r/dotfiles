@@ -2349,9 +2349,7 @@ function fn.show_workspace(tabpage, value)
 end
 
 function fn.save_workspace(tabpage, force)
-  if (vim.env.PARENT_NVIM == nil and
-      not fn.is_workspace_frozen(tabpage))
-      or (force or false) then
+  if not fn.is_workspace_frozen(tabpage) or (force or false) then
     fn.freeze_workspace(tabpage, false)
     local save_path = get_workspace_file_path(tabpage)
     create_parent_dirs(save_path)

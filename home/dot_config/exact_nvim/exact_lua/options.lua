@@ -75,6 +75,7 @@ my_options {
   splitbelow = true,
   splitkeep = 'screen',
   splitright = true,
+  swapfile = false,
   tabstop = 2,
   termguicolors = true,
   timeoutlen = 400,

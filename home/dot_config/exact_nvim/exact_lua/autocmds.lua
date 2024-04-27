@@ -43,11 +43,9 @@ my_autocmds {
     end,
   }, --}}}
   { "BufUnload", --{{{
-    callback = function(args)
-      if fn.is_file_buffer(args.buf) then
-        if fn.has_workspace_file() then
-          fn.save_workspace()
-        end
+    callback = function()
+      if fn.is_file_buffer() and fn.has_workspace_file() then
+        fn.save_workspace()
       end
     end,
   }, --}}}
@@ -82,11 +80,9 @@ my_autocmds {
     end,
   }, --}}}
   { "BufWinLeave", --{{{
-    callback = function(args)
-      if fn.is_file_buffer(args.buf) then
-        if fn.has_workspace_file() then
-          fn.save_workspace()
-        end
+    callback = function()
+      if fn.is_file_buffer() and fn.has_workspace_file() then
+        fn.save_workspace()
       end
     end,
   }, --}}}
@@ -286,6 +282,12 @@ my_autocmds {
       end
     end,
     once = true,
+  }, --}}}
+  { 'VimLeavePre', --{{{
+    callback = function()
+      vim.cmd.UndotreeHide()
+      fn.save_workspace()
+    end,
   }, --}}}
   { 'WinEnter', --{{{
     callback = function()

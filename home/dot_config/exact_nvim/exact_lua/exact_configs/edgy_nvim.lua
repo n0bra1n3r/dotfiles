@@ -5,6 +5,7 @@ return {
         enabled = false,
       },
       bottom = {
+        size = 10,
         {
           ft = 'qf',
           wo = {
@@ -15,6 +16,16 @@ return {
           },
         },
         { ft = 'dap-repl' },
+      },
+      right = {
+        size = 10,
+        { ft = 'undotree' },
+        {
+          ft = 'diff',
+          size = {
+            height = 10,
+          },
+        },
       },
       exit_when_last = true,
       keys = {
