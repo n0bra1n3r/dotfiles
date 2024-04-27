@@ -1310,6 +1310,22 @@ function fn.move_cursor_right()
 	end
 end
 
+function fn.relative_jump(dir)
+  vim.wo.relativenumber = true
+  vim.schedule(function()
+    local input = vim.fn.getchar()
+    if type(input) == 'number'
+        and input >= 49
+        and input <= 57 then
+      local count = vim.fn.nr2char(input)
+      vim.wo.relativenumber = false
+      vim.cmd.normal(count..dir)
+    else
+      vim.wo.relativenumber = false
+    end
+  end)
+end
+
 function fn.get_prior_tabpage()
   local tabnr = vim.fn.tabpagenr[[#]]
   for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
