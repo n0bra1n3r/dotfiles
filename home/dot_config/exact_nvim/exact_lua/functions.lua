@@ -1424,36 +1424,44 @@ function fn.del_bookmark(index)
   end
 end
 
-function fn.add_buf_to_loclist(bufnr)
-  bufnr = bufnr or vim.api.nvim_get_current_buf()
-  local infos = vim.fn.getbufinfo(bufnr)
-  if #infos > 0 and fn.is_file_buffer(bufnr) then
-    local info = infos[1]
-    if info.listed == 1 then
-      for _, win in ipairs(info.windows) do
-        local list = vim.tbl_filter(
-          function(e)
-            return e.bufnr ~= 0 and e.bufnr ~= bufnr
-          end,
-          vim.fn.getloclist(win)
-        )
-        local name
-        if vim.fn.has('win32') == 1 then
-          local shellslash = vim.o.shellslash
-          vim.o.shellslash = false
-          name = vim.api.nvim_buf_get_name(bufnr)
-          vim.o.shellslash = shellslash
+function fn.track_buf_leave_win(buf, win)
+  buf = buf or vim.api.nvim_get_current_buf()
+  if fn.is_file_buffer(buf) then
+    win = win or vim.api.nvim_get_current_win()
+    vim.api.nvim_create_autocmd('BufEnter', {
+      once = true,
+      callback = function()
+        if win == vim.api.nvim_get_current_win() then
+          local infos = vim.fn.getbufinfo(buf)
+          if #infos > 0 then
+            local info = infos[1]
+            if info.listed == 1 then
+              local list = vim.tbl_filter(
+                function(e)
+                  return e.bufnr ~= 0 and e.bufnr ~= buf
+                end,
+                vim.fn.getloclist(win)
+              )
+              local name
+              if vim.fn.has('win32') == 1 then
+                local shellslash = vim.o.shellslash
+                vim.o.shellslash = false
+                name = vim.api.nvim_buf_get_name(buf)
+                vim.o.shellslash = shellslash
+              end
+              local cur = vim.api.nvim_win_get_cursor(win)
+              table.insert(list, 1, {
+                bufnr = buf,
+                filename = name,
+                col = cur[2] + 1,
+                lnum = cur[1],
+              })
+              vim.fn.setloclist(win, list, 'r')
+            end
+          end
         end
-        local cur = vim.api.nvim_win_get_cursor(win)
-        table.insert(list, 1, {
-          bufnr = bufnr,
-          filename = name,
-          col = cur[2] + 1,
-          lnum = cur[1],
-        })
-        vim.fn.setloclist(win, list, 'r')
-      end
-    end
+      end,
+    })
   end
 end
 --}}}

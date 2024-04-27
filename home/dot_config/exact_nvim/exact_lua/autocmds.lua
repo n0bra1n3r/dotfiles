@@ -37,6 +37,11 @@ my_autocmds {
       end
     end,
   }, --}}}
+  { 'BufLeave', --{{{
+    callback = function()
+      fn.track_buf_leave_win()
+    end,
+  }, --}}}
   { "BufUnload", --{{{
     callback = function(args)
       if fn.is_file_buffer(args.buf) then
@@ -78,7 +83,6 @@ my_autocmds {
   }, --}}}
   { "BufWinLeave", --{{{
     callback = function(args)
-      fn.add_buf_to_loclist(args.buf)
       if fn.is_file_buffer(args.buf) then
         if fn.has_workspace_file() then
           fn.save_workspace()
