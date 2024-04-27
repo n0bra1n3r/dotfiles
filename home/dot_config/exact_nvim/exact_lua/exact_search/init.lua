@@ -143,7 +143,6 @@ local function load_opt(store, name)
 end
 
 local function set_search_window_options()
-  save_opt(vim.o, 'hlsearch')
   save_opt(vim.wo, 'foldmethod')
   save_opt(vim.wo, 'foldtext')
   save_opt(vim.wo, 'scrolloff')
@@ -156,7 +155,6 @@ local function set_search_window_options()
 end
 
 local function unset_search_window_options()
-  load_opt(vim.o, 'hlsearch')
   load_opt(vim.wo, 'foldmethod')
   load_opt(vim.wo, 'foldtext')
   load_opt(vim.wo, 'scrolloff')
@@ -419,7 +417,7 @@ local function render_result(line, result)
     render_line_text(line, result.line_text)
   end
 
-  vim.o.hlsearch = false
+  vim.cmd.nohlsearch()
 
   local info = get_search_info()
   local namespace = get_search_match_namespace()
@@ -638,7 +636,7 @@ local function finalize_search()
   vim.api.nvim_buf_clear_namespace(0, namespace, 0, -1)
 
   vim.fn.setreg('/', info.search_term, vim.fn.getregtype('/'))
-  vim.o.hlsearch = true
+  vim.cmd.hlsearch()
 
   set_search_window_options()
 
