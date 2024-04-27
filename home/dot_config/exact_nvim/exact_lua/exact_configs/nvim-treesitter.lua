@@ -24,7 +24,8 @@ return {
       highlight = {
         enable = true,
         disable = function(_, bufnr)
-          return vim.api.nvim_buf_line_count(bufnr) > 999
+          return not fn.is_file_buffer(bufnr)
+            or vim.api.nvim_buf_line_count(bufnr) > 999
         end,
       },
       matchup = {
