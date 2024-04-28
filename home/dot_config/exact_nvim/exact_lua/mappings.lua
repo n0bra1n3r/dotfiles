@@ -184,7 +184,7 @@ my_mappings {
     ['<Tab>j']          = { call(fn.relative_jump, 'j'), desc = "Relative jump down" },
     ['<Tab>k']          = { call(fn.relative_jump, 'k'), desc = "Relative jump up" },
     [';']               = { call(fn.move_cursor_right) },
-    ['*']               = { [[:let @/="\\<<C-r><C-w>\\>"|let v:hlsearch=1<CR>]] },
+    ['*']               = { [[b:let @/="\\<<C-r><C-w>\\>"|let v:hlsearch=1<CR>]] },
     C                   = { '"_C' },
     c                   = { '"_c' },
     D                   = { '"_D' },
