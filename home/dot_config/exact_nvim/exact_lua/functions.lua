@@ -1460,9 +1460,8 @@ function fn.toggle_bookmarked(bufOrName)
   else
     for _, bookmark in ipairs(fn.get_bookmarks()) do
       if bookmark.buf == buf then
-        if vim.api.nvim_del_mark(bookmark.name) then
-          has_toggled = true
-        end
+        vim.api.nvim_del_mark(bookmark.name)
+        has_toggled = true
       end
       if not has_toggled then
         local mark_id = vim.fn.index(names, bookmark.name) + 1
@@ -1472,14 +1471,18 @@ function fn.toggle_bookmarked(bufOrName)
       end
     end
   end
-  if not has_toggled then
+  if not has_toggled and (not name or not fn.is_bookmarked(buf)) then
     local new_name = name or names[new_mark_id]
     if new_name then
       vim.api.nvim_buf_set_mark(buf, new_name, 1, 0, {})
+      has_toggled = true
     end
   end
 
-  fn.refresh_bookmark_list()
+  if has_toggled then
+    fn.refresh_bookmark_list()
+  end
+  return has_toggled
 end
 
 function fn.goto_bookmark(name)
@@ -1504,35 +1507,36 @@ function fn.del_bookmark(name)
 end
 
 function fn.bookmark_jump(maps)
+  local is_mapped = false
   local input = vim.fn.getchar()
   if type(input) == 'number'
       and input >= 65
       and input <= 90
   then
     local name = vim.fn.nr2char(input)
-    if not fn.goto_bookmark(name) then
-      fn.toggle_bookmarked(name)
-    end
-  elseif type(input) == 'number'
-      and input == 9
-  then
-    fn.toggle_bookmarked()
-  else
-    local is_mapped = false
-    if maps then
-      for map, key in pairs(maps) do
-        local map1 = vim.api.nvim_replace_termcodes(map, true, false, true)
-        local key1 = vim.api.nvim_replace_termcodes(key, true, false, true)
-        if input == map1 then
-          is_mapped = true
+    is_mapped = fn.goto_bookmark(name)
+      or fn.toggle_bookmarked(name)
+  elseif maps then
+    for map, key in pairs(maps) do
+      local map1 = vim.api.nvim_replace_termcodes(map, true, false, true)
+      if type(input) == 'number' then
+        is_mapped = vim.fn.nr2char(input) == map1
+      else
+        is_mapped = input == map1
+      end
+      if is_mapped then
+        if type(key) == 'string' then
+          local key1 = vim.api.nvim_replace_termcodes(key, true, false, true)
           vim.api.nvim_feedkeys(key1, 'm', false)
-          break
+        else
+          key()
         end
+        break
       end
     end
-    if not is_mapped then
-      vim.notify('Invalid bookmark', vim.log.levels.INFO)
-    end
+  end
+  if not is_mapped then
+    vim.notify('Invalid bookmark', vim.log.levels.INFO)
   end
 end
 

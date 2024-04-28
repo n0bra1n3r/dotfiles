@@ -178,7 +178,8 @@ my_mappings {
     ["<PageDown>"]      = { "L<Down>", noremap = false },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
     ['<S-Tab>']         = { call(fn.bookmark_jump, {
-                              ['<S-Tab>'] = [[<C-o>]]
+                              ['<Tab>'] = call(fn.toggle_bookmarked),
+                              ['<S-Tab>'] = [[<C-o>]],
                             }), desc = "Jump to bookmark" },
     ['<S-Tab><BS>']     = { call(fn.del_bookmark), desc = "Delete bookmark" },
     ['<Tab><Tab>']      = { [[<C-i>]], desc = "Jump to prev location" },
