@@ -165,14 +165,6 @@ local function get_visible_buf_type_counts(tab)
   end
   return types
 end
-
-local function refresh_bookmark_list()
-  local old_showtabline = vim.o.showtabline
-  vim.o.showtabline = #fn.get_bookmarks() > 0 and 2 or 0
-  if vim.o.showtabline == old_showtabline and vim.o.showtabline ~= 0 then
-    vim.schedule(vim.cmd.redrawtabline)
-  end
-end
 --}}}
 
 --{{{ Statusline
@@ -802,7 +794,7 @@ local function bookmark_label()
     {
       hl = { fg = 'bookmark_index', bold = true },
       provider = function(self)
-        return self.index
+        return self.name
       end,
     },
     space(),
@@ -813,14 +805,14 @@ local function bookmark_label()
           if fn.is_terminal_buf(minwid) then
             fn.set_terminal_dir(vim.fn.fnamemodify(self.path, ':h'))
           else
-            fn.goto_bookmark(self.index)
+            fn.goto_bookmark(self.name)
           end
         end,
         minwid = function()
           return vim.api.nvim_get_current_buf()
         end,
         name = function(self)
-          return 'bookmark_select_callback'..self.index
+          return 'bookmark_select_callback'..self.name
         end,
       },
       provider = function(self)
@@ -836,11 +828,10 @@ local function bookmark_del_btn()
       hl = { fg = 'close_btn' },
       on_click = {
         callback = function(self)
-          fn.del_bookmark(self.index)
-          refresh_bookmark_list()
+          fn.del_bookmark(self.name)
         end,
         name = function(self)
-          return 'bookmark_untag_callback'..self.index
+          return 'bookmark_untag_callback'..self.name
         end,
       },
       provider = '󰅖',
@@ -856,7 +847,7 @@ local function bookmarks_bar()
         local child = self[i]
         if not child or
           child.path ~= bookmark.path or
-          child.index ~= i
+          child.name ~= bookmark.name
         then
           self[i] = self:new({
             hl = { bg = 'default' },
@@ -874,7 +865,7 @@ local function bookmarks_bar()
             },
           }, i)
           child = self[i]
-          child.index = i
+          child.name = bookmark.name
           child.path = bookmark.path
         end
       end
@@ -894,7 +885,6 @@ local function bookmark_btn()
     on_click = {
       callback = function(_, minwid)
         fn.toggle_bookmarked(minwid)
-        refresh_bookmark_list()
       end,
       minwid = function()
         return vim.api.nvim_get_current_buf()
@@ -1157,7 +1147,5 @@ return {
         require'heirline.utils'.on_colorscheme(colors)
       end,
     })
-
-    refresh_bookmark_list()
   end,
 }

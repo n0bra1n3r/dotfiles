@@ -1402,25 +1402,123 @@ function fn.zoom_window(win)
 end
 
 function fn.get_bookmarks()
-  return require'grapple'.tags()
+  local bookmarks = {}
+  for _, mark in ipairs(vim.fn.getmarklist()) do
+    local name = mark.mark:sub(2)
+    local id = #name == 1 and vim.fn.char2nr(name)
+    if not id or id < 65 or id > 90 then
+      break
+    end
+    table.insert(bookmarks, {
+      buf = mark.pos[1],
+      name = name,
+      path = mark.file,
+    })
+  end
+  return bookmarks
 end
 
 function fn.is_bookmarked(buf)
-  return require'grapple'.exists{ buffer = buf }
+  buf = buf or vim.api.nvim_get_current_buf()
+  for _, bookmark in ipairs(fn.get_bookmarks()) do
+    if bookmark.buf == buf then
+      return true
+    end
+  end
+  return false
 end
 
-function fn.toggle_bookmarked(buf)
-  require'grapple'.toggle{ buffer = buf }
+function fn.refresh_bookmark_list()
+  vim.cmd.wshada{ bang = true }
+
+  local old_showtabline = vim.o.showtabline
+  vim.o.showtabline = #fn.get_bookmarks() > 0 and 2 or 0
+  if vim.o.showtabline == old_showtabline and vim.o.showtabline ~= 0 then
+    vim.schedule(vim.cmd.redrawtabline)
+  end
 end
 
-function fn.goto_bookmark(index)
-  require'grapple'.select{ index = index }
+function fn.toggle_bookmarked(bufOrName)
+  local buf
+  local name
+  if type(bufOrName) == 'string' then
+    name = bufOrName
+  else
+    buf = bufOrName
+  end
+  buf = buf or vim.api.nvim_get_current_buf()
+
+  local names = {
+    'Q', 'W', 'E', 'A', 'S', 'D', 'Z', 'X', 'C', 'R', 'F', 'V', 'T', 'G', 'B',
+    'J', 'K', 'L', 'N', 'H', 'U', 'I', 'O', 'P', 'M', 'Y',
+  }
+
+  local has_toggled = false
+  local new_mark_id = 1
+  if name then
+    has_toggled = vim.api.nvim_buf_del_mark(buf, name)
+  else
+    for _, bookmark in ipairs(fn.get_bookmarks()) do
+      if bookmark.buf == buf then
+        if vim.api.nvim_del_mark(bookmark.name) then
+          has_toggled = true
+        end
+      end
+      if not has_toggled then
+        local mark_id = vim.fn.index(names, bookmark.name) + 1
+        if new_mark_id == mark_id then
+          new_mark_id = new_mark_id + 1
+        end
+      end
+    end
+  end
+  if not has_toggled then
+    local new_name = name or names[new_mark_id]
+    if new_name then
+      vim.api.nvim_buf_set_mark(buf, new_name, 1, 0, {})
+    end
+  end
+
+  fn.refresh_bookmark_list()
 end
 
-function fn.del_bookmark(index)
-  require'grapple'.untag{ index = index }
-  if #require'grapple'.tags() == 0 then
-    vim.o.showtabline = 0
+function fn.goto_bookmark(name)
+  local is_ok, mark = pcall(vim.api.nvim_get_mark, name, {})
+  if is_ok then
+    local _, _, buf = unpack(mark)
+    if buf ~= 0 and buf ~= vim.api.nvim_get_current_buf() then
+      vim.api.nvim_win_set_buf(0, buf)
+      return true
+    end
+  end
+  return false
+end
+
+function fn.del_bookmark(name)
+  local is_ok, did_del = pcall(vim.api.nvim_del_mark, name)
+  if is_ok and did_del then
+    fn.refresh_bookmark_list()
+    return true
+  end
+  return false
+end
+
+function fn.bookmark_jump()
+  local input = vim.fn.getchar()
+  if type(input) == 'number'
+      and input >= 65
+      and input <= 90
+  then
+    local name = vim.fn.nr2char(input)
+    if not fn.goto_bookmark(name) then
+      fn.toggle_bookmarked(name)
+    end
+  elseif type(input) == 'number'
+      and input == 9
+  then
+    fn.toggle_bookmarked()
+  else
+    vim.notify('Invalid bookmark', vim.log.levels.INFO)
   end
 end
 

@@ -62,6 +62,7 @@ my_options {
   scrollback = 9001,
   scrolloff = 3,
   sessionoptions = "buffers,folds,winsize,winpos",
+  shadafile = '.nvim/workspace.shada',
   shiftwidth = 2,
   opt.shortmess + "acsCFISW",
   showbreak = "↪",

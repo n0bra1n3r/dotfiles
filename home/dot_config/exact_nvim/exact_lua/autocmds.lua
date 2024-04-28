@@ -283,6 +283,11 @@ my_autocmds {
     end,
     once = true,
   }, --}}}
+  { 'VimEnter', --{{{
+    callback = function()
+      fn.refresh_bookmark_list()
+    end,
+  }, --}}}
   { 'VimLeavePre', --{{{
     callback = function()
       vim.cmd.UndotreeHide()
