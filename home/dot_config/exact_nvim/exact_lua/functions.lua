@@ -1544,6 +1544,7 @@ function fn.track_buf_leave_win(buf, win)
   buf = buf or vim.api.nvim_get_current_buf()
   if fn.is_file_buffer(buf) then
     win = win or vim.api.nvim_get_current_win()
+    local cur = vim.api.nvim_win_get_cursor(win)
     vim.api.nvim_create_autocmd('BufEnter', {
       once = true,
       callback = function()
@@ -1565,7 +1566,6 @@ function fn.track_buf_leave_win(buf, win)
                 name = vim.api.nvim_buf_get_name(buf)
                 vim.o.shellslash = shellslash
               end
-              local cur = vim.api.nvim_win_get_cursor(win)
               table.insert(list, 1, {
                 bufnr = buf,
                 filename = name,
