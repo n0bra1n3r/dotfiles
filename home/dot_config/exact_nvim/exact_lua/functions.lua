@@ -1503,7 +1503,7 @@ function fn.del_bookmark(name)
   return false
 end
 
-function fn.bookmark_jump()
+function fn.bookmark_jump(maps)
   local input = vim.fn.getchar()
   if type(input) == 'number'
       and input >= 65
@@ -1518,7 +1518,21 @@ function fn.bookmark_jump()
   then
     fn.toggle_bookmarked()
   else
-    vim.notify('Invalid bookmark', vim.log.levels.INFO)
+    local is_mapped = false
+    if maps then
+      for map, key in pairs(maps) do
+        local map1 = vim.api.nvim_replace_termcodes(map, true, false, true)
+        local key1 = vim.api.nvim_replace_termcodes(key, true, false, true)
+        if input == map1 then
+          is_mapped = true
+          vim.api.nvim_feedkeys(key1, 'm', false)
+          break
+        end
+      end
+    end
+    if not is_mapped then
+      vim.notify('Invalid bookmark', vim.log.levels.INFO)
+    end
   end
 end
 

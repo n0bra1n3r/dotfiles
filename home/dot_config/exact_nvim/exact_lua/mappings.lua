@@ -109,8 +109,10 @@ my_mappings {
     ["<C-`>"]           = { call(fn.toggle_terminal) },
     ["<C-c>"]           = { call(vim.cmd.tabclose) },
     ['<C-d>']           = { [[<C-d>zz]] },
+    ['<C-i>']           = { [[<Nop>]] },
     ["<C-Down>"]        = { "<C-w>j" },
     ["<C-Left>"]        = { "<C-w>h" },
+    ['<C-o>']           = { [[<Nop>]] },
     ['<C-r>']           = { ui_redir'redo' },
     ["<C-Right>"]       = { "<C-w>l" },
     ["<C-Tab>"]         = { call(fn.search, 'loclist') },
@@ -175,8 +177,11 @@ my_mappings {
     ["<M-l>"]           = { "v:lua.fn.is_floating()?'h':'<C-w>h'", expr = true },
     ["<PageDown>"]      = { "L<Down>", noremap = false },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
-    ['<S-Tab>']         = { call(fn.bookmark_jump), desc = "Jump to bookmark" },
+    ['<S-Tab>']         = { call(fn.bookmark_jump, {
+                              ['<S-Tab>'] = [[<C-o>]]
+                            }), desc = "Jump to bookmark" },
     ['<S-Tab><BS>']     = { call(fn.del_bookmark), desc = "Delete bookmark" },
+    ['<Tab><Tab>']      = { [[<C-i>]], desc = "Jump to prev location" },
     ['<Tab>j']          = { call(fn.relative_jump, 'j'), desc = "Relative jump down" },
     ['<Tab>k']          = { call(fn.relative_jump, 'k'), desc = "Relative jump up" },
     [';']               = { call(fn.move_cursor_right) },
