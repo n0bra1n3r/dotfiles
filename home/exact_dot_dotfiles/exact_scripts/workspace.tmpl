@@ -40,15 +40,15 @@ local WORKSPACE_BRANCH="$WORKSPACE_BRANCH"
 local WORKSPACE_ROOT_DIR="$WORKSPACE_ROOT_DIR"
 local WORKSPACE_DEFAULT_DIR="$WORKSPACE_DEFAULT_DIR"
 
-if [[ "$BRANCH" = ws-* ]] && \
+if [[ "$BRANCH" = ws-* ]] || [[ "$BRANCH" = */ws-* ]] && \
     [[ -d "$BRANCH" || -d "$HOME/src/$BRANCH" || -d "$HOME/#{ .org.slug }#/$BRANCH" ]]; then
   local DIR_PATH
   if [[ -d "$BRANCH" ]]; then
-    DIR_PATH="$BRANCH" || return 1
+    DIR_PATH="$BRANCH"
   elif [[ -d "$HOME/src/$BRANCH" ]]; then
-    DIR_PATH="$HOME/src/$BRANCH" || return 1
+    DIR_PATH="$HOME/src/$BRANCH"
   else
-    DIR_PATH="$HOME/#{ .org.slug }#/$BRANCH" || return 1
+    DIR_PATH="$HOME/#{ .org.slug }#/$BRANCH"
   fi
 
   echo "$INFO_MSG: received valid directory name '$BRANCH'" >&2
