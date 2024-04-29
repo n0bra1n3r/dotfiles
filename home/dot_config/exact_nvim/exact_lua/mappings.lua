@@ -146,7 +146,6 @@ my_mappings {
     ["<leader>gg"]      = { call(fn.open_git_repo), desc = "Open repo in github" },
     ["<leader>gh"]      = { call(fn.show_file_history), desc = "Show file history" },
     ["<leader>go"]      = { call(fn.open_in_github), desc = "Open file in Github" },
-    ['<leader>gp']      = { call(lazy'gitsigns'.preview_hunk), desc = "Preview hunk" },
     ["<leader>gr"]      = { call(lazy'gitsigns'.reset_hunk), desc = "Reset hunk" },
     ["<leader>gs"]      = { call(fn.search_git_history), desc = "Search history" },
     ['<leader>gv']      = { call(lazy'gitsigns'.preview_hunk), desc = "Preview hunk" },
