@@ -666,7 +666,9 @@ function fn.init_terminal_mode()
 end
 --}}}
 --{{{ Quickfix
-local qf_info = {}
+local qf_info = {
+  task_output_ids = { 1, 2, 3, 4, 5 },
+}
 
 local setqflist_fn = vim.fn.setqflist
 ---@diagnostic disable-next-line: duplicate-set-field
@@ -1182,8 +1184,8 @@ function fn.get_task_output_codes()
   local qf_name_prefix = 'task_output_'
 
   local codes = {}
-  for i = 1, 6 do
-    local qf_name = qf_name_prefix..i
+  for _, id in ipairs(qf_info.task_output_ids) do
+    local qf_name = qf_name_prefix..id
     local context = get_qf_context(qf_name)
     if context.is_running or context.exit_code then
       table.insert(codes, context.exit_code or -1)
@@ -1198,8 +1200,8 @@ function fn.show_task_output(nr)
   local qf_name_prefix = 'task_output_'
 
   local count = 0
-  for i = 1, 6 do
-    local qf_name = qf_name_prefix..i
+  for _, id in ipairs(qf_info.task_output_ids) do
+    local qf_name = qf_name_prefix..id
     local context = get_qf_context(qf_name)
     if context.is_running or context.exit_code then
       count = count + 1
@@ -1212,18 +1214,17 @@ function fn.show_task_output(nr)
   end
 end
 
-function fn.update_task_output(output, id)
+function fn.update_task_output(output, qf_id)
   local qf_name_prefix = 'task_output_'
 
-  local qf_id = id
   if not qf_id then
-    for i = 1, 6 do
-      local qf_name = qf_name_prefix..i
+    for _, id in ipairs(qf_info.task_output_ids) do
+      local qf_name = qf_name_prefix..id
       local context = get_qf_context(qf_name)
       if not context.is_running then
         set_qf_list(qf_name)
         if not qf_id then
-          qf_id = i
+          qf_id = id
         end
       end
     end
@@ -1290,11 +1291,9 @@ set_qf_list('lsp_diagnostics', { title = "LSP Diagnostics" })
 set_qf_list('lsp_definitions', { title = "LSP Definitions" })
 set_qf_list('lsp_references', { title = "LSP References" })
 set_qf_list('notifications', { title = "Notifications" })
-set_qf_list('task_output_1', { title = "Task Output 1" })
-set_qf_list('task_output_2', { title = "Task Output 2" })
-set_qf_list('task_output_3', { title = "Task Output 3" })
-set_qf_list('task_output_4', { title = "Task Output 4" })
-set_qf_list('task_output_5', { title = "Task Output 5" })
+for _, id in ipairs(qf_info.task_output_ids) do
+  set_qf_list('task_output_'..id, { title = "Task Output "..id })
+end
 set_qf_list('messages', { title = "Messages" })
 --}}}
 --{{{ Navigation
