@@ -13,10 +13,6 @@ my_autocmds {
         end
       else
         vim.cmd.match[[OverLength //]]
-
-        if vim.bo.filetype == 'qf' then
-          require'bqf'.enable()
-        end
       end
     end,
   }, --}}}
@@ -40,6 +36,10 @@ my_autocmds {
   { 'BufLeave', --{{{
     callback = function()
       fn.track_buf_leave_win()
+
+      if vim.bo.filetype == 'qf' then
+        fn.close_quickfix_preview()
+      end
     end,
   }, --}}}
   { "BufUnload", --{{{
@@ -122,6 +122,8 @@ my_autocmds {
     callback = function()
       if fn.is_file_buffer() then
         fn.select_lsp_diagnostic()
+      elseif vim.bo.filetype == 'qf' then
+        fn.open_quickfix_preview()
       end
     end,
   }, --}}}
@@ -285,6 +287,7 @@ my_autocmds {
   }, --}}}
   { 'VimEnter', --{{{
     callback = function()
+      fn.init_quickfix_lists()
       fn.refresh_bookmark_list()
     end,
   }, --}}}

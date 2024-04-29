@@ -668,6 +668,7 @@ end
 --{{{ Quickfix
 local qf_info = {
   task_output_ids = { 1, 2, 3, 4, 5 },
+  preview_win = nil,
 }
 
 local setqflist_fn = vim.fn.setqflist
@@ -1287,14 +1288,72 @@ function fn.show_messages_list()
   vim.cmd.cbottom()
 end
 
-set_qf_list('lsp_diagnostics', { title = "LSP Diagnostics" })
-set_qf_list('lsp_definitions', { title = "LSP Definitions" })
-set_qf_list('lsp_references', { title = "LSP References" })
-set_qf_list('notifications', { title = "Notifications" })
-for _, id in ipairs(qf_info.task_output_ids) do
-  set_qf_list('task_output_'..id, { title = "Task Output "..id })
+function fn.close_quickfix_preview()
+  if qf_info.preview_win then
+    vim.api.nvim_win_close(qf_info.preview_win, true)
+    qf_info.preview_win = nil
+  end
 end
-set_qf_list('messages', { title = "Messages" })
+
+function fn.open_quickfix_preview(height)
+  height = height or 5
+
+  local list = vim.fn.getqflist{
+    id = 0,
+    items = 0,
+    winid = 0,
+  }
+  if list.winid ~= 0 then
+    local index = vim.fn.line('.', list.winid)
+    local item = list.items[index]
+    if item.bufnr ~= 0 then
+      local win = qf_info.preview_win
+      if not win or vim.api.nvim_win_get_buf(win) ~= item.bufnr then
+        local name = vim.api.nvim_buf_get_name(item.bufnr)
+        if win then
+          vim.api.nvim_win_close(win, true)
+        end
+        win = vim.api.nvim_open_win(item.bufnr, false, {
+          anchor = 'SE',
+          border = 'single',
+          col = 0,
+          focusable = false,
+          height = height,
+          noautocmd = true,
+          relative = 'win',
+          row = -1,
+          title = vim.fn.fnamemodify(name, ':~:.'),
+          width = vim.api.nvim_win_get_width(list.winid),
+          win = list.winid,
+        })
+        if win ~= 0 then
+          qf_info.preview_win = win
+          vim.wo[win].foldcolumn = '0'
+          vim.wo[win].winbar = ''
+          vim.wo[win].scrolloff = height
+          vim.wo[win].signcolumn = 'no'
+          vim.wo[win].statuscolumn = ''
+        end
+      end
+      if win ~= 0 then
+        vim.api.nvim_win_set_cursor(win, { item.lnum, item.col })
+      end
+    else
+      fn.close_quickfix_preview()
+    end
+  end
+end
+
+function fn.init_quickfix_lists()
+  set_qf_list('lsp_diagnostics', { title = "LSP Diagnostics" })
+  set_qf_list('lsp_definitions', { title = "LSP Definitions" })
+  set_qf_list('lsp_references', { title = "LSP References" })
+  set_qf_list('notifications', { title = "Notifications" })
+  for _, id in ipairs(qf_info.task_output_ids) do
+    set_qf_list('task_output_'..id, { title = "Task Output "..id })
+  end
+  set_qf_list('messages', { title = "Messages" })
+end
 --}}}
 --{{{ Navigation
 function fn.move_cursor_right()
