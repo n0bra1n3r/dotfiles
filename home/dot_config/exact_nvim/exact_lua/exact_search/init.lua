@@ -749,7 +749,7 @@ local function open_search_buffer()
     vim.bo.swapfile = false
 
     -- keybindings
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', [[<Enter>]], [[]], {
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', [[<S-Enter>]], [[]], {
       callback = function()
         show_current_search_result('edit')
       end,
