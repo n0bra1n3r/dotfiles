@@ -121,7 +121,11 @@ function _fzf_complete_workspace() {
       dirs+=("$HOME/src"/ws-*/*)
     fi
 
-    _fzf_complete --multi --reverse --prompt="workspace> " -- "$@" < \
+    _fzf_complete \
+      --bind 'tab:down,shift-tab:up' \
+      --multi \
+      --reverse \
+      --prompt="workspace> " -- "$@" < \
       <(printf '%s\n' "${dirs[@]}")
   else
     local locals
@@ -130,7 +134,11 @@ function _fzf_complete_workspace() {
       --format='%(refname:lstrip=2)' \
       refs/heads/)"
 
-    _fzf_complete --multi --reverse --prompt="branch> " -- "$@" < \
+    _fzf_complete \
+      --bind 'tab:down,shift-tab:up' \
+      --multi \
+      --reverse \
+      --prompt="branch> " -- "$@" < \
       <(echo -e "$locals" | grep -v HEAD | grep -v "$current")
   fi
 }
