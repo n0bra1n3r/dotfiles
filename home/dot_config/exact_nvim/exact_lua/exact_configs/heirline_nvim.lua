@@ -503,8 +503,8 @@ local function location_label()
       {
         hl = { fg = 'location', italic = true },
         {
-          condition = function()
-            return vim.v.hlsearch ~= 1
+          condition = function(self)
+            return vim.v.hlsearch ~= 1 or self.search.total == 0
           end,
           on_click = {
             callback = function(_, minwid)
@@ -522,8 +522,8 @@ local function location_label()
           update = { 'CursorMoved','CursorMovedI' },
         },
         {
-          condition = function()
-            return vim.v.hlsearch == 1
+          condition = function(self)
+            return vim.v.hlsearch == 1 and self.search.total ~= 0
           end,
           provider = function(self)
             local search_index = tostring(self.search.current)
@@ -538,8 +538,8 @@ local function location_label()
       {
         hl = { fg = 'location', italic = true },
         {
-          condition = function()
-            return vim.v.hlsearch ~= 1
+          condition = function(self)
+            return vim.v.hlsearch ~= 1 or self.search.total == 0
           end,
           on_click = {
             callback = function(_, minwid)
@@ -557,8 +557,8 @@ local function location_label()
           update = { 'CursorMoved','CursorMovedI' },
         },
         {
-          condition = function()
-            return vim.v.hlsearch == 1
+          condition = function(self)
+            return vim.v.hlsearch == 1 and self.search.total ~= 0
           end,
           provider = function(self)
             return tostring(self.search.total)
