@@ -234,6 +234,10 @@ local function initialize_search(search_term, search_args)
 
   vim.bo.buftype = 'nowrite'
 
+  vim.schedule(function()
+    vim.cmd[[let v:hlsearch = 0]]
+  end)
+
   set_search_window_options()
 
   vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
@@ -416,8 +420,6 @@ local function render_result(line, result)
   if result.is_first_col then
     render_line_text(line, result.line_text)
   end
-
-  vim.cmd.nohlsearch()
 
   local info = get_search_info()
   local namespace = get_search_match_namespace()
@@ -636,7 +638,10 @@ local function finalize_search()
   vim.api.nvim_buf_clear_namespace(0, namespace, 0, -1)
 
   vim.fn.setreg('/', info.search_term, vim.fn.getregtype('/'))
-  vim.cmd.hlsearch()
+
+  vim.schedule(function()
+    vim.cmd[[let v:hlsearch = 1]]
+  end)
 
   set_search_window_options()
 
