@@ -549,7 +549,6 @@ function fn.popup_preview(opts)
   local anchor_win = opts.anchor_win or vim.api.nvim_get_current_win()
   local context = opts.context or nil
   local height = opts.height or 5
-  local hl_group = opts.hl_group or 'IncSearch'
 
   local config = {
     anchor = 'SE',
@@ -564,16 +563,31 @@ function fn.popup_preview(opts)
     win = not anchor_cur and anchor_win or nil,
   }
 
-  local hl_hs = vim.api.nvim_create_namespace('hl_preview')
+  local did_init = false
 
   if not context then
     context = vim.api.nvim_open_win(buf, false, config)
     if context ~= 0 then
+      did_init = true
       vim.wo[context].foldcolumn = '0'
       vim.wo[context].winbar = ''
       vim.wo[context].scrolloff = height
       vim.wo[context].signcolumn = 'no'
       vim.wo[context].statuscolumn = ''
+    else
+      context = nil
+    end
+  else
+    vim.api.nvim_win_set_config(context, config)
+
+    vim.wo[context].scrolloff = height
+  end
+
+  if context then
+    local hl_hs = vim.api.nvim_create_namespace('hl_preview')
+
+    if did_init or vim.api.nvim_win_get_buf(context) ~= buf then
+      vim.api.nvim_win_set_buf(context, buf)
 
       vim.api.nvim_win_set_hl_ns(context, hl_hs)
       vim.api.nvim_set_hl(hl_hs, 'DiagnosticError', {})
@@ -584,24 +598,16 @@ function fn.popup_preview(opts)
       vim.api.nvim_set_hl(hl_hs, 'DiagnosticUnderlineHint', {})
       vim.api.nvim_set_hl(hl_hs, 'DiagnosticUnderlineInfo', {})
       vim.api.nvim_set_hl(hl_hs, 'DiagnosticUnderlineWarn', {})
-    else
-      context = nil
+      vim.api.nvim_set_hl(hl_hs, 'Preview', { link = 'IncSearch' })
     end
-  else
-    vim.api.nvim_win_set_buf(context, buf)
-    vim.api.nvim_win_set_config(context, config)
 
-    vim.wo[context].scrolloff = height
-  end
-
-  if context then
     vim.api.nvim_win_set_cursor(context, { lnum, col - 1 })
+
     pcall(vim.api.nvim_buf_set_extmark,
-      buf, hl_hs,
-      lnum - 1, col - 1, {
+      buf, hl_hs, lnum - 1, col - 1, {
         id = buf,
         end_col = end_col - 1,
-        hl_group = hl_group,
+        hl_group = 'Preview',
       }
     )
   end
