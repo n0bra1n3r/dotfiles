@@ -555,10 +555,14 @@ function fn.popup_preview(opts)
     if not filename then
       return nil
     end
-    buf = vim.fn.bufnr('^'..filename..'$')
-    if buf <= 0 then
-      return nil
-    end
+    buf = vim.fn.bufadd(filename)
+    vim.fn.bufload(buf)
+  end
+
+  local type = vim.filetype.match{ buf = buf }
+  local lang = vim.treesitter.language.get_lang(type)
+  if lang and pcall(vim.treesitter.language.add, lang) then
+    vim.treesitter.start(buf, lang)
   end
 
   filename = vim.api.nvim_buf_get_name(buf)
@@ -575,8 +579,8 @@ function fn.popup_preview(opts)
     row = anchor_row,
     title = {
       { require'nvim-web-devicons'.get_icon(filename) },
-      { ' ', 'None' },
-      { vim.fn.fnamemodify(filename, ':~:.'), 'Directory'  },
+      { ' ' },
+      { vim.fn.fnamemodify(filename, ':~:.'), 'Title' },
     },
     width = width,
     win = not anchor_cur and anchor_win or nil,
@@ -604,9 +608,9 @@ function fn.popup_preview(opts)
   end
 
   if context then
-    local win_off = vim.fn.getwininfo(anchor_win)[1].textoff
-    win_off = win_off - vim.fn.getwininfo(context)[1].textoff
-    vim.api.nvim_win_set_width(context, width - win_off - 1)
+    local off = vim.fn.getwininfo(anchor_win)[1].textoff
+    off = off - vim.fn.getwininfo(context)[1].textoff
+    vim.api.nvim_win_set_width(context, width - off - 1)
 
     local hl_hs = vim.api.nvim_create_namespace('hl_preview')
 
