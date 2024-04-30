@@ -540,15 +540,25 @@ function fn.close_folds_at(level)
 end
 
 function fn.popup_preview(opts)
-  local buf = opts.buf or vim.fn.bufnr(opts.filename, true)
+  local buf = opts.buf
   local col = opts.col
   local end_col = opts.end_col
+  local filename = opts.filename
   local lnum = opts.lnum
   local anchor_cur = opts.anchor_cur
   local anchor_row = opts.anchor_row or 0
   local anchor_win = opts.anchor_win or vim.api.nvim_get_current_win()
   local context = opts.context or nil
   local height = opts.height or 5
+
+  if not buf then
+    if not filename then
+      return nil
+    end
+    buf = vim.fn.bufnr('^'..filename..'$')
+  end
+
+  filename = vim.api.nvim_buf_get_name(buf)
 
   local config = {
     anchor = 'SE',
@@ -558,7 +568,11 @@ function fn.popup_preview(opts)
     height = height,
     relative = not anchor_cur and 'win' or 'cursor',
     row = anchor_row,
-    title = ' '..vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ':~:.'),
+    title = {
+      { require'nvim-web-devicons'.get_icon(filename) },
+      { ' ', 'None' },
+      { vim.fn.fnamemodify(filename, ':~:.'), 'Directory'  },
+    },
     width = vim.api.nvim_win_get_width(anchor_win),
     win = not anchor_cur and anchor_win or nil,
   }
