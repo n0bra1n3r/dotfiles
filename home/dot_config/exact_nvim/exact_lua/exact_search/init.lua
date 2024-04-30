@@ -45,9 +45,14 @@ local function get_search_file_namespace(name)
 end
 
 local function construct_search_command(search_term, search_args)
-  local grep = vim.fn.split(vim.o.grepprg)
-  local cmd = grep[1]
-  local argList = {select(2, unpack(grep))}
+  local cmd = 'rg'
+  local argList = {
+    [[--ignore-file="$HOME/.dotfiles/rgignore/main"]],
+    [[--ignore-file="$HOME/.dotfiles/rgignore/$NVIM_PROJECT_TYPE"]],
+    [[--ignore-file="$PWD/.nvim/ignore"]],
+    [[--json]],
+    [[--no-messages]],
+  }
 
   if search_args then
     for arg in search_args:gmatch("%S+") do
@@ -89,7 +94,7 @@ local function get_search_info()
       job = nil,
       -- Buffer info
       bufnr = vim.api.nvim_get_current_buf(),
-      cursor_line = 0,
+      cursor_row = 0,
       max_line_number = 0,
       -- Result info
       change_table = {},
@@ -104,22 +109,22 @@ local function get_search_info()
   return M.info
 end
 
-local function get_search_results_at(line)
+local function get_search_results_at(row)
   local info = get_search_info()
   if #info.line_array > 0 then
-    local line_info = info.line_array[line + 1]
-    local row = info.file_table[line_info.file_name][line_info.line_number]
-    return info.result_array[row]
+    local line_info = info.line_array[row + 1]
+    local line = info.file_table[line_info.file_name][line_info.line_number]
+    return info.result_array[line]
   end
   return {}
 end
 
-local function replace_search_results_at(line, text)
+local function replace_search_results_at(row, text)
   local info = get_search_info()
   if #info.line_array > 0 then
-    local line_info = info.line_array[line + 1]
-    local row = info.file_table[line_info.file_name][line_info.line_number]
-    for _, result in ipairs(info.result_array[row]) do
+    local line_info = info.line_array[row + 1]
+    local line = info.file_table[line_info.file_name][line_info.line_number]
+    for _, result in ipairs(info.result_array[line]) do
       result.line_text = text
     end
   end
@@ -164,12 +169,12 @@ end
 local function show_current_search_result(cmd)
   local pos = vim.api.nvim_win_get_cursor(0)
   local result = get_search_results_at(pos[1] - 1)[1]
-  local row = tonumber(result.line_number)
+  local line = tonumber(result.line_number)
   local col = pos[2]
 
   vim.cmd.tabclose()
   vim.cmd[cmd](result.file_name)
-  vim.api.nvim_win_set_cursor(0, { row, col })
+  vim.api.nvim_win_set_cursor(0, { line, col })
 end
 
 local function maybe_create_search_buffer()
@@ -247,13 +252,13 @@ local function initialize_search(search_term, search_args)
   return new_info
 end
 
-local function render_line_text(line, line_text)
+local function render_line_text(row, line_text)
   local pos = vim.api.nvim_win_get_cursor(0)
 
   vim.api.nvim_buf_set_lines(
     0,
-    line,
-    line > 0 and line or line + 1,
+    row,
+    row > 0 and row or row + 1,
     true,
     { line_text })
 
@@ -262,18 +267,18 @@ local function render_line_text(line, line_text)
   end
 end
 
-local function render_file_name(line, file_name, is_changed)
+local function render_file_name(row, file_name, is_changed)
   local namespace = get_search_file_namespace(file_name)
 
   vim.api.nvim_buf_clear_namespace(0, get_search_file_namespace(), 0, -1)
   vim.api.nvim_buf_clear_namespace(0, namespace, 0, -1)
 
-  if line >= 0 then
+  if row >= 0 then
     local name = vim.fn.fnamemodify(file_name, ':t')
     local ext = vim.fn.fnamemodify(name, ':e')
     local icon, hl = require'nvim-web-devicons'.get_icon(name, ext)
-    vim.api.nvim_buf_set_extmark(0, namespace, line, 0, {
-      id = line + 1,
+    vim.api.nvim_buf_set_extmark(0, namespace, row, 0, {
+      id = row + 1,
       virt_lines = {
         {{ '' }},
         {
@@ -298,7 +303,7 @@ local function render_file_name(line, file_name, is_changed)
       virt_lines_leftcol = true,
     })
 
-    if line <= search_scrolloff then
+    if row <= search_scrolloff then
       vim.fn.winrestview{ topfill = 3 + search_scrolloff }
     end
   end
@@ -373,7 +378,7 @@ local function render_statistics(is_modified)
       vim.api.nvim_buf_clear_namespace(0, get_search_file_namespace(), 0, -1)
       vim.api.nvim_buf_clear_namespace(0, namespace, 0, -1)
 
-      local line = extmarks[1][2]
+      local row = extmarks[1][2]
       local col = extmarks[1][3]
 
       local extmark = extmarks[1][4]
@@ -388,7 +393,7 @@ local function render_statistics(is_modified)
         extmark.virt_lines[1] = stats
       end
 
-      vim.api.nvim_buf_set_extmark(0, namespace, line, col, extmark)
+      vim.api.nvim_buf_set_extmark(0, namespace, row, col, extmark)
     end
   else
     local namespace = get_search_file_namespace()
@@ -416,9 +421,9 @@ local function render_statistics(is_modified)
   end
 end
 
-local function render_result(line, result)
+local function render_result(row, result)
   if result.is_first_col then
-    render_line_text(line, result.line_text)
+    render_line_text(row, result.line_text)
   end
 
   local info = get_search_info()
@@ -430,31 +435,31 @@ local function render_result(line, result)
     0,
     namespace,
     "IncSearch",
-    line,
+    row,
     col_start,
     col_end)
 
   if result.is_first_line then
-    render_file_name(line, result.file_name)
+    render_file_name(row, result.file_name)
   end
 end
 
-local function fold_results(line, should_fold)
+local function fold_results(row, should_fold)
   local info = get_search_info()
   if #info.line_array > 0 then
-    if line then
-      local line_info = info.line_array[line + 1]
+    if row then
+      local line_info = info.line_array[row + 1]
       local file_info = info.file_table[line_info.file_name]
 
-      local first_row = math.min(unpack(vim.tbl_values(file_info)))
-      local last_row = math.max(unpack(vim.tbl_values(file_info)))
+      local first_line = math.min(unpack(vim.tbl_values(file_info)))
+      local last_line = math.max(unpack(vim.tbl_values(file_info)))
 
-      local fold_start = first_row + 1
-      local fold_end = last_row - 1
+      local fold_start = first_line + 1
+      local fold_end = last_line - 1
 
       if vim.fn.foldclosed(fold_start) == -1 then
         if should_fold == nil or should_fold then
-          if last_row - first_row >= fold_threshold then
+          if last_line - first_line >= fold_threshold then
             vim.cmd.fold{ range = { fold_start, fold_end } }
           end
         end
@@ -465,8 +470,8 @@ local function fold_results(line, should_fold)
       end
     else
       for _, line_info in pairs(info.file_table) do
-        for _, row in pairs(line_info) do
-          fold_results(row - 1, should_fold)
+        for _, line in pairs(line_info) do
+          fold_results(line - 1, should_fold)
           break
         end
       end
@@ -474,28 +479,28 @@ local function fold_results(line, should_fold)
   end
 end
 
-local function save_modification(line)
+local function save_modification(row)
   local info = get_search_info()
-  local text = vim.api.nvim_buf_get_lines(0, line, line + 1, {})[1]
-  local result = get_search_results_at(line)[1]
+  local text = vim.api.nvim_buf_get_lines(0, row, row + 1, {})[1]
+  local result = get_search_results_at(row)[1]
 
   local did_change = text ~= result.line_text
 
   if did_change then
-    info.change_table[line + 1] = {
+    info.change_table[row + 1] = {
       file_name = result.file_name,
       line_number = result.line_number,
       line_text = text,
     }
   else
-    info.change_table[line + 1] = nil
+    info.change_table[row + 1] = nil
   end
 
   local file_info = info.file_table[result.file_name]
-  local first_row = math.min(unpack(vim.tbl_values(file_info)))
+  local first_line = math.min(unpack(vim.tbl_values(file_info)))
   local change_count = vim.tbl_count(info.change_table)
 
-  render_file_name(first_row - 1, result.file_name, did_change)
+  render_file_name(first_line - 1, result.file_name, did_change)
   render_statistics(change_count > 0)
 end
 
@@ -504,26 +509,26 @@ local function watch_modifications()
   vim.api.nvim_buf_attach(0, false, {
 	  on_bytes = vim.schedule_wrap(function(
         _, _, _,
-        first_line, first_line_col, _,
-        line_offset, last_line_col, _,
-        new_line_offset, _, _)
+        first_row, first_row_col, _,
+        row_offset, last_row_col, _,
+        new_row_offset, _, _)
       if not get_is_current_search(info.search_id) then
         return true
       end
 
-      if line_offset > new_line_offset then
+      if row_offset > new_row_offset then
         -- lines were removed
 
-        local last_line = first_line + line_offset - 1
+        local last_row = first_row + row_offset - 1
 
-        if first_line_col ~= 0 or last_line_col ~= 0 then
-          save_modification(first_line)
+        if first_row_col ~= 0 or last_row_col ~= 0 then
+          save_modification(first_row)
         end
 
-        for _ = first_line + 1, last_line + 1 do
-          local line_info = info.line_array[first_line + 1]
+        for _ = first_row + 1, last_row + 1 do
+          local line_info = info.line_array[first_row + 1]
 
-          table.remove(info.line_array, first_line + 1)
+          table.remove(info.line_array, first_row + 1)
 
           if line_info.file_name ~= nil then
             local line_table = info.file_table[line_info.file_name]
@@ -534,14 +539,14 @@ local function watch_modifications()
             end
           end
         end
-      elseif line_offset < new_line_offset then
+      elseif row_offset < new_row_offset then
         -- lines were added
 
-        local next_line = first_line + line_offset + 1
-        local last_line = first_line + new_line_offset - 1
+        local next_row = first_row + row_offset + 1
+        local last_row = first_row + new_row_offset - 1
 
-        local prev_info = info.line_array[first_line]
-        local next_info = info.line_array[next_line]
+        local prev_info = info.line_array[first_row]
+        local next_info = info.line_array[next_row]
 
         if (prev_info == nil or prev_info.line_number ~= nil) and
             (next_info == nil or next_info.line_number ~= nil) then
@@ -556,7 +561,7 @@ local function watch_modifications()
           if first_index <= last_index then
             local index = first_index
 
-            for line = first_line, last_line + 1 do
+            for row = first_row, last_row + 1 do
               local result = info.result_array[index][1]
               local line_table = info.file_table[result.file_name]
 
@@ -568,23 +573,19 @@ local function watch_modifications()
               end
 
               if index == min_index then
-                render_file_name(line, result.file_name)
+                render_file_name(row, result.file_name)
                 render_statistics()
               end
 
               if index <= last_index then
-                table.insert(info.line_array, line + 1, {
+                table.insert(info.line_array, row + 1, {
                   file_name = result.file_name,
                   line_number = result.line_number,
                 })
 
-                local line_text = vim.api.nvim_buf_get_lines(
-                  0,
-                  line,
-                  line + 1,
-                  true)[1]
+                local line_text = vim.api.nvim_buf_get_lines(0, row, row + 1, true)[1]
                 if line_text ~= result.line_text then
-                  save_modification(line)
+                  save_modification(row)
                 end
               end
 
@@ -594,19 +595,19 @@ local function watch_modifications()
               end
             end
           else
-            for line = first_line, last_line do
-              table.insert(info.line_array, line + 1, {})
+            for row = first_row, last_row do
+              table.insert(info.line_array, row + 1, {})
             end
           end
         else
-          for line = first_line, last_line do
-            table.insert(info.line_array, line + 1, {})
+          for row = first_row, last_row do
+            table.insert(info.line_array, row + 1, {})
           end
         end
       else
         -- lines were changed
 
-        save_modification(first_line)
+        save_modification(first_row)
       end
     end),
   })
@@ -621,12 +622,12 @@ local function finalize_search()
     return
   end
 
-  local start_line = vim.api.nvim_buf_line_count(0) - 1
-  local end_line = #info.result_array - 1
+  local start_row = vim.api.nvim_buf_line_count(0) - 1
+  local end_row = #info.result_array - 1
 
-  for line = start_line, end_line do
-    for _, result in ipairs(info.result_array[line + 1]) do
-      render_result(line, result)
+  for row = start_row, end_row do
+    for _, result in ipairs(info.result_array[row + 1]) do
+      render_result(row, result)
     end
   end
 
@@ -664,13 +665,13 @@ end
 
 local function on_cursor_moved()
   local info = get_search_info()
-  local line = vim.fn.line"." - 1
-  if info.cursor_line ~= line then
-    if info.cursor_line > line and line <= search_scrolloff then
+  local row = vim.fn.line"." - 1
+  if info.cursor_row ~= row then
+    if info.cursor_row > row and row <= search_scrolloff then
       -- TODO: Remove this hack when https://github.com/neovim/neovim/issues/16166 is merged
       vim.fn.winrestview{ topfill = 3 + search_scrolloff }
     end
-    info.cursor_line = line
+    info.cursor_row = row
   end
 end
 
@@ -678,8 +679,8 @@ local function on_buf_write_cmd()
   local info = get_search_info()
 
   local file_name, is_file_open
-  for row, change_info in pairs(info.change_table) do
-    local change_line = tonumber(change_info.line_number) - 1
+  for line, change_info in pairs(info.change_table) do
+    local change_row = tonumber(change_info.line_number) - 1
 
     if change_info.file_name ~= file_name then
       if file_name ~= nil then
@@ -700,12 +701,12 @@ local function on_buf_write_cmd()
 
     vim.api.nvim_buf_set_lines(
       vim.fn.bufnr(file_name),
-      change_line,
-      change_line + 1,
+      change_row,
+      change_row + 1,
       true,
       { change_info.line_text })
 
-    replace_search_results_at(row - 1, change_info.line_text)
+    replace_search_results_at(line - 1, change_info.line_text)
   end
 
   if file_name ~= nil then
@@ -722,8 +723,8 @@ local function on_buf_write_cmd()
 
   for _, change_info in pairs(info.change_table) do
     local file_info = info.file_table[change_info.file_name]
-    local first_row = math.min(unpack(vim.tbl_values(file_info)))
-    render_file_name(first_row - 1, file_name, false)
+    local first_line = math.min(unpack(vim.tbl_values(file_info)))
+    render_file_name(first_line - 1, file_name, false)
   end
 
   render_statistics(false)
@@ -769,22 +770,22 @@ local function open_search_buffer()
     })
     vim.api.nvim_buf_set_keymap(bufnr, 'n', [[za]], [[]], {
       callback = function()
-        local row = vim.api.nvim_win_get_cursor(0)[1]
-        fold_results(row - 1)
+        local line = vim.api.nvim_win_get_cursor(0)[1]
+        fold_results(line - 1)
       end,
       noremap = true,
     })
     vim.api.nvim_buf_set_keymap(bufnr, 'n', [[zc]], [[]], {
       callback = function()
-        local row = vim.api.nvim_win_get_cursor(0)[1]
-        fold_results(row - 1, true)
+        local line = vim.api.nvim_win_get_cursor(0)[1]
+        fold_results(line - 1, true)
       end,
       noremap = true,
     })
     vim.api.nvim_buf_set_keymap(bufnr, 'n', [[zo]], [[]], {
       callback = function()
-        local row = vim.api.nvim_win_get_cursor(0)[1]
-        fold_results(row - 1, false)
+        local line = vim.api.nvim_win_get_cursor(0)[1]
+        fold_results(line - 1, false)
       end,
       noremap = true,
     })
@@ -844,43 +845,32 @@ local function open_search_buffer()
   end
 end
 
-local function parse_result(result_line)
-  if not result_line then
+local function parse_output(output)
+  if not output then
     return nil
   end
 
-  local format = vim.o.grepformat
-  local part_index = {}
-  local index = 0
-  local pattern = string.gsub(format, "%%(%a)", function(s)
-    -- convert grepformat format token to regex
-    part_index[s] = index
-    index = index + 1
-    return ({
-      f = "(.+)",
-      l = "(%d+)",
-      c = "(%d+)",
-      m = "(.+)",
-    })[s]
-  end)
-
-  local part_array = {select(3, string.find(result_line, pattern))}
-  local parsed_result = {}
-
-  for s, i in pairs(part_index) do
-    local key = ({
-      f = "file_name",
-      l = "line_number",
-      c = "col_number",
-      m = "line_text",
-    })[s]
-    parsed_result[key] = part_array[i + 1]
+  local json = vim.fn.json_decode(output)
+  if not json.type or json.type ~= 'match' then
+    return nil
   end
 
-  return parsed_result
+  local results = {}
+
+  for _, submatch in ipairs(json.data.submatches) do
+    table.insert(results, {
+      col_number = tostring(submatch.start + 1),
+      --end_col = submatch['end'],
+      file_name = json.data.path.text,
+      line_number = tostring(json.data.line_number),
+      line_text = json.data.lines.text:gsub('\n', ''),
+    })
+  end
+
+  return results
 end
 
-local function push_result(line, result)
+local function push_result(row, result)
   local info = get_search_info()
   info.max_line_number = math.max(info.max_line_number, result.line_number)
 
@@ -889,25 +879,25 @@ local function push_result(line, result)
 
   local file_info = info.file_table[result.file_name]
   if not file_info then
-    line = line + 1
+    row = row + 1
 
     info.file_table[result.file_name] = {
-      [result.line_number] = line + 1,
+      [result.line_number] = row + 1,
     }
 
     result.is_first_line = true
     result.is_first_col = true
   elseif not file_info[result.line_number] then
-    line = line + 1
+    row = row + 1
 
-    file_info[result.line_number] = line + 1
+    file_info[result.line_number] = row + 1
 
     result.is_first_col = true
   end
 
-  local results = info.result_array[line + 1]
+  local results = info.result_array[row + 1]
   if not results then
-    info.result_array[line + 1] = { result }
+    info.result_array[row + 1] = { result }
   else
     local first_result = results[1]
     result.is_first_line = first_result.is_first_line
@@ -915,13 +905,13 @@ local function push_result(line, result)
     table.insert(results, result)
   end
 
-  info.line_array[line + 1] = {
+  info.line_array[row + 1] = {
     file_name = result.file_name,
     is_first_line = result.is_first_line,
     line_number = result.line_number,
   }
 
-  return line
+  return row
 end
 
 function M.run(search_args, search_term)
@@ -937,11 +927,13 @@ function M.run(search_args, search_term)
   enable_progress_timer()
   render_statistics()
 
-  local line = -1
+  local row = -1
   local redraw_threshold = -1
 
+  local win_height = vim.api.nvim_win_get_height(0)
+
   info.job = require'plenary.job':new {
-    command = vim.o.shell, -- need to expand env vars in `grepprg`
+    command = vim.o.shell, -- need to expand env vars
     args = {
       vim.o.shellcmdflag,
       info.cmd..' '..vim.fn.join(info.args),
@@ -949,27 +941,25 @@ function M.run(search_args, search_term)
     cwd = info.cwd,
     enable_recording = false,
     interactive = false,
-    on_stdout = vim.schedule_wrap(function(_, result_line)
+    on_stdout = vim.schedule_wrap(function(_, output)
       if get_is_current_search(info.search_id) then
-        local result = parse_result(result_line)
-        if result then
-          local next_line = push_result(line, result)
+        local results = parse_output(output)
+        if results and #results > 0 then
+          for _, result in ipairs(results) do
+            row = push_result(row, result)
 
-          line = next_line
-
-          local win_height = vim.api.nvim_win_get_height(0)
-          local res_height = #info.line_array + vim.tbl_count(info.file_table) * 2
-
-          if res_height <= win_height then
-            render_result(line, result)
+            local res_height = #info.line_array + vim.tbl_count(info.file_table) * 2
+            if res_height <= win_height then
+              render_result(row, result)
+            end
           end
 
           render_statistics()
 
-          if line > redraw_threshold then
+          if row > redraw_threshold then
             vim.cmd.redraw()
 
-            redraw_threshold = line + line / 3
+            redraw_threshold = row + row / 3
           end
         end
       end
@@ -1171,6 +1161,13 @@ function M.prompt(search_args, search_term)
   end
 end
 
+function M.get_result_at_cursor()
+  local info = get_search_info()
+  if info then
+    local results = get_search_results_at(info.cursor_row)
+  end
+end
+
 ---@diagnostic disable-next-line: duplicate-set-field
 function _G.search_fold_text()
   local line_text = vim.fn.getline(vim.v.foldstart)
@@ -1188,15 +1185,15 @@ end
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function _G.search_statuscol_expr()
-  local row = vim.v.lnum
-  if row then
+  local line = vim.v.lnum
+  if line then
     local info = get_search_info()
     if #info.line_array > 0 then
-      local line_info = info.line_array[row]
+      local line_info = info.line_array[line]
       if line_info then
-        local fold_start = vim.fn.foldclosed(row)
+        local fold_start = vim.fn.foldclosed(line)
         if fold_start ~= -1 then
-          local fold_end = vim.fn.foldclosedend(row)
+          local fold_end = vim.fn.foldclosedend(line)
           local lnum = line_info.line_number
           local lmax = info.max_line_number
           local padding = (' '):rep(#tostring(lmax) - #tostring(lnum))
@@ -1214,11 +1211,11 @@ function _G.search_statuscol_expr()
           local padding = (' '):rep(#tostring(lmax) - #tostring(lnum))
           local has_lhl = vim.wo.cursorlineopt == 'number'
             or vim.wo.cursorlineopt == 'both'
-          local lhl = has_lhl and vim.fn.line('.') == row
+          local lhl = has_lhl and vim.fn.line('.') == line
             and 'CursorLineNr'
             or 'LineNr'
-          local is_changed = info.change_table[row] ~= nil
-          local next_line_info = info.line_array[row + 1]
+          local is_changed = info.change_table[line] ~= nil
+          local next_line_info = info.line_array[line + 1]
           local is_last_line = not next_line_info or next_line_info.is_first_line
           return (' %%@v:lua.search_fold_click_cb@%%#%s#%s %s%%#%s#%d '):format(
             is_changed and 'String' or 'LineNr',
@@ -1227,8 +1224,8 @@ function _G.search_statuscol_expr()
             lhl,
             line_info.line_number)
         elseif vim.v.virtnum > 0 then
-          local is_changed = info.change_table[row] ~= nil
-          local next_line_info = info.line_array[row + 1]
+          local is_changed = info.change_table[line] ~= nil
+          local next_line_info = info.line_array[line + 1]
           local is_last_line = not next_line_info or next_line_info.is_first_line
           return (' %%@v:lua.search_fold_click_cb@%%#%s#%s '):format(
             is_changed and 'String' or 'LineNr',
