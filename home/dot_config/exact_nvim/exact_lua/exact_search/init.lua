@@ -113,7 +113,7 @@ local function get_search_results_at(row)
   local info = get_search_info()
   if #info.line_array > 0 then
     local line_info = info.line_array[row + 1]
-    local line = info.file_table[line_info.file_name][line_info.line_number]
+    local line = info.file_table[line_info.file_name][tostring(line_info.line_number)]
     return info.result_array[line]
   end
   return {}
@@ -123,7 +123,7 @@ local function replace_search_results_at(row, text)
   local info = get_search_info()
   if #info.line_array > 0 then
     local line_info = info.line_array[row + 1]
-    local line = info.file_table[line_info.file_name][line_info.line_number]
+    local line = info.file_table[line_info.file_name][tostring(line_info.line_number)]
     for _, result in ipairs(info.result_array[line]) do
       result.line_text = text
     end
@@ -167,14 +167,12 @@ local function unset_search_window_options()
 end
 
 local function show_current_search_result(cmd)
-  local pos = vim.api.nvim_win_get_cursor(0)
-  local result = get_search_results_at(pos[1] - 1)[1]
-  local line = tonumber(result.line_number)
-  local col = pos[2]
+  local lnum, col = unpack(vim.api.nvim_win_get_cursor(0))
+  local result = get_search_results_at(lnum - 1)[1]
 
   vim.cmd.tabclose()
   vim.cmd[cmd](result.file_name)
-  vim.api.nvim_win_set_cursor(0, { line, col })
+  vim.api.nvim_win_set_cursor(0, { result.line_number, col })
 end
 
 local function maybe_create_search_buffer()
@@ -199,8 +197,8 @@ end
 local function clear_search_buffer_undo_tree()
   local undo_levels = vim.bo.undolevels
   vim.bo.undolevels = -1
-  vim.cmd.normal{
-    args = { vim.api.nvim_replace_termcodes('a‎<BS><Esc>', true, true, true) },
+  vim.cmd.normal {
+    args = { vim.api.nvim_replace_termcodes('a‎<BS><Esc>', true, false, true) },
     bang = true,
   }
   vim.bo.undolevels = undo_levels
@@ -428,7 +426,7 @@ local function render_result(row, result)
 
   local info = get_search_info()
   local namespace = get_search_match_namespace()
-  local col_start = tonumber(result.col_number) - 1
+  local col_start = result.col_number
   local col_end = col_start + #info.search_term
 
   vim.api.nvim_buf_add_highlight(
@@ -532,7 +530,7 @@ local function watch_modifications()
 
           if line_info.file_name ~= nil then
             local line_table = info.file_table[line_info.file_name]
-            line_table[line_info.line_number] = nil
+            line_table[tostring(line_info.line_number)] = nil
             if vim.tbl_count(line_table) == 0 then
               render_file_name(-1, line_info.file_name)
               render_statistics()
@@ -551,11 +549,11 @@ local function watch_modifications()
         if (prev_info == nil or prev_info.line_number ~= nil) and
             (next_info == nil or next_info.line_number ~= nil) then
           local first_index = prev_info
-            and math.min(info.file_table[prev_info.file_name][prev_info.line_number] + 1, #info.result_array)
+            and math.min(info.file_table[prev_info.file_name][tostring(prev_info.line_number)] + 1, #info.result_array)
             or 1
 
           local last_index = next_info
-            and math.max(info.file_table[next_info.file_name][next_info.line_number] - 1, 1)
+            and math.max(info.file_table[next_info.file_name][tostring(next_info.line_number)] - 1, 1)
             or #info.result_array
 
           if first_index <= last_index then
@@ -565,7 +563,7 @@ local function watch_modifications()
               local result = info.result_array[index][1]
               local line_table = info.file_table[result.file_name]
 
-              line_table[result.line_number] = index
+              line_table[tostring(result.line_number)] = index
 
               local min_index = index
               for _, i in pairs(line_table) do
@@ -680,7 +678,7 @@ local function on_buf_write_cmd()
 
   local file_name, is_file_open
   for line, change_info in pairs(info.change_table) do
-    local change_row = tonumber(change_info.line_number) - 1
+    local change_row = change_info.line_number - 1
 
     if change_info.file_name ~= file_name then
       if file_name ~= nil then
@@ -859,10 +857,10 @@ local function parse_output(output)
 
   for _, submatch in ipairs(json.data.submatches) do
     table.insert(results, {
-      col_number = tostring(submatch.start + 1),
+      col_number = submatch.start,
       --end_col = submatch['end'],
       file_name = json.data.path.text,
-      line_number = tostring(json.data.line_number),
+      line_number = json.data.line_number,
       line_text = json.data.lines.text:gsub('\n', ''),
     })
   end
@@ -882,15 +880,15 @@ local function push_result(row, result)
     row = row + 1
 
     info.file_table[result.file_name] = {
-      [result.line_number] = row + 1,
+      [tostring(result.line_number)] = row + 1,
     }
 
     result.is_first_line = true
     result.is_first_col = true
-  elseif not file_info[result.line_number] then
+  elseif not file_info[tostring(result.line_number)] then
     row = row + 1
 
-    file_info[result.line_number] = row + 1
+    file_info[tostring(result.line_number)] = row + 1
 
     result.is_first_col = true
   end
@@ -1048,7 +1046,7 @@ local function dismiss_if_needed()
   if #vim.fn.getcmdline() == 0 then
     vim.api.nvim_input[[<Esc>]]
   else
-    return vim.api.nvim_replace_termcodes('<BS>', true, true, true)
+    return vim.api.nvim_replace_termcodes('<BS>', true, false, true)
   end
 end
 
@@ -1153,9 +1151,7 @@ function M.prompt(search_args, search_term)
 
       if vim.deep_equal(vim.api.nvim_win_get_cursor(0), { 1, 0 }) then
         local first_result = info.result_array[1][1]
-        local first_col = tonumber(first_result.col_number) - 1
-
-        vim.api.nvim_win_set_cursor(0, { 1, first_col })
+        vim.api.nvim_win_set_cursor(0, { 1, first_result.col_number })
       end
     end
   end
