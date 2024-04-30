@@ -556,12 +556,17 @@ function fn.popup_preview(opts)
       return nil
     end
     buf = vim.fn.bufnr('^'..filename..'$')
+    if buf <= 0 then
+      return nil
+    end
   end
 
   filename = vim.api.nvim_buf_get_name(buf)
 
+  local width = vim.api.nvim_win_get_width(anchor_win)
+
   local config = {
-    anchor = 'SE',
+    anchor = 'SW',
     border = 'single',
     col = 0,
     focusable = false,
@@ -573,7 +578,7 @@ function fn.popup_preview(opts)
       { ' ', 'None' },
       { vim.fn.fnamemodify(filename, ':~:.'), 'Directory'  },
     },
-    width = vim.api.nvim_win_get_width(anchor_win),
+    width = width,
     win = not anchor_cur and anchor_win or nil,
   }
 
@@ -588,6 +593,7 @@ function fn.popup_preview(opts)
       vim.wo[context].scrolloff = height
       vim.wo[context].signcolumn = 'no'
       vim.wo[context].statuscolumn = ''
+      vim.wo[context].wrap = false
     else
       context = nil
     end
@@ -598,6 +604,10 @@ function fn.popup_preview(opts)
   end
 
   if context then
+    local win_off = vim.fn.getwininfo(anchor_win)[1].textoff
+    win_off = win_off - vim.fn.getwininfo(context)[1].textoff
+    vim.api.nvim_win_set_width(context, width - win_off - 1)
+
     local hl_hs = vim.api.nvim_create_namespace('hl_preview')
 
     if did_init or vim.api.nvim_win_get_buf(context) ~= buf then
@@ -697,7 +707,13 @@ function fn.init_search()
       })
 
       vim.api.nvim_buf_set_keymap(0, 'n', [[<Enter>]], [[]], {
-        callback = fn.toggle_search_preview,
+        callback = function()
+          if not search_info.preview_win then
+            fn.open_search_preview()
+          else
+            fn.show_current_search_result('edit')
+          end
+        end,
       })
       vim.api.nvim_buf_set_keymap(0, 'n', [[<Esc>]], [[]], {
         callback = fn.close_search_preview,

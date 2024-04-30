@@ -169,7 +169,7 @@ local function unset_search_window_options()
   load_opt(vim.wo, 'statuscolumn')
 end
 
-local function show_current_search_result(cmd)
+function fn.show_current_search_result(cmd)
   local lnum, col = unpack(vim.api.nvim_win_get_cursor(0))
   local result = get_search_results_at(lnum - 1)[1]
 
@@ -748,19 +748,19 @@ local function open_search_buffer()
     -- keybindings
     vim.api.nvim_buf_set_keymap(bufnr, 'n', [[<S-Enter>]], [[]], {
       callback = function()
-        show_current_search_result('edit')
+        fn.show_current_search_result('edit')
       end,
       noremap = true,
     })
     vim.api.nvim_buf_set_keymap(bufnr, 'n', [[<M-\\>]], [[]], {
       callback = function()
-        show_current_search_result('vsplit')
+        fn.show_current_search_result('vsplit')
       end,
       noremap = true,
     })
     vim.api.nvim_buf_set_keymap(bufnr, 'n', [[<M-->]], [[]], {
       callback = function()
-        show_current_search_result('split')
+        fn.show_current_search_result('split')
       end,
       noremap = true,
     })
