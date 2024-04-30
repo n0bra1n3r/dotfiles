@@ -113,8 +113,11 @@ local function get_search_results_at(row)
   local info = get_search_info()
   if #info.line_array > 0 then
     local line_info = info.line_array[row + 1]
-    local line = info.file_table[line_info.file_name][tostring(line_info.line_number)]
-    return info.result_array[line]
+    if line_info then
+      local file_info = info.file_table[line_info.file_name]
+      local line = file_info[tostring(line_info.line_number)]
+      return info.result_array[line]
+    end
   end
   return {}
 end
@@ -658,7 +661,7 @@ end
 
 local function on_cursor_moved()
   local info = get_search_info()
-  local row = vim.fn.line"." - 1
+  local row = vim.fn.line('.') - 1
   if info.cursor_row ~= row then
     if info.cursor_row > row and row <= search_scrolloff then
       -- TODO: Remove this hack when https://github.com/neovim/neovim/issues/16166 is merged
@@ -1152,10 +1155,19 @@ function M.prompt(search_args, search_term)
   end
 end
 
-function M.get_result_at_cursor()
+function M.get_result_at_loc(cur)
   local info = get_search_info()
   if info then
-    local results = get_search_results_at(info.cursor_row)
+    local lnum, col = unpack(cur)
+    local last
+    local results = get_search_results_at(lnum - 1)
+    for _, result in ipairs(results) do
+      last = result
+      if col <= result.end_col_number then
+        return result
+      end
+    end
+    return last
   end
 end
 

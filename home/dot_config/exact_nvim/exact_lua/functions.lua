@@ -134,7 +134,7 @@ function fn.get_highlight_color_fg(name)
 end
 
 function fn.apply_unfocused_highlight()
-  local focused_hl_ns = vim.api.nvim_create_namespace('focused_highlights')
+  local focused_hl_ns = vim.api.nvim_create_namespace('hl_focused')
   local normal_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'Normal' })
   if normal_hl.bg == nil then
     normal_hl = vim.api.nvim_get_hl(0, { name = 'Normal' })
@@ -152,7 +152,7 @@ function fn.apply_unfocused_highlight()
 end
 
 function fn.apply_focused_highlight()
-  local focused_hl_ns = vim.api.nvim_create_namespace('focused_highlights')
+  local focused_hl_ns = vim.api.nvim_create_namespace('hl_focused')
   local normal_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'Normal' })
   local normalnc_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'NormalNC' })
   local winsep_hl = vim.api.nvim_get_hl(focused_hl_ns, { name = 'WinSeparator' })
@@ -538,6 +538,153 @@ function fn.close_folds_at(level)
     end
   end
 end
+
+function fn.popup_preview(opts)
+  local buf = opts.buf or vim.fn.bufnr(opts.filename, true)
+  local col = opts.col
+  local end_col = opts.end_col
+  local lnum = opts.lnum
+  local anchor_cur = opts.anchor_cur
+  local anchor_row = opts.anchor_row or 0
+  local anchor_win = opts.anchor_win or vim.api.nvim_get_current_win()
+  local context = opts.context or nil
+  local height = opts.height or 5
+  local hl_group = opts.hl_group or 'IncSearch'
+
+  local config = {
+    anchor = 'SE',
+    border = 'single',
+    col = 0,
+    focusable = false,
+    height = height,
+    relative = not anchor_cur and 'win' or 'cursor',
+    row = anchor_row,
+    title = ' '..vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ':~:.'),
+    width = vim.api.nvim_win_get_width(anchor_win),
+    win = not anchor_cur and anchor_win or nil,
+  }
+
+  local hl_hs = vim.api.nvim_create_namespace('hl_preview')
+
+  if not context then
+    context = vim.api.nvim_open_win(buf, false, config)
+    if context ~= 0 then
+      vim.wo[context].foldcolumn = '0'
+      vim.wo[context].winbar = ''
+      vim.wo[context].scrolloff = height
+      vim.wo[context].signcolumn = 'no'
+      vim.wo[context].statuscolumn = ''
+
+      vim.api.nvim_win_set_hl_ns(context, hl_hs)
+      vim.api.nvim_set_hl(hl_hs, 'DiagnosticError', {})
+      vim.api.nvim_set_hl(hl_hs, 'DiagnosticHint', {})
+      vim.api.nvim_set_hl(hl_hs, 'DiagnosticInfo', {})
+      vim.api.nvim_set_hl(hl_hs, 'DiagnosticWarn', {})
+      vim.api.nvim_set_hl(hl_hs, 'DiagnosticUnderlineError', {})
+      vim.api.nvim_set_hl(hl_hs, 'DiagnosticUnderlineHint', {})
+      vim.api.nvim_set_hl(hl_hs, 'DiagnosticUnderlineInfo', {})
+      vim.api.nvim_set_hl(hl_hs, 'DiagnosticUnderlineWarn', {})
+    else
+      context = nil
+    end
+  else
+    vim.api.nvim_win_set_buf(context, buf)
+    vim.api.nvim_win_set_config(context, config)
+
+    vim.wo[context].scrolloff = height
+  end
+
+  if context then
+    vim.api.nvim_win_set_cursor(context, { lnum, col - 1 })
+    pcall(vim.api.nvim_buf_set_extmark,
+      buf, hl_hs,
+      lnum - 1, col - 1, {
+        id = buf,
+        end_col = end_col - 1,
+        hl_group = hl_group,
+      }
+    )
+  end
+  return context
+end
+--}}}
+--{{{ Search
+local search_info = {
+  preview_win = nil,
+  preview_line = nil,
+}
+
+function fn.close_search_preview()
+  if search_info.preview_win then
+    if vim.api.nvim_win_is_valid(search_info.preview_win) then
+      vim.api.nvim_win_close(search_info.preview_win, true)
+    end
+    search_info.preview_win = nil
+  end
+end
+
+function fn.open_search_preview()
+  local lnum, col = unpack(vim.api.nvim_win_get_cursor(0))
+  local result = require'search'.get_result_at_loc{ lnum, col }
+  if result then
+    search_info.preview_win = fn.popup_preview {
+      context = search_info.preview_win,
+      col = result.col_number + 1,
+      end_col = result.end_col_number + 1,
+      filename = result.file_name,
+      lnum = result.line_number,
+      anchor_cur = true,
+      anchor_row = 4,
+    }
+  else
+    fn.close_search_preview()
+  end
+end
+
+function fn.toggle_search_preview()
+  if search_info.preview_win then
+    fn.close_search_preview()
+  else
+    fn.open_search_preview()
+  end
+end
+
+function fn.init_search()
+  local group = vim.api.nvim_create_augroup('conf_search', { clear = true })
+  vim.api.nvim_create_autocmd('FileType', {
+    group = group,
+    pattern = 'search',
+    callback = function()
+      vim.api.nvim_create_autocmd('BufLeave', {
+        buffer = 0,
+        group = group,
+        callback = fn.close_search_preview,
+      })
+      vim.api.nvim_create_autocmd('CursorMoved', {
+        buffer = 0,
+        group = group,
+        callback = function()
+          local lnum = vim.api.nvim_win_get_cursor(0)[1]
+          if search_info.preview_line and
+              search_info.preview_line ~= lnum
+          then
+            fn.close_search_preview()
+          elseif search_info.preview_win then
+            fn.open_search_preview()
+          end
+          search_info.preview_line = lnum
+        end,
+      })
+
+      vim.api.nvim_buf_set_keymap(0, 'n', [[<Enter>]], [[]], {
+        callback = fn.toggle_search_preview,
+      })
+      vim.api.nvim_buf_set_keymap(0, 'n', [[<Esc>]], [[]], {
+        callback = fn.close_search_preview,
+      })
+    end,
+  })
+end
 --}}}
 --{{{ Terminal
 local term_info = {
@@ -878,7 +1025,7 @@ function fn.qf_text(info)
   end
 
   vim.schedule(function()
-    local ns = vim.api.nvim_create_namespace('qf_text_hl')
+    local ns = vim.api.nvim_create_namespace('hl_qf_text')
 
     vim.api.nvim_buf_clear_namespace(list.qfbufnr, ns, 0, -1)
 
@@ -936,7 +1083,7 @@ local function highlight_item_at_idx(idx, hl)
   if qfbufnr ~= 0 then
     pcall(vim.api.nvim_buf_set_extmark,
       qfbufnr,
-      vim.api.nvim_create_namespace('qf_idx_hl'),
+      vim.api.nvim_create_namespace('hl_qf_idx'),
       idx - 1, 0, {
         id = 1,
         priority = 102,
@@ -951,7 +1098,7 @@ local function clear_item_highlight()
   local qfbufnr = vim.fn.getqflist{ qfbufnr = 0 }.qfbufnr
   vim.api.nvim_buf_clear_namespace(
     qfbufnr,
-    vim.api.nvim_create_namespace('qf_idx_hl'),
+    vim.api.nvim_create_namespace('hl_qf_idx'),
     0, -1
   )
 end
@@ -1295,10 +1442,8 @@ function fn.close_quickfix_preview()
   end
 end
 
-function fn.open_quickfix_preview(height)
-  height = height or 5
-
-  local list = vim.fn.getqflist{
+function fn.open_quickfix_preview()
+  local list = vim.fn.getqflist {
     id = 0,
     items = 0,
     winid = 0,
@@ -1307,52 +1452,50 @@ function fn.open_quickfix_preview(height)
     local index = vim.fn.line('.', list.winid)
     local item = list.items[index]
     if item.bufnr ~= 0 then
-      local win = qf_info.preview_win
-      if not win or vim.api.nvim_win_get_buf(win) ~= item.bufnr then
-        local name = vim.api.nvim_buf_get_name(item.bufnr)
-        if win then
-          vim.api.nvim_win_close(win, true)
-        end
-        win = vim.api.nvim_open_win(item.bufnr, false, {
-          anchor = 'SE',
-          border = 'single',
-          col = 0,
-          focusable = false,
-          height = height,
-          noautocmd = true,
-          relative = 'win',
-          row = -1,
-          title = vim.fn.fnamemodify(name, ':~:.'),
-          width = vim.api.nvim_win_get_width(list.winid),
-          win = list.winid,
-        })
-        if win ~= 0 then
-          qf_info.preview_win = win
-          vim.wo[win].foldcolumn = '0'
-          vim.wo[win].winbar = ''
-          vim.wo[win].scrolloff = height
-          vim.wo[win].signcolumn = 'no'
-          vim.wo[win].statuscolumn = ''
-        end
-      end
-      if win ~= 0 then
-        vim.api.nvim_win_set_cursor(win, { item.lnum, item.col })
-      end
+      qf_info.preview_win = fn.popup_preview {
+        context = qf_info.preview_win,
+        buf = item.bufnr,
+        lnum = item.lnum,
+        col = item.col,
+        end_col = item.end_col,
+        anchor_row = -1,
+        anchor_win = list.winid,
+      }
     else
       fn.close_quickfix_preview()
     end
   end
 end
 
-function fn.init_quickfix_lists()
+function fn.init_quickfix()
   set_qf_list('lsp_diagnostics', { title = "LSP Diagnostics" })
   set_qf_list('lsp_definitions', { title = "LSP Definitions" })
   set_qf_list('lsp_references', { title = "LSP References" })
   set_qf_list('notifications', { title = "Notifications" })
+
   for _, id in ipairs(qf_info.task_output_ids) do
     set_qf_list('task_output_'..id, { title = "Task Output "..id })
   end
+
   set_qf_list('messages', { title = "Messages" })
+
+  local group = vim.api.nvim_create_augroup('conf_qf', { clear = true })
+  vim.api.nvim_create_autocmd('FileType', {
+    group = group,
+    pattern = 'qf',
+    callback = function()
+      vim.api.nvim_create_autocmd('BufLeave', {
+        buffer = 0,
+        group = group,
+        callback = fn.close_quickfix_preview,
+      })
+      vim.api.nvim_create_autocmd('CursorMoved', {
+        buffer = 0,
+        group = group,
+        callback = fn.open_quickfix_preview,
+      })
+    end,
+  })
 end
 --}}}
 --{{{ Navigation
