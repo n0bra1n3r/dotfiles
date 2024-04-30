@@ -424,18 +424,13 @@ local function render_result(row, result)
     render_line_text(row, result.line_text)
   end
 
-  local info = get_search_info()
-  local namespace = get_search_match_namespace()
-  local col_start = result.col_number
-  local col_end = col_start + #info.search_term
-
   vim.api.nvim_buf_add_highlight(
     0,
-    namespace,
-    "IncSearch",
+    get_search_match_namespace(),
+    'IncSearch',
     row,
-    col_start,
-    col_end)
+    result.col_number,
+    result.end_col_number)
 
   if result.is_first_line then
     render_file_name(row, result.file_name)
@@ -858,10 +853,10 @@ local function parse_output(output)
   for _, submatch in ipairs(json.data.submatches) do
     table.insert(results, {
       col_number = submatch.start,
-      --end_col = submatch['end'],
+      end_col_number = submatch['end'],
       file_name = json.data.path.text,
       line_number = json.data.line_number,
-      line_text = json.data.lines.text:gsub('\n', ''),
+      line_text = json.data.lines.text:sub(1, -2),
     })
   end
 
