@@ -155,11 +155,13 @@ local function set_search_window_options()
   save_opt(vim.wo, 'foldtext')
   save_opt(vim.wo, 'scrolloff')
   save_opt(vim.wo, 'statuscolumn')
+  save_opt(vim.wo, 'wrap')
 
   vim.wo.foldmethod = 'manual'
   vim.wo.foldtext = 'v:lua.search_fold_text()'
   vim.wo.scrolloff = search_scrolloff
   vim.wo.statuscolumn = '%!v:lua.search_statuscol_expr()'
+  vim.wo.wrap = false
 end
 
 local function unset_search_window_options()
@@ -167,6 +169,7 @@ local function unset_search_window_options()
   load_opt(vim.wo, 'foldtext')
   load_opt(vim.wo, 'scrolloff')
   load_opt(vim.wo, 'statuscolumn')
+  load_opt(vim.wo, 'wrap')
 end
 
 function fn.show_current_search_result(cmd)
