@@ -60,10 +60,6 @@ if [[ -n "$NVIM" ]]; then
     nvim
   }
 
-  function exit() {
-    _nvim_remote --remote-send "<cmd>quitall<CR>"
-  }
-
   function __nvim_ipc__() {
     local cmd
     local out

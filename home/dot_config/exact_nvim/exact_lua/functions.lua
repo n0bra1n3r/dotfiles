@@ -748,6 +748,9 @@ local function get_terminal(start_command)
       START_COMMAND = start_command,
       STARSHIP_CONFIG = '~/.dotfiles/starship.minimal.toml',
     },
+    on_exit = function()
+      vim.schedule(vim.cmd.quitall)
+    end,
   }
 end
 
@@ -1603,6 +1606,16 @@ function fn.float_window()
     row = vim.o.lines / 2 - height / 2 - 1,
     col = vim.o.columns / 2 - width / 2,
   })
+end
+
+function fn.close_tab(tabpage)
+  tabpage = tabpage or vim.api.nvim_get_current_tabpage()
+
+  if #vim.api.nvim_list_tabpages() <= 2 then
+    vim.cmd.quitall()
+  else
+    vim.cmd.tabclose(vim.api.nvim_tabpage_get_number(tabpage))
+  end
 end
 
 function fn.close_window(win)
