@@ -262,6 +262,16 @@ else
         fi
         [[ $i == 1 ]] && return 0
         ;;
+      "sync")
+        eval BRANCH="\${$i}"
+        if [[ $BRANCH =~ ^[-.\ /[:alnum:]]+$ ]]; then
+          echo "$INFO_MSG: pulling '$BRANCH'..." >&2
+          git -C "$WORKSPACE_ROOT_DIR/$BRANCH" pull || return 1
+          echo "$INFO_MSG: synchronising '$THIS_BRANCH' with '$BRANCH'..."
+          git rebase $BRANCH >/dev/null || return 1
+        fi
+        [[ $i == 1 ]] && return 0
+        ;;
       "--")
         OPERATION="$1"
         shift
