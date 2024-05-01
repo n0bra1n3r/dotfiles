@@ -131,6 +131,26 @@ my_snippets {
       }
       ]]
     }, --}}}
+    ["create freezed model"] = { --{{{
+      prefix = "freezedmodel",
+      body = [[
+      import 'package:freezed_annotation/freezed_annotation.dart';
+
+      part '$TM_FILENAME_BASE.freezed.dart';
+      part '$TM_FILENAME_BASE.g.dart';
+
+      @freezed
+      sealed class ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} extends _$${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} {
+        // ignore: invalid_annotation_target
+        @JsonSerializable(fieldRename: FieldRename.snake)
+        const factory ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}({
+          $0
+        }) = _${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/};
+
+        factory ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}.fromJson(Map<String, dynamic> json) => _$${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}FromJson(json);
+      }
+      ]],
+    }, --}}}
     ["create widgetbook usecase"] = { --{{{
       prefix = 'widgetbookusecase',
       body = [[
@@ -138,7 +158,7 @@ my_snippets {
 
       @UseCase(name: '${1:name}', type: ${2:type})
       Widget ${TM_FILENAME_BASE/(.*)/${1:/camelcase}/}(BuildContext context) {
-        return ${3:widget};
+        return $0;
       }
       ]]
     }, --}}}
