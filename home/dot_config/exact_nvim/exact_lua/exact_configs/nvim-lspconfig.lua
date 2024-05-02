@@ -11,7 +11,7 @@ local function goto_definition(win_cmd)
               vim.cmd(win_cmd)
             end
             local item = options.items[1]
-            vim.cmd.drop(item.filename)
+            vim.cmd.drop(vim.fn.fnameescape(item.filename))
             vim.api.nvim_win_set_cursor(0, { item.lnum, item.col - 1 })
           end
         end
