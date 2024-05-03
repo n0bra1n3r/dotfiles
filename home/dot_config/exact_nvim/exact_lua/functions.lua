@@ -1540,6 +1540,20 @@ function fn.init_quickfix()
         group = group,
         callback = fn.open_quickfix_preview,
       })
+
+      vim.api.nvim_buf_set_keymap(0, 'n', [[<Enter>]], [[]], {
+        callback = function()
+          local lnum = vim.api.nvim_win_get_cursor(0)[1]
+          local list = vim.fn.getqflist{ id = 0, items = 0 }
+          local item = list.items[lnum]
+          if item.bufnr ~= 0 then
+            local win = vim.fn.win_getid(vim.fn.winnr('#'))
+            vim.api.nvim_win_set_buf(win, item.bufnr)
+            vim.api.nvim_win_set_cursor(win, { item.lnum, item.col - 1 })
+            vim.api.nvim_set_current_win(win)
+          end
+        end,
+      })
     end,
   })
 end
