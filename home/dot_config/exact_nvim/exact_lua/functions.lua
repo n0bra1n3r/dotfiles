@@ -552,11 +552,16 @@ function fn.popup_preview(opts)
   local height = opts.height or 5
 
   if not buf then
-    if not filename then
+    if not filename or vim.fn.filereadable(filename) == 0 then
       return nil
     end
     buf = vim.fn.bufadd(filename)
     vim.fn.bufload(buf)
+  else
+    filename = vim.api.nvim_buf_get_name(buf)
+    if vim.fn.filereadable(filename) == 0 then
+      return nil
+    end
   end
 
   local type = vim.filetype.match{ buf = buf }
@@ -564,8 +569,6 @@ function fn.popup_preview(opts)
   if lang and pcall(vim.treesitter.language.add, lang) then
     vim.treesitter.start(buf, lang)
   end
-
-  filename = vim.api.nvim_buf_get_name(buf)
 
   local width = vim.api.nvim_win_get_width(anchor_win)
 
@@ -629,7 +632,7 @@ function fn.popup_preview(opts)
       vim.api.nvim_set_hl(hl_hs, 'Preview', { link = 'IncSearch' })
     end
 
-    vim.api.nvim_win_set_cursor(context, { lnum, col - 1 })
+    pcall(vim.api.nvim_win_set_cursor, context, { lnum, col - 1 })
 
     pcall(vim.api.nvim_buf_set_extmark,
       buf, hl_hs, lnum - 1, col - 1, {
