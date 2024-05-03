@@ -1094,9 +1094,7 @@ return {
                 'nowrite',
                 'terminal',
               },
-            }, args.buf)
-            or (not fn.is_file_buffer(args.buf)
-              and fn.is_in_floating(args.buf))
+            }, args.buf) or fn.is_in_unfocusable(args.buf)
         end,
       },
       statusline = {

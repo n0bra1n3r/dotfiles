@@ -211,9 +211,9 @@ function fn.is_floating(win)
   return vim.api.nvim_win_get_config(win or 0).relative ~= [[]]
 end
 
-function fn.is_in_floating(buf)
+function fn.is_in_unfocusable(buf)
   for _, win in ipairs(vim.fn.win_findbuf(buf or vim.api.nvim_get_current_buf())) do
-    if fn.is_floating(win) then
+    if not vim.api.nvim_win_get_config(win).focusable then
       return true
     end
   end
@@ -592,6 +592,7 @@ function fn.popup_preview(opts)
   local did_init = false
 
   if not context then
+    config.noautocmd = true
     context = vim.api.nvim_open_win(buf, false, config)
     if context ~= 0 then
       did_init = true
@@ -735,6 +736,15 @@ local term_info = {
   shell_cmd = nil,
 }
 
+local function get_prior_tabpage()
+  local tabnr = vim.fn.tabpagenr[[#]]
+  for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
+    if vim.api.nvim_tabpage_get_number(tabpage) == tabnr then
+      return tabpage
+    end
+  end
+end
+
 local function get_terminal_tabpage()
   local terminal = require'toggleterm.terminal'.get(0, true)
   return terminal and vim.api.nvim_win_get_tabpage(terminal.window)
@@ -776,7 +786,7 @@ end
 function fn.dismiss_terminal()
   local tabpage = get_terminal_tabpage()
   if vim.api.nvim_get_current_tabpage() == tabpage then
-    vim.api.nvim_set_current_tabpage(fn.get_prior_tabpage())
+    vim.api.nvim_set_current_tabpage(get_prior_tabpage())
   end
 end
 
@@ -1558,6 +1568,103 @@ function fn.init_quickfix()
   })
 end
 --}}}
+--{{{ Bookmarks
+function fn.get_bookmarks()
+  local bookmarks = {}
+  for _, mark in ipairs(vim.fn.getmarklist()) do
+    local name = mark.mark:sub(2)
+    local id = #name == 1 and vim.fn.char2nr(name)
+    if not id or id < 65 or id > 90 then
+      break
+    end
+    table.insert(bookmarks, {
+      buf = mark.pos[1],
+      name = name,
+      path = mark.file,
+    })
+  end
+  return bookmarks
+end
+
+function fn.is_bookmarked(buf)
+  buf = buf or vim.api.nvim_get_current_buf()
+  for _, bookmark in ipairs(fn.get_bookmarks()) do
+    if bookmark.buf == buf then
+      return true
+    end
+  end
+  return false
+end
+
+function fn.refresh_bookmark_list()
+  vim.cmd.wshada{ bang = true }
+
+  local old_showtabline = vim.o.showtabline
+  vim.o.showtabline = #fn.get_bookmarks() > 0 and 2 or 0
+  if vim.o.showtabline == old_showtabline and vim.o.showtabline ~= 0 then
+    vim.schedule(vim.cmd.redrawtabline)
+  end
+end
+
+function fn.toggle_bookmarked(bufOrName)
+  local buf
+  local name
+  if type(bufOrName) == 'string' then
+    name = bufOrName
+  else
+    buf = bufOrName
+  end
+  buf = buf or vim.api.nvim_get_current_buf()
+
+  local names = {
+    'Q', 'W', 'E', 'A', 'S', 'D', 'Z', 'X', 'C', 'R', 'F', 'V', 'T',
+    'G', 'B', 'J', 'K', 'L', 'N', 'H', 'U', 'I', 'O', 'P', 'M', 'Y',
+  }
+
+  local has_toggled = false
+  local new_mark_id = 1
+  if name then
+    has_toggled = vim.api.nvim_buf_del_mark(buf, name)
+  else
+    for _, bookmark in ipairs(fn.get_bookmarks()) do
+      if bookmark.buf == buf then
+        vim.api.nvim_del_mark(bookmark.name)
+        has_toggled = true
+      end
+      if not has_toggled then
+        local mark_id = vim.fn.index(names, bookmark.name) + 1
+        if new_mark_id == mark_id then
+          new_mark_id = new_mark_id + 1
+        end
+      end
+    end
+  end
+  if not has_toggled and (not name or not fn.is_bookmarked(buf)) then
+    local new_name = name or names[new_mark_id]
+    if new_name then
+      vim.api.nvim_buf_set_mark(buf, new_name, 1, 0, {})
+      has_toggled = true
+    end
+  end
+
+  if has_toggled then
+    fn.refresh_bookmark_list()
+  end
+  return has_toggled
+end
+
+function fn.goto_bookmark(name)
+  local is_ok, mark = pcall(vim.api.nvim_get_mark, name, {})
+  if is_ok then
+    local _, _, buf = unpack(mark)
+    if buf ~= 0 and buf ~= vim.api.nvim_get_current_buf() then
+      vim.api.nvim_win_set_buf(0, buf)
+      return true
+    end
+  end
+  return false
+end
+--}}}
 --{{{ Navigation
 function fn.move_cursor_right()
   local count = vim.v.count1
@@ -1587,21 +1694,13 @@ function fn.relative_jump(dir)
   end)
 end
 
-function fn.get_prior_tabpage()
-  local tabnr = vim.fn.tabpagenr[[#]]
-  for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
-    if vim.api.nvim_tabpage_get_number(tabpage) == tabnr then
-      return tabpage
-    end
-  end
-end
-
 function fn.edit_buffer(mode, path)
   local tabpage = vim.api.nvim_get_current_tabpage()
-  local win_ids = vim.api.nvim_tabpage_list_wins(tabpage)
+  local wins = vim.api.nvim_tabpage_list_wins(tabpage)
   local target_winid
-  for _, id in ipairs(win_ids) do
-    if path == vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(id)) then
+  for _, id in ipairs(wins) do
+    local buf = vim.api.nvim_win_get_buf(id)
+    if path == vim.api.nvim_buf_get_name(buf) then
       target_winid = id
       break
     end
@@ -1672,143 +1771,32 @@ function fn.zoom_window(win)
   end
 end
 
-function fn.get_bookmarks()
-  local bookmarks = {}
-  for _, mark in ipairs(vim.fn.getmarklist()) do
-    local name = mark.mark:sub(2)
-    local id = #name == 1 and vim.fn.char2nr(name)
-    if not id or id < 65 or id > 90 then
-      break
-    end
-    table.insert(bookmarks, {
-      buf = mark.pos[1],
-      name = name,
-      path = mark.file,
-    })
-  end
-  return bookmarks
-end
-
-function fn.is_bookmarked(buf)
-  buf = buf or vim.api.nvim_get_current_buf()
-  for _, bookmark in ipairs(fn.get_bookmarks()) do
-    if bookmark.buf == buf then
-      return true
-    end
-  end
-  return false
-end
-
-function fn.refresh_bookmark_list()
-  vim.cmd.wshada{ bang = true }
-
-  local old_showtabline = vim.o.showtabline
-  vim.o.showtabline = #fn.get_bookmarks() > 0 and 2 or 0
-  if vim.o.showtabline == old_showtabline and vim.o.showtabline ~= 0 then
-    vim.schedule(vim.cmd.redrawtabline)
-  end
-end
-
-function fn.toggle_bookmarked(bufOrName)
-  local buf
-  local name
-  if type(bufOrName) == 'string' then
-    name = bufOrName
-  else
-    buf = bufOrName
-  end
-  buf = buf or vim.api.nvim_get_current_buf()
-
-  local names = {
-    'Q', 'W', 'E', 'A', 'S', 'D', 'Z', 'X', 'C', 'R', 'F', 'V', 'T', 'G', 'B',
-    'J', 'K', 'L', 'N', 'H', 'U', 'I', 'O', 'P', 'M', 'Y',
+function fn.jump(dir, maps)
+  local query = require'portal.builtin'.jumplist.query {
+    direction = dir,
   }
+  local results = require'portal'.search(query)
+  local windows = require'portal'.portals(results)
 
-  local has_toggled = false
-  local new_mark_id = 1
-  if name then
-    has_toggled = vim.api.nvim_buf_del_mark(buf, name)
-  else
-    for _, bookmark in ipairs(fn.get_bookmarks()) do
-      if bookmark.buf == buf then
-        vim.api.nvim_del_mark(bookmark.name)
-        has_toggled = true
-      end
-      if not has_toggled then
-        local mark_id = vim.fn.index(names, bookmark.name) + 1
-        if new_mark_id == mark_id then
-          new_mark_id = new_mark_id + 1
-        end
-      end
-    end
-  end
-  if not has_toggled and (not name or not fn.is_bookmarked(buf)) then
-    local new_name = name or names[new_mark_id]
-    if new_name then
-      vim.api.nvim_buf_set_mark(buf, new_name, 1, 0, {})
-      has_toggled = true
-    end
-  end
+  require'portal'.open(windows)
 
-  if has_toggled then
-    fn.refresh_bookmark_list()
-  end
-  return has_toggled
-end
-
-function fn.goto_bookmark(name)
-  local is_ok, mark = pcall(vim.api.nvim_get_mark, name, {})
-  if is_ok then
-    local _, _, buf = unpack(mark)
-    if buf ~= 0 and buf ~= vim.api.nvim_get_current_buf() then
-      vim.api.nvim_win_set_buf(0, buf)
-      return true
-    end
-  end
-  return false
-end
-
-function fn.del_bookmark(name)
-  local is_ok, did_del = pcall(vim.api.nvim_del_mark, name)
-  if is_ok and did_del then
-    fn.refresh_bookmark_list()
-    return true
-  end
-  return false
-end
-
-function fn.bookmark_jump(maps)
-  local is_mapped = false
-  local input = vim.fn.getchar()
-  if type(input) == 'number'
-      and input >= 65
-      and input <= 90
-  then
-    local name = vim.fn.nr2char(input)
-    is_mapped = fn.goto_bookmark(name)
-      or fn.toggle_bookmarked(name)
-  elseif maps then
+  vim.schedule(function()
+    local input = vim.fn.getcharstr()
     for map, key in pairs(maps) do
-      local map1 = vim.api.nvim_replace_termcodes(map, true, false, true)
-      if type(input) == 'number' then
-        is_mapped = vim.fn.nr2char(input) == map1
-      else
-        is_mapped = input == map1
-      end
-      if is_mapped then
+      map = vim.api.nvim_replace_termcodes(map, true, false, true)
+      if input:match('^'..map..'$') then
         if type(key) == 'string' then
-          local key1 = vim.api.nvim_replace_termcodes(key, true, false, true)
-          vim.api.nvim_feedkeys(key1, 'm', false)
+          key = vim.api.nvim_replace_termcodes(key, true, false, true)
+          vim.api.nvim_feedkeys(key, 'm', false)
         else
-          key()
+          key(windows[1], input)
         end
         break
       end
     end
-  end
-  if not is_mapped then
-    vim.notify('Invalid bookmark', vim.log.levels.INFO)
-  end
+
+    require'portal'.close(windows)
+  end)
 end
 
 function fn.track_buf_leave_win(buf, win)

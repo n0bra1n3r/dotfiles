@@ -40,8 +40,8 @@ local function ui_redir(cmd)
   end
 end
 
-local function edit_buf(view)
-  return call(fn.edit_buffer, view, vim.fn.expand('<cfile>'))
+local function open_help()
+  return fn.ui_try(vim.cmd.help, vim.fn.expand('<cword>'))
 end
 
 local function update_buf()
@@ -53,8 +53,22 @@ local function update_buf()
   end
 end
 
-local function open_help()
-  return fn.ui_try(vim.cmd.help, vim.fn.expand('<cword>'))
+local function edit_buf(view)
+  return function()
+    fn.edit_buffer(view, vim.fn.expand('<cfile>'))
+  end
+end
+
+local function sel_portal(window)
+  if window then
+    window:select()
+  end
+end
+
+local function sel_bookmark(name)
+  if not fn.goto_bookmark(name) then
+    fn.toggle_bookmarked(name)
+  end
 end
 
 local function get_map_expr(key)
@@ -175,14 +189,14 @@ my_mappings {
     ["<M-l>"]           = { "v:lua.fn.is_floating()?'h':'<C-w>h'", expr = true },
     ["<PageDown>"]      = { "L<Down>", noremap = false },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
-    ['<S-Tab>']         = { call(fn.bookmark_jump, {
+    ['<S-Tab>']         = { call(fn.jump, 'forward', {
+                              ['<Tab>'] = sel_portal,
                               ['<S-Tab>'] = call(fn.toggle_bookmarked),
-                              ['<Tab>'] = [[<C-i>]],
-                            }), desc = "Jump to bookmark" },
-    ['<S-Tab><BS>']     = { call(fn.del_bookmark), desc = "Delete bookmark" },
-    ['<Tab><Tab>']      = { [[<C-o>]], desc = "Jump to prev location" },
-    ['<Tab>j']          = { call(fn.relative_jump, 'j'), desc = "Relative jump down" },
-    ['<Tab>k']          = { call(fn.relative_jump, 'k'), desc = "Relative jump up" },
+                              ['[A-Z]'] = sel_bookmark,
+                            }), desc = "Jump" },
+    ['<Tab>']           = { call(fn.jump, 'backward', {
+                              ['<Tab>'] = sel_portal,
+                            }), desc = "Jump" },
     [';']               = { call(fn.move_cursor_right) },
     ['*']               = { [[b:let @/="\\<<C-r><C-w>\\>"|let v:hlsearch=1<CR>]] },
     C                   = { '"_C' },
