@@ -591,7 +591,7 @@ function fn.popup_preview(opts)
     border = 'single',
     col = 0,
     focusable = false,
-    height = top + height + bot,
+    height = height,
     relative = not anchor_cur and 'win' or 'cursor',
     row = not anchor_cur and anchor_row or anchor_row + bot,
     title = {
@@ -629,6 +629,7 @@ function fn.popup_preview(opts)
     local off = vim.fn.getwininfo(anchor_win)[1].textoff
     off = off - vim.fn.getwininfo(context)[1].textoff
     vim.api.nvim_win_set_width(context, width - off - 1)
+    vim.api.nvim_win_set_height(context, top + height + bot)
 
     local hl_hs = vim.api.nvim_create_namespace('hl_preview')
 
