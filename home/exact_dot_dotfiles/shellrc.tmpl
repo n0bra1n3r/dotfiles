@@ -54,12 +54,6 @@ if [[ -n "$NVIM" ]]; then
     _silent_background _nvim_remote --remote-expr "v:lua.fn.refresh_git_info()"
   }
 
-  function workspace() {
-    # shellcheck disable=1091
-    source "$HOME/.dotfiles/scripts/workspace"
-    nvim
-  }
-
   function __nvim_ipc__() {
     local cmd
     local out
@@ -93,12 +87,12 @@ else
       command nvim "$@"
     fi
   }
-
-  function workspace() {
-    # shellcheck disable=1091
-    source "$HOME/.dotfiles/scripts/workspace"
-  }
 fi
+
+function workspace() {
+  # shellcheck disable=1091
+  source "$HOME/.dotfiles/scripts/workspace"
+}
 
 function _fzf_complete_workspace() {
   local current
