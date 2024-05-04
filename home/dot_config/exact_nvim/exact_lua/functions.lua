@@ -2320,7 +2320,7 @@ function fn.exec_task(cmd, args, name, env, cwd)
       cmd = cmd,
       cwd = cwd,
       components = {
-        'on_output_quickfix',
+        'task_output_quickfix',
         'default',
       },
       env = env,
