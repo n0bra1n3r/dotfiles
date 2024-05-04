@@ -1077,13 +1077,7 @@ local function unset_search_prompt_mapping(mapping)
   vim.api.nvim_del_keymap('c', mapping.lhs)
 
   if mapping.rhs ~= nil then
-    vim.api.nvim_set_keymap('c', mapping.lhs, mapping.rhs, {
-      expr = mapping.expr,
-      noremap = mapping.noremap,
-      nowait = mapping.nowait,
-      silent = mapping.silent,
-      script = mapping.script,
-    })
+    vim.fn.mapset(mapping)
   end
 end
 
