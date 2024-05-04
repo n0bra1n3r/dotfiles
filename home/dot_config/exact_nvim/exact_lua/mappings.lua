@@ -48,7 +48,7 @@ local function update_buf()
   if fn.is_empty_buffer() then
     fn.save_file()
   else
-    vim.cmd.nohlsearch()
+    vim.cmd[[let v:hlsearch = 0]]
     fn.ui_try(vim.cmd.update, { mods = { silent = true } })
   end
 end

@@ -100,7 +100,9 @@ my_autocmds {
   }, --}}}
   { { 'InsertEnter', 'TermEnter' }, --{{{
     callback = function()
-      fn.vim_defer(vim.cmd.nohlsearch)()
+      vim.schedule(function()
+        vim.cmd[[let v:hlsearch = 0]]
+      end)
     end,
   }, --}}}
   { "CmdlineLeave", --{{{
