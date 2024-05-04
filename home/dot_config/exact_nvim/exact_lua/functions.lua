@@ -243,9 +243,9 @@ function fn.get_visual_selection()
   local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
   lines[1] = lines[1]:sub(s_start[3], -1)
   if n_lines == 1 then
-    lines[n_lines] = lines[n_lines]:sub(1, s_end[3] - s_start[3])
+    lines[n_lines] = lines[n_lines]:sub(1, s_end[3] - s_start[3] + 1)
   else
-    lines[n_lines] = lines[n_lines]:sub(1, s_end[3])
+    lines[n_lines] = lines[n_lines]:sub(1, s_end[3] + 1)
   end
   return table.concat(lines, '\n')
 end
