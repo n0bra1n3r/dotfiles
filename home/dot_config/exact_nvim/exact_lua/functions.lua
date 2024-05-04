@@ -580,15 +580,20 @@ function fn.popup_preview(opts)
   end
 
   local width = vim.api.nvim_win_get_width(anchor_win)
+  local count = vim.api.nvim_buf_line_count(buf)
+
+  local half_height = (height - 1) / 2
+  local top = math.min(0, lnum - 1 - half_height)
+  local bot = math.min(0, count - lnum - half_height)
 
   local config = {
     anchor = 'SW',
     border = 'single',
     col = 0,
     focusable = false,
-    height = height,
+    height = top + height + bot,
     relative = not anchor_cur and 'win' or 'cursor',
-    row = anchor_row,
+    row = not anchor_cur and anchor_row or anchor_row + bot,
     title = {
       { require'nvim-web-devicons'.get_icon(filename) },
       { ' ' },
