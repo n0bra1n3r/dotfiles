@@ -2205,68 +2205,61 @@ local function vim_task_def(name, args, cwd, deps, func)
 end
 
 function fn.create_task(name, config)
-  local is_ok, overseer = pcall(require, 'overseer')
-  if is_ok then
-    overseer.register_template {
-      name = name,
-      builder = function(params)
-        local args = vim.list_extend(
-          vim.deepcopy(config.args or {}),
-          vim.deepcopy(params.args or {}))
-        local deps = {
-          { 'task_output_quickfix' },
-          config.notify == false
-            and { 'on_complete_notify', statuses = {} }
-            or 'on_complete_notify',
-          { 'run_after', task_names = config.deps or {} },
-          'default',
+  require'overseer'.register_template {
+    name = name,
+    builder = function(params)
+      local args = vim.list_extend(
+        vim.deepcopy(config.args or {}),
+        vim.deepcopy(params.args or {}))
+      local deps = {
+        { 'task_output_quickfix' },
+        config.notify == false
+          and { 'on_complete_notify', statuses = {} }
+          or 'on_complete_notify',
+        { 'run_after', task_names = config.deps or {} },
+        'default',
+      }
+      if not config.func then
+        return {
+          args = args,
+          cmd = { config.cmd },
+          components = deps,
+          cwd = config.cwd,
+          env = config.env,
+          name = name,
         }
-        if not config.func then
-          return {
-            args = args,
-            cmd = { config.cmd },
-            components = deps,
-            cwd = config.cwd,
-            env = config.env,
-            name = name,
-          }
-        else
-          local named_args = vim.deepcopy(params)
-          named_args.args = nil
-          return vim_task_def(
-            name,
-            vim.tbl_extend('keep', args, named_args),
-            config.cwd,
-            deps,
-            config.func
-          )
-        end
-      end,
-      condition = {
-        callback = config.cond,
-        dir = fn.get_workspace_dir(),
-        filetype = config.filetype,
+      else
+        local named_args = vim.deepcopy(params)
+        named_args.args = nil
+        return vim_task_def(
+          name,
+          vim.tbl_extend('keep', args, named_args),
+          config.cwd,
+          deps,
+          config.func
+        )
+      end
+    end,
+    condition = {
+      callback = config.cond,
+      dir = fn.get_workspace_dir(),
+      filetype = config.filetype,
+    },
+    params = vim.tbl_extend('keep', vim.deepcopy(config.params or {}), {
+      args = {
+        delimiter = ',',
+        desc = "Task arguments",
+        optional = true,
+        subtype = { type = 'string' },
+        type = 'list',
       },
-      params = vim.tbl_extend('keep', vim.deepcopy(config.params or {}), {
-        args = {
-          delimiter = ',',
-          desc = "Task arguments",
-          optional = true,
-          subtype = { type = 'string' },
-          type = 'list',
-        },
-      }),
-      priority = config.priority,
-    }
-  end
+    }),
+    priority = config.priority,
+  }
 end
 
 function fn.has_task(name)
-  local is_ok, overseer = pcall(require, 'overseer')
-  if not is_ok then
-    return false
-  end
-  overseer.preload_task_cache()
+  require'overseer'.preload_task_cache()
   local task_def
   require'overseer.template'.get_by_name(
     name,
@@ -2278,55 +2271,45 @@ function fn.has_task(name)
 end
 
 function fn.run_task(name, args)
-  local is_ok, overseer = pcall(require, 'overseer')
-  if is_ok then
-    local params = { args = {} }
-    local opts = {}
-    if args then
-      opts = args.opts or {}
-      args.opts = nil
+  local params = { args = {} }
+  local opts = {}
+  if args then
+    opts = args.opts or {}
+    args.opts = nil
 
-      for k, v in pairs(args) do
-        if type(k) == 'number' then
-          params.args[k] = v
-        else
-          params[k] = v
-        end
+    for k, v in pairs(args) do
+      if type(k) == 'number' then
+        params.args[k] = v
+      else
+        params[k] = v
       end
     end
-
-    overseer.run_template(vim.tbl_extend('force', opts, {
-      name = name,
-      params = params,
-    }))
   end
+
+  require'overseer'.run_template(vim.tbl_extend('force', opts, {
+    name = name,
+    params = params,
+  }))
 end
 
 function fn.running_task_count()
-  local is_ok, overseer = pcall(require, 'overseer')
-  if is_ok then
-    return #require'overseer.task_list'.list_tasks {
-      status = overseer.STATUS.RUNNING,
-    }
-  end
-  return 0
+  return #require'overseer.task_list'.list_tasks {
+    status = require'overseer'.STATUS.RUNNING,
+  }
 end
 
 function fn.exec_task(cmd, args, name, env, cwd)
-  local is_ok, overseer = pcall(require, 'overseer')
-  if is_ok then
-    overseer.new_task{
-      args = args,
-      cmd = cmd,
-      cwd = cwd,
-      components = {
-        'task_output_quickfix',
-        'default',
-      },
-      env = env,
-      name = name,
-    }:start()
-  end
+  require'overseer'.new_task{
+    args = args,
+    cmd = cmd,
+    cwd = cwd,
+    components = {
+      'task_output_quickfix',
+      'default',
+    },
+    env = env,
+    name = name,
+  }:start()
 end
 --}}}
 --{{{ Debugging
