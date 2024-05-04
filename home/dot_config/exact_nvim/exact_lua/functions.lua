@@ -220,6 +220,15 @@ function fn.is_in_unfocusable(buf)
   return false
 end
 
+function fn.is_in_floating(buf)
+  for _, win in ipairs(vim.fn.win_findbuf(buf or vim.api.nvim_get_current_buf())) do
+    if vim.api.nvim_win_get_config(win).relative ~= '' then
+      return true
+    end
+  end
+  return false
+end
+
 function fn.get_visual_line_range()
   return {
     vim.fn.getpos[['<]][2],
