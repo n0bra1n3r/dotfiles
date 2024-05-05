@@ -1160,7 +1160,7 @@ function M.get_result_at_loc(cur)
     local results = get_search_results_at(lnum - 1)
     for _, result in ipairs(results) do
       last = result
-      if col <= result.end_col_number then
+      if col < result.end_col_number then
         return result
       end
     end

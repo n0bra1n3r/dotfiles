@@ -580,7 +580,7 @@ function fn.popup_preview(opts)
   end
 
   local width = vim.api.nvim_win_get_width(anchor_win)
-  local count = vim.api.nvim_buf_line_count(buf)
+  local count = math.max(1, vim.api.nvim_buf_line_count(buf))
 
   local half_height = (height - 1) / 2
   local top = math.min(0, lnum - 1 - half_height)
