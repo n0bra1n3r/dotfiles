@@ -734,7 +734,7 @@ function fn.init_search()
           if not search_info.preview_win then
             fn.open_search_preview()
           else
-            fn.show_current_search_result('edit')
+            require'search'.show_current_search_result('edit')
           end
         end,
       })

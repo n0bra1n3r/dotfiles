@@ -2,7 +2,6 @@ local M = {}
 
 local search_icon = '󱉶'
 local replace_icon = '󰛔'
-local flags_icon = '󰈻'
 local search_filetype = 'search'
 local search_namespace = 'Search'
 local search_scrolloff = 3
@@ -172,7 +171,7 @@ local function unset_search_window_options()
   load_opt(vim.wo, 'wrap')
 end
 
-function fn.show_current_search_result(cmd)
+function M.show_current_search_result(cmd)
   local lnum, col = unpack(vim.api.nvim_win_get_cursor(0))
   local result = get_search_results_at(lnum - 1)[1]
 
@@ -986,13 +985,8 @@ end
 local function process_search_input()
   local input = vim.fn.getcmdline()
   if #input > 0 then
-    if M.mode == 1 then
-      M.run(nil, input)
-    else
-      M.run(input, nil)
-    end
+    M.run(nil, input)
   end
-
   return input
 end
 
@@ -1012,7 +1006,7 @@ local function on_cmdline_changed()
   M.input_timer:start(200 * delay_factor, 0, vim.schedule_wrap(function()
     clear_input_timer()
     if #process_search_input() == 0 then
-      if M.mode == 1 and get_is_in_search_buffer() then
+      if get_is_in_search_buffer() then
         vim.api.nvim_buf_delete(0, { force = true })
         vim.cmd.redraw()
       end
@@ -1051,14 +1045,6 @@ local function dismiss_if_needed()
   end
 end
 
-local function toggle_modes()
-  M.mode = M.mode + 1
-  if M.mode > 2 then
-    M.mode = 1
-  end
-  vim.api.nvim_input[[<Esc>]]
-end
-
 local function set_search_prompt_mapping(lhs, callback, expr)
   local mapping = vim.fn.maparg(lhs, 'c', 0, 1)
   mapping.lhs = lhs
@@ -1082,55 +1068,31 @@ local function unset_search_prompt_mapping(mapping)
 end
 
 local function get_input(search_args, search_term)
-  M.mode = 1
+  if get_is_search_buffer_open() then
+    search_term, search_args = get_last_search(search_term, search_args)
+  end
 
-  while true do
-    if get_is_search_buffer_open() then
-      search_term, search_args = get_last_search(search_term, search_args)
-    end
+  local result = vim.fn.input {
+    cancelreturn = 1,
+    default = search_term,
+    highlight = function(input)
+      return {{ 0, #input, 'CurSearch' }}
+    end,
+    prompt = ('  %s  '):format(get_search_icon()),
+  }
 
-    local modes = {
-      {
-        cancelreturn = 1,
-        default = search_term,
-        highlight = function(input)
-          return {{ 0, #input, 'CurSearch' }}
-        end,
-        prompt = ('  %s  '):format(get_search_icon()),
-      },
-      {
-        cancelreturn = 2,
-        default = search_args,
-        prompt = ('  %s  '):format(flags_icon),
-      }
-    }
-
-    local last_mode = M.mode
-    local result = vim.fn.input(modes[last_mode])
-
-    if type(result) == 'string' then
-      return result
-    end
-
-    if last_mode == M.mode then
-      if M.mode == 1 then
-        break
-      end
-
-      M.mode = 1
-    end
+  if type(result) == 'string' then
+    return result
   end
 end
 
 function M.prompt(search_args, search_term)
   local bs_mapping = set_search_prompt_mapping('<BS>', dismiss_if_needed, true)
-  local tab_mapping = set_search_prompt_mapping('<Tab>', toggle_modes, false)
 
   enable_live_search()
   search_term = get_input(search_args, search_term)
   disable_live_search()
 
-  unset_search_prompt_mapping(tab_mapping)
   unset_search_prompt_mapping(bs_mapping)
 
   if get_is_in_search_buffer() then
