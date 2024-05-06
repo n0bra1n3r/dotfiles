@@ -1187,16 +1187,14 @@ function fn.select_lsp_diagnostic(severityOrLocation)
     severity = severityOrLocation
   end
 
-  local list = vim.fn.getqflist{
+  local list = vim.fn.getqflist {
     id = qf_info['lsp_diagnostics'],
     context = 0,
     idx = 0,
     items = 0,
   }
 
-  if vim.deep_equal(severityOrLocation, list.context.selection)
-      or vim.bo.filetype == 'qf'
-  then
+  if vim.deep_equal(severityOrLocation, list.context.selection) then
     if is_current_qf(list.context.name) then
       local sel_item =  list.items[list.idx]
       if sel_item then
@@ -1214,7 +1212,7 @@ function fn.select_lsp_diagnostic(severityOrLocation)
             or severity
         then
           local sign, hl = fn.get_sign_for_severity(item.type)
-          if ({ sign, hl } == { fn.get_sign_for_severity(severity) })
+          if vim.deep_equal({ sign, hl }, { fn.get_sign_for_severity(severity) })
               or location
           then
             set_qf_list(list.context.name, {
@@ -1242,10 +1240,8 @@ function fn.select_lsp_diagnostic(severityOrLocation)
       items = 0,
     }
 
-    if type(list.context.selection) == 'table'
-        and list.idx ~= 0
-    then
-      if not get_is_item_at_loc(
+    if type(list.context.selection) == 'table' then
+      if list.idx ~= 0 and not get_is_item_at_loc(
         list.items[list.idx],
         list.context.selection
       ) then
@@ -1573,9 +1569,11 @@ function fn.init_quickfix()
           local item = list.items[lnum]
           if item.bufnr ~= 0 then
             local win = vim.fn.win_getid(vim.fn.winnr('#'))
-            vim.api.nvim_win_set_buf(win, item.bufnr)
-            vim.api.nvim_win_set_cursor(win, { item.lnum, item.col - 1 })
             vim.api.nvim_set_current_win(win)
+
+            local path = vim.api.nvim_buf_get_name(item.bufnr)
+            vim.cmd.drop(vim.fn.fnameescape(path))
+            vim.api.nvim_win_set_cursor(0, { item.lnum, item.col - 1 })
           end
         end,
       })
