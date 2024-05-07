@@ -889,25 +889,6 @@ local qf_info = {
   preview_win = nil,
 }
 
-local setqflist_fn = vim.fn.setqflist
----@diagnostic disable-next-line: duplicate-set-field
-vim.fn.setqflist = function(...)
-  -- set current list to the last one to write to it by default
-  local args = { ... }
-  if (args[2] and args[2] == ' ')
-      or (#args[1] > 0 and not args[3])
-      or (args[3] and args[3].items)
-  then
-    vim.cmd.chistory{ count = 10, mods = { silent = true } }
-
-    local winid = vim.fn.getqflist{ id = 0, winid = 0 }.winid
-    if winid ~= 0 then
-      vim.wo[winid].foldenable = false
-    end
-  end
-  pcall(setqflist_fn, unpack(args))
-end
-
 local function get_diagnostic_line(item)
   local col, end_col = item.col, item.end_col
   if item.vcol and item.vcol ~= 0 then
@@ -951,11 +932,15 @@ local function set_qf_list(name, what, is_append)
     what.items = nil
   end
 
-  setqflist_fn({}, act, vim.tbl_deep_extend('keep', {
+  local is_ok, res = pcall(vim.fn.setqflist, {}, act, vim.tbl_deep_extend('keep', {
     context = { name = name },
     id = qf_info[name],
     title = what.title,
   }, what))
+
+  if not is_ok then
+    vim.notify(res, vim.log.levels.ERROR)
+  end
 
   list = vim.fn.getqflist{ id = 0, winid = 0 }
 
