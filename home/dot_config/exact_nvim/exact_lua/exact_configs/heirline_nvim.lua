@@ -251,7 +251,7 @@ local function git_repo_status()
     {
       condition = function(self)
         return fn.has_git_remote(self.cwd)
-          and fn.git_remote_change_count(self.cwd) > 0
+          and fn.git_local_change_count(self.cwd) > 0
       end,
       space(),
       {
