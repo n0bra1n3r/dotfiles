@@ -1,5 +1,20 @@
+-- vim: fcl=all fdm=marker fdl=0 fen
+
+--{{{ Helpers
+local task
+task = function(def)
+  local p = 90
+  task = function(d)
+    p = p + 1
+    d.priority = p
+    return d
+  end
+  return task(def)
+end
+--}}}
+
 my_tasks {
-  ["Generate test coverage"] = {
+  ["Generate test coverage"] = task {
     cond = function()
       return vim.g.project_type == 'flutter'
     end,
@@ -10,9 +25,8 @@ my_tasks {
       '--coverage',
     },
     deps = { [[Show test coverage]] },
-    priority = 91,
   },
-  ["Show test coverage"] = {
+  ["Show test coverage"] = task {
     cond = function()
       return vim.fn.filereadable('coverage/lcov.info') == 1
     end,
@@ -22,9 +36,52 @@ my_tasks {
       require'coverage'.show()
     end,
     notify = false,
-    priority = 92,
   },
-  ["Select device"] = {
+  ["Open iOS workspace"] = task {
+    cond = function()
+      return vim.g.project_type == 'flutter'
+    end,
+    func = function()
+      if vim.fn.isdirectory('./ios/Runner.xcworkspace') == 1 then
+        fn.open_in_os{ './ios/Runner.xcworkspace' }
+        vim.notify(
+          "Opening iOS workspace...",
+          vim.log.levels.INFO,
+          { title = "Flutter tools" }
+        )
+      else
+        vim.notify(
+          "No iOS workspace found!",
+          vim.log.levels.WARN,
+          { title = "Flutter tools" }
+        )
+      end
+    end,
+    notify = false,
+  },
+  ["Open Android project"] = task {
+    cond = function()
+      return vim.g.project_type == 'flutter'
+    end,
+    func = function()
+      if vim.fn.filereadable('./android/app/build.gradle') == 1 then
+        fn.open_in_os{ './android', '-a', '/Applications/Android Studio.app' }
+        vim.notify(
+          "Opening Android project...",
+          vim.log.levels.INFO,
+          { title = "Flutter tools" }
+        )
+      else
+        vim.notify(
+          "No Android project found!",
+          vim.log.levels.WARN,
+          { title = "Flutter tools" }
+        )
+      end
+    end,
+    notify = false,
+  },
+  ["Select device"] = task {
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
@@ -40,9 +97,8 @@ my_tasks {
       )
     end,
     notify = false,
-    priority = 93,
   },
-  ["Run profiler"] = {
+  ["Run profiler"] = task {
     cond = function()
       return fn.is_debugging() and vim.g.project_type == 'flutter'
     end,
@@ -53,9 +109,8 @@ my_tasks {
       end
     end,
     notify = false,
-    priority = 94,
   },
-  ["Hot reload"] = {
+  ["Hot reload"] = task {
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
@@ -63,9 +118,8 @@ my_tasks {
       require'flutter-tools.commands'.reload()
     end,
     notify = false,
-    priority = 95,
   },
-  ["Debug continue"] = {
+  ["Debug continue"] = task {
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
@@ -84,9 +138,8 @@ my_tasks {
         type = 'number',
       },
     },
-    priority = 96,
   },
-  ["Debug restart"] = {
+  ["Debug restart"] = task {
     cond = function()
       return fn.is_debugging() and vim.g.project_type == 'flutter'
     end,
@@ -94,9 +147,8 @@ my_tasks {
       require'flutter-tools.commands'.restart()
     end,
     notify = false,
-    priority = 97,
   },
-  ["Debug terminate"] = {
+  ["Debug terminate"] = task {
     cond = function()
       return fn.is_debugging() and vim.g.project_type == 'flutter'
     end,
@@ -104,9 +156,8 @@ my_tasks {
       require'flutter-tools.commands'.quit()
     end,
     notify = false,
-    priority = 98,
   },
-  ["Install project configuration"] = {
+  ["Install project configuration"] = task {
     func = function()
       vim.ui.select(
         vim.fn.glob('~/.dotfiles/project_configs/*.lua', true, true),
@@ -122,6 +173,5 @@ my_tasks {
         fn.save_as_workspace_config)
     end,
     notify = false,
-    priority = 99,
   },
 }

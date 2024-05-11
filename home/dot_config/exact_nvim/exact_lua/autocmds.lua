@@ -218,64 +218,7 @@ my_autocmds {
     callback = function()
       if fn.has_workspace_config() then
         if vim.g.project_type then
-          local project_config = vim.g.project_configs[vim.g.project_type]
-          if project_config then
-            vim.api.nvim_set_keymap("n", [[<leader>pr]], [[]], {
-              callback = function()
-                vim.cmd.tabedit(project_config)
-              end,
-              desc = "Project",
-              noremap = true,
-              silent = true,
-            })
-          end
           fn.load_vscode_launch_json()
-
-          if vim.g.project_type == 'flutter' then
-            vim.api.nvim_set_keymap('n', [[<leader>fa]], [[]], {
-              callback = function()
-                fn.open_in_os{ './android', '-a', '/Applications/Android Studio.app' }
-                vim.notify(
-                  "Opening Android project...",
-                  vim.log.levels.INFO,
-                  { title = "Flutter tools" }
-                )
-              end,
-              desc = "Open Android project",
-              noremap = true,
-              silent = true,
-            })
-            vim.api.nvim_set_keymap('n', [[<leader>fi]], [[]], {
-              callback = function()
-                if vim.fn.isdirectory('./ios/Runner.xcworkspace') == 1 then
-                  fn.open_in_os{ './ios/Runner.xcworkspace' }
-                  vim.notify(
-                    "Opening iOS project...",
-                    vim.log.levels.INFO,
-                    { title = "Flutter tools" }
-                  )
-                else
-                  vim.notify(
-                    "No workspace folder found!",
-                    vim.log.levels.WARN,
-                    { title = "Flutter tools" }
-                  )
-                end
-              end,
-              desc = "Open iOS project",
-              noremap = true,
-              silent = true,
-            })
-          elseif vim.g.project_type == 'chezmoi' then
-            vim.api.nvim_set_keymap('n', [[<leader>fc]], [[]], {
-              callback = function()
-                fn.open_in_os{ vim.fn.expand'~/.config/nvim' }
-              end,
-              desc = "Open config folder",
-              noremap = true,
-              silent = true,
-            })
-          end
         end
       end
     end,
