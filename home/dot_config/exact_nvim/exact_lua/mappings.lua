@@ -187,6 +187,7 @@ my_mappings {
     ["<M-j>"]           = { "v:lua.fn.is_floating()?'j':'<C-w>j'", expr = true },
     ["<M-k>"]           = { "v:lua.fn.is_floating()?'k':'<C-w>k'", expr = true },
     ["<M-l>"]           = { "v:lua.fn.is_floating()?'h':'<C-w>h'", expr = true },
+    ['<M-p>']           = { [[<C-w>p]] },
     ["<PageDown>"]      = { "L<Down>", noremap = false },
     ["<PageUp>"]        = { "H<Up>", noremap = false },
     ['<S-Tab>']         = { call(fn.jump, 'forward', {
