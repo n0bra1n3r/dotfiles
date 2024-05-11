@@ -1066,6 +1066,29 @@ local function qf_diagnostics_lines(items)
   return lines
 end
 
+local function qf_notifications_lines(items)
+  local lines = {}
+  for _, item in ipairs(items) do
+    local line
+    if #item.type == 1 then
+      local sign, sign_hl = fn.get_sign_for_severity(item.type)
+      line = {
+        { sign, sign_hl },
+        { item.text, 'Title' },
+      }
+    else
+      line = {
+        { '  ' },
+        { item.text },
+      }
+    end
+    if line then
+      table.insert(lines, line)
+    end
+  end
+  return lines
+end
+
 function fn.qf_text(info)
   local list = vim.fn.getqflist {
     id = info.id,
@@ -1078,6 +1101,8 @@ function fn.qf_text(info)
   local lines = {}
   if list.context.name == 'lsp_diagnostics' then
     lines = qf_diagnostics_lines(list.items)
+  elseif list.context.name == 'notifications' then
+    lines = qf_notifications_lines(list.items)
   end
 
   vim.schedule(function()
