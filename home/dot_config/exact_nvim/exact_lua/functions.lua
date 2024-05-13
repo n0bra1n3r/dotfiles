@@ -2663,7 +2663,7 @@ local function load_workspace(tabpage)
   if workspace_file ~= nil then
     fn.freeze_workspace(tabpage, false)
     local workspace_path = fn.get_workspace_dir(tabpage)
-    local workspace_conf = workspace_file:read("*a")
+    local workspace_conf = workspace_file:read('*a')
     pcall(vim.api.nvim_exec2, workspace_conf, { output = false })
     io.close(workspace_file)
     fn.set_tab_cwd(tabpage, workspace_path)
@@ -2759,6 +2759,13 @@ function fn.open_workspace(path)
     local tabpage = vim.api.nvim_get_current_tabpage()
     fn.set_tab_cwd(tabpage, workspace_path)
     load_workspace()
+  end
+  if vim.g.project_main
+      and #vim.api.nvim_tabpage_list_wins(0) == 1
+      and fn.is_empty_buffer()
+      and vim.fn.filereadable(vim.g.project_main) == 1
+  then
+    vim.cmd.edit(vim.g.project_main)
   end
 end
 

@@ -2,6 +2,7 @@
 
 my_globals {
   project_type = 'flutter',
+  project_main = 'lib/main.dart',
 }
 
 my_autocmds {
