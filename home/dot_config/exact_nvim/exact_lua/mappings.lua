@@ -199,7 +199,7 @@ my_mappings {
                               ['<Tab>'] = sel_portal,
                             }), desc = "Jump" },
     [';']               = { call(fn.move_cursor_right) },
-    ['*']               = { [[b:let @/="\\<<C-r><C-w>\\>"|let v:hlsearch=1<CR>]] },
+    ['*']               = { [[<cmd>call search('\<','bc',line('.'))|call search('\<','cz',line('.'))|let @/=expand('<cword>')|let v:hlsearch=1<CR>]] },
     C                   = { '"_C' },
     c                   = { '"_c' },
     D                   = { '"_D' },
