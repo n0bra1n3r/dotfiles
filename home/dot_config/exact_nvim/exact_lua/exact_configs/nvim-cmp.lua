@@ -43,6 +43,7 @@ return {
 
     local cmp = require'cmp'
     local cmp_action = require'lsp-zero'.cmp_action()
+    local luasnip = require'luasnip'
 
     cmp.setup {
       formatting = {
@@ -64,8 +65,8 @@ return {
         end,
       },
       mapping = cmp.mapping.preset.insert {
-        ["<C-Space>"] = cmp.mapping.complete(),
-        ["<CR>"] = cmp.mapping(function(fallback)
+        ['<C-Space>'] = cmp.mapping.complete(),
+        ['<CR>'] = cmp.mapping(function(fallback)
           if cmp.visible() and cmp.get_selected_entry() ~= nil then
             cmp.confirm {
               behavior = cmp.ConfirmBehavior.Replace,
@@ -74,9 +75,17 @@ return {
           else
             fallback()
           end
-        end, { "c", "i", "s" }),
-        ["<Tab>"] = cmp_action.luasnip_supertab(),
-        ["<S-Tab>"] = cmp_action.luasnip_shift_supertab(),
+        end, { 'c', 'i', 's' }),
+        ['<Tab>'] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            cmp.select_next_item()
+          elseif luasnip.expand_or_jumpable() then
+            luasnip.expand_or_jump()
+          else
+            fallback()
+          end
+        end, { 'i', 's' }),
+        ['<S-Tab>'] = cmp_action.luasnip_shift_supertab(),
       },
       sources = cmp.config.sources(
         {
