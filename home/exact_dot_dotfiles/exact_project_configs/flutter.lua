@@ -22,7 +22,7 @@ my_autocmds {
       })
     end, --}}}
   },
-  { { 'BufDelete', 'BufWritePre' }, -- initialize widgetbook
+  { 'BufWritePre', -- initialize widgetbook
     pattern = {
       'widgetbook/**/*.dart',
     }, --{{{
