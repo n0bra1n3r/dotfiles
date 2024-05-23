@@ -199,7 +199,7 @@ alias gu='git pull'
 
 function ga() {
   if [[ $# -eq 0 ]]; then
-    git add *
+    git add --all
   else
     local opts=()
     for arg in "$@"; do
