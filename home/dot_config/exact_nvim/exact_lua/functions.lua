@@ -560,27 +560,28 @@ function fn.popup_preview(opts)
   local context = opts.context or nil
   local height = opts.height or 5
 
+  local lines
   if not buf then
     if not filename or vim.fn.filereadable(filename) == 0 then
       return nil
     end
     buf = vim.fn.bufadd(filename)
-    vim.fn.bufload(buf)
   else
     filename = vim.api.nvim_buf_get_name(buf)
     if vim.fn.filereadable(filename) == 0 then
       return nil
     end
+    if vim.api.nvim_buf_is_loaded(buf) then
+      lines = vim.api.nvim_buf_get_lines(buf, 0, -1, true)
+    end
   end
 
-  local type = vim.filetype.match{ buf = buf }
-  local lang = vim.treesitter.language.get_lang(type)
-  if lang and pcall(vim.treesitter.language.add, lang) then
-    vim.treesitter.start(buf, lang)
+  if not lines then
+    lines = vim.fn.readfile(filename)
   end
 
   local width = vim.api.nvim_win_get_width(anchor_win)
-  local count = math.max(1, vim.api.nvim_buf_line_count(buf))
+  local count = math.max(1, #lines)
 
   local half_height = (height - 1) / 2
   local top = math.min(0, lnum - 1 - half_height)
@@ -603,13 +604,16 @@ function fn.popup_preview(opts)
     win = not anchor_cur and anchor_win or nil,
   }
 
-  local did_init = false
-
   if not context then
     config.noautocmd = true
-    context = vim.api.nvim_open_win(buf, false, config)
+
+    local pbuf = vim.api.nvim_create_buf(false, true)
+    if pbuf ~= 0 then
+      vim.bo[pbuf].bufhidden = 'wipe'
+    end
+
+    context = vim.api.nvim_open_win(pbuf, false, config)
     if context ~= 0 then
-      did_init = true
       vim.wo[context].foldcolumn = '0'
       vim.wo[context].winbar = ''
       vim.wo[context].scrolloff = height
@@ -626,35 +630,33 @@ function fn.popup_preview(opts)
   end
 
   if context then
+    local pbuf = vim.api.nvim_win_get_buf(context)
+    if vim.b[pbuf].buf ~= buf then
+      vim.b[pbuf].buf = buf
+
+      vim.api.nvim_buf_set_lines(pbuf, 0, -1, true, lines)
+
+      local type = vim.filetype.match{ buf = buf }
+      local lang = vim.treesitter.language.get_lang(type)
+      vim.treesitter.stop(pbuf)
+      if lang and pcall(vim.treesitter.language.add, lang) then
+        vim.treesitter.start(pbuf, lang)
+      end
+    end
+
     local off = vim.fn.getwininfo(anchor_win)[1].textoff
     off = off - vim.fn.getwininfo(context)[1].textoff
     vim.api.nvim_win_set_width(context, width - off - 1)
     vim.api.nvim_win_set_height(context, top + height + bot)
 
-    local hl_hs = vim.api.nvim_create_namespace('hl_preview')
-
-    if did_init or vim.api.nvim_win_get_buf(context) ~= buf then
-      vim.api.nvim_win_set_buf(context, buf)
-
-      vim.api.nvim_win_set_hl_ns(context, hl_hs)
-      vim.api.nvim_set_hl(hl_hs, 'DiagnosticError', {})
-      vim.api.nvim_set_hl(hl_hs, 'DiagnosticHint', {})
-      vim.api.nvim_set_hl(hl_hs, 'DiagnosticInfo', {})
-      vim.api.nvim_set_hl(hl_hs, 'DiagnosticWarn', {})
-      vim.api.nvim_set_hl(hl_hs, 'DiagnosticUnderlineError', {})
-      vim.api.nvim_set_hl(hl_hs, 'DiagnosticUnderlineHint', {})
-      vim.api.nvim_set_hl(hl_hs, 'DiagnosticUnderlineInfo', {})
-      vim.api.nvim_set_hl(hl_hs, 'DiagnosticUnderlineWarn', {})
-      vim.api.nvim_set_hl(hl_hs, 'Preview', { link = 'IncSearch' })
-    end
-
     pcall(vim.api.nvim_win_set_cursor, context, { lnum, col - 1 })
 
+    local hl_hs = vim.api.nvim_create_namespace('hl_preview')
     pcall(vim.api.nvim_buf_set_extmark,
-      buf, hl_hs, lnum - 1, col - 1, {
-        id = buf,
+      pbuf, hl_hs, lnum - 1, col - 1, {
+        id = pbuf,
         end_col = end_col - 1,
-        hl_group = 'Preview',
+        hl_group = 'IncSearch',
       }
     )
   end
