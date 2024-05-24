@@ -25,7 +25,9 @@ export HISTFILESIZE=$HISTSIZE
 
 PROMPT_COMMAND="history -a $HISTFILE;$PROMPT_COMMAND"
 
+complete -F _fzf_complete_g -o nosort -o default -o bashdefault g
 complete -F _fzf_complete_gc -o nosort -o default -o bashdefault gc
+complete -F _fzf_complete_git -o nosort -o default -o bashdefault git
 complete -F _fzf_complete_workspace -o nosort -o default -o bashdefault workspace
 complete -F _fzf_complete_ws -o nosort -o default -o bashdefault ws
 complete -F _fzf_complete_w -o nosort -o default -o bashdefault w

@@ -121,7 +121,6 @@ function _fzf_complete_workspace() {
 
     _fzf_complete \
       --bind 'tab:down,shift-tab:up' \
-      --multi \
       --reverse \
       --prompt="workspace> " -- "$@" < \
       <(printf '%s\n' "${dirs[@]}")
@@ -134,7 +133,6 @@ function _fzf_complete_workspace() {
 
     _fzf_complete \
       --bind 'tab:down,shift-tab:up' \
-      --multi \
       --reverse \
       --prompt="branch> " -- "$@" < \
       <(echo -e "$locals" | grep -v HEAD | grep -v "$current")
@@ -147,6 +145,17 @@ function _fzf_complete_ws() {
 
 function _fzf_complete_w() {
   _fzf_complete_workspace "$@"
+}
+
+function _fzf_complete_git() {
+  case "$*" in
+  *\ sw\ *|*\ switch\ *) _fzf_complete_workspace "$@" ;;
+  *) ;;
+  esac
+}
+
+function _fzf_complete_g() {
+  _fzf_complete_git "$@"
 }
 
 # General aliases
@@ -228,29 +237,6 @@ function ga() {
 function gc() {
   # shellcheck disable=1091
   source "$HOME/.dotfiles/scripts/git-commit-message"
-}
-
-function gg() {
-  command git reflog --color=always \
-    | fzf -0 \
-      --ansi \
-      --preview "git show --color=always \$(echo {} | cut -d' ' -f1)" \
-      --bind "enter:become(command git reset --hard \$(echo {} | cut -d' ' -f1))"
-}
-
-function gw() {
-  if [[ $# -eq 0 ]]; then
-    command git branch \
-      | grep -v '^[*+]' \
-      | awk '{print $1}' \
-      | fzf -0 \
-        --preview 'git show --color=always {-1}' \
-        --bind 'enter:become(command git sw {})'
-
-    git st
-  else
-    git sw "$@"
-  fi
 }
 
 if [[ -n "$START_COMMAND" ]]; then
