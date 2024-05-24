@@ -51,6 +51,7 @@ export OPENAI_API_KEY="#{ .openAi.key }#"
 export BAT_THEME="Catppuccin Frappe"
 export FZF_DEFAULT_OPTS="--bind 'alt-j:down,alt-k:up'"
 export RIPGREP_CONFIG_PATH="$HOME/.dotfiles/ripgreprc"
+export COMMIT_TYPES=(build chore docs feat fix perf refactor revert style test)
 
 #{- if eq .chezmoi.os "windows" }#
 # shellcheck disable=SC2147

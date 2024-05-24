@@ -178,7 +178,7 @@ fi
 
 if [[ "$OPERATION" != "--" && ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]]; then
   if [[ -n "$OPERATION" ]]; then
-    echo "$ERROR_MSG: cannot perform operation '$OPERATION'"
+    echo "$ERROR_MSG: cannot perform operation '$OPERATION'" >&2
     return 1
   fi
   if [[ -n "$WORKSPACE_DEFAULT_DIR" ]]; then
@@ -243,7 +243,7 @@ else
   if [[ -n "$OPERATION" ]]; then
     for (( i=1; i <= $#; i++ )); do
       case "$OPERATION" in
-      "clean")
+      clean)
         eval BRANCH="\${$i}"
         if [[ $BRANCH =~ ^[-.\ /[:alnum:]]+$ ]]; then
           if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null; then
@@ -262,22 +262,22 @@ else
         fi
         [[ $i == 1 ]] && return 0
         ;;
-      "sync")
+      sync)
         eval BRANCH="\${$i}"
         if [[ $BRANCH =~ ^[-.\ /[:alnum:]]+$ ]]; then
           echo "$INFO_MSG: pulling '$BRANCH'..." >&2
           git -C "$WORKSPACE_ROOT_DIR/$BRANCH" pull || return 1
-          echo "$INFO_MSG: synchronising '$THIS_BRANCH' with '$BRANCH'..."
+          echo "$INFO_MSG: synchronising '$THIS_BRANCH' with '$BRANCH'..." >&2
           git rebase $BRANCH >/dev/null || return 1
         fi
         [[ $i == 1 ]] && return 0
         ;;
-      "--")
+      --)
         OPERATION="$1"
         shift
         ;;
       *)
-        echo "$ERROR_MSG: unknown operation '$OPERATION'"
+        echo "$ERROR_MSG: unknown operation '$OPERATION'" >&2
         return 1
         ;;
       esac

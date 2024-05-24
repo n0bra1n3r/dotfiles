@@ -2,58 +2,88 @@
 
 function __git-commit-message_main__() {
 
-local TYPE="$1"
-local TICK=""
-local BRANCH
+local INPUT
+local TYPE
+local TICK
+local MESSAGE
 
-BRANCH="$(git branch --show-current)"
+INPUT="$*"
 
-if [[ -n "$BRANCH" ]]; then
-  TICK="$(printf '%s' "$BRANCH" | \
-    grep -Eo '^(\w+/)?(\w+[-_])?[0-9]+' | \
-    grep -Eo '(\w+[-])?[0-9]+' | \
-    tr "[:lower:]" "[:upper:]")"
+local opts=()
+for (( i=0; i <= $#; i++ )); do
+  case "$1" in
+  --)
+    shift
+    MESSAGE="$*"
+    break
+    ;;
+  -*)
+    opts+=("$1")
+    shift
+    ;;
+  *)
+    if [[ -n "$TYPE" ]]; then
+      MESSAGE="$TYPE $*"
+      opts=()
+      unset TYPE
+      break
+    fi
+    TYPE="$(printf '%s' "$1" | \
+      grep -Eo '^\w+')"
+    TICK="$(printf '%s' "$1" | \
+      grep -Eo "$TYPE\(\w+-[0-9]+\)" | \
+      tr "[:lower:]" "[:upper:]")"
+    shift
+    ;;
+  esac
+done
+
+if [[ -z "$TICK" ]]; then
+  local BRANCH
+  BRANCH="$(git branch --show-current)"
+  if [[ -n "$BRANCH" ]]; then
+    TICK="$(printf '%s' "$BRANCH" | \
+      grep -Eo '^(\w+/)?(\(\w+[-_][0-9]+\)|\w+[-_][0-9]+)' | \
+      grep -Eo '\w+[-_][0-9]+' | \
+      tr "[:lower:]" "[:upper:]")"
+
+    if [[ -n "$TICK" ]] && [[ -z "$TYPE" ]]; then
+      TYPE="chore"
+      echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m inferring commit type '$TYPE'\e[0m\n" >&2
+    fi
+  fi
 fi
 
 if [[ -n "$TYPE" ]]; then
-  local BAD_TYPE=false
-  case "$1" in
-  b|bu|bui|buil|build) TYPE="build" ;;
-  ch|cho|chor|chore) TYPE="chore" ;;
-  ci) TYPE="ci" ;;
-  d|do|doc|docs) TYPE="docs" ;;
-  fe|fea|feat) TYPE="feat" ;;
-  fi|fix) TYPE="fix" ;;
-  p|pe|per|perf) TYPE="perf" ;;
-  ref|refa|refac|refact|refacto|refactor) TYPE="refactor" ;;
-  rev|reve|rever|revert) TYPE="revert" ;;
-  s|st|sty|styl|style) TYPE="style" ;;
-  t|te|tes|test) TYPE="test" ;;
-  *) BAD_TYPE=true ;;
-  esac
-  shift
-
-  local MESSAGE="$*"
+  local BAD_TYPE
+  BAD_TYPE=true
+  for type in "${COMMIT_TYPES[@]}"; do
+    if [[ "$type" == "$TYPE"* ]]; then
+      TYPE="$type"
+      BAD_TYPE=false
+      break
+    fi
+  done
 
   if [[ $BAD_TYPE == true ]]; then
-    git cm "$TYPE $MESSAGE" || return $?
+    git commit -m "$INPUT" || return $?
     if [[ -n "$TICK" ]]; then
-      local INFO_MSG="\n* types: build chore docs feat fix perf refactor revert style test"
-      echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m unknown commit type '$TYPE'$INFO_MSG\e[0m"
+      local INFO_MSG="\n* types: ${COMMIT_TYPES[@]}"
+      echo -e "\n\e[33m\e[1mWARN:\e[0m\e[33m unknown commit type '$TYPE' $INFO_MSG\e[0m" >&2
     fi
   else
-    local PREFIX="$TYPE($TICK)"
-
-    if [[ -z "$TICK" || "$TYPE" == "$PREFIX" ]]; then
-      git cm "$TYPE: $MESSAGE"
+    if [[ -z "$TICK" ]]; then
+      git commit "${opts[@]}" -m "$TYPE: $MESSAGE"
     else
-      git cm "$PREFIX: $MESSAGE"
+      git commit "${opts[@]}" -m "$TYPE($TICK): $MESSAGE"
     fi
   fi
-elif [[ -n "$TICK" ]]; then
-  git cm "chore($TICK): " -e
 else
-  git cm "chore: " -e
+  if [[ -z "$INPUT" ]]; then
+    git commit -e
+  else
+    git commit -m "$INPUT"
+  fi
 fi
 
 }
