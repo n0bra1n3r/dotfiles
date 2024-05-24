@@ -89,9 +89,13 @@ else
   }
 fi
 
-function workspace() {
-  # shellcheck disable=1091
-  source "$HOME/.dotfiles/scripts/workspace"
+function _fzf_complete_gc() {
+  _fzf_complete \
+    --bind 'tab:down,shift-tab:up' \
+    --multi \
+    --reverse \
+    --prompt="type> " -- "$@" < \
+    <(printf '%s\n' "${COMMIT_TYPES[@]}")
 }
 
 function _fzf_complete_workspace() {
@@ -182,6 +186,11 @@ function gh() {
   fi
 
   command gh "$@"
+}
+
+function workspace() {
+  # shellcheck disable=1091
+  source "$HOME/.dotfiles/scripts/workspace"
 }
 
 # Config aliases
