@@ -140,22 +140,48 @@ function _fzf_complete_workspace() {
 }
 
 function _fzf_complete_ws() {
-  _fzf_complete_workspace "$@"
+  shift
+  _fzf_complete_workspace "workspace $@"
 }
 
 function _fzf_complete_w() {
-  _fzf_complete_workspace "$@"
+  shift
+  _fzf_complete_workspace "workspace $@"
 }
 
 function _fzf_complete_git() {
   case "$*" in
-  *\ sw\ *|*\ switch\ *) _fzf_complete_workspace "$@" ;;
+  git\ sw\ *|git\ switch\ *) _fzf_complete_workspace "$@" ;;
+  git\ add\ *)
+    local files
+    files="$(command git status --porcelain 2>/dev/null)"
+    _fzf_complete \
+      --multi \
+      --reverse \
+      --prompt="files> " -- "$@" < \
+      <(printf '%s\n' "${files[@]}")
+  ;;
+  *) ;;
+  esac
+}
+
+function _fzf_complete_git_post() {
+  case "$LBUFFER" in
+  git\ add\ *)
+    awk -F ' ' "{print \"'\" \$2 \"'\"}"
+  ;;
   *) ;;
   esac
 }
 
 function _fzf_complete_g() {
-  _fzf_complete_git "$@"
+  shift
+  _fzf_complete_git "git $@"
+}
+
+function _fzf_complete_ga() {
+  shift
+  _fzf_complete_git "git add $@"
 }
 
 # General aliases
@@ -214,25 +240,11 @@ function ce() {
 
 # Git aliases
 
+alias ga='git add'
 alias gb='git branch'
 alias gp='git pu'
 alias gs='git st'
 alias gu='git pull'
-
-function ga() {
-  if [[ $# -eq 0 ]]; then
-    git add --all
-  else
-    local opts=()
-    for arg in "$@"; do
-      case "$arg" in
-      -*) opts+=("$arg") ;;
-      *) opts+=("*$arg*") ;;
-      esac
-    done
-    git add "${opts[@]}"
-  fi
-}
 
 function gc() {
   # shellcheck disable=1091
