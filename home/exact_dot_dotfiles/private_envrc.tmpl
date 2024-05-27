@@ -1,39 +1,13 @@
 #!/usr/bin/env bash
 # chezmoi:template:left-delimiter="#{" right-delimiter="}#"
 
-if [[ -n "$_ENVRC_SOURCED" ]]; then
-  return
-fi
+export BAT_THEME="Catppuccin Frappe"
 
-export _ENVRC_SOURCED=1
-
-if [[ -n "$ZSH_VERSION" ]]; then
-  setopt null_glob
-else
-  shopt -u nullglob
-fi
-
-#{- if eq .chezmoi.os "darwin" }#
-export TERM="wezterm"
-#{- end }#
+export COMMIT_TYPES=(build chore ci docs feat fix perf refactor revert style test)
 
 export EDITOR="nvim"
 
-export PUB_CACHE="$HOME/.pub-cache"
-
-PATH="$HOME/.nimble/bin:$PATH"
-PATH="$HOME/.local/bin:$PATH"
-PATH="$HOME/.dotfiles/scripts:$PATH"
-PATH="$HOME/.fvm/default/bin:$PATH"
-PATH="$PUB_CACHE/bin:$PATH"
-
-for bin_dir in ~/.dotfiles/deps/*/.local/bin; do
-  PATH="$bin_dir:$PATH"
-done
-
-for bin_dir in ~/.dotfiles/deps/*/.local/usr/bin; do
-  PATH="$bin_dir:$PATH"
-done
+export FZF_DEFAULT_OPTS="--bind 'alt-j:down,alt-k:up'"
 
 #{- if index . "gitlab" }#
 export GITLAB_ACCESS_TOKEN="#{ .gitlab.token }#"
@@ -48,10 +22,52 @@ export GH_TOKEN="$GITHUB_ACCESS_TOKEN"
 export OPENAI_API_KEY="#{ .openAi.key }#"
 #{- end }#
 
-export BAT_THEME="Catppuccin Frappe"
-export FZF_DEFAULT_OPTS="--bind 'alt-j:down,alt-k:up'"
+export PUB_CACHE="$HOME/.pub-cache"
+
 export RIPGREP_CONFIG_PATH="$HOME/.dotfiles/ripgreprc"
-export COMMIT_TYPES=(build chore docs feat fix perf refactor revert style test)
+
+#{- if eq .chezmoi.os "darwin" }#
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+
+export FVM_HOME="$HOME/.fvm"
+
+export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+
+export TERM="wezterm"
+
+for vulkan_sdk_dir in ~/VulkanSDK/*/macOS; do
+  VULKAN_SDK="$vulkan_sdk_dir"
+done
+export VULKAN_SDK
+export VK_ICD_FILENAMES="$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"
+export VK_LAYER_PATH="$VULKAN_SDK/share/vulkan/explicit_layer.d"
+#{- end }#
+
+if [[ -n "$_ENVRC_SOURCED" ]]; then
+  return
+fi
+
+export _ENVRC_SOURCED=1
+
+if [[ -n "$ZSH_VERSION" ]]; then
+  setopt null_glob
+else
+  shopt -u nullglob
+fi
+
+PATH="$HOME/.dotfiles/scripts:$PATH"
+PATH="$HOME/.fvm/default/bin:$PATH"
+PATH="$HOME/.local/bin:$PATH"
+PATH="$HOME/.nimble/bin:$PATH"
+PATH="$PUB_CACHE/bin:$PATH"
+
+for bin_dir in ~/.dotfiles/deps/*/.local/bin; do
+  PATH="$bin_dir:$PATH"
+done
+
+for bin_dir in ~/.dotfiles/deps/*/.local/usr/bin; do
+  PATH="$bin_dir:$PATH"
+done
 
 #{- if eq .chezmoi.os "windows" }#
 # shellcheck disable=SC2147
@@ -63,18 +79,6 @@ PATH="/c/PROGRA~2/Microsoft Visual Studio/Shared/Python39_64:$PATH"
 # shellcheck disable=SC2147
 PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/MSBuild/Microsoft/VisualStudio/NodeJs:$PATH"
 #{- else if eq .chezmoi.os "darwin" }#
-export ANDROID_HOME="$HOME/Library/Android/sdk"
-export FVM_HOME="$HOME/.fvm"
-export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
-
-for vulkan_sdk_dir in ~/VulkanSDK/*/macOS; do
-  VULKAN_SDK="$vulkan_sdk_dir"
-done
-export VULKAN_SDK
-
-export VK_ICD_FILENAMES="$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"
-export VK_LAYER_PATH="$VULKAN_SDK/share/vulkan/explicit_layer.d"
-
 export DYLD_LIBRARY_PATH="$VULKAN_SDK/lib:$DYLD_LIBRARY_PATH"
 
 PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
