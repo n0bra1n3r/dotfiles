@@ -89,6 +89,19 @@ else
   }
 fi
 
+function _fzf_complete_ga() {
+  local files
+  files="$(command git status --porcelain 2>/dev/null)"
+  _fzf_complete \
+    --multi \
+    --prompt="files> " -- "$@" < \
+    <(printf '%s\n' "${files[@]}")
+}
+
+function _fzf_complete_ga_post() {
+  awk -F ' ' "{print \"'\" \$2 \"'\"}"
+}
+
 function _fzf_complete_gc() {
   _fzf_complete \
     --bind 'tab:down,shift-tab:up' \
@@ -140,26 +153,17 @@ function _fzf_complete_workspace() {
 }
 
 function _fzf_complete_ws() {
-  shift
   _fzf_complete_workspace "$@"
 }
 
 function _fzf_complete_w() {
-  shift
   _fzf_complete_workspace "$@"
 }
 
 function _fzf_complete_git() {
   case "$@" in
   *\ sw\ *|*\ switch\ *) _fzf_complete_workspace "$@" ;;
-  *\ add\ *)
-    local files
-    files="$(command git status --porcelain 2>/dev/null)"
-    _fzf_complete \
-      --multi \
-      --prompt="files> " -- "$@" < \
-      <(printf '%s\n' "${files[@]}")
-  ;;
+  *\ add\ *) _fzf_complete_ga "$@" ;;
   *\ rs\ *|*\ reset\ *)
     local files
     files="$(command git diff --name-status 2>/dev/null)"
@@ -174,20 +178,12 @@ function _fzf_complete_git() {
 
 function _fzf_complete_git_post() {
   case "$LBUFFER" in
-  *\ add\ *|*\ rs\ *|*\ restore\ *)
-    awk -F ' ' "{print \"'\" \$2 \"'\"}"
-  ;;
-  *)
-    awk '{print $1}'
-  ;;
+  *\ add\ *|*\ rs\ *|*\ restore\ *) _fzf_complete_ga_post "$@" ;;
+  *) awk '{print $1}' ;;
   esac
 }
 
 function _fzf_complete_g() {
-  _fzf_complete_git "$@"
-}
-
-function _fzf_complete_ga() {
   _fzf_complete_git "$@"
 }
 
