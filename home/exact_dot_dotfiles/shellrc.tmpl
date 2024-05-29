@@ -164,6 +164,14 @@ function _fzf_complete_git() {
   case "$@" in
   *\ sw\ *|*\ switch\ *) _fzf_complete_workspace "$@" ;;
   *\ add\ *) _fzf_complete_ga "$@" ;;
+  *\ rb\ *|*\ rebase\ *)
+    local commits
+    commits="$(command git log --pretty=format:"%h %s" --first-parent -n 20 HEAD 2>/dev/null)"
+    _fzf_complete \
+      --bind 'tab:down,shift-tab:up' \
+      --prompt="commit> " -- "$@" < \
+      <(printf '%s\n' "${commits[@]}")
+  ;;
   *\ rs\ *|*\ reset\ *)
     local files
     files="$(command git diff --name-status 2>/dev/null)"
@@ -179,6 +187,7 @@ function _fzf_complete_git() {
 function _fzf_complete_git_post() {
   case "$LBUFFER" in
   *\ add\ *|*\ rs\ *|*\ restore\ *) _fzf_complete_ga_post "$@" ;;
+  *\ rb\ *|*\ rebase\ *) awk -F ' ' '{print $1}' ;;
   *) awk '{print $1}' ;;
   esac
 }
