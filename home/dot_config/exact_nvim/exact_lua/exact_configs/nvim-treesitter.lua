@@ -15,6 +15,8 @@ return {
         'graphql',
         'kotlin',
         'lua',
+        'markdown',
+        'markdown_inline',
         'nim',
         'nim_format_string',
         'norg',
@@ -27,6 +29,9 @@ return {
           return not fn.is_file_buffer(bufnr)
             or vim.api.nvim_buf_line_count(bufnr) > 999
         end,
+      },
+      markdown = {
+        enable = true,
       },
       matchup = {
         enable = true,
