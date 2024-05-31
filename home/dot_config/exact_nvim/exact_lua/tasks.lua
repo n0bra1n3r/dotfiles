@@ -14,6 +14,14 @@ end
 --}}}
 
 my_tasks {
+  ["Generate table of contents"] = task {
+    cond = function()
+      return vim.bo.filetype == 'markdown'
+    end,
+    func = function()
+      vim.cmd.MDInsertToc()
+    end,
+  },
   ["Generate test coverage"] = task {
     cond = function()
       return vim.g.project_type == 'flutter'
