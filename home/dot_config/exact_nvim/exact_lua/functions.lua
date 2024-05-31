@@ -1464,6 +1464,11 @@ function fn.update_task_output(output, qf_id)
       for _, line in ipairs(output) do
         table.insert(lines, line)
       end
+      for i = #lines, 1, -1 do
+        if #vim.trim(lines[i]) == 0 then
+          table.remove(lines, i)
+        end
+      end
       set_qf_list(qf_name, {
         context = { is_running = true },
         lines = lines,
