@@ -231,104 +231,104 @@ end
 --   end,
 -- }
 
-M.methods['textDocument/didChange'] = {
-  handler = function(_, params, cb)
-    local text = params.contentChanges and
-      params.contentChanges[#params.contentChanges].text or
-      params.textDocument.text
-    if text and #text > 0 then
-      local path = uri_to_path(params.textDocument.uri)
-
-      local ns = vim.api.nvim_create_namespace('nim_lsp')
-
-      local diagnostics = {}
-      local info_cache = {}
-      local last_diagnostic
-
-      local job = require'plenary.job':new{
-        args = {
-          'check',
-          '--verbosity:0',
-          '--eval:',
-          text,
-        },
-        command = 'nim',
-        cwd = vim.fn.fnamemodify(path, ':h'),
-        on_exit = function()
-          table.remove(M.info.diag_stack, 1)
-          cb.stop{ message = 'diagnostics', percentage = 100 }
-
-          if #M.info.diag_stack > 0 then
-            M.info.diag_stack[1]:start()
-            cb.start{ message = 'diagnostics' }
-          end
-        end,
-        on_stderr = vim.schedule_wrap(function(_, line)
-          if line then
-            local errors = vim.fn.getqflist{
-              lines = { line:gsub([[^cmdfile%.nim]], path) },
-              efm = [[%f(%l\, %c) %trror: %m,]]
-                ..[[%f(%l\, %c) %tarning: %m,]]
-                ..[[%N%f(%l\, %c) Hint: %m,]]
-                ..[[%A%f(%l\, %c) %m,]]
-                ..[[%-IHint: %m,]]
-                ..[[%-EError: %m,]]
-                ..[[%-ICC: %m,]]
-                ..[[%-Istack trace: %m]]
-            }.items
-
-            for _, error in ipairs(errors) do
-              local diagnostic = vim.diagnostic.fromqflist{ error }[1]
-              if diagnostic then
-                diagnostic.code = diagnostic.message:match('%[(%w+)%]$')
-                if diagnostic.code then
-                  diagnostic.message = diagnostic.message:sub(1, -#diagnostic.code - 4)
-                end
-
-                if #error.type ~= 0 then
-                  if #info_cache > 0 then
-                    diagnostic.user_data = info_cache
-                    info_cache = {}
-                  end
-                  table.insert(diagnostics, diagnostic)
-                else
-                  diagnostic.severity = vim.diagnostic.severity.INFO
-                  table.insert(info_cache, diagnostic)
-                end
-
-                last_diagnostic = diagnostic
-              elseif last_diagnostic then
-                last_diagnostic.message = last_diagnostic.message
-                  ..'\n'
-                  ..error.text
-              end
-            end
-
-            apply_diagnostics(ns, diagnostics)
-          end
-        end),
-      }
-
-      if #M.info.diag_stack < 2 then
-        table.insert(M.info.diag_stack, job)
-
-        if #M.info.diag_stack < 2 then
-          M.info.diag_stack[1]:start()
-          cb.start{ message = 'diagnostics' }
-        end
-      else
-        M.info.diag_stack[2] = job
-      end
-    end
-  end,
-}
-
-M.methods['textDocument/didOpen'] = {
-  handler = function(message_id, params, cb)
-    local did_change = M.methods['textDocument/didChange']
-    did_change.handler(message_id, params, cb)
-  end,
-}
+-- M.methods['textDocument/didChange'] = {
+--   handler = function(_, params, cb)
+--     local text = params.contentChanges and
+--       params.contentChanges[#params.contentChanges].text or
+--       params.textDocument.text
+--     if text and #text > 0 then
+--       local path = uri_to_path(params.textDocument.uri)
+--
+--       local ns = vim.api.nvim_create_namespace('nim_lsp')
+--
+--       local diagnostics = {}
+--       local info_cache = {}
+--       local last_diagnostic
+--
+--       local job = require'plenary.job':new{
+--         args = {
+--           'check',
+--           '--verbosity:0',
+--           '--eval:',
+--           text,
+--         },
+--         command = 'nim',
+--         cwd = vim.fn.fnamemodify(path, ':h'),
+--         on_exit = function()
+--           table.remove(M.info.diag_stack, 1)
+--           cb.stop{ message = 'diagnostics', percentage = 100 }
+--
+--           if #M.info.diag_stack > 0 then
+--             M.info.diag_stack[1]:start()
+--             cb.start{ message = 'diagnostics' }
+--           end
+--         end,
+--         on_stderr = vim.schedule_wrap(function(_, line)
+--           if line then
+--             local errors = vim.fn.getqflist{
+--               lines = { line:gsub([[^cmdfile%.nim]], path) },
+--               efm = [[%f(%l\, %c) %trror: %m,]]
+--                 ..[[%f(%l\, %c) %tarning: %m,]]
+--                 ..[[%N%f(%l\, %c) Hint: %m,]]
+--                 ..[[%A%f(%l\, %c) %m,]]
+--                 ..[[%-IHint: %m,]]
+--                 ..[[%-EError: %m,]]
+--                 ..[[%-ICC: %m,]]
+--                 ..[[%-Istack trace: %m]]
+--             }.items
+--
+--             for _, error in ipairs(errors) do
+--               local diagnostic = vim.diagnostic.fromqflist{ error }[1]
+--               if diagnostic then
+--                 diagnostic.code = diagnostic.message:match('%[(%w+)%]$')
+--                 if diagnostic.code then
+--                   diagnostic.message = diagnostic.message:sub(1, -#diagnostic.code - 4)
+--                 end
+--
+--                 if #error.type ~= 0 then
+--                   if #info_cache > 0 then
+--                     diagnostic.user_data = info_cache
+--                     info_cache = {}
+--                   end
+--                   table.insert(diagnostics, diagnostic)
+--                 else
+--                   diagnostic.severity = vim.diagnostic.severity.INFO
+--                   table.insert(info_cache, diagnostic)
+--                 end
+--
+--                 last_diagnostic = diagnostic
+--               elseif last_diagnostic then
+--                 last_diagnostic.message = last_diagnostic.message
+--                   ..'\n'
+--                   ..error.text
+--               end
+--             end
+--
+--             apply_diagnostics(ns, diagnostics)
+--           end
+--         end),
+--       }
+--
+--       if #M.info.diag_stack < 2 then
+--         table.insert(M.info.diag_stack, job)
+--
+--         if #M.info.diag_stack < 2 then
+--           M.info.diag_stack[1]:start()
+--           cb.start{ message = 'diagnostics' }
+--         end
+--       else
+--         M.info.diag_stack[2] = job
+--       end
+--     end
+--   end,
+-- }
+--
+-- M.methods['textDocument/didOpen'] = {
+--   handler = function(message_id, params, cb)
+--     local did_change = M.methods['textDocument/didChange']
+--     did_change.handler(message_id, params, cb)
+--   end,
+-- }
 
 M.methods['textDocument/definition'] = {
   capability = true,
