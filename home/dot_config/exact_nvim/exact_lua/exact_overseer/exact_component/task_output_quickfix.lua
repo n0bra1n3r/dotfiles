@@ -8,13 +8,22 @@ return {
         self.task_id = nil
       end,
       on_exit = function(self, _, code)
-        self.task_id = fn.update_task_output(code, self.task_id)
+        local is_ok, task_id = pcall(fn.update_task_output, code, self.task_id)
+        if is_ok then
+          self.task_id = task_id
+        end
       end,
       on_output_lines = function(self, _, lines)
-        self.task_id = fn.update_task_output(lines, self.task_id)
+        local is_ok, task_id = pcall(fn.update_task_output, lines, self.task_id)
+        if is_ok then
+          self.task_id = task_id
+        end
       end,
       on_start = function(self)
-        self.task_id = fn.update_task_output({})
+        local is_ok, task_id = pcall(fn.update_task_output, {})
+        if is_ok then
+          self.task_id = task_id
+        end
       end,
     }
   end,
