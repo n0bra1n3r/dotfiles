@@ -207,6 +207,8 @@ my_mappings {
     gf                  = { edit_buf'edit', desc = "Edit" },
     h                   = { ";" },
     l                   = { get_motion_expr('k$l', 'h'), expr = true },
+    N                   = { ui_redir'normal! N' },
+    n                   = { ui_redir'normal! n' },
     S                   = { [[<Plug>(leap-from-window)]] },
     s                   = { [[<Plug>(leap)]] },
     u                   = { ui_redir'undo' },
