@@ -74,6 +74,16 @@ my_tasks {
     },
     priority = 3,
   }, --}}}
+  ["Setup environment"] = { --{{{
+    cond = function()
+      return vim.fn.filereadable('.scripts/setup-env.sh') == 1
+    end,
+    cmd = 'sh',
+    args = {
+      '.scripts/setup-env.sh'
+    },
+    priority = 4,
+  }, --}}}
   ["Regen widgetbook"] = { --{{{
     cmd = 'fvm',
     args = {
@@ -85,7 +95,7 @@ my_tasks {
       '--delete-conflicting-outputs',
     },
     cwd = 'widgetbook',
-    priority = 4,
+    priority = 5,
   }, --}}}
 }
 
