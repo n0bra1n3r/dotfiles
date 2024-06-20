@@ -1,8 +1,5 @@
 # vim: filetype=gitignore
 
-# Package managers
-/.fvm/
-
 # Dart
 /.dart_tool/
 

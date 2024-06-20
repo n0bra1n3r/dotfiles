@@ -1,4 +1,6 @@
-.fvm
+.fvm/
+.fvmrc
 .nvim
+.puro.json
 .scripts
 coverage/

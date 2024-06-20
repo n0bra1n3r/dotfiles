@@ -26,9 +26,8 @@ my_tasks {
     cond = function()
       return vim.g.project_type == 'flutter'
     end,
-    cmd = 'fvm',
+    cmd = 'flutter',
     args = {
-      'flutter',
       'test',
       '--coverage',
     },

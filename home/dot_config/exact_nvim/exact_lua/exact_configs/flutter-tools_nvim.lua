@@ -50,7 +50,6 @@ return {
       dev_tools = {
         autostart = true,
       },
-      fvm = true,
       lsp = {
         color = {
           enabled = true,
@@ -64,6 +63,7 @@ return {
             '.dart_tool',
             vim.fn.expand('~/.pub-cache/'),
             vim.fn.expand('~/.fvm/'),
+            vim.fn.expand('~/.puro/'),
           },
           completeFunctionCalls = true,
           experimentalRefactors = true,

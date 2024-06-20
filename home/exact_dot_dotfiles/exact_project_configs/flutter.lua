@@ -46,18 +46,16 @@ my_autocmds {
 
 my_tasks {
   ["Install dependencies"] = { --{{{
-    cmd = 'fvm',
+    cmd = 'flutter',
     args = {
-      'flutter',
       'pub',
       'get',
     },
     priority = 1,
   }, --}}}
   ["Run codegen"] = { --{{{
-    cmd = 'fvm',
+    cmd = 'flutter',
     args = {
-      'flutter',
       'pub',
       'run',
       'build_runner',
@@ -67,9 +65,8 @@ my_tasks {
     priority = 2,
   }, --}}}
   ["Gen strings"] = { --{{{
-    cmd = 'fvm',
+    cmd = 'flutter',
     args = {
-      'flutter',
       'gen-l10n',
     },
     priority = 3,
@@ -85,9 +82,8 @@ my_tasks {
     priority = 4,
   }, --}}}
   ["Regen widgetbook"] = { --{{{
-    cmd = 'fvm',
+    cmd = 'flutter',
     args = {
-      'flutter',
       'pub',
       'run',
       'build_runner',
