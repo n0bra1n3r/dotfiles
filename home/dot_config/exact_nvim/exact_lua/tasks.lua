@@ -14,15 +14,15 @@ end
 --}}}
 
 my_tasks {
-  ["Generate table of contents"] = task {
+  ["Generate table of contents"] = task { --{{{
     cond = function()
       return vim.bo.filetype == 'markdown'
     end,
     func = function()
       vim.cmd.MDInsertToc()
     end,
-  },
-  ["Generate test coverage"] = task {
+  }, --}}}
+  ["Generate test coverage"] = task { --{{{
     cond = function()
       return vim.g.project_type == 'flutter'
     end,
@@ -32,8 +32,8 @@ my_tasks {
       '--coverage',
     },
     deps = { [[Show test coverage]] },
-  },
-  ["Show test coverage"] = task {
+  }, --}}}
+  ["Show test coverage"] = task { --{{{
     cond = function()
       return vim.fn.filereadable('coverage/lcov.info') == 1
     end,
@@ -43,8 +43,8 @@ my_tasks {
       require'coverage'.show()
     end,
     notify = false,
-  },
-  ["Open iOS workspace"] = task {
+  }, --}}}
+  ["Open iOS workspace"] = task { --{{{
     cond = function()
       return vim.g.project_type == 'flutter'
     end,
@@ -65,8 +65,8 @@ my_tasks {
       end
     end,
     notify = false,
-  },
-  ["Open Android project"] = task {
+  }, --}}}
+  ["Open Android project"] = task { --{{{
     cond = function()
       return vim.g.project_type == 'flutter'
     end,
@@ -87,8 +87,8 @@ my_tasks {
       end
     end,
     notify = false,
-  },
-  ["Select device"] = task {
+  }, --}}}
+  ["Select device"] = task { --{{{
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
@@ -97,15 +97,10 @@ my_tasks {
       vim.g.flutter_current_device = nil
 
       require'flutter-tools.devices'.list_devices()
-      vim.notify(
-        "Detecting Devices...",
-        vim.log.levels.INFO,
-        { title = "Flutter tools" }
-      )
     end,
     notify = false,
-  },
-  ["Run profiler"] = task {
+  }, --}}}
+  ["Run profiler"] = task { --{{{
     cond = function()
       return fn.is_debugging() and vim.g.project_type == 'flutter'
     end,
@@ -116,8 +111,8 @@ my_tasks {
       end
     end,
     notify = false,
-  },
-  ["Hot reload"] = task {
+  }, --}}}
+  ["Hot reload"] = task { --{{{
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
@@ -125,8 +120,8 @@ my_tasks {
       require'flutter-tools.commands'.reload()
     end,
     notify = false,
-  },
-  ["Debug continue"] = task {
+  }, --}}}
+  ["Debug continue"] = task { --{{{
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
@@ -145,8 +140,8 @@ my_tasks {
         type = 'number',
       },
     },
-  },
-  ["Debug restart"] = task {
+  }, --}}}
+  ["Debug restart"] = task { --{{{
     cond = function()
       return fn.is_debugging() and vim.g.project_type == 'flutter'
     end,
@@ -163,8 +158,8 @@ my_tasks {
       require'flutter-tools.commands'.quit()
     end,
     notify = false,
-  },
-  ["Install project configuration"] = task {
+  }, --}}}
+  ["Install project configuration"] = task { --{{{
     func = function()
       vim.ui.select(
         vim.fn.glob('~/.dotfiles/project_configs/*.lua', true, true),
@@ -180,5 +175,5 @@ my_tasks {
         fn.save_as_workspace_config)
     end,
     notify = false,
-  },
+  }, --}}}
 }
