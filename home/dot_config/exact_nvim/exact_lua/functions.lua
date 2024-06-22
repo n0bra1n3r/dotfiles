@@ -1535,7 +1535,7 @@ function fn.open_quickfix_preview()
   if list.winid ~= 0 then
     local index = vim.fn.line('.', list.winid)
     local item = list.items[index]
-    if item.bufnr ~= 0 then
+    if item and item.bufnr ~= 0 then
       qf_info.preview_win = fn.popup_preview {
         context = qf_info.preview_win,
         buf = item.bufnr,
