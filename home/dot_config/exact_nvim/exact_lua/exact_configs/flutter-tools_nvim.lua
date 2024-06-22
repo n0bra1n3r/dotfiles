@@ -80,7 +80,9 @@ return {
     local select_device_fn = require'flutter-tools.devices'.select_device
     require'flutter-tools.devices'.select_device = function(device, args)
       vim.g.flutter_current_device = device
-      if vim.g.dap_current_config then
+      if vim.g.dap_no_run_on_select_device then
+        vim.g.dap_no_run_on_select_device = false
+      else
         select_device_fn(device, args)
       end
     end

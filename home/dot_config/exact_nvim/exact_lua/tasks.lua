@@ -93,7 +93,7 @@ my_tasks {
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
     func = function()
-      vim.g.dap_current_config = nil
+      vim.g.dap_no_run_on_select_device = true
       vim.g.flutter_current_device = nil
 
       require'flutter-tools.devices'.list_devices()
