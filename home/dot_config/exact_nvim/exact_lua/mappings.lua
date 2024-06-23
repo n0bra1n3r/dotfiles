@@ -138,6 +138,7 @@ my_mappings {
     ["<F1>"]            = { open_help },
     ["<Home>"]          = { "^", noremap = false },
     ["<Left>"]          = { get_motion_expr('<Up><End><Right>', '<Left>'), expr = true },
+    ['<leader>^']       = { call(fn.filter_win_buf), desc = "Filter" },
     ['<leader>;']       = { call(lazy'overseer'.run_template), desc = "Tasks" },
     ["<leader><Space>"] = { call(fn.search, 'find_files'), desc = "Files" },
     ['<leader>ac']      = { call(fn.ai_conv, 'CodeConv'), desc = "Conv code" },

@@ -59,6 +59,7 @@ local function colors()
     diagnostic_Hint = hl'DiagnosticHint'.fg,
     diagnostic_Info = hl'DiagnosticInfo'.fg,
     diagnostic_Warn = hl'DiagnosticWarn'.fg,
+    filter = hl'Conditional'.fg,
     keymap = hl'TabLine'.fg,
     git_branch = hl'NonText'.fg,
     git_branch_synced = hl'String'.fg,
@@ -119,7 +120,7 @@ local function space(count)
   if width <= 0 then
     return {
       provider = function()
-        local winid = vim.fn.win_getid()
+        local winid = vim.api.nvim_get_current_win()
         return (' '):rep(vim.fn.getwininfo(winid)[1].textoff + width)
       end,
     }
@@ -908,20 +909,20 @@ local function header_icon()
       local fg = self.icon_color
       if not require'heirline.conditions'.is_active() then
         fg = 'buffer_inactive'
-      elseif vim.bo.modified and fn.is_file_buffer() then
+      elseif vim.bo[self.buf].modified and fn.is_file_buffer(self.buf) then
         fg = 'buffer_modified'
       end
       return { fg = fg }
     end,
     init = function(self)
-      if vim.bo.filetype == 'qf' then
+      if vim.bo[self.buf].filetype == 'qf' then
         self.icon = '󱁤'
         self.icon_color = 'quickfix'
-      elseif vim.bo.filetype == 'dap-repl' then
+      elseif vim.bo[self.buf].filetype == 'dap-repl' then
         self.icon = '󰃤'
         self.icon_color = 'debug_mode'
       else
-        local filename = vim.api.nvim_buf_get_name(0)
+        local filename = vim.api.nvim_buf_get_name(self.buf)
         local extension = vim.fn.fnamemodify(filename, ':e')
         self.icon, self.icon_color = require'nvim-web-devicons'.get_icon_color(
           filename,
@@ -930,53 +931,47 @@ local function header_icon()
       end
     end,
     provider = function(self)
-      if #vim.bo.buftype > 0 then return self.icon end
-      if vim.bo.readonly then return '󰈈' end
-      return vim.bo.modified and '' or self.icon
+      if #vim.bo[self.buf].buftype > 0 then return self.icon end
+      if vim.bo[self.buf].readonly then return '󰈈' end
+      return vim.bo[self.buf].modified and '' or self.icon
     end,
-    update = {
-      'BufEnter',
-      'BufNew',
-      'BufModifiedSet',
-      'TabEnter',
-    },
   }
 end
 
 local function header_label()
   return {
-    hl = function()
+    hl = function(self)
       local fg = 'buffer_inactive'
       local is_active = require'heirline.conditions'.is_active()
       if is_active then
-        if vim.bo.filetype == 'qf' then
+        if vim.bo[self.buf].filetype == 'qf' then
           fg = 'quickfix'
-        elseif vim.bo.filetype == 'dap-repl' then
+        elseif vim.bo[self.buf].filetype == 'dap-repl' then
           fg = 'debug_mode'
         else
           fg = 'buffer'
         end
-        if vim.bo.modified and fn.is_file_buffer() then
+        if vim.bo[self.buf].modified and fn.is_file_buffer(self.buf) then
           fg = 'buffer_modified'
         end
       end
       return { fg = fg, bold = is_active, italic = is_active }
     end,
     init = function(self)
-      if vim.bo.filetype == 'qf' then
-        self.filename = vim.fn.getqflist{
-          id = 0,
-          title = true,
-        }.title
-      elseif vim.bo.filetype == 'dap-repl' then
+      if vim.bo[self.buf].filetype == 'qf' then
+        self.filename = vim.fn.getqflist{ qfbufnr = self.buf, title = 0 }.title
+      elseif vim.bo[self.buf].filetype == 'dap-repl' then
         self.filename = 'Debugger'
       else
-        local winid = vim.api.nvim_get_current_win()
-        local win_width = vim.fn.getwininfo(winid)[1].width
-        if not fn.is_filename_empty() then
-          self.filename = vim.fn.expand('%:~:.')
-          if #self.filename / win_width >= 0.6 then
-            self.filename = vim.fn.pathshorten(self.filename)
+        self.filename = vim.api.nvim_buf_get_name(self.buf)
+        if fn.is_file_buffer(self.buf) then
+          local winid = vim.api.nvim_get_current_win()
+          local win_width = vim.fn.getwininfo(winid)[1].width
+          if not fn.is_filename_empty(self.buf) then
+            self.filename = vim.fn.fnamemodify(self.filename, ':~:.')
+            if #self.filename / win_width >= 0.6 then
+              self.filename = vim.fn.pathshorten(self.filename)
+            end
           end
         end
       end
@@ -1031,9 +1026,108 @@ local function header()
       header_icon(),
       space(),
       header_label(),
-      space(),
       sep'',
       header_close_btn(),
+    },
+    border'',
+  }
+end
+
+local function collapsed_filter_btn()
+  return {
+    hl = function()
+      local fg = 'buffer_inactive'
+      local is_active = require'heirline.conditions'.is_active()
+      if is_active then
+        fg = 'filter'
+      end
+      return { fg = fg }
+    end,
+    on_click = {
+      callback = function(_, minwid)
+        fn.filter_win_buf(minwid)
+      end,
+      name = 'filter_callback',
+      minwid = function()
+        return vim.api.nvim_get_current_win()
+      end,
+    },
+    provider = '󰈲',
+  }
+end
+
+local function expanded_filter_btn()
+  return {
+    hl = function()
+      local fg = 'buffer_inactive'
+      local is_active = require'heirline.conditions'.is_active()
+      if is_active then
+        fg = 'filter'
+      end
+      return { fg = fg }
+    end,
+    {
+      provider = '󰈲',
+    },
+    {
+      condition = function(self)
+        return not fn.is_empty_buffer(self.buf)
+      end,
+      space(),
+      {
+        provider = function(self)
+          return vim.api.nvim_buf_line_count(self.buf)
+        end,
+      },
+    },
+    space(),
+    {
+      hl = function()
+        local is_active = require'heirline.conditions'.is_active()
+        return { italic = is_active }
+      end,
+      provider = function()
+        return vim.b.filter_pat
+      end,
+    },
+    sep'',
+    {
+      hl = { fg = 'close_btn' },
+      on_click = {
+        callback = function(_, minwid)
+          local buf = vim.api.nvim_win_get_buf(minwid)
+          local att = vim.b[buf].attach_buf
+          if att ~= nil then
+            vim.api.nvim_win_set_buf(minwid, att)
+          end
+        end,
+        minwid = function()
+          return vim.api.nvim_get_current_win()
+        end,
+        name = 'filter_close_callback',
+      },
+      provider = '󰅖',
+    },
+  }
+end
+
+local function filter_btn()
+  return {
+    border'',
+    {
+      hl = { bg = 'background' },
+      {
+        condition = function()
+          return fn.is_buf_filterable()
+        end,
+        collapsed_filter_btn(),
+      },
+      {
+        condition = function()
+          return vim.bo.filetype == 'filter'
+        end,
+        expanded_filter_btn(),
+      },
     },
     border'',
   }
@@ -1054,7 +1148,7 @@ local function window_control_bar()
           end,
           name = 'window_split_callback',
           minwid = function()
-            return vim.fn.win_getid()
+            return vim.api.nvim_get_current_win()
           end,
         },
         hl = { fg = 'window_btn' },
@@ -1070,7 +1164,7 @@ local function window_control_bar()
           end,
           name = 'window_vsplit_callback',
           minwid = function()
-            return vim.fn.win_getid()
+            return vim.api.nvim_get_current_win()
           end,
         },
         hl = { fg = 'window_btn' },
@@ -1128,11 +1222,12 @@ return {
       winbar = {
         hl = { bg = 'default' },
         init = function(self)
-          self.buf = vim.api.nvim_get_current_buf()
+          self.buf = vim.b.attach_buf or vim.api.nvim_get_current_buf()
         end,
         space(-3),
         header(),
         space(),
+        filter_btn(),
         diagnostics_bar(0),
         space(math.huge),
         window_control_bar(),

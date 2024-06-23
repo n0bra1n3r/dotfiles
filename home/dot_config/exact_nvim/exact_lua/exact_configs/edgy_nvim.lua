@@ -16,6 +16,7 @@ return {
           },
         },
         { ft = 'dap-repl' },
+        { ft = 'filter' },
       },
       right = {
         size = 10,

@@ -45,20 +45,6 @@ function fn.expand_each(list)
   return vim.fn.join(result)
 end
 
-function fn.is_empty_buffer(buf)
-  local name = vim.api.nvim_buf_get_name(buf or 0)
-  if name and #name > 0 and vim.fn.fnamemodify(name, ":t") ~= "new" then
-    return false
-  end
-  local lines = vim.api.nvim_buf_get_lines(buf or 0, 0, -1, false)
-  for _, line in ipairs(lines) do
-    if #line ~= 0 then
-      return false
-    end
-  end
-  return true
-end
-
 function fn.is_filename_empty(buf)
   local name = vim.api.nvim_buf_get_name(buf or 0)
   return #name == 0 or vim.fn.fnamemodify(name, ':t') == 'new'
@@ -69,6 +55,18 @@ function fn.is_file_buffer(buf)
     return false
   end
   return not fn.is_filename_empty(buf)
+end
+
+function fn.is_empty_buffer(buf)
+  buf = buf or 0
+  if fn.is_file_buffer(buf) then
+    return false
+  end
+  local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+  if #lines > 1 or (#lines ~= 0 and #lines[1] ~= 0) then
+    return false
+  end
+  return true
 end
 
 function fn.get_wins_for_buf_type(buf_type)
@@ -547,7 +545,8 @@ function fn.close_folds_at(level)
     end
   end
 end
-
+--}}}
+--{{{ Preview
 function fn.popup_preview(opts)
   local buf = opts.buf
   local col = opts.col
@@ -661,6 +660,83 @@ function fn.popup_preview(opts)
     )
   end
   return context
+end
+--}}}
+--{{{ Filter
+function fn.is_buf_filterable(buf)
+  buf = buf or vim.api.nvim_get_current_buf()
+  return not vim.bo[buf].modifiable or vim.bo[buf].buftype == 'prompt'
+end
+
+function fn.filter_win_buf(win)
+  win = win or vim.api.nvim_get_current_win()
+  local buf = vim.api.nvim_win_get_buf(win)
+  if fn.is_buf_filterable(buf) then
+    vim.ui.input({
+        prompt = " 󰈲 Filter: ",
+        dressing = {
+          relative = 'win',
+          override = function(conf)
+            conf.anchor = 'NW'
+            conf.col = 0
+            conf.row = 0
+            conf.win = win
+          end,
+        },
+      },
+      function(pat)
+        if pat == nil or #pat == 0 then
+          return
+        end
+        local fbuf = vim.api.nvim_create_buf(false, true)
+        if fbuf ~= 0 then
+          local title
+          if vim.bo[buf].filetype == 'qf' then
+            title = vim.fn.getqflist{ qfbufnr = buf, title = 0 }.title
+          else
+            title = vim.api.nvim_buf_get_name(buf)
+          end
+
+          vim.api.nvim_buf_set_name(fbuf, title..' ['..pat..']')
+          vim.api.nvim_buf_set_var(fbuf, 'attach_buf', buf)
+          vim.api.nvim_buf_set_var(fbuf, 'filter_pat', pat)
+
+          vim.bo[fbuf].bufhidden = 'wipe'
+          vim.bo[fbuf].filetype = 'filter'
+          vim.bo[fbuf].buftype = 'nofile'
+
+          vim.api.nvim_win_set_buf(win, fbuf)
+
+          vim.wo[win].number = false
+
+          local line_count = 0
+
+          vim.api.nvim_buf_attach(buf, true, {
+            on_lines = vim.schedule_wrap(function(_, _, _, first, _, new_last)
+              if not vim.api.nvim_buf_is_loaded(fbuf) then
+                return true
+              end
+              if new_last == 0 then
+                vim.api.nvim_buf_set_lines(fbuf, 0, -1, true, {[[]]})
+                line_count = 0
+              else
+                local lines = vim.api.nvim_buf_get_lines(buf, first, new_last, true)
+                local new_lines = {}
+                for _, line in ipairs(lines) do
+                  if pat and line:match(pat) then
+                    table.insert(new_lines, line)
+                  end
+                end
+                if #new_lines > 0 then
+                  vim.api.nvim_buf_set_lines(fbuf, line_count, line_count, true, new_lines)
+                  line_count = line_count + 1
+                end
+              end
+            end),
+          })
+        end
+      end)
+  end
 end
 --}}}
 --{{{ Search
