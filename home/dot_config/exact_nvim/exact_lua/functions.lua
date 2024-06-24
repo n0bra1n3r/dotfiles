@@ -2730,6 +2730,36 @@ function fn.toggle_debug_repl()
   require'dap'.repl.toggle()
 end
 
+function fn.debug_repl_input_completions(text)
+  local completions = {}
+  for _, list in pairs(require'dap'.repl.commands) do
+    for _, command in ipairs(list) do
+      if command:match(text) then
+        table.insert(completions, command)
+      end
+    end
+  end
+  return completions
+end
+
+function fn.debug_repl_input()
+  vim.fn.inputsave()
+  vim.cmd.echohl[[Constant]]
+
+  local result = vim.fn.input {
+    cancelreturn = 1,
+    completion = 'customlist,v:lua.fn.debug_repl_input_completions',
+    prompt = 'dap> ',
+  }
+
+  if type(result) == 'string' then
+    require'dap'.repl.execute(result)
+  end
+
+  vim.cmd.echohl[[None]]
+  vim.fn.inputrestore()
+end
+
 function fn.load_vscode_launch_json(path)
   local is_ok, result = pcall(require'dap.ext.vscode'.load_launchjs, path)
   if not is_ok then

@@ -144,6 +144,7 @@ my_mappings {
     ['<leader>ac']      = { call(fn.ai_conv, 'CodeConv'), desc = "Conv code" },
     ['<leader>ad']      = { call(fn.ai_gen, 'ApiDoc'), desc = "Doc gen" },
     ['<leader>db']      = { call(fn.search, 'dap_breakpoints'), desc = "Breakpoints" },
+    ['<leader>di']      = { call(fn.debug_repl_input), desc = "REPL Input" },
     ['<leader>dd']      = { call(fn.toggle_debug_repl), desc = "Toggle REPL" },
     ['<leader>de']      = { call(fn.resume_debugging), desc = "Enter debugger" },
     ['<leader>ds']      = { call(fn.select_debug_launcher), desc = "Select launcher" },
