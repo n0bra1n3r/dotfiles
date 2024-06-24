@@ -62,9 +62,14 @@ function fn.is_empty_buffer(buf)
   if fn.is_file_buffer(buf) then
     return false
   end
-  local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-  if #lines > 1 or (#lines ~= 0 and #lines[1] ~= 0) then
-    return false
+  local lines = vim.api.nvim_buf_get_lines(buf or 0, 0, -1, false)
+  for i, line in ipairs(lines) do
+    if i > 2 then
+      break
+    end
+    if #line ~= 0 then
+      return false
+    end
   end
   return true
 end
