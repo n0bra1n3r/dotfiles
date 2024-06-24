@@ -673,6 +673,42 @@ function fn.is_buf_filterable(buf)
   return not vim.bo[buf].modifiable or vim.bo[buf].buftype == 'prompt'
 end
 
+local function copy_buf_matching_lines(line_map, buf, tbuf, first, last, pat)
+  local is_ok, lines = pcall(
+    vim.api.nvim_buf_get_lines,
+    buf,
+    first,
+    last,
+    true
+  )
+  if is_ok then
+    for i, line in ipairs(lines) do
+      local idx = i - 1
+      local key = tostring(first + idx)
+      local row = line_map[key]
+      local new_row = vim.api.nvim_buf_line_count(tbuf) - 1
+      if pat and line:match(pat) then
+        if not row then
+          row = new_row
+        elseif row < 0 then
+          row = -row - 1
+        end
+      else
+        if not row then
+          row = -new_row - 1
+        elseif row >= 0 then
+          row = -row - 1
+        end
+      end
+      line_map[key] = row
+      if row >= 0 then
+        local end_row = row == new_row and row or row + 1
+        vim.api.nvim_buf_set_lines(tbuf, row, end_row, true, {line})
+      end
+    end
+  end
+end
+
 function fn.filter_win_buf(win)
   win = win or vim.api.nvim_get_current_win()
   local buf = vim.api.nvim_win_get_buf(win)
@@ -714,42 +750,21 @@ function fn.filter_win_buf(win)
 
           vim.wo[win].number = false
 
-          local line_count = 0
+          local line_map = {}
+          local line_count = vim.api.nvim_buf_line_count(buf)
 
-          vim.api.nvim_buf_attach(buf, true, {
+          copy_buf_matching_lines(line_map, buf, fbuf, 0, line_count, pat)
+
+          vim.api.nvim_buf_attach(buf, false, {
             on_lines = vim.schedule_wrap(function(_, _, _, first, last, new_last)
               if not vim.api.nvim_buf_is_loaded(fbuf) then
                 return true
               end
-              local lines
               if last > new_last then
-                vim.api.nvim_buf_set_lines(fbuf, 0, -1, true, {[[]]})
-                lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-                line_count = 0
-              else
-                local is_ok, next_lines = pcall(
-                  vim.api.nvim_buf_get_lines,
-                  buf,
-                  first,
-                  new_last,
-                  true
-                )
-                if is_ok then
-                  lines = next_lines
-                end
+                line_map = {}
+                vim.api.nvim_buf_set_lines(fbuf, 0, -1, true, {''})
               end
-              if lines then
-                local new_lines = {}
-                for _, line in ipairs(lines) do
-                  if pat and line:match(pat) then
-                    table.insert(new_lines, line)
-                  end
-                end
-                if #new_lines > 0 then
-                  vim.api.nvim_buf_set_lines(fbuf, line_count, line_count, true, new_lines)
-                  line_count = line_count + 1
-                end
-              end
+              copy_buf_matching_lines(line_map, buf, fbuf, first, new_last, pat)
             end),
           })
         end
