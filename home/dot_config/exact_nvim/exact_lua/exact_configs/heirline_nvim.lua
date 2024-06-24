@@ -1082,10 +1082,7 @@ local function expanded_filter_btn()
     },
     space(),
     {
-      hl = function()
-        local is_active = require'heirline.conditions'.is_active()
-        return { italic = is_active }
-      end,
+      hl = { italic = true },
       provider = function()
         return vim.b.filter_pat
       end,
