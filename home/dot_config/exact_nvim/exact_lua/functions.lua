@@ -576,7 +576,7 @@ function fn.popup_preview(opts)
       return nil
     end
     if vim.api.nvim_buf_is_loaded(buf) then
-      lines = vim.api.nvim_buf_get_lines(buf, 0, -1, true)
+      lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
     end
   end
 
@@ -717,15 +717,28 @@ function fn.filter_win_buf(win)
           local line_count = 0
 
           vim.api.nvim_buf_attach(buf, true, {
-            on_lines = vim.schedule_wrap(function(_, _, _, first, _, new_last)
+            on_lines = vim.schedule_wrap(function(_, _, _, first, last, new_last)
               if not vim.api.nvim_buf_is_loaded(fbuf) then
                 return true
               end
-              if new_last == 0 then
+              local lines
+              if last > new_last then
                 vim.api.nvim_buf_set_lines(fbuf, 0, -1, true, {[[]]})
+                lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
                 line_count = 0
               else
-                local lines = vim.api.nvim_buf_get_lines(buf, first, new_last, true)
+                local is_ok, next_lines = pcall(
+                  vim.api.nvim_buf_get_lines,
+                  buf,
+                  first,
+                  new_last,
+                  true
+                )
+                if is_ok then
+                  lines = next_lines
+                end
+              end
+              if lines then
                 local new_lines = {}
                 for _, line in ipairs(lines) do
                   if pat and line:match(pat) then
