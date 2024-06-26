@@ -5,8 +5,8 @@
 
 {{- if index . "gitlab" }}
 [".ssh/keys"]
-  url = "https://gitlab.com/n0brain3r/dotfiles-ssh-keys/-/archive/master/dotfiles-ssh-keys-master.zip?private_token={{ .gitlab.token }}"
-  type = "archive"
+  url = "https://dotfiles-ssh-keys:{{ .gitlab.token }}@gitlab.com/n0brain3r/dotfiles-ssh-keys.git"
+  type = "git-repo"
   stripComponents = 1
 {{- end }}
 
@@ -93,7 +93,7 @@
   {{- if $isWindows }}
   url = "https://github.com/neovim/neovim/releases/download/stable/nvim-win64.zip"
   {{- else if $isDarwin }}
-  url = "https://github.com/neovim/neovim/releases/download/stable/nvim-macos.tar.gz"
+  url = "https://github.com/neovim/neovim/releases/download/stable/nvim-macos-arm64.tar.gz"
   {{- end}}
   type = "archive"
   stripComponents = 1
