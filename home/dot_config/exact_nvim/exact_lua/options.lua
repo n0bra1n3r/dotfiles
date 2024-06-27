@@ -88,4 +88,5 @@ my_options {
   virtualedit = "onemore",
   opt.whichwrap + "<>[]hl",
   wrap = true,
+  wrapscan = false,
 }
