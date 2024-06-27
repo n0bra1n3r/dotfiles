@@ -279,7 +279,7 @@ local function workspace_label()
         on_click = {
           callback = function(self)
             local root = fn.get_git_worktree_root(self.cwd)
-            fn.open_folder(root)
+            vim.ui.open(root)
           end,
           name = 'workspace_click_callback',
         },

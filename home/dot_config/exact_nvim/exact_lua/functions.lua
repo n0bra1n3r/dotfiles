@@ -383,25 +383,11 @@ function fn.search(obj)
   lib[obj](opts)
 end
 
-function fn.open_folder(path)
-  local shellslash
-  if vim.fn.has('win32') == 1 then
-    shellslash = vim.o.shellslash
-    vim.o.shellslash = false
-    path = path and path:gsub('/', '\\')
-  end
-  local folder = path or fn.get_tab_cwd()
-  if vim.fn.has('win32') == 1 then
-    vim.o.shellslash = shellslash
-  end
-  fn.open_in_os{ folder }
-end
-
 function fn.open_file_folder(path)
   local folder = path
     and vim.fn.fnamemodify(path, ':p:h')
     or vim.fn.expand'%:p:h'
-  fn.open_folder(folder)
+  vim.ui.open(folder)
 end
 
 function fn.get_sign_for_severity(severity)
@@ -2149,14 +2135,6 @@ function fn.search_git_history()
     end)
 end
 
-function fn.open_in_os(args)
-  require'plenary.job':new{
-    args = args,
-    command = vim.fn.has('win32') == 1 and 'explorer' or 'open',
-    detached = true,
-  }:start()
-end
-
 function fn.open_in_github(path)
   local remote = run_git_command(path, 'remote get-url origin')
   local repo_path = remote:sub(1, 4) == 'http'
@@ -2170,7 +2148,7 @@ function fn.open_in_github(path)
   if not path and vim.fn.mode():sub(1, 1):lower() == 'v' then
     url = url..'#L'..vim.api.nvim_win_get_cursor(0)[1]
   end
-  fn.open_in_os{ url }
+  vim.ui.open(url)
 end
 
 function fn.open_git_repo(path)
@@ -2920,7 +2898,7 @@ function fn.open_workspace(path)
 end
 
 function fn.open_workspace_folder(path)
-  fn.open_folder(fn.get_workspace_dir(path))
+  vim.ui.open(fn.get_workspace_dir(path))
 end
 --}}}
 

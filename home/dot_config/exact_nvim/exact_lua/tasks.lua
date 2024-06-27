@@ -50,7 +50,7 @@ my_tasks {
     end,
     func = function()
       if vim.fn.isdirectory('./ios/Runner.xcworkspace') == 1 then
-        fn.open_in_os{ './ios/Runner.xcworkspace' }
+        vim.ui.open('./ios/Runner.xcworkspace')
         vim.notify(
           "Opening iOS workspace...",
           vim.log.levels.INFO,
@@ -72,7 +72,7 @@ my_tasks {
     end,
     func = function()
       if vim.fn.filereadable('./android/app/build.gradle') == 1 then
-        fn.open_in_os{ './android', '-a', '/Applications/Android Studio.app' }
+        vim.fn.system{ './android', '-a', '/Applications/Android Studio.app' }
         vim.notify(
           "Opening Android project...",
           vim.log.levels.INFO,
@@ -107,7 +107,7 @@ my_tasks {
     func = function()
       local url = require'flutter-tools.dev_tools'.get_profiler_url()
       if url then
-        fn.open_in_os{ url }
+        vim.ui.open(url)
       end
     end,
     notify = false,
