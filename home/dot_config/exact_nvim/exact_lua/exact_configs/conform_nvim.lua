@@ -1,6 +1,6 @@
 return {
   config = function()
-    require'conform'.setup {
+    require 'conform'.setup {
       format_on_save = {
         lsp_format = 'fallback',
         timeout_ms = 500,
@@ -9,6 +9,7 @@ return {
         ['_'] = { 'trim_whitespace' },
         nim = { 'nph' },
         swift = { 'swiftformat' },
+        yaml = { 'yamlfmt' },
       },
       formatters = {
         nph = {
@@ -19,6 +20,6 @@ return {
       },
     }
 
-    vim.lsp.buf.format = require'conform'.format
+    vim.lsp.buf.format = require 'conform'.format
   end,
 }
