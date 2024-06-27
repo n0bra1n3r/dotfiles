@@ -12,8 +12,8 @@ end
 
 local function resolve_path(tabpageOrPath)
   return type(tabpageOrPath) == "string"
-    and tostring(vim.fn.expand(tabpageOrPath))
-    or fn.get_tab_cwd(tabpageOrPath)
+      and tostring(vim.fn.expand(tabpageOrPath))
+      or fn.get_tab_cwd(tabpageOrPath)
 end
 --}}}
 
@@ -147,8 +147,8 @@ function fn.apply_unfocused_highlight()
     vim.api.nvim_set_hl(focused_hl_ns, 'NormalNC', normalnc_hl)
     vim.api.nvim_set_hl(focused_hl_ns, 'WinSeparator', winsep_hl)
   end
-  local unfocused_bg = require'catppuccin.palettes'.get_palette('macchiato').base
-  local unfocused_sep = require'catppuccin.palettes'.get_palette('macchiato').crust
+  local unfocused_bg = require 'catppuccin.palettes'.get_palette('macchiato').base
+  local unfocused_sep = require 'catppuccin.palettes'.get_palette('macchiato').crust
   vim.api.nvim_set_hl(0, 'Normal', { bg = unfocused_bg })
   vim.api.nvim_set_hl(0, 'NormalNC', { bg = unfocused_bg })
   vim.api.nvim_set_hl(0, 'WinSeparator', { fg = unfocused_sep })
@@ -167,7 +167,7 @@ function fn.apply_focused_highlight()
 end
 
 function fn.foldfunc(close, start_open, open, sep, mid_sep, end_sep)
-  local C = require'ffi'.C
+  local C = require 'ffi'.C
   return function(args)
     local width = C.compute_foldcolumn(args.wp, 0)
     if C.compute_foldcolumn(args.wp, 0) == 0 then
@@ -177,36 +177,36 @@ function fn.foldfunc(close, start_open, open, sep, mid_sep, end_sep)
     local foldinfo = C.fold_info(args.wp, args.lnum)
 
     local string = args.cul and args.relnum == 0
-      and '%#CursorLineFold#'
-      or '%#FoldColumn#'
+        and '%#CursorLineFold#'
+        or '%#FoldColumn#'
 
     if foldinfo.level == 0 then
-      return string..(' '):rep(width)..'%*'
+      return string .. (' '):rep(width) .. '%*'
     end
 
     if foldinfo.lines > 0 then
-      string = string..close
+      string = string .. close
     elseif foldinfo.start == args.lnum then
       local prev_foldinfo = C.fold_info(args.wp, args.lnum - 1)
       if prev_foldinfo.level == 0 then
-        string = string..start_open
+        string = string .. start_open
       else
-        string = string..open
+        string = string .. open
       end
     else
       local next_foldinfo = C.fold_info(args.wp, args.lnum + 1)
       if next_foldinfo.level == 0 then
-        string = string..end_sep
+        string = string .. end_sep
       else
         if next_foldinfo.start ~= foldinfo.start
-          and next_foldinfo.level <= foldinfo.level then
-          string = string..mid_sep
+            and next_foldinfo.level <= foldinfo.level then
+          string = string .. mid_sep
         else
-          string = string..sep
+          string = string .. sep
         end
       end
     end
-    return string..'%*'
+    return string .. '%*'
   end
 end
 
@@ -234,14 +234,14 @@ end
 
 function fn.get_visual_line_range()
   return {
-    vim.fn.getpos[['<]][2],
-    vim.fn.getpos[['>]][2],
+    vim.fn.getpos [['<]][2],
+    vim.fn.getpos [['>]][2],
   }
 end
 
 function fn.get_visual_selection()
-  local s_start = vim.fn.getpos[['<]]
-  local s_end = vim.fn.getpos[['>]]
+  local s_start = vim.fn.getpos [['<]]
+  local s_end = vim.fn.getpos [['>]]
   local n_lines = math.abs(s_end[2] - s_start[2]) + 1
   local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
   lines[1] = lines[1]:sub(s_start[3], -1)
@@ -259,9 +259,9 @@ end
 
 function fn.get_buffer_title(buf)
   return fn.is_file_buffer(buf)
-    and vim.fn.pathshorten(vim.fn.expand('%:~:.'))
-    or vim.bo[buf or 0].filetype
-    or vim.bo[buf or 0].buftype
+      and vim.fn.pathshorten(vim.fn.expand('%:~:.'))
+      or vim.bo[buf or 0].filetype
+      or vim.bo[buf or 0].buftype
 end
 
 function fn.get_line_info(format, win)
@@ -297,7 +297,7 @@ end
 local function make_file_switcher_entry()
   local make_display = function(entry)
     local filename = vim.fn.pathshorten(vim.fn.fnamemodify(entry.filename, ':~:.'))
-    local displayer = require'telescope.pickers.entry_display'.create {
+    local displayer = require 'telescope.pickers.entry_display'.create {
       separator = ' ',
       items = {
         { width = 1 },
@@ -307,7 +307,7 @@ local function make_file_switcher_entry()
     }
     local file_label = vim.fn.fnamemodify(filename, ':t')
     local file_ext = vim.fn.fnamemodify(filename, ':e')
-    local icon, hl = require'nvim-web-devicons'.get_icon(file_label, file_ext)
+    local icon, hl = require 'nvim-web-devicons'.get_icon(file_label, file_ext)
     return displayer {
       {
         icon,
@@ -315,7 +315,7 @@ local function make_file_switcher_entry()
       },
       filename,
       {
-        entry.lnum..':'..entry.col,
+        entry.lnum .. ':' .. entry.col,
         'TelescopeResultsLineNr',
       },
     }
@@ -329,7 +329,7 @@ local function make_file_switcher_entry()
       filename = filename,
       finish = entry.finish,
       lnum = entry.lnum,
-      ordinal = filename..' '..entry.text,
+      ordinal = filename .. ' ' .. entry.text,
       start = entry.start,
       text = entry.text,
       valid = true,
@@ -339,12 +339,12 @@ local function make_file_switcher_entry()
 end
 
 function fn.search(obj)
-  local lib = require'telescope.builtin'
+  local lib = require 'telescope.builtin'
 
   local opts = {}
 
   if obj == 'dap_breakpoints' then
-    lib = require'telescope'.extensions.dap
+    lib = require 'telescope'.extensions.dap
 
     obj = 'list_breakpoints'
   elseif obj == 'diagnostics_document' then
@@ -360,14 +360,14 @@ function fn.search(obj)
       find_command = {
         vim.o.shell,
         vim.o.shellcmdflag,
-        vim.o.grepprg..' --files',
+        vim.o.grepprg .. ' --files',
       },
     }
   elseif obj == 'loclist' then
     opts = {
       attach_mappings = function(_, map)
         map('i', [[<Tab>]], function(bufnr)
-          require'telescope.actions.set'.edit(bufnr, 'edit')
+          require 'telescope.actions.set'.edit(bufnr, 'edit')
         end)
         return true
       end,
@@ -385,8 +385,8 @@ end
 
 function fn.open_file_folder(path)
   local folder = path
-    and vim.fn.fnamemodify(path, ':p:h')
-    or vim.fn.expand'%:p:h'
+      and vim.fn.fnamemodify(path, ':p:h')
+      or vim.fn.expand '%:p:h'
   vim.ui.open(folder)
 end
 
@@ -416,23 +416,24 @@ function fn.get_sign_for_severity(severity)
   if not suffix or #suffix == 0 then
     return nil, nil
   end
-  local name = 'DiagnosticSign'..suffix
+  local name = 'DiagnosticSign' .. suffix
   return vim.fn.sign_getdefined(name)[1].text, name
 end
+
 --}}}
 --{{{ UI
 function fn.delete_file()
   local rel_file = vim.fn.pathshorten(vim.fn.expand('%:~:.'))
 
   vim.ui.select({ 'No', 'Yes' }, {
-    prompt = " 󰆴 Delete "..rel_file.."?",
+    prompt = " 󰆴 Delete " .. rel_file .. "?",
     dressing = {
       relative = 'win',
     },
   }, function(choice)
     if choice == 'Yes' then
       vim.fn.delete(tostring(vim.fn.expand('%:p')))
-      require'mini.bufremove'.wipeout()
+      require 'mini.bufremove'.wipeout()
     end
   end)
 end
@@ -441,14 +442,14 @@ function fn.edit_file()
   local rel_dir = vim.fn.expand("%:~:.:h")
   vim.ui.input({
       completion = "dir",
-      default = rel_dir.."/",
+      default = rel_dir .. "/",
       prompt = " 󱇧 Edit at: ",
       dressing = {
         relative = "win",
       },
     },
     function(path)
-      if path == nil or #path == 0 or path == rel_dir or path.."/" == rel_dir then
+      if path == nil or #path == 0 or path == rel_dir or path .. "/" == rel_dir then
         return
       end
       create_parent_dirs(path)
@@ -473,7 +474,7 @@ function fn.move_file()
       create_parent_dirs(path)
       vim.cmd.saveas(path)
       vim.fn.delete(tostring(vim.fn.expand("#")))
-      vim.cmd.bwipeout[[#]]
+      vim.cmd.bwipeout [[#]]
     end)
 end
 
@@ -529,13 +530,14 @@ function fn.close_folds_at(level)
     if vim.fn.foldclosed(line) ~= -1 then
       line = vim.fn.foldclosedend(line) + 1
     elseif vim.fn.foldlevel(line) == level then
-      vim.cmd.foldclose{ range = { line } }
+      vim.cmd.foldclose { range = { line } }
       line = vim.fn.foldclosedend(line) + 1
     else
       line = line + 1
     end
   end
 end
+
 --}}}
 --{{{ Preview
 function fn.popup_preview(opts)
@@ -586,9 +588,9 @@ function fn.popup_preview(opts)
     relative = not anchor_cur and 'win' or 'cursor',
     row = not anchor_cur and anchor_row or anchor_row + bot,
     title = {
-      { require'nvim-web-devicons'.get_icon(filename) },
+      { require 'nvim-web-devicons'.get_icon(filename) },
       { ' ' },
-      { vim.fn.fnamemodify(filename, ':~:.'), 'Title' },
+      { vim.fn.fnamemodify(filename, ':~:.'),         'Title' },
     },
     width = width,
     win = not anchor_cur and anchor_win or nil,
@@ -627,7 +629,7 @@ function fn.popup_preview(opts)
 
       vim.api.nvim_buf_set_lines(pbuf, 0, -1, true, lines)
 
-      local type = vim.filetype.match{ buf = buf }
+      local type = vim.filetype.match { buf = buf }
       local lang = vim.treesitter.language.get_lang(type)
       vim.treesitter.stop(pbuf)
       if lang and pcall(vim.treesitter.language.add, lang) then
@@ -653,6 +655,7 @@ function fn.popup_preview(opts)
   end
   return context
 end
+
 --}}}
 --{{{ Filter
 function fn.is_buf_filterable(buf)
@@ -690,7 +693,7 @@ local function copy_buf_matching_lines(line_map, buf, tbuf, first, last, pat)
       line_map[key] = row
       if row >= 0 then
         local end_row = row == new_row and row or row + 1
-        vim.api.nvim_buf_set_lines(tbuf, row, end_row, true, {line})
+        vim.api.nvim_buf_set_lines(tbuf, row, end_row, true, { line })
       end
     end
   end
@@ -720,12 +723,12 @@ function fn.filter_win_buf(win)
         if fbuf ~= 0 then
           local title
           if vim.bo[buf].filetype == 'qf' then
-            title = vim.fn.getqflist{ qfbufnr = buf, title = 0 }.title
+            title = vim.fn.getqflist { qfbufnr = buf, title = 0 }.title
           else
             title = vim.api.nvim_buf_get_name(buf)
           end
 
-          vim.api.nvim_buf_set_name(fbuf, title..' ['..pat..']')
+          vim.api.nvim_buf_set_name(fbuf, title .. ' [' .. pat .. ']')
           vim.api.nvim_buf_set_var(fbuf, 'attach_buf', buf)
           vim.api.nvim_buf_set_var(fbuf, 'filter_pat', pat)
 
@@ -750,7 +753,7 @@ function fn.filter_win_buf(win)
               end
               if last > new_last then
                 line_map = {}
-                vim.api.nvim_buf_set_lines(fbuf, 0, -1, true, {''})
+                vim.api.nvim_buf_set_lines(fbuf, 0, -1, true, { '' })
               end
               copy_buf_matching_lines(line_map, buf, fbuf, first, new_last, pat)
             end),
@@ -759,6 +762,7 @@ function fn.filter_win_buf(win)
       end)
   end
 end
+
 --}}}
 --{{{ Search
 local search_info = {
@@ -777,7 +781,7 @@ end
 
 function fn.open_search_preview()
   local lnum, col = unpack(vim.api.nvim_win_get_cursor(0))
-  local result = require'search'.get_result_at_loc{ lnum, col }
+  local result = require 'search'.get_result_at_loc { lnum, col }
   if result then
     search_info.preview_win = fn.popup_preview {
       context = search_info.preview_win,
@@ -833,7 +837,7 @@ function fn.init_search()
           if not search_info.preview_win then
             fn.open_search_preview()
           else
-            require'search'.show_current_search_result('edit')
+            require 'search'.show_current_search_result('edit')
           end
         end,
       })
@@ -843,6 +847,7 @@ function fn.init_search()
     end,
   })
 end
+
 --}}}
 --{{{ Terminal
 local term_info = {
@@ -851,7 +856,7 @@ local term_info = {
 }
 
 local function get_prior_tabpage()
-  local tabnr = vim.fn.tabpagenr[[#]]
+  local tabnr = vim.fn.tabpagenr [[#]]
   for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
     if vim.api.nvim_tabpage_get_number(tabpage) == tabnr then
       return tabpage
@@ -860,16 +865,16 @@ local function get_prior_tabpage()
 end
 
 local function get_terminal_tabpage()
-  local terminal = require'toggleterm.terminal'.get(0, true)
+  local terminal = require 'toggleterm.terminal'.get(0, true)
   return terminal and vim.api.nvim_win_get_tabpage(terminal.window)
 end
 
 local function get_terminal(start_command)
-  return require'toggleterm.terminal'.Terminal:new {
+  return require 'toggleterm.terminal'.Terminal:new {
     id = 0,
     cmd = vim.fn.has('win32') == 1
-      and 'bash'
-      or 'zsh --login',
+        and 'bash'
+        or 'zsh --login',
     direction = 'tab',
     env = {
       START_COMMAND = start_command,
@@ -882,7 +887,7 @@ local function get_terminal(start_command)
 end
 
 function fn.is_main_terminal(buf)
-  local terminal = require'toggleterm.terminal'.get(0, true)
+  local terminal = require 'toggleterm.terminal'.get(0, true)
   return terminal and (not buf or terminal.bufnr == buf)
 end
 
@@ -932,7 +937,7 @@ function fn.send_terminal(command, should_focus)
     else
       local terminal = get_terminal()
       local shell_pid = vim.fn.jobpid(terminal.job_id)
-      vim.fn.system('kill -s SIGUSR1 '..shell_pid)
+      vim.fn.system('kill -s SIGUSR1 ' .. shell_pid)
     end
   end
 end
@@ -945,8 +950,8 @@ function fn.set_shell_active(is_active, cmd, exit_code, output)
       output = output and vim.trim(output) or ''
       vim.notify(
         #output > 0
-          and output
-          or ("exited with code "..exit_code),
+        and output
+        or ("exited with code " .. exit_code),
         exit_code == 0 and vim.log.levels.INFO or vim.log.levels.ERROR,
         { title = cmd }
       )
@@ -963,7 +968,7 @@ end
 
 function fn.is_terminal_buf(buf)
   buf = buf or vim.api.nvim_get_current_buf()
-  for _, term in ipairs(require'toggleterm.terminal'.get_all(true)) do
+  for _, term in ipairs(require 'toggleterm.terminal'.get_all(true)) do
     if term.bufnr == buf then
       return true
     end
@@ -981,6 +986,7 @@ function fn.init_terminal_mode()
     vim.api.nvim_buf_delete(empty_buf, { force = true })
   end
 end
+
 --}}}
 --{{{ Quickfix
 local qf_info = {
@@ -1017,7 +1023,7 @@ end
 local function set_qf_list(name, what, is_append)
   what = what or { lines = {} }
 
-  local list = vim.fn.getqflist{ id = 0, items = 0, context = 0 }
+  local list = vim.fn.getqflist { id = 0, items = 0, context = 0 }
 
   local act = is_append and 'a' or 'r'
   if not qf_info[name] and list.context.name then
@@ -1041,14 +1047,14 @@ local function set_qf_list(name, what, is_append)
     vim.notify(res, vim.log.levels.ERROR)
   end
 
-  list = vim.fn.getqflist{ id = 0, winid = 0 }
+  list = vim.fn.getqflist { id = 0, winid = 0 }
 
   if list.winid ~= 0 then
     if vim.wo[list.winid].foldenable then
       vim.wo[list.winid].foldmethod =
-        vim.wo[list.winid].foldmethod
+          vim.wo[list.winid].foldmethod
       vim.wo[list.winid].foldlevel =
-        vim.wo[list.winid].foldlevel
+          vim.wo[list.winid].foldlevel
     end
   end
 
@@ -1061,7 +1067,7 @@ local function get_qf_context(name)
   if not qf_info[name] then
     return {}
   end
-  return vim.fn.getqflist{
+  return vim.fn.getqflist {
     id = qf_info[name],
     context = 0,
   }.context
@@ -1069,11 +1075,11 @@ end
 
 local function show_qf(name, is_foldable)
   if qf_info[name] then
-    local nr = vim.fn.getqflist{
+    local nr = vim.fn.getqflist {
       id = qf_info[name],
       nr = 0,
     }.nr
-    vim.cmd.chistory{ count = nr, mods = { silent = true } }
+    vim.cmd.chistory { count = nr, mods = { silent = true } }
     vim.cmd.copen()
 
     vim.wo.winfixbuf = true
@@ -1092,11 +1098,11 @@ local function is_current_qf(name)
   if not qf_info[name] then
     return false
   end
-  return qf_info[name] == vim.fn.getqflist{ id = 0 }.id
+  return qf_info[name] == vim.fn.getqflist { id = 0 }.id
 end
 
 function fn.qf_fold_expr()
-  local items = vim.fn.getqflist{ id = 0, items = 0 }.items
+  local items = vim.fn.getqflist { id = 0, items = 0 }.items
   local entry = items[vim.v.lnum]
   local level = '0'
   if entry then
@@ -1122,13 +1128,13 @@ local function qf_diagnostics_lines(items)
     local line
     if item.bufnr == 0 then
       if #item.type == 0 then
-        line = {{ item.text, 'Title' }}
+        line = { { item.text, 'Title' } }
       else
         local sign, sign_hl = fn.get_sign_for_severity(item.type)
         if sign then
           line = {
             { '  ' },
-            { sign, sign_hl },
+            { sign,      sign_hl },
             { item.text, 'Title' },
           }
         else
@@ -1149,7 +1155,7 @@ local function qf_diagnostics_lines(items)
 
       line = {
         { item.type == '>' and '      ' or '    ' },
-        { message:sub(1, msg_len), 'Normal' },
+        { message:sub(1, msg_len),                'Normal' },
         #message > msg_len and { '...', 'Comment' } or { '' },
         { '  ' },
         {
@@ -1174,7 +1180,7 @@ local function qf_notifications_lines(items)
     if #item.type == 1 then
       local sign, sign_hl = fn.get_sign_for_severity(item.type)
       line = {
-        { sign, sign_hl },
+        { sign,      sign_hl },
         { item.text, 'Title' },
       }
     else
@@ -1256,12 +1262,12 @@ end
 local function get_is_item_at_loc(item, location)
   local lnum, col, path = unpack(location)
   return path == vim.api.nvim_buf_get_name(item.bufnr)
-    and lnum >= item.lnum and lnum <= item.end_lnum
-    and col + 1 >= item.col and col + 1 < item.end_col
+      and lnum >= item.lnum and lnum <= item.end_lnum
+      and col + 1 >= item.col and col + 1 < item.end_col
 end
 
 local function highlight_item_at_idx(idx, hl)
-  local qfbufnr = vim.fn.getqflist{ qfbufnr = 0 }.qfbufnr
+  local qfbufnr = vim.fn.getqflist { qfbufnr = 0 }.qfbufnr
   if qfbufnr ~= 0 then
     pcall(vim.api.nvim_buf_set_extmark,
       qfbufnr,
@@ -1269,7 +1275,7 @@ local function highlight_item_at_idx(idx, hl)
       idx - 1, 0, {
         id = 1,
         priority = 102,
-        virt_text = {{ '   ', hl }},
+        virt_text = { { '   ', hl } },
         virt_text_pos = 'overlay',
       }
     )
@@ -1277,7 +1283,7 @@ local function highlight_item_at_idx(idx, hl)
 end
 
 local function clear_item_highlight()
-  local qfbufnr = vim.fn.getqflist{ qfbufnr = 0 }.qfbufnr
+  local qfbufnr = vim.fn.getqflist { qfbufnr = 0 }.qfbufnr
   vim.api.nvim_buf_clear_namespace(
     qfbufnr,
     vim.api.nvim_create_namespace('hl_qf_idx'),
@@ -1287,12 +1293,12 @@ end
 
 function fn.select_lsp_diagnostic(severityOrLocation)
   severityOrLocation = severityOrLocation
-    or vim.api.nvim_win_get_cursor(0)
+      or vim.api.nvim_win_get_cursor(0)
 
   local severity, location
   if type(severityOrLocation) == 'table' then
     severityOrLocation[3] = severityOrLocation[3]
-      or vim.api.nvim_buf_get_name(0)
+        or vim.api.nvim_buf_get_name(0)
     location = severityOrLocation
   else
     severity = severityOrLocation
@@ -1307,7 +1313,7 @@ function fn.select_lsp_diagnostic(severityOrLocation)
 
   if vim.deep_equal(severityOrLocation, list.context.selection) then
     if is_current_qf(list.context.name) then
-      local sel_item =  list.items[list.idx]
+      local sel_item = list.items[list.idx]
       if sel_item then
         local _, hl = fn.get_sign_for_severity(sel_item.type)
         highlight_item_at_idx(list.idx, hl)
@@ -1344,7 +1350,7 @@ function fn.select_lsp_diagnostic(severityOrLocation)
       end
     end
 
-    list = vim.fn.getqflist{
+    list = vim.fn.getqflist {
       id = list.id,
       context = 0,
       idx = 0,
@@ -1353,9 +1359,9 @@ function fn.select_lsp_diagnostic(severityOrLocation)
 
     if type(list.context.selection) == 'table' then
       if list.idx ~= 0 and not get_is_item_at_loc(
-        list.items[list.idx],
-        list.context.selection
-      ) then
+            list.items[list.idx],
+            list.context.selection
+          ) then
         set_qf_list(list.context.name, {
           context = { selection = nil },
           idx = start,
@@ -1395,24 +1401,24 @@ function fn.update_lsp_diagnostics_list()
       local diagnostic = diagnostics[i]
 
       local source_name = diagnostic.source
-        and diagnostic.source:lower()
-        or 'neovim'
+          and diagnostic.source:lower()
+          or 'neovim'
       local source_map = diag_map[source_name]
       if not source_map then
         source_map = {}
         diag_map[source_name] = source_map
       end
 
-      local code_key = ''..severity
+      local code_key = '' .. severity
       if severity == s.ERROR then
-        code_key = code_key..',Errors'
+        code_key = code_key .. ',Errors'
       elseif severity == s.HINT or severity == s.INFO then
         local code = diagnostic.code
-        local title = code and '['..code..']'
-          or (severity == s.HINT and 'Hint' or 'Info')
-        code_key = code_key..','..title
+        local title = code and '[' .. code .. ']'
+            or (severity == s.HINT and 'Hint' or 'Info')
+        code_key = code_key .. ',' .. title
       elseif severity == s.WARN then
-        code_key = code_key..',Warnings'
+        code_key = code_key .. ',Warnings'
       end
 
       local diag_list = source_map[code_key]
@@ -1422,12 +1428,12 @@ function fn.update_lsp_diagnostics_list()
       end
 
       if #diag_list < diag_count_max then
-        local item = vim.diagnostic.toqflist{ diagnostic }[1]
+        local item = vim.diagnostic.toqflist { diagnostic }[1]
         table.insert(diag_list, get_diagnostic_line(item))
 
         if type(diagnostic.user_data) == 'table' then
           for _, info in ipairs(diagnostic.user_data) do
-            local info_item = vim.diagnostic.toqflist{ info }[1]
+            local info_item = vim.diagnostic.toqflist { info }[1]
             info_item.type = '>'
             table.insert(diag_list, get_diagnostic_line(info_item))
           end
@@ -1435,8 +1441,8 @@ function fn.update_lsp_diagnostics_list()
       elseif #diag_list == diag_count_max then
         local remaining_count = #diagnostics - diag_count_max
         if remaining_count > 0 then
-          table.insert(diag_list, get_diagnostic_line{
-            text = ''..remaining_count..' more items...',
+          table.insert(diag_list, get_diagnostic_line {
+            text = '' .. remaining_count .. ' more items...',
             type = '.',
           })
         end
@@ -1453,24 +1459,24 @@ function fn.update_lsp_diagnostics_list()
 
   local lines = {}
   for _, source_name in ipairs(sources) do
-    table.insert(lines, get_diagnostic_line{
+    table.insert(lines, get_diagnostic_line {
       text = source_name
-        :gsub('[^A-Za-z0-9 ]', ' ')
-        :gsub('(%l)(%w*)', function(a, b)
-          return a:upper()..b
-        end)
+          :gsub('[^A-Za-z0-9 ]', ' ')
+          :gsub('(%l)(%w*)', function(a, b)
+            return a:upper() .. b
+          end)
     })
 
     local source_map = diag_map[source_name]
     local code_keys = vim.tbl_keys(source_map)
-    table.sort(code_keys, function (a, b)
+    table.sort(code_keys, function(a, b)
       return a < b
     end)
 
     for _, code_key in ipairs(code_keys) do
       local key = vim.split(code_key, ',')
       local val = source_map[code_key]
-      table.insert(lines, get_diagnostic_line{
+      table.insert(lines, get_diagnostic_line {
         text = key[2],
         type = severities[tonumber(key[1])],
       })
@@ -1511,7 +1517,7 @@ function fn.get_task_output_codes()
 
   local codes = {}
   for _, id in ipairs(qf_info.task_output_ids) do
-    local qf_name = qf_name_prefix..id
+    local qf_name = qf_name_prefix .. id
     local context = get_qf_context(qf_name)
     if context.is_running or context.exit_code then
       table.insert(codes, context.exit_code or -1)
@@ -1527,7 +1533,7 @@ function fn.show_task_output(nr)
 
   local count = 0
   for _, id in ipairs(qf_info.task_output_ids) do
-    local qf_name = qf_name_prefix..id
+    local qf_name = qf_name_prefix .. id
     local context = get_qf_context(qf_name)
     if context.is_running or context.exit_code then
       count = count + 1
@@ -1545,7 +1551,7 @@ function fn.update_task_output(output, qf_id)
 
   if not qf_id then
     for _, id in ipairs(qf_info.task_output_ids) do
-      local qf_name = qf_name_prefix..id
+      local qf_name = qf_name_prefix .. id
       local context = get_qf_context(qf_name)
       if not context.is_running then
         set_qf_list(qf_name)
@@ -1557,7 +1563,7 @@ function fn.update_task_output(output, qf_id)
   end
 
   if qf_id then
-    local qf_name = qf_name_prefix..qf_id
+    local qf_name = qf_name_prefix .. qf_id
     if type(output) == 'table' then
       local lines = {}
       for _, line in ipairs(output) do
@@ -1657,7 +1663,7 @@ function fn.init_quickfix()
   set_qf_list('notifications', { title = "Notifications" })
 
   for _, id in ipairs(qf_info.task_output_ids) do
-    set_qf_list('task_output_'..id, { title = "Task Output "..id })
+    set_qf_list('task_output_' .. id, { title = "Task Output " .. id })
   end
 
   set_qf_list('messages', { title = "Messages" })
@@ -1681,7 +1687,7 @@ function fn.init_quickfix()
       vim.api.nvim_buf_set_keymap(0, 'n', [[<Enter>]], [[]], {
         callback = function()
           local lnum = vim.api.nvim_win_get_cursor(0)[1]
-          local list = vim.fn.getqflist{ id = 0, items = 0 }
+          local list = vim.fn.getqflist { id = 0, items = 0 }
           local item = list.items[lnum]
           if item.bufnr ~= 0 then
             local win = vim.fn.win_getid(vim.fn.winnr('#'))
@@ -1696,6 +1702,7 @@ function fn.init_quickfix()
     end,
   })
 end
+
 --}}}
 --{{{ Bookmarks
 function fn.get_bookmarks()
@@ -1726,7 +1733,7 @@ function fn.is_bookmarked(buf)
 end
 
 function fn.refresh_bookmark_list()
-  vim.cmd.wshada{ bang = true }
+  vim.cmd.wshada { bang = true }
 
   local old_showtabline = vim.o.showtabline
   vim.o.showtabline = #fn.get_bookmarks() > 0 and 2 or 0
@@ -1793,18 +1800,19 @@ function fn.goto_bookmark(name)
   end
   return false
 end
+
 --}}}
 --{{{ Navigation
 function fn.move_cursor_right()
   local count = vim.v.count1
   for _ = 1, count, 1 do
-		local isOnFold = vim.fn.foldclosed('.') > -1
-		if isOnFold then
-			pcall(vim.cmd.normal, { 'zo', bang = true })
-		else
-      vim.cmd.normal{ 'l', bang = true }
-		end
-	end
+    local isOnFold = vim.fn.foldclosed('.') > -1
+    if isOnFold then
+      pcall(vim.cmd.normal, { 'zo', bang = true })
+    else
+      vim.cmd.normal { 'l', bang = true }
+    end
+  end
 end
 
 function fn.relative_jump(dir)
@@ -1816,7 +1824,7 @@ function fn.relative_jump(dir)
         and input <= 57 then
       local count = vim.fn.nr2char(input)
       vim.wo.relativenumber = false
-      vim.cmd.normal(count..dir)
+      vim.cmd.normal(count .. dir)
     else
       vim.wo.relativenumber = false
     end
@@ -1844,7 +1852,7 @@ end
 function fn.float_window()
   local width = math.min(vim.o.columns * 0.9, vim.o.columns - 16)
   local height = vim.o.lines * 0.9
-  require'mini.misc'.zoom(0, {
+  require 'mini.misc'.zoom(0, {
     border = "single",
     width = vim.fn.ceil(width),
     height = vim.fn.ceil(height),
@@ -1870,17 +1878,17 @@ function fn.close_window(win)
   if #vim.api.nvim_tabpage_list_wins(0) > 0 then
     vim.api.nvim_win_close(win, false)
   else
-    require'mini.bufremove'.unshow(buf)
+    require 'mini.bufremove'.unshow(buf)
   end
 end
 
 function fn.zoom_window(win)
   win = win or vim.api.nvim_get_current_win()
 
-  if require'edgy'.get_win(win) then
+  if require 'edgy'.get_win(win) then
     local winpos
-    for _, pos in ipairs{ 'bottom', 'top', 'left', 'right' } do
-      for _, winid in ipairs(require'edgy.layout'.get(pos)) do
+    for _, pos in ipairs { 'bottom', 'top', 'left', 'right' } do
+      for _, winid in ipairs(require 'edgy.layout'.get(pos)) do
         if winid == win then
           winpos = pos
           break
@@ -1889,9 +1897,9 @@ function fn.zoom_window(win)
       if winpos then break end
     end
     if winpos then
-      for _, winid in ipairs(require'edgy.layout'.get(winpos)) do
+      for _, winid in ipairs(require 'edgy.layout'.get(winpos)) do
         if winid ~= win then
-          require'edgy'.get_win(winid):hide()
+          require 'edgy'.get_win(winid):hide()
         end
       end
     end
@@ -1901,19 +1909,19 @@ function fn.zoom_window(win)
 end
 
 function fn.jump(dir, maps)
-  local query = require'portal.builtin'.jumplist.query {
+  local query = require 'portal.builtin'.jumplist.query {
     direction = dir,
   }
-  local results = require'portal'.search(query)
-  local windows = require'portal'.portals(results)
+  local results = require 'portal'.search(query)
+  local windows = require 'portal'.portals(results)
 
-  require'portal'.open(windows)
+  require 'portal'.open(windows)
 
   vim.schedule(function()
     local input = vim.fn.getcharstr()
     for map, key in pairs(maps) do
       map = vim.api.nvim_replace_termcodes(map, true, false, true)
-      if input:match('^'..map..'$') then
+      if input:match('^' .. map .. '$') then
         if type(key) == 'string' then
           key = vim.api.nvim_replace_termcodes(key, true, false, true)
           vim.api.nvim_feedkeys(key, 'm', false)
@@ -1924,7 +1932,7 @@ function fn.jump(dir, maps)
       end
     end
 
-    require'portal'.close(windows)
+    require 'portal'.close(windows)
   end)
 end
 
@@ -1968,6 +1976,7 @@ function fn.track_buf_leave_win(buf, win)
     })
   end
 end
+
 --}}}
 --{{{ VCS
 local dir_git_info = {}
@@ -1995,7 +2004,7 @@ end
 
 local function run_git_command(tabpageOrPath, command)
   local git = ("git -C '%s'"):format(resolve_path(tabpageOrPath))
-  return vim.trim(vim.fn.system(git.." "..command))
+  return vim.trim(vim.fn.system(git .. " " .. command))
 end
 
 function fn.is_git_dir(tabpageOrPath)
@@ -2011,7 +2020,7 @@ end
 function fn.refresh_git_diff_info(tabpageOrPath)
   if fn.is_git_dir(tabpageOrPath) then
     local branch = fn.get_git_branch(tabpageOrPath)
-    local remote_cmd = 'show-branch remotes/origin/'..branch
+    local remote_cmd = 'show-branch remotes/origin/' .. branch
     run_git_command(tabpageOrPath, remote_cmd)
     local has_remote = vim.v.shell_error == 0
     set_git_info(tabpageOrPath, { has_remote = has_remote })
@@ -2113,7 +2122,7 @@ function fn.run_git_commit(tabpageOrPath)
           fn.ui_try(
             run_git_command,
             tabpageOrPath,
-            'commit --message "'..msg..'"'
+            'commit --message "' .. msg .. '"'
           )
           fn.refresh_git_info(tabpageOrPath)
         end
@@ -2138,15 +2147,15 @@ end
 function fn.open_in_github(path)
   local remote = run_git_command(path, 'remote get-url origin')
   local repo_path = remote:sub(1, 4) == 'http'
-    and remote:match[[com/(.*)%.]]
-    or remote:match[[com:(.*)%.]]
+      and remote:match [[com/(.*)%.]]
+      or remote:match [[com:(.*)%.]]
   local file_path = path or vim.api.nvim_buf_get_name(0)
   local info = get_git_info(file_path)
-  file_path = vim.fn.substitute(file_path, info.dir..'/', '', '')
+  file_path = vim.fn.substitute(file_path, info.dir .. '/', '', '')
   local url = ('https://github.com/%s/blob/%s/%s')
-    :format(repo_path, info.branch, file_path)
+      :format(repo_path, info.branch, file_path)
   if not path and vim.fn.mode():sub(1, 1):lower() == 'v' then
-    url = url..'#L'..vim.api.nvim_win_get_cursor(0)[1]
+    url = url .. '#L' .. vim.api.nvim_win_get_cursor(0)[1]
   end
   vim.ui.open(url)
 end
@@ -2155,11 +2164,11 @@ function fn.open_git_repo(path)
   if fn.has_git_remote(path) then
     local remote = run_git_command(path, 'remote get-url origin')
     local repo_path = remote:sub(1, 4) == 'http'
-      and remote:match[[com/(.*)%.]]
-      or remote:match[[com:(.*)%.]]
+        and remote:match [[com/(.*)%.]]
+        or remote:match [[com:(.*)%.]]
     local file_path = path or vim.api.nvim_buf_get_name(0)
     local info = get_git_info(file_path)
-    require'plenary.job':new{
+    require 'plenary.job':new {
       args = {
         'pr',
         'view',
@@ -2174,7 +2183,7 @@ function fn.open_git_repo(path)
       on_exit = function(_, return_val)
         if return_val ~= 0 then
           fn.vim_defer(function()
-            require'plenary.job':new{
+            require 'plenary.job':new {
               args = {
                 'repo',
                 'view',
@@ -2194,18 +2203,19 @@ function fn.open_git_repo(path)
 end
 
 function fn.show_file_history(range, term)
-  require'diffview'.file_history(range, term and '-G"'..term..'"')
+  require 'diffview'.file_history(range, term and '-G"' .. term .. '"')
 end
+
 --}}}
 --{{{ Assistants
 function fn.ai_gen(cmd, text)
-  require'gp'
+  require 'gp'
 
   local filetype = vim.bo.filetype
 
   local lines = text
-    and vim.split(text, '\n')
-    or vim.api.nvim_buf_get_lines(0, 0, -1, false)
+      and vim.split(text, '\n')
+      or vim.api.nvim_buf_get_lines(0, 0, -1, false)
 
   vim.cmd.tabedit()
 
@@ -2215,7 +2225,7 @@ function fn.ai_gen(cmd, text)
   vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
 
   vim.cmd {
-    cmd = 'Gp'..cmd,
+    cmd = 'Gp' .. cmd,
     range = { 1, vim.fn.line('$') },
   }
 
@@ -2229,11 +2239,11 @@ function fn.ai_gen(cmd, text)
 end
 
 function fn.ai_conv(cmd, text)
-  require'gp'
+  require 'gp'
 
   local lines = text
-    and vim.split(text, '\n')
-    or vim.api.nvim_buf_get_lines(0, 0, -1, false)
+      and vim.split(text, '\n')
+      or vim.api.nvim_buf_get_lines(0, 0, -1, false)
 
   vim.ui.input({
       prompt = " 󰗊 Translate to: ",
@@ -2251,7 +2261,7 @@ function fn.ai_conv(cmd, text)
 
       vim.cmd {
         args = { filetype },
-        cmd = 'Gp'..cmd,
+        cmd = 'Gp' .. cmd,
         range = { 1, vim.fn.line('$') },
       }
 
@@ -2264,6 +2274,7 @@ function fn.ai_conv(cmd, text)
       })
     end)
 end
+
 --}}}
 --{{{ Tasks
 function fn._task_cb_runner(id)
@@ -2302,7 +2313,7 @@ local function vim_task_def(name, args, cwd, deps, func)
       '--server',
       vim.v.servername,
       '--remote-expr',
-      'v:lua.fn._task_cb_runner('.._G._task_cb_id..')',
+      'v:lua.fn._task_cb_runner(' .. _G._task_cb_id .. ')',
     },
     cmd = { vim.v.progpath },
     components = deps,
@@ -2311,7 +2322,7 @@ local function vim_task_def(name, args, cwd, deps, func)
 end
 
 function fn.create_task(name, config)
-  require'overseer'.register_template {
+  require 'overseer'.register_template {
     name = name,
     builder = function(params)
       local args = vim.list_extend(
@@ -2320,9 +2331,9 @@ function fn.create_task(name, config)
       local deps = {
         { 'task_output_quickfix' },
         config.notify == false
-          and { 'on_complete_notify', statuses = {} }
-          or 'on_complete_notify',
-        { 'run_after', task_names = config.deps or {} },
+        and { 'on_complete_notify', statuses = {} }
+        or 'on_complete_notify',
+        { 'run_after',           task_names = config.deps or {} },
         'default',
       }
       if not config.func then
@@ -2365,9 +2376,9 @@ function fn.create_task(name, config)
 end
 
 function fn.has_task(name)
-  require'overseer'.preload_task_cache()
+  require 'overseer'.preload_task_cache()
   local task_def
-  require'overseer.template'.get_by_name(
+  require 'overseer.template'.get_by_name(
     name,
     { dir = fn.get_workspace_dir() },
     function(def)
@@ -2392,20 +2403,20 @@ function fn.run_task(name, args)
     end
   end
 
-  require'overseer'.run_template(vim.tbl_extend('force', opts, {
+  require 'overseer'.run_template(vim.tbl_extend('force', opts, {
     name = name,
     params = params,
   }))
 end
 
 function fn.running_task_count()
-  return #require'overseer.task_list'.list_tasks {
-    status = require'overseer'.STATUS.RUNNING,
+  return #require 'overseer.task_list'.list_tasks {
+    status = require 'overseer'.STATUS.RUNNING,
   }
 end
 
 function fn.exec_task(cmd, args, name, env, cwd)
-  require'overseer'.new_task{
+  require 'overseer'.new_task {
     args = args,
     cmd = cmd,
     cwd = cwd,
@@ -2417,6 +2428,7 @@ function fn.exec_task(cmd, args, name, env, cwd)
     name = name,
   }:start()
 end
+
 --}}}
 --{{{ Debugging
 local debug_info = {
@@ -2536,14 +2548,14 @@ end
 local function get_debug_callback(action, tabpage)
   local state = get_debug_state(tabpage)
   return function(_, _, mods)
-    local task_name = 'Debug '..action:gsub('_', ' ')
+    local task_name = 'Debug ' .. action:gsub('_', ' ')
     if fn.has_task(task_name) then
       fn.run_task(task_name, {
         mods = mods,
         state = state,
       })
     else
-      require'dap'[action]()
+      require 'dap'[action]()
     end
   end
 end
@@ -2608,10 +2620,10 @@ function fn.select_debug_launcher(buf)
     vim.bo.filetype
   )
 
-  local configurations = require'dap'.configurations[filetype] or {}
+  local configurations = require 'dap'.configurations[filetype] or {}
 
   if vim.tbl_islist(configurations) and #configurations ~= 0 then
-    require'dap.ui'.pick_if_many(
+    require 'dap.ui'.pick_if_many(
       configurations,
       "Configuration: ",
       function(item)
@@ -2640,19 +2652,19 @@ function fn.stop_debugging(tabpage)
     debug_info.keymaps = {}
   end
 
-  require'dap'.clear_breakpoints()
+  require 'dap'.clear_breakpoints()
 
-  require'dap'.listeners.after.event_continued.my_debug_event = nil
-  require'dap'.listeners.after.continue.my_debug_event = nil
-  require'dap'.listeners.after.attach.my_debug_event = nil
-  require'dap'.listeners.after.launch.my_debug_event = nil
-  require'dap'.listeners.after.event_stopped.my_debug_event = nil
-  require'dap'.listeners.after.event_exited.my_debug_event = nil
-  require'dap'.listeners.after.event_terminated.my_debug_event = nil
-  require'dap'.listeners.after.disconnect.my_debug_event = nil
-  require'dap'.listeners.after.terminate.my_debug_event = nil
+  require 'dap'.listeners.after.event_continued.my_debug_event = nil
+  require 'dap'.listeners.after.continue.my_debug_event = nil
+  require 'dap'.listeners.after.attach.my_debug_event = nil
+  require 'dap'.listeners.after.launch.my_debug_event = nil
+  require 'dap'.listeners.after.event_stopped.my_debug_event = nil
+  require 'dap'.listeners.after.event_exited.my_debug_event = nil
+  require 'dap'.listeners.after.event_terminated.my_debug_event = nil
+  require 'dap'.listeners.after.disconnect.my_debug_event = nil
+  require 'dap'.listeners.after.terminate.my_debug_event = nil
 
-  require'dapui'.close()
+  require 'dapui'.close()
 
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     vim.api.nvim_win_set_option(win, 'numberwidth',
@@ -2668,7 +2680,7 @@ local function update_debugging_state(state, tabpage)
     for _, button in ipairs(debug_info.toolbar) do
       if vim.tbl_contains(button.states, state) then
         local callback = get_debug_button_callback(button, tabpage)
-          or fn.stop_debugging
+            or fn.stop_debugging
         set_debugging_keymap(button[1], callback)
       end
     end
@@ -2679,38 +2691,38 @@ function fn.resume_debugging(tabpage)
   local state = get_debug_state(tabpage)
 
   if state == 0 then
-    require'dapui'.close()
+    require 'dapui'.close()
     update_debugging_state(1)
   end
 
-  require'dap'.listeners.after.event_continued.my_debug_event = function()
-    require'dapui'.close()
+  require 'dap'.listeners.after.event_continued.my_debug_event = function()
+    require 'dapui'.close()
     update_debugging_state(3)
   end
-  require'dap'.listeners.after.event_process.my_debug_event =
-    require'dap'.listeners.after.event_continued.my_debug_event
-  require'dap'.listeners.after.attach.my_debug_event =
-    require'dap'.listeners.after.event_continued.my_debug_event
-  require'dap'.listeners.after.continue.my_debug_event =
-    require'dap'.listeners.after.event_continued.my_debug_event
-  require'dap'.listeners.after.launch.my_debug_event =
-    require'dap'.listeners.after.event_continued.my_debug_event
+  require 'dap'.listeners.after.event_process.my_debug_event =
+      require 'dap'.listeners.after.event_continued.my_debug_event
+  require 'dap'.listeners.after.attach.my_debug_event =
+      require 'dap'.listeners.after.event_continued.my_debug_event
+  require 'dap'.listeners.after.continue.my_debug_event =
+      require 'dap'.listeners.after.event_continued.my_debug_event
+  require 'dap'.listeners.after.launch.my_debug_event =
+      require 'dap'.listeners.after.event_continued.my_debug_event
 
-  require'dap'.listeners.after.event_stopped.my_debug_event = function()
-    require'dapui'.open()
+  require 'dap'.listeners.after.event_stopped.my_debug_event = function()
+    require 'dapui'.open()
     update_debugging_state(2)
   end
 
-  require'dap'.listeners.after.event_terminated.my_debug_event = function()
-    require'dapui'.close()
+  require 'dap'.listeners.after.event_terminated.my_debug_event = function()
+    require 'dapui'.close()
     update_debugging_state(1)
   end
-  require'dap'.listeners.after.event_exited.my_debug_event =
-    require'dap'.listeners.after.event_terminated.my_debug_event
-  require'dap'.listeners.after.disconnect.my_debug_event =
-    require'dap'.listeners.after.event_terminated.my_debug_event
-  require'dap'.listeners.after.terminate.my_debug_event =
-    require'dap'.listeners.after.event_terminated.my_debug_event
+  require 'dap'.listeners.after.event_exited.my_debug_event =
+      require 'dap'.listeners.after.event_terminated.my_debug_event
+  require 'dap'.listeners.after.disconnect.my_debug_event =
+      require 'dap'.listeners.after.event_terminated.my_debug_event
+  require 'dap'.listeners.after.terminate.my_debug_event =
+      require 'dap'.listeners.after.event_terminated.my_debug_event
 end
 
 function fn.get_debug_toolbar(tabpage)
@@ -2718,13 +2730,13 @@ function fn.get_debug_toolbar(tabpage)
   for i, button in ipairs(debug_info.toolbar) do
     if button.icon then
       table.insert(components, {
-        action = button.action or ('action_'..i),
+        action = button.action or ('action_' .. i),
         highlight = button.icon.color,
         icon = button.icon[1],
         keymap = button.hint or button[1],
         click_cb = function(click_count, mouse_button, mods)
           local btn_cb = get_debug_button_callback(button, tabpage)
-            or function() fn.stop_debugging(tabpage) end
+              or function() fn.stop_debugging(tabpage) end
           btn_cb(click_count, mouse_button, mods)
         end,
         cond_cb = function()
@@ -2737,12 +2749,12 @@ function fn.get_debug_toolbar(tabpage)
 end
 
 function fn.toggle_debug_repl()
-  require'dap'.repl.toggle()
+  require 'dap'.repl.toggle()
 end
 
 function fn.debug_repl_input_completions(text)
   local completions = {}
-  for _, list in pairs(require'dap'.repl.commands) do
+  for _, list in pairs(require 'dap'.repl.commands) do
     for _, command in ipairs(list) do
       if command:match(text) then
         table.insert(completions, command)
@@ -2754,7 +2766,7 @@ end
 
 function fn.debug_repl_input()
   vim.fn.inputsave()
-  vim.cmd.echohl[[Constant]]
+  vim.cmd.echohl [[Constant]]
 
   local result = vim.fn.input {
     cancelreturn = 1,
@@ -2763,27 +2775,28 @@ function fn.debug_repl_input()
   }
 
   if type(result) == 'string' then
-    require'dap'.repl.execute(result)
+    require 'dap'.repl.execute(result)
   end
 
-  vim.cmd.echohl[[None]]
+  vim.cmd.echohl [[None]]
   vim.fn.inputrestore()
 end
 
 function fn.load_vscode_launch_json(path)
-  local is_ok, result = pcall(require'dap.ext.vscode'.load_launchjs, path)
+  local is_ok, result = pcall(require 'dap.ext.vscode'.load_launchjs, path)
   if not is_ok then
     vim.notify(result, vim.log.levels.WARN)
   end
 end
+
 --}}}
 --{{{ Workspace
 local function get_workspace_file_path(tabpage)
-  return fn.get_workspace_dir(tabpage)..'/'..vim.g.workspace_file_name
+  return fn.get_workspace_dir(tabpage) .. '/' .. vim.g.workspace_file_name
 end
 
 local function get_workspace_config_path(tabpage)
-  return fn.get_workspace_dir(tabpage)..'/'..vim.g.local_config_file_name
+  return fn.get_workspace_dir(tabpage) .. '/' .. vim.g.local_config_file_name
 end
 
 local function load_workspace(tabpage)
@@ -2800,10 +2813,10 @@ end
 
 function fn.get_workspace_dir(tabpageOrPath)
   local current_dir = resolve_path(tabpageOrPath)
-  local workspace_path = vim.fn.findfile(vim.g.workspace_file_name, current_dir..';')
+  local workspace_path = vim.fn.findfile(vim.g.workspace_file_name, current_dir .. ';')
   if workspace_path ~= '' then
     workspace_path = vim.fn.fnamemodify(workspace_path, ':p')
-    return workspace_path:sub(1, -#vim.g.workspace_file_name - 2)
+    return workspace_path:sub(1, - #vim.g.workspace_file_name - 2)
   end
   return current_dir
 end
@@ -2819,10 +2832,10 @@ end
 function fn.save_as_workspace_config(path)
   if path and #path > 0 and vim.fn.filereadable(path) == 1 then
     local workspace_path = fn.get_workspace_dir()
-    local workspace_conf = workspace_path..'/'..vim.g.local_config_file_name
+    local workspace_conf = workspace_path .. '/' .. vim.g.local_config_file_name
     create_parent_dirs(workspace_conf)
     vim.fn.writefile(vim.fn.readfile(path), workspace_conf)
-    pcall(require'config-local'.trust, workspace_conf)
+    pcall(require 'config-local'.trust, workspace_conf)
   end
 end
 
@@ -2900,6 +2913,7 @@ end
 function fn.open_workspace_folder(path)
   vim.ui.open(fn.get_workspace_dir(path))
 end
+
 --}}}
 
 return fn
