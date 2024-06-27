@@ -7,6 +7,7 @@ return {
       },
       formatters_by_ft = {
         ['_'] = { 'trim_whitespace' },
+        json = { 'jq' },
         nim = { 'nph' },
         swift = { 'swiftformat' },
         yaml = { 'yamlfmt' },
