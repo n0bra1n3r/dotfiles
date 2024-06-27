@@ -6,6 +6,7 @@ return {
         timeout_ms = 500,
       },
       formatters_by_ft = {
+        ['_'] = { 'trim_whitespace' },
         nim = { 'nph' },
         swift = { 'swiftformat' },
       },
