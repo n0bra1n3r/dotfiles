@@ -71,6 +71,7 @@ my_options {
   signcolumn = "yes",
   smartcase = true,
   smartindent = true,
+  smoothscroll = true,
   spell = false,
   splitbelow = true,
   splitkeep = 'screen',
