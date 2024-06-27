@@ -21,7 +21,7 @@ my_tasks {
     func = function()
       vim.cmd.MDInsertToc()
     end,
-  }, --}}}
+  },                                  --}}}
   ["Generate test coverage"] = task { --{{{
     cond = function()
       return vim.g.project_type == 'flutter'
@@ -32,18 +32,18 @@ my_tasks {
       '--coverage',
     },
     deps = { [[Show test coverage]] },
-  }, --}}}
+  },                              --}}}
   ["Show test coverage"] = task { --{{{
     cond = function()
       return vim.fn.filereadable('coverage/lcov.info') == 1
     end,
     func = function()
-      require'coverage'.load()
-      require'coverage'.summary()
-      require'coverage'.show()
+      require 'coverage'.load()
+      require 'coverage'.summary()
+      require 'coverage'.show()
     end,
     notify = false,
-  }, --}}}
+  },                              --}}}
   ["Open iOS workspace"] = task { --{{{
     cond = function()
       return vim.g.project_type == 'flutter'
@@ -65,14 +65,14 @@ my_tasks {
       end
     end,
     notify = false,
-  }, --}}}
+  },                                --}}}
   ["Open Android project"] = task { --{{{
     cond = function()
       return vim.g.project_type == 'flutter'
     end,
     func = function()
       if vim.fn.filereadable('./android/app/build.gradle') == 1 then
-        vim.fn.system{ './android', '-a', '/Applications/Android Studio.app' }
+        vim.fn.system { 'open', './android', '-a', '/Applications/Android Studio.app' }
         vim.notify(
           "Opening Android project...",
           vim.log.levels.INFO,
@@ -87,7 +87,7 @@ my_tasks {
       end
     end,
     notify = false,
-  }, --}}}
+  },                         --}}}
   ["Select device"] = task { --{{{
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
@@ -96,40 +96,40 @@ my_tasks {
       vim.g.dap_no_run_on_select_device = true
       vim.g.flutter_current_device = nil
 
-      require'flutter-tools.devices'.list_devices()
+      require 'flutter-tools.devices'.list_devices()
     end,
     notify = false,
-  }, --}}}
+  },                        --}}}
   ["Run profiler"] = task { --{{{
     cond = function()
       return fn.is_debugging() and vim.g.project_type == 'flutter'
     end,
     func = function()
-      local url = require'flutter-tools.dev_tools'.get_profiler_url()
+      local url = require 'flutter-tools.dev_tools'.get_profiler_url()
       if url then
         vim.ui.open(url)
       end
     end,
     notify = false,
-  }, --}}}
+  },                      --}}}
   ["Hot reload"] = task { --{{{
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
     func = function()
-      require'flutter-tools.commands'.reload()
+      require 'flutter-tools.commands'.reload()
     end,
     notify = false,
-  }, --}}}
+  },                          --}}}
   ["Debug continue"] = task { --{{{
     cond = function()
       return fn.is_debug_mode() and vim.g.project_type == 'flutter'
     end,
     func = function(args)
       if not args.state or args.state == 1 then
-        require'flutter-tools.commands'.run()
+        require 'flutter-tools.commands'.run()
       else
-        require'dap'.continue()
+        require 'dap'.continue()
       end
     end,
     notify = false,
@@ -140,13 +140,13 @@ my_tasks {
         type = 'number',
       },
     },
-  }, --}}}
+  },                         --}}}
   ["Debug restart"] = task { --{{{
     cond = function()
       return fn.is_debugging() and vim.g.project_type == 'flutter'
     end,
     func = function()
-      require'flutter-tools.commands'.restart()
+      require 'flutter-tools.commands'.restart()
     end,
     notify = false,
   },
@@ -155,10 +155,10 @@ my_tasks {
       return fn.is_debugging() and vim.g.project_type == 'flutter'
     end,
     func = function()
-      require'flutter-tools.commands'.quit()
+      require 'flutter-tools.commands'.quit()
     end,
     notify = false,
-  }, --}}}
+  },                                         --}}}
   ["Install project configuration"] = task { --{{{
     func = function()
       vim.ui.select(
