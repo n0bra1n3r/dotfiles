@@ -50,8 +50,8 @@ return {
       map('n', '<C-w>gd', goto_definition('tab split'), "Go to definition in new tab")
       map('n', 'gR', show_references, "Show symbol references")
       map('n', '<F2>', vim.lsp.buf.rename)
-      map('n', '<F3>', require'conform'.format)
-      map('x', '<F3>', require'conform'.format)
+      map('n', '<F3>', vim.lsp.buf.format)
+      map('x', '<F3>', vim.lsp.buf.format)
       map('n', '<F4>', vim.lsp.buf.code_action)
 
       if vim.lsp.buf.range_code_action then

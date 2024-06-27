@@ -17,5 +17,7 @@ return {
         },
       },
     }
+
+    vim.lsp.buf.format = require'conform'.format
   end,
 }
