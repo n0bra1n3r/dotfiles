@@ -82,11 +82,6 @@ my_autocmds {
       end
     end,
   }, --}}}
-  { "BufWritePre", pattern = { '*.dart', '*.json', '*.kt', '*.nim', '*.swift' }, --{{{
-    callback = function()
-      vim.lsp.buf.format()
-    end,
-  }, --}}}
   { "BufWritePost", pattern = { '.nvim/init.lua' }, --{{{
     callback = function()
       vim.g.dap_current_config = nil
