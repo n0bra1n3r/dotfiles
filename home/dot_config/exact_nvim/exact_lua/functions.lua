@@ -623,6 +623,7 @@ function fn.popup_preview(opts)
       vim.wo[context].scrolloff = height
       vim.wo[context].signcolumn = 'no'
       vim.wo[context].statuscolumn = ''
+      vim.wo[context].winfixbuf = true
       vim.wo[context].wrap = false
     else
       context = nil
@@ -749,6 +750,7 @@ function fn.filter_win_buf(win)
           vim.api.nvim_win_set_buf(win, fbuf)
 
           vim.wo[win].number = false
+          vim.wo[win].winfixbuf = true
 
           local line_map = {}
           local line_count = vim.api.nvim_buf_line_count(buf)
@@ -1087,6 +1089,8 @@ local function show_qf(name, is_foldable)
     }.nr
     vim.cmd.chistory{ count = nr, mods = { silent = true } }
     vim.cmd.copen()
+
+    vim.wo.winfixbuf = true
 
     if is_foldable then
       vim.wo.foldenable = true
