@@ -1110,6 +1110,9 @@ end
 
 local function filter_btn()
   return {
+    condition = function()
+      return vim.bo.filetype == 'filter' or fn.is_buf_filterable()
+    end,
     border'',
     {
       hl = { bg = 'background' },
