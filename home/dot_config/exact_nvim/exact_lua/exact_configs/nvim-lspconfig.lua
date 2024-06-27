@@ -32,7 +32,7 @@ end
 
 return {
   config = function()
-    local lsp = require'lsp-zero'
+    local lsp = require 'lsp-zero'
 
     lsp.on_attach(function(_, bufnr)
       local function map(m, lhs, rhs, desc)
@@ -68,13 +68,13 @@ return {
       virtual_text = false,
     })
 
-    local config = require'lspconfig'
+    local config = require 'lspconfig'
     local default_config = function(name)
-      local is_ok, module = pcall(require, 'lspconfig.server_configurations.'..name);
+      local is_ok, module = pcall(require, 'lspconfig.server_configurations.' .. name);
       return is_ok and module.default_config
     end
 
-    require'mason-lspconfig'.setup {
+    require 'mason-lspconfig'.setup {
       ensure_installed = {
         'bashls',
         'graphql',
@@ -84,19 +84,20 @@ return {
         'marksman',
         'nim_langserver',
         'pyright',
+        'yaml-language-server',
       },
       handlers = {
         function(server)
-          config[server].setup{}
+          config[server].setup {}
         end,
         lua_ls = function()
           config.lua_ls.setup(lsp.nvim_lua_ls {
             root_dir = function(fname)
               if fname:match('/%.nvim/init%.lua$') then
-                return vim.fn.expand'~/.config/nvim/lua'
+                return vim.fn.expand '~/.config/nvim/lua'
               else
                 ---@diagnostic disable-next-line: undefined-field
-                return default_config'lua_ls'.root_dir(fname)
+                return default_config 'lua_ls'.root_dir(fname)
               end
             end,
           })

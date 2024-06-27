@@ -29,6 +29,7 @@ return {
         'swift',
         'vim',
         'vimdoc',
+        'yaml',
       },
       highlight = {
         enable = true,
