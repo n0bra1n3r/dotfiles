@@ -531,7 +531,7 @@ function fn.ui_try(callback, ...)
   if is_ok then
     return result
   end
-  vim.notify(result, vim.log.levels.ERROR, { title = 'help' })
+  vim.notify(result, vim.log.levels.ERROR, { title = 'neovim' })
 end
 
 function fn.close_folds_at(level)
