@@ -82,6 +82,7 @@ return {
         'kotlin_language_server',
         'lua_ls',
         'marksman',
+        'nim_langserver',
         'pyright',
       },
       handlers = {
@@ -111,25 +112,6 @@ return {
         'sourcekit-lsp',
       },
     }
-
-    local nim_lsp_client_id
-
-    require'lspconfig.configs'.nim_lsp = {
-      default_config = {
-        cmd = require'nim_lsp'.cmd(function()
-          return nim_lsp_client_id
-        end),
-        filetypes = { 'nim' },
-        on_init = function(client)
-          nim_lsp_client_id = client.id
-        end,
-        root_dir = function()
-          return vim.fn.getcwd()
-        end,
-      },
-    }
-
-    config.nim_lsp.setup{}
 
     lsp.setup()
   end,
