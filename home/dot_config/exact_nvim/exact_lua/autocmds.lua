@@ -184,9 +184,10 @@ my_autocmds {
       vim.o.cmdheight = 0
     end,
   }, --}}}
-  { "TabEnter", --{{{
+  { 'TabEnter', --{{{
     callback = function()
       fn.show_workspace()
+      require'treesitter-context'.enable()
     end,
   }, --}}}
   { "TabLeave", --{{{

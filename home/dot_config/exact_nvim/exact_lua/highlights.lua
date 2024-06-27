@@ -40,6 +40,6 @@ my_highlights {
     fg = 'None',
   },
   TreesitterContext = {
-    link = 'Normal',
+    link = 'CursorLine',
   },
 }
