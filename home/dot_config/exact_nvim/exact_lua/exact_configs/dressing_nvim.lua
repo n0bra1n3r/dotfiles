@@ -6,6 +6,12 @@ return {
         get_config = function(opts)
           return opts.dressing
         end,
+        mappings = {
+          i = {
+            ['<C-c>'] = false,
+            ['<Esc>'] = 'Close',
+          },
+        },
       },
       select = {
         builtin = {

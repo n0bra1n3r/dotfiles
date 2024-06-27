@@ -98,13 +98,6 @@ my_autocmds {
       vim.o.cmdheight = 1
     end,
   }, --}}}
-  { { 'InsertEnter', 'TermEnter' }, --{{{
-    callback = function()
-      vim.schedule(function()
-        vim.cmd[[let v:hlsearch = 0]]
-      end)
-    end,
-  }, --}}}
   { "CmdlineLeave", --{{{
     callback = function()
       vim.o.cmdheight = 0
@@ -183,6 +176,13 @@ my_autocmds {
         })
       end
     end
+  }, --}}}
+  { { 'InsertEnter', 'TermEnter' }, --{{{
+    callback = function()
+      vim.schedule(function()
+        vim.cmd[[let v:hlsearch = 0]]
+      end)
+    end,
   }, --}}}
   { "TabClosed", --{{{
     callback = function()
