@@ -86,6 +86,7 @@ return {
       dev_tools = {
         autostart = true,
       },
+      flutter_lookup_cmd = vim.fn.expand[[~/.dotfiles/scripts/find-flutter.sh]],
       lsp = {
         color = {
           enabled = true,
@@ -105,6 +106,7 @@ return {
           experimentalRefactors = true,
         },
       },
+      root_patterns = { '.git', 'pubspec.yaml', 'main.dart' },
       ui = {
         border = 'single',
       },
