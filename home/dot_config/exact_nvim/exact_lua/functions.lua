@@ -590,7 +590,7 @@ function fn.popup_preview(opts)
     title = {
       { require 'nvim-web-devicons'.get_icon(filename) },
       { ' ' },
-      { vim.fn.fnamemodify(filename, ':~:.'),         'Title' },
+      { vim.fn.fnamemodify(filename, ':~:.'),          'Title' },
     },
     width = width,
     win = not anchor_cur and anchor_win or nil,
@@ -1006,7 +1006,7 @@ local function get_diagnostic_line(item)
     filename = vim.api.nvim_buf_get_name(item.bufnr)
   end
 
-  return ('%s|%s|%s|%s|%s'):format(
+  return ('%s|%s|%s|%s'):format(
     item.type or '',
     (item.lnum and item.lnum ~= 0) and ('%d-%d:%d-%d'):format(
       item.lnum,
@@ -1014,7 +1014,6 @@ local function get_diagnostic_line(item)
       col or 0,
       end_col or 0
     ) or '',
-    item.module or '',
     filename or '',
     item.text or ''
   )
@@ -1032,7 +1031,7 @@ local function set_qf_list(name, what, is_append)
 
   if what.items then
     -- convert items to lines to prevent scroll offsets from jumping
-    what.efm = '%t|%l-%e:%c-%k|%o|%f|%m,%t|%l-%e:%c-%k||%f|%m,%t||||%m,||||%m'
+    what.efm = '%t|%l-%e:%c-%k|%f|%m,%t|||%m,|||%m'
     what.lines = vim.tbl_map(get_diagnostic_line, what.items)
     what.items = nil
   end
@@ -1485,7 +1484,7 @@ function fn.update_lsp_diagnostics_list()
   end
 
   set_qf_list('lsp_diagnostics', {
-    efm = '%t|%l-%e:%c-%k|%o|%f|%m,%t|%l-%e:%c-%k||%f|%m,%t||||%m,||||%m',
+    efm = '%t|%l-%e:%c-%k|%f|%m,%t|||%m,|||%m',
     lines = lines
   })
 
