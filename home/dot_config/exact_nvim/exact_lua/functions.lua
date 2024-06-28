@@ -870,7 +870,7 @@ local function get_terminal_tabpage()
 end
 
 local function get_terminal(start_command)
-  return require 'toggleterm.terminal'.Terminal:new {
+  local terminal = require 'toggleterm.terminal'.Terminal:new {
     id = 0,
     cmd = vim.fn.has('win32') == 1
         and 'bash'
@@ -884,6 +884,10 @@ local function get_terminal(start_command)
       vim.schedule(vim.cmd.quitall)
     end,
   }
+  if terminal.window ~= nil then
+    vim.wo[terminal.window].winfixbuf = true
+  end
+  return terminal
 end
 
 function fn.is_main_terminal(buf)
