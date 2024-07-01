@@ -923,8 +923,10 @@ end
 
 function fn.set_terminal_dir(cwd)
   local terminal = get_terminal()
-  local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
-  fn.set_tab_cwd(tabpage, cwd)
+  if type(terminal.window) == 'number' then
+    local tabpage = vim.api.nvim_win_get_tabpage(terminal.window)
+    fn.set_tab_cwd(tabpage, cwd)
+  end
   terminal.dir = cwd
 end
 

@@ -11,16 +11,16 @@ local augroup_live_search = 'search_live_search'
 local augroup_open_search_buffer = 'search_open_search_buffer'
 
 local function get_search_icon_color()
-  local _, color = require'nvim-web-devicons'.get_icon_color_by_filetype('help')
+  local _, color = require 'nvim-web-devicons'.get_icon_color_by_filetype('help')
   return color
 end
 
 local function get_search_icon_cterm_color()
-  local _, color = require'nvim-web-devicons'.get_icon_cterm_color_by_filetype('help')
+  local _, color = require 'nvim-web-devicons'.get_icon_cterm_color_by_filetype('help')
   return color
 end
 
-require'nvim-web-devicons'.set_icon {
+require 'nvim-web-devicons'.set_icon {
   [search_filetype] = {
     icon = search_icon,
     color = get_search_icon_color(),
@@ -30,17 +30,17 @@ require'nvim-web-devicons'.set_icon {
 }
 
 local function get_search_icon()
-  local icon, _ = require'nvim-web-devicons'.get_icon('search')
+  local icon, _ = require 'nvim-web-devicons'.get_icon('search')
   return icon
 end
 
 local function get_search_match_namespace()
-  return vim.api.nvim_create_namespace(search_namespace.."-match")
+  return vim.api.nvim_create_namespace(search_namespace .. "-match")
 end
 
 local function get_search_file_namespace(name)
-  local postfix = name and ("-file-"..name) or ""
-  return vim.api.nvim_create_namespace(search_namespace..postfix)
+  local postfix = name and ("-file-" .. name) or ""
+  return vim.api.nvim_create_namespace(search_namespace .. postfix)
 end
 
 local function construct_search_command(search_term, search_args)
@@ -190,7 +190,7 @@ local function maybe_create_search_buffer()
         vim.api.nvim_set_current_win(winid)
         break
       end
-      vim.cmd.tabedit('#'..bufnr)
+      vim.cmd.tabedit('#' .. bufnr)
       return nil
     end
 
@@ -243,7 +243,7 @@ local function initialize_search(search_term, search_args)
   vim.bo.buftype = 'nowrite'
 
   vim.schedule(function()
-    vim.cmd[[let v:hlsearch = 0]]
+    vim.cmd [[let v:hlsearch = 0]]
   end)
 
   set_search_window_options()
@@ -279,11 +279,11 @@ local function render_file_name(row, file_name, is_changed)
   if row >= 0 then
     local name = vim.fn.fnamemodify(file_name, ':t')
     local ext = vim.fn.fnamemodify(name, ':e')
-    local icon, hl = require'nvim-web-devicons'.get_icon(name, ext)
+    local icon, hl = require 'nvim-web-devicons'.get_icon(name, ext)
     vim.api.nvim_buf_set_extmark(0, namespace, row, 0, {
       id = row + 1,
       virt_lines = {
-        {{ '' }},
+        { { '' } },
         {
           { ' ' },
           {
@@ -307,7 +307,7 @@ local function render_file_name(row, file_name, is_changed)
     })
 
     if row <= search_scrolloff then
-      vim.fn.winrestview{ topfill = 3 + search_scrolloff }
+      vim.fn.winrestview { topfill = 3 + search_scrolloff }
     end
   end
 end
@@ -364,7 +364,7 @@ local function render_statistics(is_modified)
       end
 
       local replace_msg = is_modified and (" Replacing %s lines in %s files.")
-        :format(change_count, vim.tbl_count(change_files)) or ''
+          :format(change_count, vim.tbl_count(change_files)) or ''
 
       local stats = {
         { ' ' },
@@ -373,8 +373,8 @@ local function render_statistics(is_modified)
             progress_icon or finished_icon,
             #info.line_array,
             vim.tbl_count(info.file_table),
-            progress_icon and "..." or "."..replace_msg),
-            progress_icon and 'CurSearch' or finished_hl,
+            progress_icon and "..." or "." .. replace_msg),
+          progress_icon and 'CurSearch' or finished_hl,
         },
       }
 
@@ -407,7 +407,7 @@ local function render_statistics(is_modified)
 
     vim.api.nvim_buf_set_extmark(0, namespace, 0, 0, {
       id = 1,
-      virt_lines = {{
+      virt_lines = { {
         { ' ' },
         {
           (" %s  No matches found%s "):format(
@@ -415,12 +415,12 @@ local function render_statistics(is_modified)
             progress_icon and "..." or "."),
           'Search',
         },
-      }},
+      } },
       virt_lines_above = true,
       virt_lines_leftcol = true,
     })
 
-    vim.fn.winrestview{ topfill = 3 + search_scrolloff }
+    vim.fn.winrestview { topfill = 3 + search_scrolloff }
   end
 end
 
@@ -458,12 +458,12 @@ local function fold_results(row, should_fold)
       if vim.fn.foldclosed(fold_start) == -1 then
         if should_fold == nil or should_fold then
           if last_line - first_line >= fold_threshold then
-            vim.cmd.fold{ range = { fold_start, fold_end } }
+            vim.cmd.fold { range = { fold_start, fold_end } }
           end
         end
       else
         if should_fold == nil or not should_fold then
-          vim.cmd.foldopen{ range = { fold_start, fold_end } }
+          vim.cmd.foldopen { range = { fold_start, fold_end } }
         end
       end
     else
@@ -505,7 +505,7 @@ end
 local function watch_modifications()
   local info = get_search_info()
   vim.api.nvim_buf_attach(0, false, {
-	  on_bytes = vim.schedule_wrap(function(
+    on_bytes = vim.schedule_wrap(function(
         _, _, _,
         first_row, first_row_col, _,
         row_offset, last_row_col, _,
@@ -549,12 +549,12 @@ local function watch_modifications()
         if (prev_info == nil or prev_info.line_number ~= nil) and
             (next_info == nil or next_info.line_number ~= nil) then
           local first_index = prev_info
-            and math.min(info.file_table[prev_info.file_name][tostring(prev_info.line_number)] + 1, #info.result_array)
-            or 1
+              and math.min(info.file_table[prev_info.file_name][tostring(prev_info.line_number)] + 1, #info.result_array)
+              or 1
 
           local last_index = next_info
-            and math.max(info.file_table[next_info.file_name][tostring(next_info.line_number)] - 1, 1)
-            or #info.result_array
+              and math.max(info.file_table[next_info.file_name][tostring(next_info.line_number)] - 1, 1)
+              or #info.result_array
 
           if first_index <= last_index then
             local index = first_index
@@ -639,7 +639,7 @@ local function finalize_search()
   vim.fn.setreg('/', info.search_term, vim.fn.getregtype('/'))
 
   vim.schedule(function()
-    vim.cmd[[let v:hlsearch = 1]]
+    vim.cmd [[let v:hlsearch = 1]]
   end)
 
   set_search_window_options()
@@ -667,7 +667,7 @@ local function on_cursor_moved()
   if info.cursor_row ~= row then
     if info.cursor_row > row and row <= search_scrolloff then
       -- TODO: Remove this hack when https://github.com/neovim/neovim/issues/16166 is merged
-      vim.fn.winrestview{ topfill = 3 + search_scrolloff }
+      vim.fn.winrestview { topfill = 3 + search_scrolloff }
     end
     info.cursor_row = row
   end
@@ -714,7 +714,7 @@ local function on_buf_write_cmd()
     end
 
     vim.cmd.buffer {
-      args = { info.bufnr },
+      args = { get_current_search_buffer() },
       mods = { keepjumps = true },
     }
   end
@@ -930,11 +930,11 @@ function M.run(search_args, search_term)
 
   local win_height = vim.api.nvim_win_get_height(0)
 
-  info.job = require'plenary.job':new {
+  info.job = require 'plenary.job':new {
     command = vim.o.shell, -- need to expand env vars
     args = {
       vim.o.shellcmdflag,
-      info.cmd..' '..vim.fn.join(info.args),
+      info.cmd .. ' ' .. vim.fn.join(info.args),
     },
     cwd = info.cwd,
     enable_recording = false,
@@ -1020,12 +1020,12 @@ local function enable_live_search()
     callback = on_cmdline_changed,
   })
   vim.fn.inputsave()
-  vim.cmd.echohl[[Constant]]
+  vim.cmd.echohl [[Constant]]
 end
 
 local function disable_live_search()
   clear_input_timer()
-  vim.cmd.echohl[[None]]
+  vim.cmd.echohl [[None]]
   vim.fn.inputrestore()
   vim.api.nvim_del_augroup_by_name(augroup_live_search)
 end
@@ -1039,7 +1039,7 @@ end
 
 local function dismiss_if_needed()
   if #vim.fn.getcmdline() == 0 then
-    vim.api.nvim_input[[<Esc>]]
+    vim.api.nvim_input [[<Esc>]]
   else
     return vim.api.nvim_replace_termcodes('<BS>', true, false, true)
   end
@@ -1076,7 +1076,7 @@ local function get_input(search_args, search_term)
     cancelreturn = 1,
     default = search_term,
     highlight = function(input)
-      return {{ 0, #input, 'CurSearch' }}
+      return { { 0, #input, 'CurSearch' } }
     end,
     prompt = ('  %s  '):format(get_search_icon()),
   }
@@ -1134,7 +1134,7 @@ end
 function _G.search_fold_text()
   local line_text = vim.fn.getline(vim.v.foldstart)
   local folded_line_count = vim.v.foldend - vim.v.foldstart
-  return line_text..'  󰁂 '..folded_line_count
+  return line_text .. '  󰁂 ' .. folded_line_count
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
@@ -1172,10 +1172,10 @@ function _G.search_statuscol_expr()
           local lmax = info.max_line_number
           local padding = (' '):rep(#tostring(lmax) - #tostring(lnum))
           local has_lhl = vim.wo.cursorlineopt == 'number'
-            or vim.wo.cursorlineopt == 'both'
+              or vim.wo.cursorlineopt == 'both'
           local lhl = has_lhl and vim.fn.line('.') == line
-            and 'CursorLineNr'
-            or 'LineNr'
+              and 'CursorLineNr'
+              or 'LineNr'
           local is_changed = info.change_table[line] ~= nil
           local next_line_info = info.line_array[line + 1]
           local is_last_line = not next_line_info or next_line_info.is_first_line

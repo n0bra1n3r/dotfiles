@@ -7,44 +7,44 @@ my_autocmds {
 
       if #vim.bo.buftype == 0 then
         if vim.bo.filetype == 'gitcommit' then
-          vim.cmd.match[[OverLength /\%>50v.\+/]]
+          vim.cmd.match [[OverLength /\%>50v.\+/]]
         else
-          vim.cmd.match[[OverLength /\%>80v.\+/]]
+          vim.cmd.match [[OverLength /\%>80v.\+/]]
         end
       else
-        vim.cmd.match[[OverLength //]]
+        vim.cmd.match [[OverLength //]]
       end
     end,
-  }, --}}}
+  },                                                  --}}}
   { { 'BufEnter', 'BufWinEnter' }, pattern = "*.arb", --{{{
     callback = function()
       vim.bo.filetype = "json"
     end,
-  }, --}}}
+  },                                                                                   --}}}
   { { 'BufEnter', 'BufWinEnter' }, pattern = { '*.podspec', 'fastlane/*', 'Podfile' }, --{{{
     callback = function()
       vim.bo.filetype = 'ruby'
     end,
-  }, --}}}
+  },             --}}}
   { 'BufHidden', --{{{
     callback = function()
       if fn.is_empty_buffer() then
         vim.bo.buflisted = false
       end
     end,
-  }, --}}}
+  },            --}}}
   { 'BufLeave', --{{{
     callback = function()
       fn.track_buf_leave_win()
     end,
-  }, --}}}
+  },             --}}}
   { "BufUnload", --{{{
     callback = function()
       if fn.is_file_buffer() and fn.has_workspace_file() then
         fn.save_workspace()
       end
     end,
-  }, --}}}
+  },               --}}}
   { 'BufWinEnter', --{{{
     callback = function()
       if fn.is_file_buffer()
@@ -54,7 +54,7 @@ my_autocmds {
       else
         if vim.bo.filetype == 'help' then
           if #vim.api.nvim_tabpage_list_wins(0) > 1 then
-            vim.cmd.wincmd[[T]]
+            vim.cmd.wincmd [[T]]
           end
         elseif vim.bo.filetype == 'dap-repl' then
           vim.api.nvim_buf_attach(0, false, {
@@ -74,75 +74,75 @@ my_autocmds {
         end
       end
     end,
-  }, --}}}
+  },               --}}}
   { "BufWinLeave", --{{{
     callback = function()
       if fn.is_file_buffer() and fn.has_workspace_file() then
         fn.save_workspace()
       end
     end,
-  }, --}}}
+  },                                                --}}}
   { "BufWritePost", pattern = { '.nvim/init.lua' }, --{{{
     callback = function()
       vim.g.dap_current_config = nil
       vim.g.flutter_current_device = nil
     end,
-  }, --}}}
+  },                --}}}
   { "CmdlineEnter", --{{{
     callback = function()
       vim.o.cmdheight = 1
     end,
-  }, --}}}
+  },                --}}}
   { "CmdlineLeave", --{{{
     callback = function()
       vim.o.cmdheight = 0
     end,
-  }, --}}}
+  },               --}}}
   { "CmdWinEnter", --{{{
     callback = function()
       vim.api.nvim_buf_set_keymap(0, "n", [[<Esc>]], [[$l<C-c>]],
         { noremap = true })
     end,
-  }, --}}}
+  },               --}}}
   { 'CursorMoved', --{{{
     callback = function()
       if fn.is_file_buffer() then
         fn.select_lsp_diagnostic()
       end
     end,
-  }, --}}}
+  },                                  --}}}
   { { 'CursorMoved', 'InsertEnter' }, --{{{
     callback = function()
       vim.wo.relativenumber = false
     end,
-  }, --}}}
+  },                     --}}}
   { 'DiagnosticChanged', --{{{
     callback = function()
       fn.update_lsp_diagnostics_list()
     end,
-  }, --}}}
+  },              --}}}
   { "DirChanged", --{{{
     callback = function()
       fn.refresh_git_info()
 
       pcall(vim.api.nvim_del_keymap, 'n', [[<leader>pr]])
     end,
-  }, --}}}
+  },                                                            --}}}
   { "FileType", pattern = { "diff", "gitcommit", "gitrebase" }, --{{{
     callback = function()
       vim.bo.bufhidden = "wipe"
     end,
-  }, --}}}
+  },                             --}}}
   { 'FileType', pattern = 'nim', --{{{
     callback = function()
-      vim.cmd.filetype{ args = { 'plugin', 'off' } }
+      vim.cmd.filetype { args = { 'plugin', 'off' } }
     end,
-  }, --}}}
+  },                                --}}}
   { 'FileType', pattern = 'search', --{{{
     callback = function()
-      require'ufo'.detach()
+      require 'ufo'.detach()
     end,
-  }, --}}}
+  },               --}}}
   { 'FocusGained', --{{{
     callback = function()
       fn.apply_focused_highlight()
@@ -155,7 +155,7 @@ my_autocmds {
         end
       end, vim.o.timeoutlen)()
     end
-  }, --}}}
+  },             --}}}
   { "FocusLost", --{{{
     callback = function()
       fn.apply_unfocused_highlight()
@@ -171,37 +171,37 @@ my_autocmds {
         })
       end
     end
-  }, --}}}
+  },                                --}}}
   { { 'InsertEnter', 'TermEnter' }, --{{{
     callback = function()
       vim.schedule(function()
-        vim.cmd[[let v:hlsearch = 0]]
+        vim.cmd [[let v:hlsearch = 0]]
       end)
     end,
-  }, --}}}
+  },             --}}}
   { "TabClosed", --{{{
     callback = function()
       vim.o.cmdheight = 0
     end,
-  }, --}}}
+  },            --}}}
   { 'TabEnter', --{{{
     callback = function()
       fn.show_workspace()
-      require'treesitter-context'.enable()
+      require 'treesitter-context'.enable()
     end,
-  }, --}}}
+  },            --}}}
   { "TabLeave", --{{{
     callback = function()
       fn.show_workspace(nil, false)
 
       if vim.fn.reg_recording() ~= '' then
-        vim.cmd.normal[[q]]
+        vim.cmd.normal [[q]]
         fn.vim_defer(function()
           vim.notify("Stopped macro recording")
         end)()
       end
     end,
-  }, --}}}
+  },                --}}}
   { "TextYankPost", --{{{
     callback = function()
       vim.highlight.on_yank {
@@ -209,7 +209,7 @@ my_autocmds {
         timeout = 200,
       }
     end,
-  }, --}}}
+  },                                         --}}}
   { 'User', pattern = 'ConfigLocalFinished', --{{{
     callback = function()
       if fn.has_workspace_config() then
@@ -219,27 +219,27 @@ my_autocmds {
       end
     end,
     once = true,
-  }, --}}}
+  },            --}}}
   { 'VimEnter', --{{{
     callback = function()
       fn.init_quickfix()
       fn.init_search()
       fn.refresh_bookmark_list()
     end,
-  }, --}}}
+  },               --}}}
   { 'VimLeavePre', --{{{
     callback = function()
       vim.cmd.UndotreeHide()
       fn.save_workspace()
     end,
-  }, --}}}
+  },            --}}}
   { 'WinEnter', --{{{
     callback = function()
       if vim.bo.filetype == 'dap-repl' then
         vim.wo.wrap = true
       end
     end,
-  }, --}}}
+  },            --}}}
   { 'WinLeave', --{{{
     callback = function()
       if vim.bo.filetype == 'dap-repl' then

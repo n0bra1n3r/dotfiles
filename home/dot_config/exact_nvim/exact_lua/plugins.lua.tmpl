@@ -10,13 +10,13 @@ my_plugins {
   { 'nvim-lua/plenary.nvim' },
   { 'kevinhwang91/promise-async' },
   { 'kkharji/sqlite.lua' },
-  { 'mbbill/undotree', lazy = false },
+  { 'mbbill/undotree',             lazy = false },
   --}}}
   --{{{ UI
-  { 'stevearc/dressing.nvim', lazy = false },
-  { 'folke/edgy.nvim', event = 'VeryLazy' },
-  { 'rebelot/heirline.nvim', lazy = false },
-  { 'catppuccin/nvim', name = 'catppuccin.nvim', lazy = false, priority = 1000 },
+  { 'stevearc/dressing.nvim',      lazy = false },
+  { 'folke/edgy.nvim',             event = 'VeryLazy' },
+  { 'rebelot/heirline.nvim',       lazy = false },
+  { 'catppuccin/nvim',             name = 'catppuccin.nvim', lazy = false, priority = 1000 },
   { 'kevinhwang91/nvim-ufo', lazy = false,
     dependencies = { 'kevinhwang91/promise-async' },
   },
@@ -24,13 +24,13 @@ my_plugins {
   { 'luukvbaal/statuscol.nvim', lazy = false },
 
   -- notifications
-  { 'j-hui/fidget.nvim', lazy = false },
+  { 'j-hui/fidget.nvim',        lazy = false },
   --}}}
   --{{{ Mappings
-  { 'folke/which-key.nvim', event = 'VeryLazy' },
+  { 'folke/which-key.nvim',     event = 'VeryLazy' },
   --}}}
   --{{{ Terminal
-  { 'willothy/flatten.nvim', lazy = false, priority = 1001 },
+  { 'willothy/flatten.nvim',    lazy = false,      priority = 1001 },
   {
     'akinsho/toggleterm.nvim',
     cmd = {
@@ -42,19 +42,19 @@ my_plugins {
   },
   --}}}
   --{{{ Frameworks
-  { 'akinsho/flutter-tools.nvim', lazy = false },
-  { 'tadmccorkle/markdown.nvim', ft = 'markdown' },
+  { 'akinsho/flutter-tools.nvim',         lazy = false },
+  { 'tadmccorkle/markdown.nvim',          ft = 'markdown' },
   --}}}
   --{{{ Motions
-  { 'numToStr/Comment.nvim', event = { 'BufRead', 'BufModifiedSet' } },
-  { 'ggandor/leap.nvim', event = 'BufRead' },
-  { 'echasnovski/mini.splitjoin', event = 'BufRead' },
-  { 'chrisgrieser/nvim-spider', event = { 'BufRead', 'BufModifiedSet' } },
+  { 'numToStr/Comment.nvim',              event = { 'BufRead', 'BufModifiedSet' } },
+  { 'ggandor/leap.nvim',                  event = 'BufRead' },
+  { 'echasnovski/mini.splitjoin',         event = 'BufRead' },
+  { 'chrisgrieser/nvim-spider',           event = { 'BufRead', 'BufModifiedSet' } },
   { 'chrisgrieser/nvim-various-textobjs', event = { 'BufRead', 'BufModifiedSet' } },
   { 'cbochs/portal.nvim' },
-  { 'andymass/vim-matchup', lazy = false },
-  { 'tpope/vim-repeat', event = 'BufModifiedSet' },
-  { 'tpope/vim-surround', event = { 'BufRead', 'BufModifiedSet' } },
+  { 'andymass/vim-matchup',               lazy = false },
+  { 'tpope/vim-repeat',                   event = 'BufModifiedSet' },
+  { 'tpope/vim-surround',                 event = { 'BufRead', 'BufModifiedSet' } },
   --}}}
   --{{{ Navigation
   {
@@ -69,13 +69,13 @@ my_plugins {
   { 'nvim-telescope/telescope-dap.nvim' },
   {
     'nvim-telescope/telescope-fzf-native.nvim',
---<- if eq .chezmoi.os "windows" >--
+    --<- if eq .chezmoi.os "windows" >--
     ---@diagnostic disable-next-line: duplicate-index
     build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build',
---<- else if eq .chezmoi.os "darwin" >--
+    --<- else if eq .chezmoi.os "darwin" >--
     ---@diagnostic disable-next-line: duplicate-index
     build = 'make',
---<- end >--
+    --<- end >--
   },
   {
     'nvim-telescope/telescope-smart-history.nvim',
@@ -84,7 +84,7 @@ my_plugins {
   --}}}
   --{{{ VCS
   { 'sindrets/diffview.nvim' },
-  { 'lewis6991/gitsigns.nvim', event = 'BufRead' },
+  { 'lewis6991/gitsigns.nvim',          event = 'BufRead' },
   --}}}
   --{{{ Package Management
   {
@@ -119,12 +119,12 @@ my_plugins {
   },
   --}}}
   --{{{ Language Servers
-  { 'L3MON4D3/LuaSnip', build = 'make install_jsregexp' },
+  { 'L3MON4D3/LuaSnip',                   build = 'make install_jsregexp' },
   { 'rafamadriz/friendly-snippets' },
 
   { 'VonHeikemen/lsp-zero.nvim' },
 
-  { 'stevearc/conform.nvim', event = 'BufRead' },
+  { 'stevearc/conform.nvim',              event = 'BufRead' },
 
   { 'hrsh7th/cmp-buffer' },
   { 'hrsh7th/cmp-cmdline' },
@@ -133,7 +133,7 @@ my_plugins {
   { 'hrsh7th/cmp-nvim-lsp-signature-help' },
   { 'hrsh7th/cmp-nvim-lua' },
   { 'hrsh7th/cmp-path' },
-  { 'saadparwaiz1/cmp_luasnip', dependencies = { 'L3MON4D3/LuaSnip' } },
+  { 'saadparwaiz1/cmp_luasnip',           dependencies = { 'L3MON4D3/LuaSnip' } },
   {
     'hrsh7th/nvim-cmp',
     event = { 'InsertEnter', 'CmdlineEnter' },
