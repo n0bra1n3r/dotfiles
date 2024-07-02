@@ -420,6 +420,15 @@ function fn.get_sign_for_severity(severity)
   return vim.fn.sign_getdefined(name)[1].text, name
 end
 
+function fn.get_prior_tabpage()
+  local tabnr = vim.fn.tabpagenr [[#]]
+  for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
+    if vim.api.nvim_tabpage_get_number(tabpage) == tabnr then
+      return tabpage
+    end
+  end
+end
+
 --}}}
 --{{{ UI
 function fn.delete_file()
@@ -630,10 +639,12 @@ function fn.popup_preview(opts)
       vim.api.nvim_buf_set_lines(pbuf, 0, -1, true, lines)
 
       local type = vim.filetype.match { buf = buf }
-      local lang = vim.treesitter.language.get_lang(type)
-      vim.treesitter.stop(pbuf)
-      if lang and pcall(vim.treesitter.language.add, lang) then
-        vim.treesitter.start(pbuf, lang)
+      if type then
+        local lang = vim.treesitter.language.get_lang(type)
+        vim.treesitter.stop(pbuf)
+        if lang and pcall(vim.treesitter.language.add, lang) then
+          vim.treesitter.start(pbuf, lang)
+        end
       end
     end
 
@@ -855,15 +866,6 @@ local term_info = {
   shell_cmd = nil,
 }
 
-local function get_prior_tabpage()
-  local tabnr = vim.fn.tabpagenr [[#]]
-  for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
-    if vim.api.nvim_tabpage_get_number(tabpage) == tabnr then
-      return tabpage
-    end
-  end
-end
-
 local function get_terminal_tabpage()
   local terminal = require 'toggleterm.terminal'.get(0, true)
   return terminal and vim.api.nvim_win_get_tabpage(terminal.window)
@@ -909,7 +911,7 @@ end
 function fn.dismiss_terminal()
   local tabpage = get_terminal_tabpage()
   if vim.api.nvim_get_current_tabpage() == tabpage then
-    vim.api.nvim_set_current_tabpage(get_prior_tabpage())
+    vim.api.nvim_set_current_tabpage(fn.get_prior_tabpage())
   end
 end
 

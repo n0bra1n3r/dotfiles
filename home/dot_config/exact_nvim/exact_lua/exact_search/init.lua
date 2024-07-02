@@ -136,47 +136,21 @@ local function get_is_current_search(id)
   return M.info and M.info.search_id == id
 end
 
-local function save_opt(store, name)
-  if not M.saved_opts then
-    M.saved_opts = {}
-  end
-  M.saved_opts[name] = store[name]
-end
-
-local function load_opt(store, name)
-  if M.saved_opts then
-    store[name] = M.saved_opts[name]
-  end
-end
-
 local function set_search_window_options()
-  save_opt(vim.wo, 'foldmethod')
-  save_opt(vim.wo, 'foldtext')
-  save_opt(vim.wo, 'scrolloff')
-  save_opt(vim.wo, 'statuscolumn')
-  save_opt(vim.wo, 'wrap')
-
   vim.wo.foldmethod = 'manual'
   vim.wo.foldtext = 'v:lua.search_fold_text()'
   vim.wo.scrolloff = search_scrolloff
   vim.wo.statuscolumn = '%!v:lua.search_statuscol_expr()'
   vim.wo.wrap = false
-end
-
-local function unset_search_window_options()
-  load_opt(vim.wo, 'foldmethod')
-  load_opt(vim.wo, 'foldtext')
-  load_opt(vim.wo, 'scrolloff')
-  load_opt(vim.wo, 'statuscolumn')
-  load_opt(vim.wo, 'wrap')
+  vim.wo.winfixbuf = true
 end
 
 function M.show_current_search_result(cmd)
   local lnum, col = unpack(vim.api.nvim_win_get_cursor(0))
   local result = get_search_results_at(lnum - 1)[1]
 
-  vim.cmd.tabclose()
-  vim.cmd[cmd](result.file_name)
+  vim.cmd.tabnext { args = { vim.fn.tabpagenr [[#]] } }
+  vim.cmd { cmd = cmd, args = { result.file_name } }
   vim.api.nvim_win_set_cursor(0, { result.line_number, col })
 end
 
@@ -188,7 +162,7 @@ local function maybe_create_search_buffer()
         local tabpage = vim.api.nvim_win_get_tabpage(winid)
         vim.api.nvim_set_current_tabpage(tabpage)
         vim.api.nvim_set_current_win(winid)
-        break
+        return nil
       end
       vim.cmd.tabedit('#' .. bufnr)
       return nil
@@ -321,7 +295,7 @@ local function enable_progress_timer()
   end
 
   if not M.progress.timer then
-    M.progress.timer = vim.loop.new_timer()
+    M.progress.timer = vim.uv.new_timer()
     M.progress.timer:start(0, 100, function()
       M.progress.index = M.progress.index % #M.progress.icons + 1
     end)
@@ -611,12 +585,27 @@ local function watch_modifications()
   })
 end
 
+local function close_search()
+  local bufnr = get_current_search_buffer()
+  if bufnr then
+    vim.schedule(function()
+      for _, winid in ipairs(vim.fn.win_findbuf(bufnr)) do
+        local tabpage = vim.api.nvim_win_get_tabpage(winid)
+        local tabnr = vim.api.nvim_tabpage_get_number(tabpage)
+        vim.cmd.tabclose(tabnr)
+        vim.api.nvim_buf_delete(bufnr, { force = true })
+        vim.cmd.redraw()
+        break
+      end
+    end)
+  end
+end
+
 local function finalize_search()
   local info = get_search_info()
 
   if #info.line_array == 0 then
-    vim.api.nvim_buf_delete(0, { force = true })
-    vim.cmd.redraw()
+    close_search()
     return
   end
 
@@ -734,7 +723,7 @@ end
 local function on_exit()
   local bufnr = get_current_search_buffer()
   if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
-    vim.api.nvim_buf_delete(bufnr, { force = false })
+    vim.api.nvim_buf_delete(bufnr, { force = true })
   end
 end
 
@@ -805,16 +794,6 @@ local function open_search_buffer()
         vim.api.nvim_del_augroup_by_name(augroup_open_search_buffer)
         on_buf_delete()
       end,
-    })
-    vim.api.nvim_create_autocmd('BufEnter', {
-      group = group,
-      buffer = bufnr,
-      callback = set_search_window_options,
-    })
-    vim.api.nvim_create_autocmd('BufLeave', {
-      group = group,
-      buffer = bufnr,
-      callback = unset_search_window_options,
     })
     vim.api.nvim_create_autocmd('CmdlineLeave', {
       group = group,
@@ -1002,13 +981,12 @@ local function on_cmdline_changed()
 
   local delay_factor = math.max(6 - #vim.fn.getcmdline(), 1)
 
-  M.input_timer = vim.loop.new_timer()
+  M.input_timer = vim.uv.new_timer()
   M.input_timer:start(200 * delay_factor, 0, vim.schedule_wrap(function()
     clear_input_timer()
     if #process_search_input() == 0 then
       if get_is_in_search_buffer() then
-        vim.api.nvim_buf_delete(0, { force = true })
-        vim.cmd.redraw()
+        close_search()
       end
     end
   end))
@@ -1097,8 +1075,7 @@ function M.prompt(search_args, search_term)
 
   if get_is_in_search_buffer() then
     if not search_term or #search_term == 0 then
-      vim.api.nvim_buf_delete(0, { force = true })
-      vim.cmd.redraw()
+      close_search()
     else
       local info = get_search_info()
 
