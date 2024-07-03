@@ -6,7 +6,6 @@ my_options {
   background = "dark",
   belloff = "all",
   opt.clipboard + "unnamed,unnamedplus",
-  cmdheight = 0,
   confirm = true,
   cursorline = true,
   cursorlineopt = "number",
@@ -25,7 +24,7 @@ my_options {
   foldenable = true,
   foldlevelstart = 99,
   foldmethod = "indent",
-  grepprg = vim.fn.join {--{{{
+  grepprg = vim.fn.join { --{{{
     [[rg]],
     [[--no-heading]],
     [[--no-messages]],
@@ -33,7 +32,7 @@ my_options {
     [[--ignore-file="$HOME/.dotfiles/rgignore/main"]],
     [[--ignore-file="$HOME/.dotfiles/rgignore/$NVIM_PROJECT_TYPE"]],
     [[--ignore-file="$PWD/.nvim/ignore"]],
-  }, --}}}
+  },            --}}}
   grepformat = "%f:%l:%c:%m",
   guicursor = { --{{{
     "v-n-sm:block",

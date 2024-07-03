@@ -87,16 +87,6 @@ my_autocmds {
       vim.g.dap_current_config = nil
       vim.g.flutter_current_device = nil
     end,
-  },                --}}}
-  { "CmdlineEnter", --{{{
-    callback = function()
-      vim.o.cmdheight = 1
-    end,
-  },                --}}}
-  { "CmdlineLeave", --{{{
-    callback = function()
-      vim.o.cmdheight = 0
-    end,
   },               --}}}
   { "CmdWinEnter", --{{{
     callback = function()
@@ -177,11 +167,6 @@ my_autocmds {
       vim.schedule(function()
         vim.cmd [[let v:hlsearch = 0]]
       end)
-    end,
-  },             --}}}
-  { "TabClosed", --{{{
-    callback = function()
-      vim.o.cmdheight = 0
     end,
   },            --}}}
   { 'TabEnter', --{{{

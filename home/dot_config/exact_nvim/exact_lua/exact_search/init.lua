@@ -828,7 +828,7 @@ local function parse_output(output)
   end
 
   local json = vim.fn.json_decode(output)
-  if not json.type or json.type ~= 'match' then
+  if not json.type or json.type ~= 'match' or not json.data.lines.text then
     return nil
   end
 
@@ -895,7 +895,7 @@ function M.run(search_args, search_term)
   open_search_buffer()
 
   local info = initialize_search(search_term, search_args)
-  if not info.search_term then
+  if not info.search_term or #info.search_term == 0 then
     return
   end
 
