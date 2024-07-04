@@ -151,6 +151,7 @@ function M.show_current_search_result(cmd)
 
   vim.cmd.tabnext { args = { vim.fn.tabpagenr [[#]] } }
   vim.cmd { cmd = cmd, args = { result.file_name } }
+  vim.cmd.echon()
   vim.api.nvim_win_set_cursor(0, { result.line_number, col })
 end
 
@@ -295,6 +296,7 @@ local function enable_progress_timer()
   end
 
   if not M.progress.timer then
+    ---@diagnostic disable-next-line: undefined-field
     M.progress.timer = vim.uv.new_timer()
     M.progress.timer:start(0, 100, function()
       M.progress.index = M.progress.index % #M.progress.icons + 1
@@ -1081,6 +1083,7 @@ function M.prompt(search_args, search_term)
 
       if not info.is_searching then
         finalize_search()
+        vim.cmd.echon()
       end
 
       if vim.deep_equal(vim.api.nvim_win_get_cursor(0), { 1, 0 }) then
