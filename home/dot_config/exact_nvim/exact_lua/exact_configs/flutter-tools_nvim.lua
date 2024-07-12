@@ -5,13 +5,13 @@ local get_device_entries
 get_device_entries = function(on_update)
   local entries = {}
   get_device_entries = function(cb)
-    require'flutter-tools.executable'.flutter(function(cmd)
-      local job = require'plenary.job':new {
+    require 'flutter-tools.executable'.flutter(function(cmd)
+      local job = require 'plenary.job':new {
         command = cmd,
         args = { 'devices' },
       }
       job:after_success(vim.schedule_wrap(function(j)
-        local new_entries = require'flutter-tools.devices'.to_selection_entries(j:result(), 2)
+        local new_entries = require 'flutter-tools.devices'.to_selection_entries(j:result(), 2)
         if cb and not vim.deep_equal(new_entries, entries) then
           cb(new_entries)
         end
@@ -20,10 +20,10 @@ get_device_entries = function(on_update)
       job:after_failure(vim.schedule_wrap(function(j)
         local result = j:result()
         local message = not vim.tbl_isempty(result)
-          and result
-          or j:stderr_result()
+            and result
+            or j:stderr_result()
         if cb then cb(nil) end
-        local ui = require'flutter-tools.ui'
+        local ui = require 'flutter-tools.ui'
         ui.notify(table.concat(message, "\n"), vim.ui.ERROR)
       end))
       job:start()
@@ -36,14 +36,14 @@ end
 
 return {
   config = function()
-    require'flutter-tools'.setup {
+    require 'flutter-tools'.setup {
       debugger = {
         enabled = true,
-        exception_breakpoints = 'default',
+        exception_breakpoints = require 'dap'.defaults.fallback.exception_breakpoints,
         register_configurations = function(paths)
           local my_launchers =
-            my_config.launchers and
-            my_config.launchers.dart
+              my_config.launchers and
+              my_config.launchers.dart
           local default_launcher = {
             type = 'dart',
             dartSdkPath = paths.dart_sdk,
@@ -64,9 +64,9 @@ return {
                 )
               end
             end
-            require'dap'.configurations.dart = launchers
+            require 'dap'.configurations.dart = launchers
           else
-            require'dap'.configurations.dart = {
+            require 'dap'.configurations.dart = {
               vim.tbl_extend('keep', {
                 request = 'launch',
                 name = 'Launch app',
@@ -86,7 +86,7 @@ return {
       dev_tools = {
         autostart = true,
       },
-      flutter_lookup_cmd = vim.fn.expand[[~/.dotfiles/scripts/find-flutter.sh]],
+      flutter_lookup_cmd = vim.fn.expand [[~/.dotfiles/scripts/find-flutter.sh]],
       lsp = {
         color = {
           enabled = true,
@@ -106,17 +106,16 @@ return {
           experimentalRefactors = true,
         },
       },
-      root_patterns = { '.git', 'pubspec.yaml', 'main.dart' },
       ui = {
         border = 'single',
       },
     }
 
-    require'flutter-tools.dap'.setup(require'flutter-tools.config')
+    require 'flutter-tools.dap'.setup(require 'flutter-tools.config')
 
     --{{{ Lazy load device menu
-    require'flutter-tools.devices'.list_devices = function()
-      local progress = require'fidget.progress'
+    require 'flutter-tools.devices'.list_devices = function()
+      local progress = require 'fidget.progress'
       local handle = progress.handle.create {
         title = "Flutter tools",
         message = "Detecting Devices...",
@@ -133,25 +132,25 @@ return {
         handle:finish()
 
         if #entries == 0 then
-          require'flutter-tools.ui'.select {
+          require 'flutter-tools.ui'.select {
             title = "Flutter devices",
             lines = new_entries,
-            on_select = require'flutter-tools.devices'.select_device,
+            on_select = require 'flutter-tools.devices'.select_device,
           }
         end
       end)
       if #entries > 0 then
-        require'flutter-tools.ui'.select {
+        require 'flutter-tools.ui'.select {
           title = "Flutter devices",
           lines = entries,
-          on_select = require'flutter-tools.devices'.select_device,
+          on_select = require 'flutter-tools.devices'.select_device,
         }
       end
     end
     --}}}
     --{{{ Hack to set current_device
-    local select_device_fn = require'flutter-tools.devices'.select_device
-    require'flutter-tools.devices'.select_device = function(device, args)
+    local select_device_fn = require 'flutter-tools.devices'.select_device
+    require 'flutter-tools.devices'.select_device = function(device, args)
       vim.g.flutter_current_device = device
       if vim.g.dap_no_run_on_select_device then
         vim.g.dap_no_run_on_select_device = false
@@ -161,9 +160,9 @@ return {
     end
     --}}}
     --{{{ Hack to set dap_current_config
-    local pick_if_many_fn = require'dap.ui'.pick_if_many
-    local run_fn = require'dap'.run
-    require'dap.ui'.pick_if_many = function(l, p, fmt_fn, ...)
+    local pick_if_many_fn = require 'dap.ui'.pick_if_many
+    local run_fn = require 'dap'.run
+    require 'dap.ui'.pick_if_many = function(l, p, fmt_fn, ...)
       local config = vim.g.dap_current_config
       if config then
         local device = vim.g.flutter_current_device
@@ -189,7 +188,7 @@ return {
         )
       end
     end
-    require'dap'.run = function(config, ...)
+    require 'dap'.run = function(config, ...)
       if config.dartSdkPath and config.flutterSdkPath then
         vim.g.dap_current_config = config
         local device = vim.g.flutter_current_device

@@ -1,6 +1,6 @@
 return {
   config = function()
-    require'fidget'.setup {
+    require 'fidget'.setup {
       notification = {
         window = {
           winblend = 30,
@@ -19,7 +19,7 @@ return {
       local line_limit = 4
       local char_limit = 50
 
-      fn.update_notifications_list(level, msg)
+      pcall(fn.update_notifications_list, level, msg)
 
       local lines = vim.split(msg, '\n',
         { plain = true, trimempty = true })
@@ -34,11 +34,11 @@ return {
       for i, line in ipairs(lines) do
         if #line > char_limit then
           lines[i] = line:sub(1, (char_limit + 1) / 2 - 2)
-            ..'...'..line:sub(#lines - char_limit / 2 + 1, #line)
+              .. '...' .. line:sub(#lines - char_limit / 2 + 1, #line)
         end
       end
 
-      require'fidget'.notify(vim.fn.join(lines, '\n'), level, opts)
+      require 'fidget'.notify(vim.fn.join(lines, '\n'), level, opts)
     end
 
     ---@diagnostic disable-next-line: duplicate-set-field
@@ -60,7 +60,7 @@ return {
         if not title then
           title = tag:sub(2, -2)
         else
-          title = title..' '..tag
+          title = title .. ' ' .. tag
         end
         message = vim.trim(message:sub(#tag + 1))
       end

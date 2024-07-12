@@ -9,9 +9,11 @@ my_lsp_handlers {
         vim.log.levels.DEBUG,
       })[result.type]
 
-      vim.notify(result.message, log_level, {
-        title = 'LSP | '..client.name,
-      })
+      if client then
+        vim.notify(result.message, log_level, {
+          title = 'LSP | ' .. client.name,
+        })
+      end
     end,
   }, --}}}
 }

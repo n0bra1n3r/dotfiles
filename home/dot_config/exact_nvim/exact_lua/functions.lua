@@ -1607,7 +1607,7 @@ function fn.update_notifications_list(level, note)
     [vim.log.levels.TRACE] = 'N',
   }
   local lines = {
-    ('%s|%s'):format(severities[level], time),
+    ('%s|%s'):format(severities[level or vim.log.levels.INFO], time),
   }
   vim.list_extend(lines, vim.tbl_map(function(line)
     return ('|%s'):format(line)
