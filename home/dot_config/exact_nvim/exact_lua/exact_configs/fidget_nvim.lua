@@ -11,6 +11,7 @@ return {
         display = {
           done_icon = '',
         },
+        ignore = { 'dartls' },
       },
     }
 
