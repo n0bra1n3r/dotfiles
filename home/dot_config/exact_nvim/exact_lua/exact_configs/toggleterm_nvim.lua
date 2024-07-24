@@ -1,7 +1,7 @@
 return {
   config = function()
-    require'toggleterm'.setup {
-      autochdir = false,
+    require 'toggleterm'.setup {
+      auto_scroll = false,
       direction = 'float',
       open_mapping = nil,
       shade_terminals = false,
