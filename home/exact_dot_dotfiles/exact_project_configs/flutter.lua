@@ -17,10 +17,10 @@ my_autocmds {
       fn.run_task([[Run codegen]], {
         '--build-filter',
         vim.fn.fnamemodify(args.file, ':~:.:h')
-          ..'/'
-          ..vim.fn.fnamemodify(args.file, ':t:r')..'.*.dart',
+        .. '/'
+        .. vim.fn.fnamemodify(args.file, ':t:r') .. '.*.dart',
       })
-    end, --}}}
+    end,           --}}}
   },
   { 'BufWritePre', -- initialize widgetbook
     pattern = {
@@ -29,17 +29,17 @@ my_autocmds {
     callback = function(args)
       if vim.fn.filereadable(args.file) == 0 then
         vim.schedule(function()
-          fn.run_task[[Regen widgetbook]]
+          fn.run_task [[Regen widgetbook]]
         end)
       end
-    end, --}}}
+    end,            --}}}
   },
   { 'BufWritePost', -- generate strings
     pattern = {
       '*.arb',
     }, --{{{
     callback = function()
-      fn.run_task[[Gen strings]]
+      fn.run_task [[Gen strings]]
     end, --}}}
   },
 }
@@ -52,25 +52,26 @@ my_tasks {
       'get',
     },
     priority = 1,
-  }, --}}}
+  },                  --}}}
   ["Run codegen"] = { --{{{
-    cmd = 'flutter',
+    cmd = 'dart',
     args = {
-      'pub',
       'run',
       'build_runner',
       'build',
       '--delete-conflicting-outputs',
     },
     priority = 2,
-  }, --}}}
+    deps = { [[Install dependencies]], [[Reload editor]] },
+  },                  --}}}
   ["Gen strings"] = { --{{{
     cmd = 'flutter',
     args = {
       'gen-l10n',
     },
     priority = 3,
-  }, --}}}
+    deps = { [[Reload editor]] },
+  },                        --}}}
   ["Setup environment"] = { --{{{
     cond = function()
       return vim.fn.filereadable('.scripts/setup-env.sh') == 1
@@ -80,18 +81,27 @@ my_tasks {
       '.scripts/setup-env.sh'
     },
     priority = 4,
-  }, --}}}
-  ["Regen widgetbook"] = { --{{{
+  },                                      --}}}
+  ["Install widgetbook dependencies"] = { --{{{
     cmd = 'flutter',
     args = {
       'pub',
+      'get',
+    },
+    cwd = 'widgetbook',
+    priority = 5,
+  },                       --}}}
+  ["Regen widgetbook"] = { --{{{
+    cmd = 'dart',
+    args = {
       'run',
       'build_runner',
       'build',
       '--delete-conflicting-outputs',
     },
     cwd = 'widgetbook',
-    priority = 5,
+    priority = 6,
+    deps = { [[Install widgetbook dependencies]], [[Reload editor]] },
   }, --}}}
 }
 
@@ -99,7 +109,7 @@ my_launchers { --{{{
   dart = vim.tbl_map(function(project)
     return {
       cwd = vim.fn.fnamemodify(project, ':p:h:h'),
-      name = "Launch "..(project:match'(%w+)/lib/main%.dart$' or 'app'),
+      name = "Launch " .. (project:match '(%w+)/lib/main%.dart$' or 'app'),
       request = 'launch',
       toolArgs = function()
         local env = vim.fn.fnamemodify('.env.json', ':p')
@@ -125,7 +135,7 @@ my_snippets {
         return ${2:value};
       }
       ]]
-    }, --}}}
+    },                                 --}}}
     ["create riverpod controller"] = { --{{{
       prefix = 'riverpodcontroller',
       body = [[
@@ -139,7 +149,7 @@ my_snippets {
         FutureOr<${1:type}> build() async {}$0
       }
       ]]
-    }, --}}}
+    },                           --}}}
     ["create freezed model"] = { --{{{
       prefix = "freezedmodel",
       body = [[
@@ -159,7 +169,7 @@ my_snippets {
         factory ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}.fromJson(Map<String, dynamic> json) => _$${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}FromJson(json);
       }
       ]],
-    }, --}}}
+    },                                --}}}
     ["create widgetbook usecase"] = { --{{{
       prefix = 'widgetbookusecase',
       body = [[

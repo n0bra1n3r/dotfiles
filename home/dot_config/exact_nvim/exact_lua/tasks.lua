@@ -175,5 +175,10 @@ my_tasks {
         fn.save_as_workspace_config)
     end,
     notify = false,
+  },                         --}}}
+  ["Reload editor"] = task { --{{{
+    func = function()
+      vim.cmd.windo('edit')
+    end,
   }, --}}}
 }
