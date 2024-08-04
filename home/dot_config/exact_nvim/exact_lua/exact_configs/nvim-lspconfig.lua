@@ -82,7 +82,6 @@ return {
         'kotlin_language_server',
         'lua_ls',
         'marksman',
-        'nim_langserver',
         'pyright',
         'yaml-language-server',
       },
