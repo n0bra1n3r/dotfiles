@@ -15,6 +15,11 @@ my_autocmds {
         vim.cmd.match [[OverLength //]]
       end
     end,
+  },                                                           --}}}
+  { { 'BufEnter', 'BufWinEnter', 'FileType', 'BufWritePost' }, --{{{
+    callback = function()
+      require 'lint'.try_lint()
+    end,
   },                                                  --}}}
   { { 'BufEnter', 'BufWinEnter' }, pattern = "*.arb", --{{{
     callback = function()

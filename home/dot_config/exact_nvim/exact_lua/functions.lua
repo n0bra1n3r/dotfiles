@@ -2911,9 +2911,9 @@ function fn.open_workspace(path)
   if vim.g.project_main
       and #vim.api.nvim_tabpage_list_wins(0) == 1
       and fn.is_empty_buffer()
-      and vim.fn.filereadable(vim.g.project_main) == 1
+      and vim.fn.filereadable(workspace_path .. '/' .. vim.g.project_main) == 1
   then
-    vim.cmd.edit(vim.g.project_main)
+    vim.cmd.edit(workspace_path .. '/' .. vim.g.project_main)
   end
 end
 
