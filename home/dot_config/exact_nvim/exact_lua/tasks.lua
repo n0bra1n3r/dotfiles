@@ -178,7 +178,13 @@ my_tasks {
   },                         --}}}
   ["Reload editor"] = task { --{{{
     func = function()
-      vim.cmd.windo('edit')
+      for _, win in ipairs(vim.api.nvim_list_wins()) do
+        vim.api.nvim_win_call(win, function()
+          if fn.is_file_buffer() and not vim.bo.modified then
+            vim.cmd.edit()
+          end
+        end)
+      end
     end,
   }, --}}}
 }
