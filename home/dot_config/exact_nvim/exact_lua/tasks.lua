@@ -149,8 +149,8 @@ my_tasks {
       require 'flutter-tools.commands'.restart()
     end,
     notify = false,
-  },
-  ["Debug terminate"] = task {
+  },                           --}}}
+  ["Debug terminate"] = task { --{{{
     cond = function()
       return fn.is_debugging() and vim.g.project_type == 'flutter'
     end,
