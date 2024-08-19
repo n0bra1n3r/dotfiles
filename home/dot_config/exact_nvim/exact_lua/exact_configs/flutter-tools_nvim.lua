@@ -95,6 +95,7 @@ return {
           client.server_capabilities.semanticTokensProvider = nil
         end,
         settings = {
+          autostart = true,
           renameFilesWithClasses = 'always',
           analysisExcludedFolders = {
             '.dart_tool',
@@ -106,6 +107,7 @@ return {
           experimentalRefactors = true,
         },
       },
+      root_patterns = { 'pubspec.yaml' },
       ui = {
         border = 'single',
       },
