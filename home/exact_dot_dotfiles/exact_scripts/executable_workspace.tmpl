@@ -200,14 +200,17 @@ if [[ "$OPERATION" != "--" && ! -d "$WORKSPACE_ROOT_DIR/$BRANCH" ]]; then
   if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
     echo "$INFO_MSG: found local branch '$BRANCH'" >&2
     git worktree add "$WORKSPACE_ROOT_DIR/$BRANCH" "$BRANCH"
+    git -C "$WORKSPACE_ROOT_DIR/$BRANCH" submodule update --recursive -N
   else
     if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null; then
       echo "$INFO_MSG: found remote branch '$BRANCH'" >&2
       git fetch origin "$BRANCH"
       git worktree add "$WORKSPACE_ROOT_DIR/$BRANCH" "$BRANCH"
+      git -C "$WORKSPACE_ROOT_DIR/$BRANCH" submodule update  --recursive
     else
       echo "$INFO_MSG: creating new branch '$BRANCH'" >&2
       git worktree add --track -b "$BRANCH" "$WORKSPACE_ROOT_DIR/$BRANCH"
+      git -C "$WORKSPACE_ROOT_DIR/$BRANCH" submodule update --recursive -N
     fi
   fi
   popd >/dev/null || return 1
@@ -266,9 +269,9 @@ else
         eval BRANCH="\${$i}"
         if [[ $BRANCH =~ ^[-.\ /[:alnum:]]+$ ]]; then
           echo "$INFO_MSG: pulling '$BRANCH'..." >&2
-          git -C "$WORKSPACE_ROOT_DIR/$BRANCH" pull || return 1
+          git -C "$WORKSPACE_ROOT_DIR/$BRANCH" pull --recurse-submodules || return 1
           echo "$INFO_MSG: synchronising '$THIS_BRANCH' with '$BRANCH'..." >&2
-          git rebase $BRANCH >/dev/null || return 1
+          git rebase "$BRANCH" >/dev/null || return 1
         fi
         [[ $i == 1 ]] && return 0
         ;;
