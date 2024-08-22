@@ -48,7 +48,7 @@ end
 require "options"
 --}}}
 --{{{ Load Functions
-_G.fn = require'functions'
+_G.fn = require 'functions'
 my_config.functions = vim.deepcopy(_G.fn)
 --}}}
 --{{{ Load Highlights
@@ -80,7 +80,7 @@ require "signs"
 --{{{ Load Autocmds
 ---@diagnostic disable-next-line: duplicate-set-field
 _G.my_autocmds = function(autocmds)
-  local conf_id = debug.getinfo(2, 'S').source:sub(2):match'(.*/)'
+  local conf_id = debug.getinfo(2, 'S').source:sub(2):match '(.*/)'
   set_proj_config(conf_id, 'autocmds', autocmds)
   local conf_group = vim.api.nvim_create_augroup(('autocmds-%s')
     :format(conf_id), { clear = true })
@@ -103,7 +103,7 @@ local default_providers = {
 }
 
 for _, provider in ipairs(default_providers) do
-  vim.g['loaded_'..provider..'_provider'] = 0
+  vim.g['loaded_' .. provider .. '_provider'] = 0
 end
 
 local lazypath = vim.fn.expand('~/.local/share/nvim/lazy/lazy.nvim')
@@ -133,7 +133,7 @@ _G.my_plugins = function(plugins)
   for _, spec in ipairs(plugins) do
     local plugin = spec.name or spec[1]
     local config = get_plugin_config_name(plugin)
-    local has_config, module = pcall(require, 'configs.'..config)
+    local has_config, module = pcall(require, 'configs.' .. config)
     if has_config then
       if module.init ~= nil then
         if spec.init == nil then
@@ -162,7 +162,7 @@ _G.my_plugins = function(plugins)
     end
   end
 
-  require'lazy'.setup(plugins, {
+  require 'lazy'.setup(plugins, {
     defaults = {
       lazy = true,
     },
@@ -224,21 +224,21 @@ _G.my_plugins = function(plugins)
 end
 
 local config_base = '--< .chezmoi.sourceDir >--/--< .chezmoi.sourceFile | dir >--'
-local config_dir = config_base..'/exact_configs/'
+local config_dir = config_base .. '/exact_configs/'
 local function set_plugins_keymap(key, method)
   vim.api.nvim_buf_set_keymap(0, 'n', key, [[]], {
     noremap = true,
     callback = function()
       local plugin = vim.fn.expand('<cfile>')
       local config = get_plugin_config_name(plugin)
-      fn.edit_buffer(method, config_dir..config..'.lua')
+      fn.edit_buffer(method, config_dir .. config .. '.lua')
     end,
   })
 end
 
 vim.api.nvim_create_autocmd('BufEnter', {
   group = vim.api.nvim_create_augroup('plugins', { clear = true }),
-  pattern = vim.fn.expand(config_base..'/plugins.lua.tmpl'),
+  pattern = vim.fn.expand(config_base .. '/plugins.lua.tmpl'),
   callback = function()
     set_plugins_keymap([[gf]], 'edit')
     set_plugins_keymap([[<C-w><C-f>]], 'vsplit')
@@ -304,8 +304,8 @@ _G.my_env = function(env)
     vim.deepcopy(env))
   for key, value in pairs(env) do
     local expanded_value = key == 'PATH'
-      and fn.path_str(value)
-      or fn.env_str(value)
+        and fn.path_str(value)
+        or fn.env_str(value)
     vim.env[key] = expanded_value
     my_config.env[key] = expanded_value
   end
@@ -353,10 +353,10 @@ _G.my_snippets = function(new_snippets)
     for name, snippet in pairs(snippets) do
       local description = snippet.description
       if not description then
-        description = name:sub(1,1):upper()..name:sub(2)..'.'
+        description = name:sub(1, 1):upper() .. name:sub(2) .. '.'
       end
       local is_ok, snippet_entry = pcall(
-        require'luasnip.util.parser'.parse_snippet,
+        require 'luasnip.util.parser'.parse_snippet,
         {
           dscr = description,
           name = name,
@@ -369,7 +369,7 @@ _G.my_snippets = function(new_snippets)
       )
 
       if is_ok then
-        require'luasnip'.add_snippets(
+        require 'luasnip'.add_snippets(
           language,
           { snippet_entry },
           { key = ('%s.%s'):format(language, name) }

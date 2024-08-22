@@ -2331,6 +2331,7 @@ end
 function fn.create_task(name, config)
   require 'overseer'.register_template {
     name = name,
+    hide = config.hide,
     builder = function(params)
       local args = vim.list_extend(
         vim.deepcopy(config.args or {}),

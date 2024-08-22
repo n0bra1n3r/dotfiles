@@ -177,6 +177,7 @@ my_tasks {
     notify = false,
   },                         --}}}
   ["Reload editor"] = task { --{{{
+    hide = true,
     func = function()
       for _, win in ipairs(vim.api.nvim_list_wins()) do
         vim.api.nvim_win_call(win, function()
