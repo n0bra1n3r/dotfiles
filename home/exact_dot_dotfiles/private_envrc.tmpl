@@ -85,6 +85,12 @@ PATH="/c/PROGRA~1/Microsoft Visual Studio/2022/Community/MSBuild/Microsoft/Visua
 #{- else if eq .chezmoi.os "darwin" }#
 export DYLD_LIBRARY_PATH="$VULKAN_SDK/lib:$DYLD_LIBRARY_PATH"
 
+for xcode_app_dir in /Applications/Xcode*; do
+  XCODE_APP="$xcode_app_dir"
+done
+export XCODE_APP
+
+PATH="$XCODE_APP/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:$PATH"
 PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
 PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
 PATH="$HOME/Library/Python/3.9/bin:$PATH"
