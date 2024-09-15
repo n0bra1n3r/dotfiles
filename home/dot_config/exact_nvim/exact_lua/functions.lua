@@ -860,6 +860,72 @@ function fn.init_search()
 end
 
 --}}}
+--{{{ Find
+function fn.open_explorer()
+  local terminal = require 'toggleterm.terminal'.get(1, true)
+  local did_open_new = false
+  if terminal == nil then
+    local cwd = vim.fn.getcwd()
+    local base_conf = vim.fn.expand('~/.config/broot/base.toml')
+    local global_conf = vim.g.project_type and
+        vim.fn.expand('~/.config/broot/%s.toml'):format(vim.g.project_type)
+    local local_conf = './.nvim/explorer.toml'
+    local conf = (vim.fn.filereadable(local_conf) == 1 and local_conf)
+        or (vim.fn.filereadable(global_conf or '') == 1 and global_conf)
+        or base_conf
+    terminal = require 'toggleterm.terminal'.Terminal:new {
+      id = 1,
+      cmd = ("broot --conf '%s' -c ':open_preview;:sort_by_type' '%s'")
+          :format(conf, cwd),
+      direction = 'float',
+      float_opts = {
+        border = 'single',
+        height = function()
+          return math.floor(vim.o.lines * 0.9)
+        end,
+        width = function()
+          return math.floor(vim.o.columns * 0.9)
+        end,
+      },
+    }
+    did_open_new = true
+  end
+  terminal:open()
+  if did_open_new then
+    vim.api.nvim_buf_set_keymap(0, 't', [[<M-;>]], [[<Nop>]],
+      { noremap = true, silent = true })
+    vim.api.nvim_buf_set_keymap(0, 't', [[<M-j>]], [[<Down>]],
+      { noremap = true, silent = true })
+    vim.api.nvim_buf_set_keymap(0, 't', [[<M-k>]], [[<Up>]],
+      { noremap = true, silent = true })
+    vim.api.nvim_buf_set_keymap(0, 't', [[<M-l>]], [[<Nop>]],
+      { noremap = true, silent = true })
+    vim.api.nvim_buf_set_keymap(0, 't', [[<Esc>]], [[<C-\><C-N>]],
+      { noremap = true, silent = true })
+    vim.api.nvim_create_autocmd('TermLeave', {
+      group = vim.api.nvim_create_augroup('explorer_dismisser', { clear = true }),
+      buffer = 0,
+      callback = function()
+        terminal:close()
+      end,
+    })
+  end
+end
+
+function fn.open_explorer_preview(path)
+end
+
+function fn.open_explorer_path(path, cmd)
+  local terminal = require 'toggleterm.terminal'.get(1, true)
+  if terminal then
+    terminal:close()
+    vim.schedule(function()
+      vim.cmd[cmd](path)
+    end)
+  end
+end
+
+--}}}
 --{{{ Terminal
 local term_info = {
   is_shell_active = false,
