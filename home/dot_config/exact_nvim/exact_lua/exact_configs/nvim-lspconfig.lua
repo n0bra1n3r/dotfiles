@@ -77,12 +77,16 @@ return {
     require 'mason-lspconfig'.setup {
       ensure_installed = {
         'bashls',
+        'cssls',
+        'html',
+        'eslint',
         'graphql',
         'jsonls',
         'kotlin_language_server',
         'lua_ls',
         'marksman',
         'pyright',
+        'ts_ls',
         'yaml-language-server',
       },
       handlers = {

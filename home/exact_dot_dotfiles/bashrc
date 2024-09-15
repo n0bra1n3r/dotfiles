@@ -38,4 +38,5 @@ if [[ -f ~/.bashrc ]] && ! (return 0 2>/dev/null); then
   source ~/.bashrc
 fi
 
+eval "$(direnv hook bash)"
 eval "$(starship init bash)"

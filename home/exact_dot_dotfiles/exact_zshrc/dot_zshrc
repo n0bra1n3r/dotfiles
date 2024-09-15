@@ -53,4 +53,5 @@ fi
 
 [[ -f ~/.zshrc ]] && source ~/.zshrc
 
+eval "$(direnv hook zsh)"
 eval "$(starship init zsh)"
