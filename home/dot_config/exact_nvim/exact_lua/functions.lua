@@ -863,7 +863,6 @@ end
 --{{{ Find
 function fn.open_explorer()
   local terminal = require 'toggleterm.terminal'.get(1, true)
-  local did_open_new = false
   if terminal == nil then
     local cwd = vim.fn.getcwd()
     local base_conf = vim.fn.expand('~/.config/broot/base.toml')
@@ -888,28 +887,23 @@ function fn.open_explorer()
         end,
       },
     }
-    did_open_new = true
   end
   terminal:open()
-  if did_open_new then
-    vim.api.nvim_buf_set_keymap(0, 't', [[<M-;>]], [[<Nop>]],
-      { noremap = true, silent = true })
-    vim.api.nvim_buf_set_keymap(0, 't', [[<M-j>]], [[<Down>]],
-      { noremap = true, silent = true })
-    vim.api.nvim_buf_set_keymap(0, 't', [[<M-k>]], [[<Up>]],
-      { noremap = true, silent = true })
-    vim.api.nvim_buf_set_keymap(0, 't', [[<M-l>]], [[<Nop>]],
-      { noremap = true, silent = true })
-    vim.api.nvim_buf_set_keymap(0, 't', [[<Esc>]], [[<C-\><C-N>]],
-      { noremap = true, silent = true })
-    vim.api.nvim_create_autocmd('TermLeave', {
-      group = vim.api.nvim_create_augroup('explorer_dismisser', { clear = true }),
-      buffer = 0,
-      callback = function()
-        terminal:close()
-      end,
-    })
-  end
+  vim.api.nvim_buf_set_keymap(0, 't', [[<M-;>]], [[<Nop>]],
+    { noremap = true, silent = true })
+  vim.api.nvim_buf_set_keymap(0, 't', [[<M-j>]], [[<Down>]],
+    { noremap = true, silent = true })
+  vim.api.nvim_buf_set_keymap(0, 't', [[<M-k>]], [[<Up>]],
+    { noremap = true, silent = true })
+  vim.api.nvim_buf_set_keymap(0, 't', [[<M-l>]], [[<Nop>]],
+    { noremap = true, silent = true })
+  vim.api.nvim_buf_set_keymap(0, 't', [[<Esc>]], [[]], {
+    noremap = true,
+    silent = true,
+    callback = function()
+      terminal:close()
+    end,
+  })
 end
 
 function fn.open_explorer_preview(path)

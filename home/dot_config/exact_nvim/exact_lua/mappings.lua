@@ -230,7 +230,6 @@ my_mappings {
     ["<C-Left>"]    = { "<Home>" },
     ["<C-l>"]       = { "<Home>" },
     ["<C-Right>"]   = { "<End>" },
-    ["<Esc>"]       = { [[!v:lua.fn.is_floating()?'<Esc>':'<C-\\><C-n>']], expr = true },
     ["<LeftMouse>"] = { "<nop>" },
     ["<M-;>"]       = { "<Right>" },
     ["<M-j>"]       = { "<C-\\><C-n>j" },
