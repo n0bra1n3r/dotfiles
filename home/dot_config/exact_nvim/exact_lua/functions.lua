@@ -2342,6 +2342,11 @@ function fn.ai_conv(cmd, text)
     end)
 end
 
+function fn.ai_chat(cmd)
+  require 'gp'
+  vim.cmd['GpChat' .. cmd]('popup')
+end
+
 --}}}
 --{{{ Tasks
 function fn._task_cb_runner(id)

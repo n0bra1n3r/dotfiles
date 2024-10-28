@@ -143,6 +143,7 @@ my_mappings {
     ["<leader><Space>"] = { call(fn.open_explorer), desc = "Files" },
     ['<leader>ac']      = { call(fn.ai_conv, 'CodeConv'), desc = "Conv code" },
     ['<leader>ad']      = { call(fn.ai_gen, 'ApiDoc'), desc = "Doc gen" },
+    ['<leader>as']      = { call(fn.ai_chat, 'Toggle'), desc = "AI chat" },
     ['<leader>db']      = { call(fn.search, 'dap_breakpoints'), desc = "Breakpoints" },
     ['<leader>di']      = { call(fn.debug_repl_input), desc = "REPL Input" },
     ['<leader>dd']      = { call(fn.toggle_debug_repl), desc = "Toggle REPL" },

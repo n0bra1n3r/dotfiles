@@ -23,6 +23,10 @@ export GITHUB_PACKAGES_TOKEN="$GITHUB_ACCESS_TOKEN"
 export OPENAI_API_KEY="#{ .openAi.key }#"
 #{- end }#
 
+#{- if index . "anthropic" }#
+export ANTHROPIC_API_KEY="#{ .anthropic.key }#"
+#{- end }#
+
 export PUB_CACHE="$HOME/.pub-cache"
 
 export RIPGREP_CONFIG_PATH="$HOME/.dotfiles/ripgreprc"

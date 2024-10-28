@@ -2,6 +2,7 @@
 {{- $githubToken := promptString "GitHub Access token" }}
 {{- $orgSlug := promptString "Github organization slug" }}
 {{- $openAiKey := promptString "OpenAI key" }}
+{{- $anthropicKey := promptString "Anthropic key" }}
 
 {{- if $orgSlug }}
 {{- $orgEmail := promptString "Organization member email" }}
@@ -24,6 +25,11 @@
 {{- if $openAiKey }}
 [data.openAi]
   key = {{ $openAiKey | quote }}
+{{- end }}
+
+{{- if $anthropicKey }}
+[data.anthropic]
+  key = {{ $anthropicKey | quote }}
 {{- end }}
 
 {{- if eq .chezmoi.os "windows" }}
