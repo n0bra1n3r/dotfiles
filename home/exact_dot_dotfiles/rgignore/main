@@ -9,6 +9,7 @@
 
 # Package managers
 *.lock
+node_modules/
 
 # Config
 /.nvim/**
