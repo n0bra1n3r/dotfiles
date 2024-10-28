@@ -1,6 +1,6 @@
 return {
   config = function()
-    require'edgy'.setup {
+    require 'edgy'.setup {
       animate = {
         enabled = false,
       },

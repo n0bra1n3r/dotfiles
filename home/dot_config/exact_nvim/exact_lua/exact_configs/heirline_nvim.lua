@@ -41,47 +41,47 @@ local mode_names = {
 --}}}
 --{{{ Colors
 local function colors()
-  local hl = require'heirline.utils'.get_highlight
+  local hl = require 'heirline.utils'.get_highlight
   return {
-    background = hl'TabLine'.bg,
-    bookmark = hl'TabLine'.fg,
-    bookmark_index = hl'NonText'.fg,
-    bookmark_btn = hl'NonText'.fg,
-    border = hl'TabLine'.bg,
-    buffer = hl'Title'.fg,
-    buffer_inactive = hl'NonText'.fg,
-    buffer_modified = hl'String'.fg,
-    close_btn = hl'NonText'.fg,
-    debug_mode = hl'Constant'.fg,
-    default = hl'Normal'.bg,
-    diagnostic_inactive = hl'NonText'.fg,
-    diagnostic_Error = hl'DiagnosticError'.fg,
-    diagnostic_Hint = hl'DiagnosticHint'.fg,
-    diagnostic_Info = hl'DiagnosticInfo'.fg,
-    diagnostic_Warn = hl'DiagnosticWarn'.fg,
-    filter = hl'Conditional'.fg,
-    keymap = hl'TabLine'.fg,
-    git_branch = hl'NonText'.fg,
-    git_branch_synced = hl'String'.fg,
-    git_local = hl'DiagnosticHint'.fg,
-    git_remote = hl'DiagnosticWarn'.fg,
-    git_stash = hl'DiagnosticInfo'.fg,
-    location = hl'NonText'.fg,
-    macro_recording = hl'Error'.fg,
-    quickfix = hl'DiagnosticInfo'.fg,
-    separator = hl'Normal'.bg,
-    tab = hl'Title'.fg,
-    tab_inactive = hl'NonText'.fg,
-    task_done_error = hl'Error'.fg,
-    task_done_success = hl'String'.fg,
-    task_running = hl'WarningMsg'.fg,
-    window_btn = hl'NonText'.fg,
-    workspace = hl'Title'.fg,
+    background = hl 'TabLine'.bg,
+    bookmark = hl 'TabLine'.fg,
+    bookmark_index = hl 'NonText'.fg,
+    bookmark_btn = hl 'NonText'.fg,
+    border = hl 'TabLine'.bg,
+    buffer = hl 'Title'.fg,
+    buffer_inactive = hl 'NonText'.fg,
+    buffer_modified = hl 'String'.fg,
+    close_btn = hl 'NonText'.fg,
+    debug_mode = hl 'Constant'.fg,
+    default = hl 'Normal'.bg,
+    diagnostic_inactive = hl 'NonText'.fg,
+    diagnostic_Error = hl 'DiagnosticError'.fg,
+    diagnostic_Hint = hl 'DiagnosticHint'.fg,
+    diagnostic_Info = hl 'DiagnosticInfo'.fg,
+    diagnostic_Warn = hl 'DiagnosticWarn'.fg,
+    filter = hl 'Conditional'.fg,
+    keymap = hl 'TabLine'.fg,
+    git_branch = hl 'NonText'.fg,
+    git_branch_synced = hl 'String'.fg,
+    git_local = hl 'DiagnosticHint'.fg,
+    git_remote = hl 'DiagnosticWarn'.fg,
+    git_stash = hl 'DiagnosticInfo'.fg,
+    location = hl 'NonText'.fg,
+    macro_recording = hl 'Error'.fg,
+    quickfix = hl 'DiagnosticInfo'.fg,
+    separator = hl 'Normal'.bg,
+    tab = hl 'Title'.fg,
+    tab_inactive = hl 'NonText'.fg,
+    task_done_error = hl 'Error'.fg,
+    task_done_success = hl 'String'.fg,
+    task_running = hl 'WarningMsg'.fg,
+    window_btn = hl 'NonText'.fg,
+    workspace = hl 'Title'.fg,
   }
 end
 
 local function mode_colors()
-  local c = require'catppuccin.palettes'.get_palette()
+  local c = require 'catppuccin.palettes'.get_palette()
   return {
     ['\19'] = c.maroon,
     ['\22'] = c.flamingo,
@@ -176,7 +176,7 @@ local function mode_label()
     end,
     on_click = {
       callback = function()
-        vim.cmd.WhichKey[[<leader>]]
+        vim.cmd.WhichKey [[<leader>]]
       end,
       name = 'mode_click_callback',
     },
@@ -197,7 +197,7 @@ local function mode_label()
         self.mode = vim.fn.mode(1)
       end,
       provider = function(self)
-        return self.mode_names[self.mode]..' '
+        return self.mode_names[self.mode] .. ' '
       end,
       update = { 'ModeChanged' },
     },
@@ -215,13 +215,13 @@ local function git_repo_status()
     {
       hl = function(self)
         local hl = fn.has_git_remote(self.cwd)
-          and 'git_branch_synced'
-          or 'git_branch'
+            and 'git_branch_synced'
+            or 'git_branch'
         return { fg = hl, italic = true }
       end,
       provider = function(self)
         local icon = fn.has_git_remote(self.cwd) and '󱓎' or '󰘬'
-        return icon..' '..fn.get_git_branch(self.cwd)
+        return icon .. ' ' .. fn.get_git_branch(self.cwd)
       end,
     },
     {
@@ -232,33 +232,33 @@ local function git_repo_status()
       {
         hl = { fg = 'git_stash', italic = true },
         provider = function(self)
-          return '󰇙'..fn.git_stash_count(self.cwd)
+          return '󰇙' .. fn.git_stash_count(self.cwd)
         end,
       },
     },
     {
       condition = function(self)
         return fn.has_git_remote(self.cwd)
-          and fn.git_remote_change_count(self.cwd) > 0
+            and fn.git_remote_change_count(self.cwd) > 0
       end,
       space(),
       {
         hl = { fg = 'git_remote', italic = true },
         provider = function(self)
-          return ''..fn.git_remote_change_count(self.cwd)
+          return '' .. fn.git_remote_change_count(self.cwd)
         end,
       },
     },
     {
       condition = function(self)
         return fn.has_git_remote(self.cwd)
-          and fn.git_local_change_count(self.cwd) > 0
+            and fn.git_local_change_count(self.cwd) > 0
       end,
       space(),
       {
         hl = { fg = 'git_local', italic = true },
         provider = function(self)
-          return ''..fn.git_local_change_count(self.cwd)
+          return '' .. fn.git_local_change_count(self.cwd)
         end,
       },
     },
@@ -267,7 +267,7 @@ end
 
 local function workspace_label()
   return {
-    border'',
+    border '',
     {
       hl = { bg = 'background' },
       init = function(self)
@@ -293,13 +293,13 @@ local function workspace_label()
           return fn.is_git_dir(self.cwd)
         end,
         space(),
-        sep'╱',
+        sep '╱',
         space(),
         git_repo_status(),
       },
       space(),
     },
-    border'',
+    border '',
   }
 end
 
@@ -313,7 +313,7 @@ local function task_btn()
       condition = function(self)
         return self.child_index.value > 1
       end,
-      sep'│',
+      sep '│',
       space(),
     },
     {
@@ -340,14 +340,14 @@ local function task_btn()
         else
           icon = '󱎘'
         end
-        return icon..' '..self.index
+        return icon .. ' ' .. self.index
       end,
       on_click = {
         callback = function(self)
           fn.show_task_output(self.index)
         end,
         name = function(self)
-          return 'task_output_click_callback'..self.index
+          return 'task_output_click_callback' .. self.index
         end,
       },
     },
@@ -362,7 +362,7 @@ local function task_bar()
     init = function(self)
       self.task_output_codes = fn.get_task_output_codes()
     end,
-    border'',
+    border '',
     {
       hl = { bg = 'background' },
       init = function(self)
@@ -384,7 +384,7 @@ local function task_bar()
         end
       end,
     },
-    border'',
+    border '',
   }
 end
 
@@ -401,7 +401,7 @@ local function diagnostic_btn(severity, buf)
       condition = function(self)
         return self.child_index.value > 1
       end,
-      sep'│',
+      sep '│',
       space(),
     },
     {
@@ -417,24 +417,24 @@ local function diagnostic_btn(severity, buf)
             fn.show_lsp_diagnostics_list(self.severity)
           else
             vim.api.nvim_set_current_win(minwid)
-            vim.diagnostic.goto_next{ severity = self.severity }
+            vim.diagnostic.goto_next { severity = self.severity }
           end
         end,
         minwid = buf and function()
           return vim.api.nvim_get_current_win()
         end,
         name = function(self)
-          return 'diagnostic_click_callback'..self.name
+          return 'diagnostic_click_callback' .. self.name
         end,
       },
       hl = function(self)
-        if not require'heirline.conditions'.is_active() then
+        if not require 'heirline.conditions'.is_active() then
           return { fg = 'diagnostic_inactive' }
         end
-        return { fg = 'diagnostic_'..self.name }
+        return { fg = 'diagnostic_' .. self.name }
       end,
       provider = function(self)
-        return self.icon..self.count
+        return self.icon .. self.count
       end,
     },
   }
@@ -455,7 +455,7 @@ local function diagnostics_bar(buf)
   return {
     condition = function()
       return (not buf or fn.is_file_buffer(buf))
-        and #vim.diagnostic.get(buf) > 0
+          and #vim.diagnostic.get(buf) > 0
     end,
     init = function(self)
       self.counts = {}
@@ -469,7 +469,7 @@ local function diagnostics_bar(buf)
       icons = icons,
       severities = severities,
     },
-    border'',
+    border '',
     {
       hl = { bg = 'background' },
       init = function(self)
@@ -485,7 +485,7 @@ local function diagnostics_bar(buf)
       diagnostic_btn(s.INFO, buf),
       diagnostic_btn(s.HINT, buf),
     },
-    border'',
+    border '',
   }
 end
 
@@ -494,7 +494,7 @@ local function location_label()
     condition = function()
       return not fn.is_terminal_buf()
     end,
-    border'',
+    border '',
     {
       hl = { bg = 'background' },
       init = function(self)
@@ -520,9 +520,9 @@ local function location_label()
           },
           provider = function(self)
             local line_num = tostring(self.cursor[1])
-            return 'L'..('0'):rep(3 - #line_num)..line_num
+            return 'L' .. ('0'):rep(3 - #line_num) .. line_num
           end,
-          update = { 'CursorMoved','CursorMovedI' },
+          update = { 'CursorMoved', 'CursorMovedI' },
         },
         {
           condition = function(self)
@@ -531,12 +531,12 @@ local function location_label()
           provider = function(self)
             local search_index = tostring(self.search.current)
             local search_count = tostring(self.search.total)
-            return ('0'):rep(#search_count - #search_index)..search_index
+            return ('0'):rep(#search_count - #search_index) .. search_index
           end,
         },
       },
       space(),
-      sep'╱',
+      sep '╱',
       space(),
       {
         hl = { fg = 'location', italic = true },
@@ -555,9 +555,9 @@ local function location_label()
           },
           provider = function(self)
             local col_num = tostring(self.cursor[2])
-            return 'C'..('0'):rep(3 - #col_num)..col_num
+            return 'C' .. ('0'):rep(3 - #col_num) .. col_num
           end,
-          update = { 'CursorMoved','CursorMovedI' },
+          update = { 'CursorMoved', 'CursorMovedI' },
         },
         {
           condition = function(self)
@@ -570,7 +570,7 @@ local function location_label()
       },
       space(),
     },
-    border'',
+    border '',
   }
 end
 
@@ -587,7 +587,7 @@ local function debug_btn()
       condition = function(self)
         return self.child_index.value > 1
       end,
-      sep'│',
+      sep '│',
       space(),
     },
     {
@@ -596,7 +596,7 @@ local function debug_btn()
           self.click_cb(nclicks, button, mods)
         end,
         name = function(self)
-          return 'debug_click_callback'..self.action
+          return 'debug_click_callback' .. self.action
         end,
       },
       {
@@ -670,7 +670,7 @@ local function tab_btn()
         return vim.api.nvim_tabpage_get_number(self.tab) > 1
       end,
       space(),
-      sep'│',
+      sep '│',
     },
     {
       condition = function(self)
@@ -688,8 +688,8 @@ local function tab_btn()
     {
       hl = function(self)
         local hl = self.is_cur
-          and (self.is_debug_mode and 'debug_mode' or 'tab')
-          or 'tab_inactive'
+            and (self.is_debug_mode and 'debug_mode' or 'tab')
+            or 'tab_inactive'
         return { fg = hl, bold = self.is_cur, italic = self.is_cur }
       end,
       on_click = {
@@ -705,7 +705,7 @@ local function tab_btn()
           end
         end,
         name = function(self)
-          return 'tab_click_callback'..self.tab
+          return 'tab_click_callback' .. self.tab
         end,
       },
       provider = function(self)
@@ -734,25 +734,25 @@ local function tab_btn()
           elseif self.type == 'terminal' then
             icon = ''
           else
-            icon = require'nvim-web-devicons'.get_icon(self.type)
+            icon = require 'nvim-web-devicons'.get_icon(self.type)
           end
         end
 
-        return label and icon..' '..label or icon
+        return label and icon .. ' ' .. label or icon
       end,
       {
         condition = function(self)
           return self.is_debug_mode and self.is_cur
         end,
         space(),
-        sep'',
+        sep '',
         space(),
         debug_bar(),
       },
       {
         condition = function(self)
           return vim.api.nvim_tabpage_get_number(self.tab)
-            == #vim.api.nvim_list_tabpages()
+              == #vim.api.nvim_list_tabpages()
         end,
         space(),
       },
@@ -762,7 +762,7 @@ end
 
 local function tabs_bar()
   return {
-    border'',
+    border '',
     {
       hl = { bg = 'background' },
       init = function(self)
@@ -785,7 +785,7 @@ local function tabs_bar()
         end
       end,
     },
-    border'',
+    border '',
   }
 end
 --}}}
@@ -815,7 +815,7 @@ local function bookmark_label()
           return vim.api.nvim_get_current_buf()
         end,
         name = function(self)
-          return 'bookmark_select_callback'..self.name
+          return 'bookmark_select_callback' .. self.name
         end,
       },
       provider = function(self)
@@ -834,7 +834,7 @@ local function bookmark_del_btn()
           fn.del_bookmark(self.name)
         end,
         name = function(self)
-          return 'bookmark_untag_callback'..self.name
+          return 'bookmark_untag_callback' .. self.name
         end,
       },
       provider = '󰅖',
@@ -849,19 +849,19 @@ local function bookmarks_bar()
       for i, bookmark in ipairs(bookmarks) do
         local child = self[i]
         if not child or
-          child.path ~= bookmark.path or
-          child.name ~= bookmark.name
+            child.path ~= bookmark.path or
+            child.name ~= bookmark.name
         then
           self[i] = self:new({
             hl = { bg = 'default' },
             space(),
-            border'',
+            border '',
             {
               hl = { bg = 'background' },
               space(),
               bookmark_label(),
               space(),
-              sep'│',
+              sep '│',
               space(),
               bookmark_del_btn(),
               space(),
@@ -893,12 +893,12 @@ local function bookmark_btn()
         return vim.api.nvim_get_current_buf()
       end,
       name = function(self)
-        return 'bookmark_tag_callback'..self.buf
+        return 'bookmark_tag_callback' .. self.buf
       end,
     },
     provider = function(self)
       return fn.is_bookmarked(self.buf)
-        and '󰃀' or '󰃃'
+          and '󰃀' or '󰃃'
     end,
   }
 end
@@ -907,7 +907,7 @@ local function header_icon()
   return {
     hl = function(self)
       local fg = self.icon_color
-      if not require'heirline.conditions'.is_active() then
+      if not require 'heirline.conditions'.is_active() then
         fg = 'buffer_inactive'
       elseif vim.bo[self.buf].modified and fn.is_file_buffer(self.buf) then
         fg = 'buffer_modified'
@@ -924,7 +924,7 @@ local function header_icon()
       else
         local filename = vim.api.nvim_buf_get_name(self.buf)
         local extension = vim.fn.fnamemodify(filename, ':e')
-        self.icon, self.icon_color = require'nvim-web-devicons'.get_icon_color(
+        self.icon, self.icon_color = require 'nvim-web-devicons'.get_icon_color(
           filename,
           extension,
           { default = true })
@@ -942,7 +942,7 @@ local function header_label()
   return {
     hl = function(self)
       local fg = 'buffer_inactive'
-      local is_active = require'heirline.conditions'.is_active()
+      local is_active = require 'heirline.conditions'.is_active()
       if is_active then
         if vim.bo[self.buf].filetype == 'qf' then
           fg = 'quickfix'
@@ -959,7 +959,7 @@ local function header_label()
     end,
     init = function(self)
       if vim.bo[self.buf].filetype == 'qf' then
-        self.filename = vim.fn.getqflist{ qfbufnr = self.buf, title = 0 }.title
+        self.filename = vim.fn.getqflist { qfbufnr = self.buf, title = 0 }.title
       elseif vim.bo[self.buf].filetype == 'dap-repl' then
         self.filename = 'Debugger'
       else
@@ -1012,7 +1012,7 @@ end
 
 local function header()
   return {
-    border'',
+    border '',
     {
       hl = { bg = 'background' },
       {
@@ -1020,16 +1020,16 @@ local function header()
           return fn.is_file_buffer()
         end,
         bookmark_btn(),
-        sep'',
+        sep '',
         space(),
       },
       header_icon(),
       space(),
       header_label(),
-      sep'',
+      sep '',
       header_close_btn(),
     },
-    border'',
+    border '',
   }
 end
 
@@ -1037,7 +1037,7 @@ local function collapsed_filter_btn()
   return {
     hl = function()
       local fg = 'buffer_inactive'
-      local is_active = require'heirline.conditions'.is_active()
+      local is_active = require 'heirline.conditions'.is_active()
       if is_active then
         fg = 'filter'
       end
@@ -1060,7 +1060,7 @@ local function expanded_filter_btn()
   return {
     hl = function()
       local fg = 'buffer_inactive'
-      local is_active = require'heirline.conditions'.is_active()
+      local is_active = require 'heirline.conditions'.is_active()
       if is_active then
         fg = 'filter'
       end
@@ -1087,7 +1087,7 @@ local function expanded_filter_btn()
         return vim.b.filter_pat
       end,
     },
-    sep'',
+    sep '',
     {
       hl = { fg = 'close_btn' },
       on_click = {
@@ -1113,7 +1113,7 @@ local function filter_btn()
     condition = function()
       return vim.bo.filetype == 'filter' or fn.is_buf_filterable()
     end,
-    border'',
+    border '',
     {
       hl = { bg = 'background' },
       {
@@ -1129,16 +1129,16 @@ local function filter_btn()
         expanded_filter_btn(),
       },
     },
-    border'',
+    border '',
   }
 end
 
 local function window_control_bar()
   return {
     condition = function()
-      return fn.is_file_buffer() or fn.is_empty_buffer()
+      return not fn.is_floating() and (fn.is_file_buffer() or fn.is_empty_buffer())
     end,
-    border'',
+    border '',
     {
       hl = { bg = 'background' },
       {
@@ -1155,7 +1155,7 @@ local function window_control_bar()
         provider = '󱋰',
       },
       space(),
-      sep'│',
+      sep '│',
       space(),
       {
         on_click = {
@@ -1171,26 +1171,26 @@ local function window_control_bar()
         provider = '󱋱',
       },
     },
-    border'',
+    border '',
   }
 end
 --}}}
 
 return {
   config = function()
-    require'heirline'.load_colors(colors())
+    require 'heirline'.load_colors(colors())
 
-    require'heirline'.setup {
+    require 'heirline'.setup {
       opts = {
         disable_winbar_cb = function(args)
-          return require'heirline.conditions'.buffer_matches({
-              buftype = {
-                'acwrite',
-                'help',
-                'nowrite',
-                'terminal',
-              },
-            }, args.buf)
+          return require 'heirline.conditions'.buffer_matches({
+                buftype = {
+                  'acwrite',
+                  'help',
+                  'nowrite',
+                  'terminal',
+                },
+              }, args.buf)
               or fn.is_in_unfocusable(args.buf)
               or (not fn.is_file_buffer(args.buf)
                 and fn.is_in_floating(args.buf))
@@ -1242,7 +1242,7 @@ return {
     }, {
       group = vim.api.nvim_create_augroup('conf_heirline', { clear = true }),
       callback = function()
-        require'heirline.utils'.on_colorscheme(colors)
+        require 'heirline.utils'.on_colorscheme(colors)
       end,
     })
   end,
