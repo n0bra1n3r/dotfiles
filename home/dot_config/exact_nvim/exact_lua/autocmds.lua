@@ -8,7 +8,7 @@ my_autocmds {
       if #vim.bo.buftype == 0 then
         if vim.bo.filetype == 'gitcommit' then
           vim.cmd.match [[OverLength /\%>50v.\+/]]
-        elseif vim.bo.filetype == 'toggleterm' then
+        elseif vim.bo.filetype == 'toggleterm' or vim.bo.filetype == 'markdown' then
           vim.cmd.match [[OverLength //]]
         else
           vim.cmd.match [[OverLength /\%>80v.\+/]]

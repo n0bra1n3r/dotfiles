@@ -1,18 +1,8 @@
 return {
   config = function()
     require 'gp'.setup {
-      agents = {
-        {
-          provider = 'anthropic',
-          name = 'ChatClaude-3-Opus',
-          chat = true,
-          command = false,
-          model = { model = 'claude-3-opus-20240229', temperature = 0.8, top_p = 1 },
-          system_prompt = require 'gp.defaults'.chat_system_prompt,
-        },
-      },
       chat_assistant_prefix = { "🤖 ", "[{{agent}}]" },
-      default_chat_agent = 'ChatClaude-3-Opus',
+      default_chat_agent = 'ChatClaude-3-5-Sonnet',
       providers = {
         anthropic = {
           endpoint = 'https://api.anthropic.com/v1/messages',
