@@ -43,7 +43,7 @@ my_plugins {
   --}}}
   --{{{ Frameworks
   { 'akinsho/flutter-tools.nvim',         lazy = false },
-  { 'tadmccorkle/markdown.nvim',          ft = 'markdown' },
+  { 'MeanderingProgrammer/render-markdown.nvim', ft = { 'markdown', 'Avante' } },
   --}}}
   --{{{ Motions
   { 'numToStr/Comment.nvim',              event = { 'BufRead', 'BufModifiedSet' } },
@@ -166,7 +166,24 @@ my_plugins {
   },
   --}}}
   --{{{ Assistants
-  { 'Robitx/gp.nvim' },
+  {
+    'yetone/avante.nvim',
+    event = 'VeryLazy',
+    --<- if eq .chezmoi.os "windows" >--
+    ---@diagnostic disable-next-line: duplicate-index
+    build = 'powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false',
+    --<- else if eq .chezmoi.os "darwin" >--
+    ---@diagnostic disable-next-line: duplicate-index
+    build = 'make',
+    --<- end >--
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+      'stevearc/dressing.nvim',
+      'nvim-lua/plenary.nvim',
+      'MunifTanjim/nui.nvim',
+      'MeanderingProgrammer/render-markdown.nvim',
+    },
+  },
   --}}}
   --{{{ Editor
   { 'echasnovski/mini.indentscope', event = { 'BufRead', 'BufModifiedSet' } },

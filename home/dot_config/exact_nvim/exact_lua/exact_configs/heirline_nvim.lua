@@ -1190,6 +1190,9 @@ return {
                   'nowrite',
                   'terminal',
                 },
+                filetype = {
+                  'Avante',
+                },
               }, args.buf)
               or fn.is_in_unfocusable(args.buf)
               or (not fn.is_file_buffer(args.buf)

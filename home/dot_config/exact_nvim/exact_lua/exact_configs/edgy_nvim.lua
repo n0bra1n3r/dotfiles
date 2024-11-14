@@ -19,7 +19,7 @@ return {
         { ft = 'filter' },
       },
       right = {
-        size = 10,
+        size = 30,
         { ft = 'undotree' },
         {
           ft = 'diff',
