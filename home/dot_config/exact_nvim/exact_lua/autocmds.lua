@@ -13,6 +13,8 @@ my_autocmds {
         else
           vim.cmd.match [[OverLength /\%>80v.\+/]]
         end
+      elseif vim.bo.filetype == 'codecompanion' then
+        vim.wo.winfixbuf = true
       else
         vim.cmd.match [[OverLength //]]
       end
