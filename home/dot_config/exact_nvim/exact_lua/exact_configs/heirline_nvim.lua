@@ -1191,7 +1191,7 @@ return {
                   'terminal',
                 },
                 filetype = {
-                  'Avante',
+                  'codecompanion',
                 },
               }, args.buf)
               or fn.is_in_unfocusable(args.buf)

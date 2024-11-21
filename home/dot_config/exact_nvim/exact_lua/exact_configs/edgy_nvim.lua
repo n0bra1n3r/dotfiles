@@ -4,6 +4,11 @@ return {
       animate = {
         enabled = false,
       },
+      options = {
+        left = {
+          size = 0.25,
+        },
+      },
       bottom = {
         size = 10,
         {
@@ -18,15 +23,22 @@ return {
         { ft = 'dap-repl' },
         { ft = 'filter' },
       },
+      left = {
+        {
+          ft = 'codecompanion',
+          wo = {
+            number = false,
+          },
+        },
+      },
       right = {
-        size = 30,
-        { ft = 'undotree' },
         {
           ft = 'diff',
           size = {
             height = 10,
           },
         },
+        { ft = 'undotree' },
       },
       exit_when_last = true,
       keys = {
@@ -37,7 +49,6 @@ return {
         q = false,
       },
       wo = {
-        number = false,
         winbar = false,
         winhighlight = '',
       },
