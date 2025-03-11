@@ -907,6 +907,7 @@ function fn.open_explorer()
 end
 
 function fn.open_explorer_preview(path)
+  -- TODO: Implement this
 end
 
 function fn.open_explorer_path(path, cmd)
@@ -2621,7 +2622,7 @@ function fn.select_debug_launcher(buf)
 
   local configurations = require 'dap'.configurations[filetype] or {}
 
-  if vim.tbl_islist(configurations) and #configurations ~= 0 then
+  if vim.islist(configurations) and #configurations ~= 0 then
     require 'dap.ui'.pick_if_many(
       configurations,
       "Configuration: ",
@@ -2666,8 +2667,8 @@ function fn.stop_debugging(tabpage)
   require 'dapui'.close()
 
   for _, win in ipairs(vim.api.nvim_list_wins()) do
-    vim.api.nvim_win_set_option(win, 'numberwidth',
-      vim.api.nvim_win_get_option(win, 'numberwidth'))
+    vim.api.nvim_win_set_option_value(win, 'numberwidth',
+      vim.api.nvim_win_get_option_value(win, 'numberwidth'))
   end
 end
 

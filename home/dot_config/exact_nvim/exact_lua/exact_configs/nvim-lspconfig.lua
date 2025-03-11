@@ -70,7 +70,7 @@ return {
 
     local config = require 'lspconfig'
     local default_config = function(name)
-      local is_ok, module = pcall(require, 'lspconfig.server_configurations.' .. name);
+      local is_ok, module = pcall(require, 'lspconfig.configs.' .. name);
       return is_ok and module.default_config
     end
 
@@ -87,7 +87,7 @@ return {
         'marksman',
         'pyright',
         'ts_ls',
-        'yaml-language-server',
+        'yamlls',
       },
       handlers = {
         function(server)
@@ -100,7 +100,7 @@ return {
                 return vim.fn.expand '~/.config/nvim/lua'
               else
                 ---@diagnostic disable-next-line: undefined-field
-                return default_config 'lua_ls'.root_dir(fname)
+                return default_config('lua_ls').root_dir(fname)
               end
             end,
           })

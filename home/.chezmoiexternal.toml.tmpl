@@ -106,6 +106,14 @@
   url = "https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
   type = "file"
 
+{{ template "dep" "nph/.local/bin" }}
+  {{- if $isWindows }}
+  url = "https://github.com/arnetheduck/nph/releases/latest/download/nph-windows_x64.tar.gz"
+  {{- else if $isDarwin }}
+  url = "https://github.com/arnetheduck/nph/releases/latest/download/nph-macosx_arm64.tar.gz"
+  {{- end }}
+  type = "archive"
+
 {{ template "dep" "ripgrep/.local/bin" }}
   {{- if $isWindows }}
   url = "https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-pc-windows-msvc.zip"
@@ -178,10 +186,6 @@
   url = "https://github.com/Homebrew/brew/archive/refs/heads/master.zip"
   type = "archive"
   stripComponents = 1
-
-{{ template "dep" "nph/.local/bin" }}
-  url = "https://github.com/arnetheduck/nph/releases/download/latest/nph-macosx_x64.tar.gz"
-  type = "archive"
 
 {{ template "dep" "wezterm/Applications" }}
   url = "https://github.com/wez/wezterm/releases/download/20240203-110809-5046fc22/WezTerm-macos-20240203-110809-5046fc22.zip"

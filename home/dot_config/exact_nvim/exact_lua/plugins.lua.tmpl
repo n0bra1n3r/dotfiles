@@ -30,7 +30,12 @@ my_plugins {
   { 'folke/which-key.nvim',     event = 'VeryLazy' },
   --}}}
   --{{{ Terminal
-  { 'willothy/flatten.nvim',    lazy = false,      priority = 1001 },
+  {
+    'willothy/flatten.nvim',
+    branch = "release-please--branches--main--components--flatten.nvim",
+    lazy = false,
+    priority = 1001
+  },
   {
     'akinsho/toggleterm.nvim',
     cmd = {

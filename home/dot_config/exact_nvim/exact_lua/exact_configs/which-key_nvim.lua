@@ -1,29 +1,33 @@
 return {
   config = function()
     require'which-key'.setup {
-      layout = {
-        align = 'center',
+      preset = "modern",
+      plugins = {
+        spelling = {
+          enabled = false,
+        },
       },
       show_help = false,
       show_keys = false,
-      window = {
+      triggers = {
+        { '<auto>', mode = 'nxso' },
+        { '<leader>', mode = { 'n', 'v' } },
+      },
+      win = {
         border = 'single',
-        margin = { 0, 0, 0, 0 },
-        padding = { 0, 0, 0, 0 },
-        position = 'top',
+        padding = { 0, 0 },
+        title = false,
       },
     }
-    require'which-key'.register({
-      ["<leader>"] = {
-        a = { name = "AI" },
-        b = { name = "Bookmarks" },
-        d = { name = "Debug" },
-        f = { name = "File" },
-        g = { name = "Git" },
-        i = { name = "Issues" },
-        p = { name = "Packages" },
-        q = { name = "Quickfix" },
-      },
-    }, { mode = "n" })
+    require'which-key'.add {
+      { '<leader>a', group = "AI" },
+      { '<leader>b', group = "Bookmarks" },
+      { '<leader>d', group = "Debug" },
+      { '<leader>f', group = "File" },
+      { '<leader>g', group = "Git" },
+      { '<leader>i', group = "Issues" },
+      { '<leader>p', group = "Packages" },
+      { '<leader>q', group = "Quickfix" },
+    }
   end,
 }
