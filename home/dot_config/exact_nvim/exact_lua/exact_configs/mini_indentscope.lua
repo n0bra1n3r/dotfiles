@@ -9,13 +9,9 @@ return {
       end),
     })
 
-    require'mini.indentscope'.setup {
+    require 'mini.indentscope'.setup {
       draw = {
-        animation = require'mini.indentscope'.gen_animation.none(),
-      },
-      mappings = {
-        object_scope = '',
-        object_scope_with_border = '',
+        animation = require 'mini.indentscope'.gen_animation.none(),
       },
       options = {
         border = 'top',

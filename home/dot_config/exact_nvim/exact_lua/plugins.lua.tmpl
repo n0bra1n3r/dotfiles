@@ -30,12 +30,7 @@ my_plugins {
   { 'folke/which-key.nvim',     event = 'VeryLazy' },
   --}}}
   --{{{ Terminal
-  {
-    'willothy/flatten.nvim',
-    branch = "release-please--branches--main--components--flatten.nvim",
-    lazy = false,
-    priority = 1001
-  },
+  { 'willothy/flatten.nvim',    lazy = false,      priority = 1001 },
   {
     'akinsho/toggleterm.nvim',
     cmd = {
@@ -47,20 +42,19 @@ my_plugins {
   },
   --}}}
   --{{{ Frameworks
-  { 'akinsho/flutter-tools.nvim',         lazy = false },
+  { 'akinsho/flutter-tools.nvim',                lazy = false },
   { 'MeanderingProgrammer/render-markdown.nvim', ft = { 'markdown', 'codecompanion' } },
   --}}}
   --{{{ Motions
-  { 'numToStr/Comment.nvim',              event = { 'BufRead', 'BufModifiedSet' } },
-  { 'ggandor/leap.nvim',                  event = 'BufRead' },
-  { 'echasnovski/mini.splitjoin',         event = 'BufRead' },
-  { 'chrisgrieser/nvim-spider',           event = { 'BufRead', 'BufModifiedSet' } },
-  { 'chrisgrieser/nvim-various-textobjs', event = { 'BufRead', 'BufModifiedSet' } },
+  { 'numToStr/Comment.nvim',                     event = { 'BufRead', 'BufModifiedSet' } },
+  { 'ggandor/leap.nvim',                         event = 'BufRead' },
+  { 'echasnovski/mini.splitjoin',                event = 'BufRead' },
   { 'cbochs/portal.nvim' },
-  { 'andymass/vim-matchup',               lazy = false },
-  { 'tpope/vim-repeat',                   event = 'BufModifiedSet' },
-  { 'tpope/vim-surround',                 event = { 'BufRead', 'BufModifiedSet' } },
-  { 'johmsalas/text-case.nvim',           event = { 'BufRead', 'BufModifiedSet' } },
+  { 'haya14busa/vim-asterisk',                   lazy = false },
+  { 'andymass/vim-matchup',                      lazy = false },
+  { 'tpope/vim-repeat',                          event = 'BufModifiedSet' },
+  { 'tpope/vim-surround',                        event = { 'BufRead', 'BufModifiedSet' } },
+  { 'johmsalas/text-case.nvim',                  event = { 'BufRead', 'BufModifiedSet' } },
   --}}}
   --{{{ Navigation
   {
