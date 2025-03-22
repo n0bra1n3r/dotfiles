@@ -159,7 +159,7 @@ my_mappings {
     ['<leader>fv']      = { call(vim.cmd, 'UndotreeShow|UndotreeFocus'), desc = "Show versions" },
     ['<leader>fw']      = { call(fn.open_workspace_folder), desc = "Open workspace folder" },
     ['<leader>ga']      = { call(lazy 'gitsigns'.stage_hunk), desc = "Add hunk" },
-    ['<leader>gb']      = { call(lazy 'gitsigns'.blame_line), desc = "Blame line" },
+    ['<leader>gb']      = { call(lazy 'gitsigns'.blame), desc = "Blame" },
     ['<leader>gc']      = { call(fn.run_git_commit), desc = "Commit changes" },
     ['<leader>gd']      = { call(lazy 'diffview'.open), desc = "Show diff" },
     ["<leader>gg"]      = { call(fn.open_git_repo), desc = "Open repo in github" },

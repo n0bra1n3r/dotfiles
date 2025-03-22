@@ -502,7 +502,9 @@ function fn.save_file()
         return
       end
       create_parent_dirs(path)
-      vim.cmd.saveas(path)
+      vim.cmd.edit(path)
+      local lines = vim.api.nvim_buf_get_lines(vim.fn.bufnr(rel_file), 0, -1, false)
+      vim.api.nvim_buf_set_lines(vim.fn.bufnr(path), 0, -1, false, lines)
     end)
 end
 
