@@ -243,4 +243,10 @@ if [[ -n "$START_COMMAND" ]]; then
   command cat "$HOME/.dotfiles/banner.txt"
 fi
 
+#{- if eq .chezmoi.os "darwin" }#
+if [[ -f "$HOME/.dotfiles/deps/direnv/.local/bin/direnv" ]]; then
+  chmod +x "$HOME/.dotfiles/deps/direnv/.local/bin/direnv"
+fi
+#{- end }#
+
 # vim: filetype=sh
