@@ -900,6 +900,9 @@ local function header_icon()
       elseif vim.bo[self.buf].filetype == 'dap-repl' then
         self.icon = '󰃤'
         self.icon_color = 'debug_mode'
+      elseif vim.bo[self.buf].filetype == 'gitsigns-blame' then
+        self.icon = '󰘬'
+        self.icon_color = 'git_remote'
       else
         local filename = vim.api.nvim_buf_get_name(self.buf)
         local extension = vim.fn.fnamemodify(filename, ':e')
@@ -941,6 +944,8 @@ local function header_label()
         self.filename = vim.fn.getqflist { qfbufnr = self.buf, title = 0 }.title
       elseif vim.bo[self.buf].filetype == 'dap-repl' then
         self.filename = 'Debugger'
+      elseif vim.bo[self.buf].filetype == 'gitsigns-blame' then
+        self.filename = 'Blame'
       else
         self.filename = vim.api.nvim_buf_get_name(self.buf)
         if fn.is_file_buffer(self.buf) then
