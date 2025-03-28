@@ -64,6 +64,7 @@ my_autocmds {
         if vim.bo.filetype == 'help' then
           if #vim.api.nvim_tabpage_list_wins(0) > 1 then
             vim.cmd.wincmd [[T]]
+            vim.wo.winfixbuf = true
           end
         elseif vim.bo.filetype == 'dap-repl' then
           vim.api.nvim_buf_attach(0, false, {
