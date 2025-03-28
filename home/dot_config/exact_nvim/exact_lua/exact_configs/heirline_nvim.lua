@@ -825,23 +825,6 @@ local function bookmark_label()
   }
 end
 
-local function bookmark_del_btn()
-  return {
-    {
-      hl = { fg = 'close_btn' },
-      on_click = {
-        callback = function(self)
-          fn.del_bookmark(self.name)
-        end,
-        name = function(self)
-          return 'bookmark_untag_callback' .. self.name
-        end,
-      },
-      provider = '󰅖',
-    },
-  }
-end
-
 local function bookmarks_bar()
   return {
     init = function(self)
@@ -860,10 +843,6 @@ local function bookmarks_bar()
               hl = { bg = 'background' },
               space(),
               bookmark_label(),
-              space(),
-              sep '│',
-              space(),
-              bookmark_del_btn(),
               space(),
             },
           }, i)
