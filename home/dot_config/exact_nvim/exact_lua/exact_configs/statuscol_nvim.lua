@@ -1,6 +1,6 @@
 return {
   config = function()
-    require'statuscol'.setup {
+    require 'statuscol'.setup {
       bt_ignore = {
         'acwrite',
         'help',
@@ -11,8 +11,8 @@ return {
       },
       clickhandlers = {
         Lnum = function(args)
-          if args.button ~= 'l' or fn.is_debug_mode() then
-            require'statuscol.builtin'.lnum_click(args)
+          if args.button ~= 'l' then
+            require 'statuscol.builtin'.lnum_click(args)
           end
         end,
       },
@@ -23,16 +23,7 @@ return {
       segments = {
         { text = { ' ' } },
         {
-          sign = { name = { 'Dap' } },
-          condition = {
-            function()
-              return fn.is_debug_mode()
-            end,
-          },
-          click = 'v:lua.ScLa',
-        },
-        {
-          text = { require'statuscol.builtin'.lnumfunc },
+          text = { require 'statuscol.builtin'.lnumfunc },
           click = 'v:lua.ScLa',
         },
         {

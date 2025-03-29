@@ -1,6 +1,6 @@
 return {
   config = function()
-    require'catppuccin'.setup {
+    require 'catppuccin'.setup {
       flavour = "frappe",
       background = {
         dark = "frappe",
@@ -11,10 +11,6 @@ return {
       end,
       integrations = {
         cmp = true,
-        dap = {
-          enabled = true,
-          enable_ui = true,
-        },
         fidget = true,
         gitsigns = true,
         leap = true,
@@ -49,6 +45,6 @@ return {
       },
     }
 
-    vim.cmd.colorscheme[[catppuccin]]
+    vim.cmd.colorscheme [[catppuccin]]
   end,
 }

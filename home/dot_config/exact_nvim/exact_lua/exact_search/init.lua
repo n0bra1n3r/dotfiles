@@ -1130,7 +1130,7 @@ function _G.search_statuscol_expr()
   local line = vim.v.lnum
   if line then
     local info = get_search_info()
-    if #info.line_array > 0 then
+    if info and #info.line_array > 0 then
       local line_info = info.line_array[line]
       if line_info then
         local fold_start = vim.fn.foldclosed(line)

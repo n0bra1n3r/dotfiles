@@ -1,10 +1,9 @@
 return {
   config = function()
-    require'overseer'.setup {
+    require 'overseer'.setup {
       confirm = {
         border = "single",
       },
-      dap = false,
       form = {
         border = "single",
       },
@@ -13,7 +12,5 @@ return {
         border = "single",
       },
     }
-
-    require'dap.ext.vscode'.json_decode = require'overseer.json'.decode
   end,
 }

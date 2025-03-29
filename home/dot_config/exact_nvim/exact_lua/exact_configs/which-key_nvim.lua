@@ -1,6 +1,6 @@
 return {
   config = function()
-    require'which-key'.setup {
+    require 'which-key'.setup {
       preset = "modern",
       plugins = {
         spelling = {
@@ -10,7 +10,7 @@ return {
       show_help = false,
       show_keys = false,
       triggers = {
-        { '<auto>', mode = 'nxso' },
+        { '<auto>',   mode = 'nxso' },
         { '<leader>', mode = { 'n', 'v' } },
       },
       win = {
@@ -19,10 +19,9 @@ return {
         title = false,
       },
     }
-    require'which-key'.add {
+    require 'which-key'.add {
       { '<leader>a', group = "AI" },
       { '<leader>b', group = "Bookmarks" },
-      { '<leader>d', group = "Debug" },
       { '<leader>f', group = "File" },
       { '<leader>g', group = "Git" },
       { '<leader>i', group = "Issues" },

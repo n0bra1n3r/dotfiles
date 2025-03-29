@@ -20,7 +20,6 @@ return {
             wrap = false,
           },
         },
-        { ft = 'dap-repl' },
         { ft = 'filter' },
       },
       left = {

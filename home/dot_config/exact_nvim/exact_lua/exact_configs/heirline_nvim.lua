@@ -52,7 +52,6 @@ local function colors()
     buffer_inactive = hl 'NonText'.fg,
     buffer_modified = hl 'String'.fg,
     close_btn = hl 'NonText'.fg,
-    debug_mode = hl 'Constant'.fg,
     default = hl 'Normal'.bg,
     diagnostic_inactive = hl 'NonText'.fg,
     diagnostic_Error = hl 'DiagnosticError'.fg,
@@ -574,87 +573,12 @@ local function location_label()
   }
 end
 
-local function debug_btn()
-  return {
-    condition = function(self)
-      return self.cond_cb()
-    end,
-    init = function(self)
-      self.child_index.value = self.child_index.value + 1
-    end,
-    {
-      space(),
-      condition = function(self)
-        return self.child_index.value > 1
-      end,
-      sep '│',
-      space(),
-    },
-    {
-      on_click = {
-        callback = function(self, _, nclicks, button, mods)
-          self.click_cb(nclicks, button, mods)
-        end,
-        name = function(self)
-          return 'debug_click_callback' .. self.action
-        end,
-      },
-      {
-        hl = function(self)
-          return self.highlight
-        end,
-        provider = function(self)
-          return self.icon
-        end,
-      },
-      space(),
-      {
-        hl = { fg = 'keymap' },
-        provider = function(self)
-          return self.keymap
-        end,
-      },
-    },
-  }
-end
-
-local function debug_bar()
-  return {
-    hl = { bg = 'background' },
-    init = function(self)
-      self.child_index = { value = 0 }
-
-      local toolbar = fn.get_debug_toolbar()
-      for i, item in ipairs(toolbar) do
-        local child = self[i]
-        if not child or child.icon ~= item.icon then
-          self[i] = self:new(debug_btn(), i)
-          child = self[i]
-          child.action = item.action
-          child.highlight = item.highlight
-          child.icon = item.icon
-          child.keymap = item.keymap
-          child.click_cb = item.click_cb
-          child.cond_cb = item.cond_cb
-        end
-      end
-      if #self > #toolbar then
-        for i = #toolbar + 1, #self do
-          self[i] = nil
-        end
-      end
-    end,
-  }
-end
-
 local function tab_btn()
   return {
     init = function(self)
       local cur_win = vim.api.nvim_tabpage_get_win(self.tab)
       local cur_buf = vim.api.nvim_win_get_buf(cur_win)
       self.is_cur = self.tab == vim.api.nvim_get_current_tabpage()
-      self.is_debug_mode = fn.is_debug_mode(self.tab)
-      self.is_debugging = fn.is_debugging(self.tab)
       self.is_project = not fn.is_workspace_frozen(self.tab)
       self.is_shell_active = fn.is_shell_active(self.tab)
       self.name = vim.api.nvim_buf_get_name(cur_buf)
@@ -674,33 +598,25 @@ local function tab_btn()
     },
     {
       condition = function(self)
-        return not self.is_shell_active and not self.is_debugging
+        return not self.is_shell_active
       end,
       space(),
     },
     {
       condition = function(self)
-        return self.is_shell_active or self.is_debugging
+        return self.is_shell_active
       end,
       hl = { fg = 'task_running' },
       provider = '•',
     },
     {
       hl = function(self)
-        local hl = self.is_cur
-            and (self.is_debug_mode and 'debug_mode' or 'tab')
-            or 'tab_inactive'
+        local hl = self.is_cur and 'tab' or 'tab_inactive'
         return { fg = hl, bold = self.is_cur, italic = self.is_cur }
       end,
       on_click = {
         callback = function(self)
-          if self.is_cur then
-            if self.is_debug_mode then
-              fn.toggle_debug_repl()
-            else
-              fn.resume_debugging()
-            end
-          else
+          if not self.is_cur then
             vim.api.nvim_set_current_tabpage(self.tab)
           end
         end,
@@ -723,11 +639,7 @@ local function tab_btn()
         local icon = ''
         if self.is_project and vim.g.project_type then
           local proj_icon = vim.g.project_icons[vim.g.project_type]
-          if self.is_debug_mode then
-            icon = proj_icon or '󰃤'
-          else
-            icon = proj_icon or ''
-          end
+          icon = proj_icon or ''
         elseif self.type then
           if self.type == 'help' then
             icon = '󰋖'
@@ -740,15 +652,6 @@ local function tab_btn()
 
         return label and icon .. ' ' .. label or icon
       end,
-      {
-        condition = function(self)
-          return self.is_debug_mode and self.is_cur
-        end,
-        space(),
-        sep '',
-        space(),
-        debug_bar(),
-      },
       {
         condition = function(self)
           return vim.api.nvim_tabpage_get_number(self.tab)
@@ -897,9 +800,6 @@ local function header_icon()
       if vim.bo[self.buf].filetype == 'qf' then
         self.icon = '󱁤'
         self.icon_color = 'quickfix'
-      elseif vim.bo[self.buf].filetype == 'dap-repl' then
-        self.icon = '󰃤'
-        self.icon_color = 'debug_mode'
       elseif vim.bo[self.buf].filetype == 'gitsigns-blame' then
         self.icon = '󰘬'
         self.icon_color = 'git_remote'
@@ -928,8 +828,6 @@ local function header_label()
       if is_active then
         if vim.bo[self.buf].filetype == 'qf' then
           fg = 'quickfix'
-        elseif vim.bo[self.buf].filetype == 'dap-repl' then
-          fg = 'debug_mode'
         else
           fg = 'buffer'
         end
@@ -942,8 +840,6 @@ local function header_label()
     init = function(self)
       if vim.bo[self.buf].filetype == 'qf' then
         self.filename = vim.fn.getqflist { qfbufnr = self.buf, title = 0 }.title
-      elseif vim.bo[self.buf].filetype == 'dap-repl' then
-        self.filename = 'Debugger'
       elseif vim.bo[self.buf].filetype == 'gitsigns-blame' then
         self.filename = 'Blame'
       else

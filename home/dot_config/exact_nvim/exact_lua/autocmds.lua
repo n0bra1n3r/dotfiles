@@ -66,21 +66,6 @@ my_autocmds {
             vim.cmd.wincmd [[T]]
             vim.wo.winfixbuf = true
           end
-        elseif vim.bo.filetype == 'dap-repl' then
-          vim.api.nvim_buf_attach(0, false, {
-            on_lines = function()
-              if not vim.wo.wrap then
-                local last_line = vim.fn.line('$')
-                if vim.fn.line('w$') >= last_line - 1 then
-                  local buf = vim.api.nvim_get_current_buf()
-                  local win = vim.fn.bufwinid(buf)
-                  vim.api.nvim_win_call(win, function()
-                    vim.api.nvim_win_set_cursor(win, { last_line, 0 })
-                  end)
-                end
-              end
-            end
-          })
         end
       end
     end,
@@ -90,12 +75,6 @@ my_autocmds {
       if fn.is_file_buffer() and fn.has_workspace_file() then
         fn.save_workspace()
       end
-    end,
-  },                                                --}}}
-  { "BufWritePost", pattern = { '.nvim/init.lua' }, --{{{
-    callback = function()
-      vim.g.dap_current_config = nil
-      vim.g.flutter_current_device = nil
     end,
   },               --}}}
   { "CmdWinEnter", --{{{
@@ -204,16 +183,6 @@ my_autocmds {
         timeout = 200,
       }
     end,
-  },                                         --}}}
-  { 'User', pattern = 'ConfigLocalFinished', --{{{
-    callback = function()
-      if fn.has_workspace_config() then
-        if vim.g.project_type then
-          fn.load_vscode_launch_json()
-        end
-      end
-    end,
-    once = true,
   },            --}}}
   { 'VimEnter', --{{{
     callback = function()
@@ -226,20 +195,6 @@ my_autocmds {
     callback = function()
       vim.cmd.UndotreeHide()
       fn.save_workspace()
-    end,
-  },            --}}}
-  { 'WinEnter', --{{{
-    callback = function()
-      if vim.bo.filetype == 'dap-repl' then
-        vim.wo.wrap = true
-      end
-    end,
-  },            --}}}
-  { 'WinLeave', --{{{
-    callback = function()
-      if vim.bo.filetype == 'dap-repl' then
-        vim.wo.wrap = false
-      end
     end,
   }, --}}}
 }

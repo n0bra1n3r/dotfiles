@@ -42,7 +42,6 @@ my_plugins {
   },
   --}}}
   --{{{ Frameworks
-  { 'akinsho/flutter-tools.nvim',                lazy = false },
   { 'MeanderingProgrammer/render-markdown.nvim', ft = { 'markdown', 'codecompanion' } },
   --}}}
   --{{{ Motions
@@ -61,12 +60,10 @@ my_plugins {
     'nvim-telescope/telescope.nvim',
     cmd = 'Telescope',
     dependencies = {
-      'nvim-telescope/telescope-dap.nvim',
       'nvim-telescope/telescope-fzf-native.nvim',
       'nvim-telescope/telescope-smart-history.nvim',
     },
   },
-  { 'nvim-telescope/telescope-dap.nvim' },
   {
     'nvim-telescope/telescope-fzf-native.nvim',
     --<- if eq .chezmoi.os "windows" >--
@@ -84,7 +81,7 @@ my_plugins {
   --}}}
   --{{{ VCS
   { 'sindrets/diffview.nvim' },
-  { 'lewis6991/gitsigns.nvim',          event = 'BufRead' },
+  { 'lewis6991/gitsigns.nvim', event = 'BufRead' },
   --}}}
   --{{{ Package Management
   {
@@ -92,8 +89,6 @@ my_plugins {
     build = {
       ':MasonUpdate',
       ':MasonInstall actionlint',
-      ':MasonInstall codelldb',
-      ':MasonInstall dart-debug-adapter',
       ':MasonInstall shellcheck',
     },
     cmd = 'Mason',
@@ -129,7 +124,6 @@ my_plugins {
 
   { 'hrsh7th/cmp-buffer' },
   { 'hrsh7th/cmp-cmdline' },
-  { 'rcarriga/cmp-dap' },
   { 'hrsh7th/cmp-nvim-lsp' },
   { 'hrsh7th/cmp-nvim-lsp-signature-help' },
   { 'hrsh7th/cmp-nvim-lua' },
@@ -142,7 +136,6 @@ my_plugins {
       'hrsh7th/cmp-nvim-lsp-signature-help',
       'hrsh7th/cmp-buffer',
       'hrsh7th/cmp-cmdline',
-      'rcarriga/cmp-dap',
       'hrsh7th/cmp-path',
       'saadparwaiz1/cmp_luasnip',
       'hrsh7th/cmp-nvim-lua',
@@ -180,17 +173,8 @@ my_plugins {
   --{{{ Tasks
   { 'stevearc/overseer.nvim' },
   --}}}
-  --{{{ Debuggers
-  { 'mfussenegger/nvim-dap' },
-  { 'rcarriga/nvim-dap-ui',
-    dependencies = {
-      'mfussenegger/nvim-dap',
-      'nvim-neotest/nvim-nio',
-    },
-  },
-  --}}}
   --{{{ Workspace
-  { 'klen/nvim-config-local', lazy = false },
+  { 'klen/nvim-config-local',       lazy = false },
 
   {
     'andythigpen/nvim-coverage',

@@ -35,15 +35,15 @@ local menu_icons = {
 
 return {
   config = function()
-    require'lsp-zero'.extend_cmp {
+    require 'lsp-zero'.extend_cmp {
       set_format = false,
       set_sources = false,
       use_luasnip = true,
     }
 
-    local cmp = require'cmp'
-    local cmp_action = require'lsp-zero'.cmp_action()
-    local luasnip = require'luasnip'
+    local cmp = require 'cmp'
+    local cmp_action = require 'lsp-zero'.cmp_action()
+    local luasnip = require 'luasnip'
 
     cmp.setup {
       formatting = {
@@ -51,7 +51,7 @@ return {
         fields = { "kind", "abbr", "menu" },
         format = function(entry, vim_item)
           if vim.tbl_contains({ "path" }, entry.source.name) then
-            local icon, hl_group = require'nvim-web-devicons'.get_icon(entry:get_completion_item().label)
+            local icon, hl_group = require 'nvim-web-devicons'.get_icon(entry:get_completion_item().label)
             if icon then
               vim_item.kind = icon
               vim_item.kind_hl_group = hl_group
@@ -60,7 +60,7 @@ return {
           end
           vim_item.abbr = vim_item.menu or vim_item.abbr
           vim_item.kind = vim_item.kind
-            and (kind_icons[vim_item.kind] or vim_item.kind:sub(1, 1))
+              and (kind_icons[vim_item.kind] or vim_item.kind:sub(1, 1))
           vim_item.menu = menu_icons[entry.source.name]
           return vim_item
         end,
@@ -111,8 +111,8 @@ return {
         }
       ),
       window = {
-        completion = cmp.config.window.bordered{ border = "single" },
-        documentation = cmp.config.window.bordered{ border = "single" },
+        completion = cmp.config.window.bordered { border = "single" },
+        documentation = cmp.config.window.bordered { border = "single" },
       },
     }
     cmp.setup.cmdline(':', {
@@ -120,11 +120,6 @@ return {
       sources = cmp.config.sources(
         { { name = 'path' } },
         { { name = 'cmdline' } }
-      ),
-    })
-    cmp.setup.filetype({ 'dap-repl', 'dapui_watches', 'dapui_hover' }, {
-      sources = cmp.config.sources(
-        { { name = 'dap' } }
       ),
     })
   end,
