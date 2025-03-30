@@ -3,7 +3,7 @@ return {
     require 'nvim-treesitter.install'.prefer_git = true
     require 'nvim-treesitter.install'.compilers = { "clang", "gcc" }
 
-    require'nvim-treesitter.configs'.setup {
+    require 'nvim-treesitter.configs'.setup {
       ensure_installed = {
         'bash',
         'dart',
@@ -35,7 +35,6 @@ return {
         enable = true,
         disable = function(_, bufnr)
           return not fn.is_file_buffer(bufnr)
-            or vim.api.nvim_buf_line_count(bufnr) > 999
         end,
       },
       markdown = {

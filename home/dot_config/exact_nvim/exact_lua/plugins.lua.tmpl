@@ -61,7 +61,6 @@ my_plugins {
     cmd = 'Telescope',
     dependencies = {
       'nvim-telescope/telescope-fzf-native.nvim',
-      'nvim-telescope/telescope-smart-history.nvim',
     },
   },
   {
@@ -73,10 +72,6 @@ my_plugins {
     ---@diagnostic disable-next-line: duplicate-index
     build = 'make',
     --<- end >--
-  },
-  {
-    'nvim-telescope/telescope-smart-history.nvim',
-    dependencies = { 'kkharji/sqlite.lua' },
   },
   --}}}
   --{{{ VCS
